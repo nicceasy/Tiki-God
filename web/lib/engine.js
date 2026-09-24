@@ -107,7 +107,9 @@ export function createEngine({ vocab, families, drinks, model }) {
   for (const ing of vocab.ingredients) ingVec[ing.id] = tagWeights(ing.flavors || []);
   const usable = ing => ing && USABLE.has(ing.avail) && ing.cost <= 3;
   const byRole = {};
-  for (const ing of vocab.ingredients) if (usable(ing)) (byRole[ing.role] ||= []).push(ing.id);
+  // Plain and hot water are facts of old punch recipes, not creative choices.
+  const NOT_CREATIVE = new Set(['water', 'hot-water']);
+  for (const ing of vocab.ingredients) if (usable(ing) && !NOT_CREATIVE.has(ing.id)) (byRole[ing.role] ||= []).push(ing.id);
 
   // Pre-compute drink vectors for similarity / lineage.
   const drinkVec = {};
@@ -210,8 +212,11 @@ export function createEngine({ vocab, families, drinks, model }) {
     if (ing.cat === 'rum' && intent.avoidSpirits.has('rum')) return true;
     if (intent.avoidSpirits.has(id)) return true;
     if (intent.style.zeroProof && ing.abv > 0 && ing.cat !== 'bitters') return true;
+    // Whole fruit (a banana, strawberries) only works in the blender.
+    if (ing.oz_per_piece && ing.id !== 'egg-white' && !blenderContext) return true;
     return false;
   }
+  let blenderContext = false;
 
   function conflicts(id, chosenIds) {
     const gs = groupOf.get(id);
@@ -270,6 +275,9 @@ export function createEngine({ vocab, families, drinks, model }) {
     if (DAIRY.has(id) && chosenIds.some(o => (ingMap.get(o) || {}).role === 'sour')) s -= 3;
     // Novelty-colored liqueurs only when the color was asked for.
     if ((ing.color === 'blue' || ing.color === 'green') && intent.color !== ing.color) s -= 3;
+    // …and nothing that muddies the color that was asked for (blue + grenadine = purple).
+    const CLASH = { blue: ['red', 'pink', 'orange', 'yellow'], red: ['blue', 'green'], pink: ['blue', 'green'], green: ['red', 'pink'], gold: ['blue', 'red'] };
+    if (intent.color && ing.color && (CLASH[intent.color] || []).includes(ing.color)) s -= 2.5;
     return s;
   }
 
@@ -352,7 +360,8 @@ export function createEngine({ vocab, families, drinks, model }) {
       count = Math.min(count, role === 'accent' ? 3 : role === 'lengthener' ? 1 : 2);
       for (let i = 0; i < count; i++) {
         if (lines.length >= maxIngr) break;
-        const pool = (byRole[role] || []).filter(id => !ids().includes(id) && !forbidden(id, intent) && !conflicts(id, ids()));
+        const base = role === 'lengthener' && intent.style.hot ? ['hot-water', 'coffee', 'black-tea'] : (byRole[role] || []);
+        const pool = base.filter(id => !ids().includes(id) && !forbidden(id, intent) && !conflicts(id, ids()));
         let scored = pool.map(id => ({ item: id, s: candidateScore(id, role, F, intent, ids()) }));
         if (role === 'lengthener' && intent.style.hot) scored = scored.filter(x => ['hot-water', 'coffee', 'black-tea'].includes(x.item)).map(x => ({ ...x, s: x.s + 3 }));
         if (role === 'lengthener' && !intent.style.hot) scored = scored.filter(x => x.item !== 'hot-water');
@@ -417,13 +426,17 @@ export function createEngine({ vocab, families, drinks, model }) {
     const swappable = lines.filter(l => ['sweet', 'modifier', 'base', 'juice'].includes(l.role) && !l.float && !l.garnish && !l.req && !intent.ings[l.id] && intentMatch(l.id, intent) < 0.8);
     if (!swappable.length) return;
     // Seed 0 varies the most characterful modifier; later seeds roam.
-    const victim = greedy ? swappable.find(l => l.role === 'modifier') || swappable.find(l => l.role === 'sweet') || swappable[0] : swappable[Math.floor(rng() * swappable.length)];
+    const smallest = r => swappable.filter(l => l.role === r).sort((a, b) => (a.oz ?? 0) - (b.oz ?? 0))[0];
+    const victim = greedy
+      ? ['modifier', 'sweet', 'juice', 'base'].map(smallest).find(Boolean)
+      : swappable[Math.floor(rng() * swappable.length)];
     const others = lines.filter(l => l !== victim).map(l => l.id);
-    const pool = (byRole[victim.role] || []).filter(id => id !== victim.id && !others.includes(id) && !forbidden(id, intent) && !conflicts(id, others));
+    // A real variation changes flavor: no swapping within the victim's own group (curaçao → triple sec).
+    const pool = (byRole[victim.role] || []).filter(id => id !== victim.id && !others.includes(id) && !forbidden(id, intent) && !conflicts(id, others) && !conflicts(id, [victim.id]));
     const plain = id => { const f = ingMap.get(id).flavors || []; return f.length === 1 && f[0] === 'sweet'; };
     const scored = pool.filter(id => !swappedOut.has(id)).map(id => ({
       item: id,
-      s: candidateScore(id, victim.role, F, intent, others) + 1.2 * tagAffinity(id, victim.id) + 1.5 * intentMatch(id, intent) - (plain(id) && !plain(victim.id) ? 5 : 0),
+      s: candidateScore(id, victim.role, F, intent, others) + 0.6 * tagAffinity(id, victim.id) + 1.5 * intentMatch(id, intent) - (plain(id) && !plain(victim.id) ? 5 : 0),
     }));
     const pick = softPick(rng, scored, 0.6, greedy);
     if (!pick) return;
@@ -437,7 +450,7 @@ export function createEngine({ vocab, families, drinks, model }) {
   function flavorCoverage(lines, tag) {
     let best = 0;
     for (const l of lines) best = Math.max(best, (ingVec[l.id] || {})[tag] || 0);
-    return best >= 0.45 ? best : 0;
+    return best >= 0.55 ? best : 0;
   }
 
   function injectRequests(lines, F, intent, rng, greedy, changes) {
@@ -914,6 +927,9 @@ export function createEngine({ vocab, families, drinks, model }) {
     const greedy = seed === 0;
     const notes = [];
     const riffSrc = intent.riffOf ? drinkById[intent.riffOf] : null;
+    // Asking for whole fruit (strawberries, a banana) means the blender.
+    if (!intent.style.hot && Object.entries(intent.ings).some(([id, w]) => w >= 1.5 && (ingMap.get(id) || {}).oz_per_piece && id !== 'egg-white')) intent.style.frozen = true;
+    blenderContext = !!intent.style.frozen || (riffSrc && riffSrc.method === 'blend');
     let famId;
     if (riffSrc && !(intent.style.hot && riffSrc.family !== 'hot')) famId = riffSrc.family;
     else {
@@ -923,6 +939,7 @@ export function createEngine({ vocab, families, drinks, model }) {
       if (blank) intent.complexity = Math.max(intent.complexity, 0.6);
     }
 
+    blenderContext = blenderContext || Object.keys(model.families[famId].methods || {})[0] === 'blend';
     let lines = riffSrc && famId === riffSrc.family ? buildRiff(riffSrc, intent, rng, greedy, notes) : buildFresh(famId, intent, rng, greedy, notes);
     if (!riffSrc || famId !== riffSrc.family) {
       injectRequests(lines, model.families[famId], intent, rng, greedy, notes);
@@ -985,6 +1002,7 @@ export function createEngine({ vocab, families, drinks, model }) {
         family: pickMetrics(model.families[famId].metrics),
       },
     };
+    recipe.style = { ...intent.style };
     recipe.notes = notes.filter(n => n !== 'split-base').map(n => n.replace(/^riff:/, ''));
     recipe.tagline = tagline(recipe, intent);
     recipe.explanation = explain(recipe, profile, famId, intent, riffSrc, notes);

@@ -308,6 +308,18 @@ function negationBefore(text, pos) {
 // Generic names are families, not specific drinks to riff on.
 const GENERIC_NAMES = new Set(['grog', 'punch', 'rum punch', 'swizzle', 'rum swizzle', 'daiquiri', 'sour', 'rum sour', 'cooler', 'flip', 'rum flip', 'toddy', 'hot toddy', 'colada', 'sling', 'buck', 'fizz', 'julep', 'cobbler', 'highball', 'frozen daiquiri', 'tiki', 'bowl', 'punch bowl']);
 
+// A drink literally named "Passion Fruit" or "Coconut" shouldn't turn a flavor request into a riff.
+const DRINKLIKE = new Set(['mojito', 'margarita', 'paloma', 'old fashioned', 'negroni', 'manhattan', 'hurricane', 'mai tai', 'zombie', 'painkiller', 'eggnog']);
+let LEX_PHRASES = null;
+function lexPhrases() {
+  if (!LEX_PHRASES) {
+    LEX_PHRASES = new Set();
+    for (const e of LEXICON) for (const k of e.k) LEX_PHRASES.add(normalizeText(k).trim());
+    for (const d of DRINKLIKE) LEX_PHRASES.delete(d);
+  }
+  return LEX_PHRASES;
+}
+
 // Build an index of drink names for "like a Painkiller" / "Mai Tai but smoky".
 export function buildNameIndex(drinks) {
   const idx = [];
@@ -315,10 +327,11 @@ export function buildNameIndex(drinks) {
   for (const d of drinks) {
     for (const n of [d.name, ...(d.aka || [])]) {
       const key = normalizeText(n).trim();
-      if (key.length < 4 || GENERIC_NAMES.has(key)) continue;
+      if (key.length < 4 || GENERIC_NAMES.has(key) || lexPhrases().has(key)) continue;
       const prev = seen.get(key);
-      // Prefer the most popular, then the most confident record, then the oldest.
-      const score = d.popularity * 10 + ({ high: 3, medium: 2, low: 1 }[d.confidence] || 0) - ((d.year || 2100) - 1800) / 1000;
+      // Prefer the most popular, then hand-curated over bulk imports, then the most confident, then the oldest.
+      const curated = d.slice && !['books', 'difford'].includes(d.slice) ? 4 : 0;
+      const score = d.popularity * 10 + curated + ({ high: 3, medium: 2, low: 1 }[d.confidence] || 0) - ((d.year || 2100) - 1800) / 1000;
       if (!prev || score > prev.score) seen.set(key, { key, id: d.id, score });
     }
   }

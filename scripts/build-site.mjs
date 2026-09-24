@@ -13,28 +13,31 @@ const readJson = p => JSON.parse(read(p));
 const maybe = (p, fallback) => (existsSync(join(root, p)) ? read(p) : fallback);
 
 // Tiny module bundler for our own ES modules (named imports/exports only).
-const MODULES = ['web/lib/chem.js', 'web/lib/flavor.js', 'web/lib/prompt.js', 'web/lib/format.js', 'web/lib/names.js', 'web/lib/markdown.js', 'web/lib/engine.js', 'web/app.js'];
-function bundle() {
+const LIB = ['web/lib/chem.js', 'web/lib/flavor.js', 'web/lib/prompt.js', 'web/lib/format.js', 'web/lib/names.js', 'web/lib/engine.js'];
+function bundle(modules) {
   const parts = ['const __m = {};'];
-  for (const file of MODULES) {
+  for (const file of modules) {
     let src = read(file);
     const key = basename(file, '.js');
     const exported = [];
     src = src.replace(/^import\s*\{([^}]+)\}\s*from\s*['"](?:\.\.?\/)+(?:lib\/)?([\w-]+)\.js['"];?\s*$/gm, (_, names, mod) => `const {${names}} = __m['${mod}'];`);
     src = src.replace(/^export\s+(async\s+)?function\s+(\w+)/gm, (_, a, name) => { exported.push(name); return `${a || ''}function ${name}`; });
     src = src.replace(/^export\s+(const|let)\s+(\w+)/gm, (_, kind, name) => { exported.push(name); return `${kind} ${name}`; });
-    src = src.replace(/^export\s*\{([^}]+)\};?\s*$/gm, (_, names) => { exported.push(...names.split(',').map(s => s.trim()).filter(Boolean)); return ''; });
+    src = src.replace(/^export\s*\{([^}]+)\};?\s*$/gm, (_, names) => { exported.push(...names.split(',').map(x => x.trim()).filter(Boolean)); return ''; });
     if (/^\s*(import|export)\s/m.test(src)) throw new Error(`unbundled import/export left in ${file}`);
     parts.push(`__m['${key}'] = (() => {\n${src}\nreturn { ${[...new Set(exported)].join(', ')} };\n})();`);
   }
   return parts.join('\n');
 }
 
-const data = {
+const core = {
   vocab: readJson('data/ingredients.json'),
   families: readJson('data/families.json'),
   drinks: readJson('data/drinks.json'),
   model: readJson('data/model.json'),
+};
+const full = {
+  ...core,
   timeline: existsSync(join(root, 'docs/timeline.json')) ? readJson('docs/timeline.json') : [],
   docs: {
     history: markdownToHtml(maybe('docs/history.md', '')),
@@ -42,21 +45,27 @@ const data = {
     methodology: markdownToHtml(maybe('docs/methodology.md', '')),
   },
 };
-const json = JSON.stringify(data).replace(/<\//g, '<\\/').replace(/[\u2028\u2029]/g, c => (c === '\u2028' ? '\\u2028' : '\\u2029'));
+const LS = String.fromCharCode(0x2028), PS = String.fromCharCode(0x2029);
+const toJson = d => JSON.stringify(d).replace(/<\//g, '<\\/').split(LS).join('\\u2028').split(PS).join('\\u2029');
 
-const html = read('web/index.html');
-const between = (tag) => {
-  const m = html.match(new RegExp(`<!--BUILD:${tag}-->([\\s\\S]*?)<!--/BUILD:${tag}-->`));
-  if (!m) throw new Error(`missing BUILD:${tag}`);
-  return m[1];
-};
-const css = read('web/styles.css');
-const head = between('HEAD').replace(/<link rel="stylesheet" href="\.\/styles\.css">/, `<style>\n${css}\n</style>`);
-const body = between('BODY');
-const script = `<script>window.__TIKI_DATA__ = ${json};</script>\n<script type="module">\n${bundle()}\n</script>`;
+const PAGES = [
+  { html: 'web/index.html', css: 'web/styles.css', cssLink: './styles.css', modules: [...LIB, 'web/lib/markdown.js', 'web/app.js'], data: full, out: 'index' },
+  { html: 'web/shrine.html', css: 'web/shrine.css', cssLink: './shrine.css', modules: [...LIB, 'web/lib/scene.js', 'web/lib/drinkart.js', 'web/shrine.js'], data: core, out: 'shrine' },
+];
 
 mkdirSync(join(root, 'dist'), { recursive: true });
-const full = `<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n${head}\n</head>\n<body>\n${body}\n${script}\n</body>\n</html>\n`;
-writeFileSync(join(root, 'dist/index.html'), full);
-writeFileSync(join(root, 'dist/tiki-god.fragment.html'), `${head}\n${body}\n${script}\n`);
-console.log(`dist/index.html ${(full.length / 1024).toFixed(0)} KB (${data.drinks.length} drinks)`);
+for (const page of PAGES) {
+  const html = read(page.html);
+  const between = tag => {
+    const m = html.match(new RegExp(`<!--BUILD:${tag}-->([\\s\\S]*?)<!--/BUILD:${tag}-->`));
+    if (!m) throw new Error(`${page.html}: missing BUILD:${tag}`);
+    return m[1];
+  };
+  const head = between('HEAD').replace(`<link rel="stylesheet" href="${page.cssLink}">`, `<style>\n${read(page.css)}\n</style>`);
+  const body = between('BODY');
+  const script = `<script>window.__TIKI_DATA__ = ${toJson(page.data)};</script>\n<script type="module">\n${bundle(page.modules)}\n</script>`;
+  const doc = `<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n${head}\n</head>\n<body>\n${body}\n${script}\n</body>\n</html>\n`;
+  writeFileSync(join(root, `dist/${page.out}.html`), doc);
+  writeFileSync(join(root, `dist/${page.out === 'index' ? 'tiki-god' : page.out}.fragment.html`), `${head}\n${body}\n${script}\n`);
+  console.log(`dist/${page.out}.html ${(doc.length / 1024).toFixed(0)} KB (${page.data.drinks.length} drinks)`);
+}

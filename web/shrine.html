@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!--BUILD:HEAD-->
+<title>Tiki God Shrine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Titan+One&display=swap">
+<link rel="stylesheet" href="./shrine.css">
+<!--/BUILD:HEAD-->
+</head>
+<body>
+<!--BUILD:BODY-->
+<canvas id="scene" aria-hidden="true"></canvas>
+
+<main class="shrine">
+  <header class="sign">
+    <h1 class="sign-title">Tiki God</h1>
+    <p class="sign-sub">a shrine for new tiki drinks</p>
+  </header>
+
+  <section class="altar" aria-label="Pray for a drink">
+    <form id="prayer-form" class="altar-frame" autocomplete="off">
+      <label for="prayer" class="altar-label">Say a prayer for a new tiki drink, and the tiki gods will abide.</label>
+      <div class="altar-row">
+        <input id="prayer" name="prayer" type="text" value="something smoky and spicy for a cold night" placeholder="O mighty ones, grant me something with passion fruit…">
+        <button type="submit" class="pray-btn">Pray</button>
+      </div>
+      <div class="offerings" id="offerings" aria-label="Example prayers"></div>
+    </form>
+  </section>
+
+  <section class="revelation" id="revelation" aria-live="polite">
+    <div class="vessel">
+      <canvas id="drink" width="300" height="400" role="img" aria-label="Illustration of the drink"></canvas>
+      <p class="vessel-caption" id="vessel-caption"></p>
+    </div>
+    <article class="tablet" id="tablet"></article>
+  </section>
+
+  <footer class="shrine-foot">
+    <p>Every recipe comes from the Tiki God engine: balanced against hundreds of catalogued classics and built only from bottles you can actually buy. <a href="https://github.com/nicceasy/Tiki-God" target="_blank" rel="noopener">The full catalogue and model</a></p>
+  </footer>
+</main>
+<!--/BUILD:BODY-->
+<!--BUILD:SCRIPT-->
+<script type="module" src="./shrine.js"></script>
+<!--/BUILD:SCRIPT-->
+</body>
+</html>
