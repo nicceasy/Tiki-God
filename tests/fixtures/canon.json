@@ -1,0 +1,23 @@
+[
+ {"id":"mai-tai-1944","name":"Mai Tai","variant":"1944, Trader Vic","family":"mai-tai","year":1944,"era":"golden","creator":"Victor Bergeron","venue":"Trader Vic's","popularity":5,"parents":["Daiquiri"],
+  "ingredients":[{"id":"rum-jamaican-aged","amount":2,"unit":"oz","orig":"17-yr J. Wray & Nephew"},{"id":"lime","amount":1,"unit":"oz"},{"id":"orange-curacao","amount":0.5,"unit":"oz"},{"id":"orgeat","amount":0.25,"unit":"oz"},{"id":"rich-simple","amount":0.25,"unit":"oz","orig":"rock candy syrup"},{"id":"mint","amount":1,"unit":"sprig","garnish":true}],
+  "method":"shake","ice":"crushed","glass":"double old fashioned","garnish":["spent lime shell","mint sprig"],"source":"Trader Vic's Bartender's Guide (1972)","confidence":"high","notes":"fixture"},
+ {"id":"zombie-1934","name":"Zombie","variant":"1934, Don the Beachcomber","family":"zombie","year":1934,"era":"golden","creator":"Donn Beach","venue":"Don the Beachcomber","popularity":5,"parents":["Planter's Punch"],
+  "ingredients":[{"id":"lime","amount":0.75,"unit":"oz"},{"id":"dons-mix","amount":0.5,"unit":"oz"},{"id":"velvet-falernum","amount":0.5,"unit":"oz"},{"id":"rum-gold-column","amount":1.5,"unit":"oz"},{"id":"rum-jamaican-aged","amount":1.5,"unit":"oz"},{"id":"rum-demerara-overproof","amount":1,"unit":"oz"},{"id":"grenadine","amount":1,"unit":"tsp"},{"id":"pastis","amount":6,"unit":"drop"},{"id":"angostura","amount":1,"unit":"dash"}],
+  "method":"flash-blend","ice":"crushed","glass":"chimney","garnish":["mint sprig"],"source":"Jeff Berry, Sippin' Safari (2007)","confidence":"high","notes":"fixture"},
+ {"id":"daiquiri","name":"Daiquiri","variant":"","family":"daiquiri","year":1898,"circa":true,"era":"colonial","popularity":5,"parents":[],
+  "ingredients":[{"id":"rum-white-column","amount":2,"unit":"oz"},{"id":"lime","amount":1,"unit":"oz"},{"id":"simple-syrup","amount":0.75,"unit":"oz"}],
+  "method":"shake","ice":"cubed","glass":"coupe","garnish":["lime wheel"],"source":"standard","confidence":"high","notes":"fixture"},
+ {"id":"painkiller","name":"Painkiller","variant":"Pusser's","family":"colada","year":1971,"circa":true,"era":"late-classic","popularity":5,"parents":["Piña Colada"],
+  "ingredients":[{"id":"rum-navy","amount":2,"unit":"oz"},{"id":"pineapple-juice","amount":4,"unit":"oz"},{"id":"orange","amount":1,"unit":"oz"},{"id":"coconut-cream","amount":1,"unit":"oz"},{"id":"nutmeg","unit":"garnish","garnish":true}],
+  "method":"shake","ice":"crushed","glass":"snifter","garnish":["grated nutmeg","orange wheel"],"source":"Pusser's","confidence":"high","notes":"fixture"},
+ {"id":"navy-grog","name":"Navy Grog","variant":"Don the Beachcomber","family":"grog","year":1941,"circa":true,"era":"golden","popularity":4,"parents":["Grog"],
+  "ingredients":[{"id":"lime","amount":0.75,"unit":"oz"},{"id":"grapefruit","amount":0.75,"unit":"oz"},{"id":"soda-water","amount":0.75,"unit":"oz"},{"id":"honey-syrup","amount":1,"unit":"oz"},{"id":"rum-jamaican-dark","amount":1,"unit":"oz"},{"id":"rum-demerara","amount":1,"unit":"oz"},{"id":"rum-white-column","amount":1,"unit":"oz"}],
+  "method":"shake","ice":"ice-cone","glass":"double old fashioned","garnish":["ice cone","mint"],"source":"Jeff Berry","confidence":"high","notes":"fixture"},
+ {"id":"jungle-bird","name":"Jungle Bird","variant":"González/Berry","family":"bitter-tiki","year":1978,"era":"late-classic","popularity":4,"parents":[],
+  "ingredients":[{"id":"rum-black-blended","amount":1.5,"unit":"oz"},{"id":"campari","amount":0.75,"unit":"oz"},{"id":"pineapple-juice","amount":1.5,"unit":"oz"},{"id":"lime","amount":0.5,"unit":"oz"},{"id":"demerara-syrup","amount":0.5,"unit":"oz"}],
+  "method":"shake","ice":"cubed","glass":"double old fashioned","garnish":["pineapple wedge"],"source":"Berry, Intoxica","confidence":"high","notes":"fixture"},
+ {"id":"queens-park-swizzle","name":"Queen's Park Swizzle","variant":"","family":"swizzle","year":1920,"circa":true,"era":"pre-tiki","popularity":4,"parents":["Planter's Punch"],
+  "ingredients":[{"id":"rum-demerara","amount":2,"unit":"oz"},{"id":"lime","amount":1,"unit":"oz"},{"id":"demerara-syrup","amount":0.75,"unit":"oz"},{"id":"mint","amount":8,"unit":"leaves"},{"id":"angostura","amount":4,"unit":"dash","float":true}],
+  "method":"swizzle","ice":"crushed","glass":"collins","garnish":["mint sprig"],"source":"standard","confidence":"high","notes":"fixture"}
+]

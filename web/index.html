@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!--BUILD:HEAD-->
+<title>Tiki God</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Shrikhand&display=swap">
+<link rel="stylesheet" href="./styles.css">
+<!--/BUILD:HEAD-->
+</head>
+<body>
+<!--BUILD:BODY-->
+<header class="masthead">
+  <div class="masthead-inner">
+    <a class="wordmark" href="#mix">Tiki God</a>
+    <p class="strap" id="strap">A tiki drink generator built on a catalogue of tropical recipes</p>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#mix" data-tab="mix">Mix</a>
+      <a href="#canon" data-tab="canon">Canon</a>
+      <a href="#model" data-tab="model">Model</a>
+      <a href="#history" data-tab="history">History</a>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+  <section id="tab-mix" class="tab" aria-label="Mix a drink">
+    <div class="mix-grid">
+      <form class="order-pad" id="order-form" autocomplete="off">
+        <label class="pad-label" for="prompt">What are you in the mood for?</label>
+        <textarea id="prompt" rows="3" placeholder="smoky and spicy for a cold night">smoky and spicy for a cold night</textarea>
+        <div class="pad-actions">
+          <button type="submit" class="btn primary" id="mix-btn">Mix it</button>
+          <button type="button" class="btn" id="again-btn" title="Same prompt, different roll">Shake again</button>
+          <div class="units" role="group" aria-label="Units">
+            <button type="button" class="unit on" data-units="oz" id="units-oz">oz</button>
+            <button type="button" class="unit" data-units="ml" id="units-ml">ml</button>
+          </div>
+        </div>
+        <p class="pad-hint">Name flavors, spirits, a mood, a place, or a classic to riff on. "No coconut", "less sweet" and "for 6" all work.</p>
+      </form>
+      <article class="spec" id="result" aria-live="polite"></article>
+      <aside class="pad-extras">
+        <div class="pad-section">
+          <h3 class="mini">Try</h3>
+          <div class="chips" id="examples"></div>
+        </div>
+        <div class="pad-section" id="recent-wrap" hidden>
+          <h3 class="mini">Recent</h3>
+          <ol class="recent" id="recent"></ol>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="tab-canon" class="tab" aria-label="The catalogued drinks" hidden>
+    <div class="canon-bar">
+      <input id="canon-q" type="search" placeholder="Search name, creator, bar, ingredient…" aria-label="Search drinks">
+      <select id="canon-family" aria-label="Family"></select>
+      <select id="canon-era" aria-label="Era"></select>
+      <select id="canon-sort" aria-label="Sort">
+        <option value="year">Oldest first</option>
+        <option value="pop">Most famous first</option>
+        <option value="name">A–Z</option>
+        <option value="abv">Strongest first</option>
+      </select>
+    </div>
+    <p class="canon-count" id="canon-count"></p>
+    <div class="canon-grid">
+      <ol class="canon-list" id="canon-list"></ol>
+      <aside class="canon-detail" id="canon-detail"></aside>
+    </div>
+  </section>
+
+  <section id="tab-model" class="tab" aria-label="What the data says" hidden>
+    <div id="model-body" class="prose-wide"></div>
+  </section>
+
+  <section id="tab-history" class="tab" aria-label="Timeline" hidden>
+    <div id="history-body" class="prose-wide"></div>
+  </section>
+</main>
+
+<footer class="foot">
+  <p>Recipes are catalogued from published sources and scaled to modern, available bottles. Drink responsibly — tiki was always stronger than it tastes.</p>
+</footer>
+<!--/BUILD:BODY-->
+<!--BUILD:SCRIPT-->
+<script type="module" src="./app.js"></script>
+<!--/BUILD:SCRIPT-->
+</body>
+</html>

@@ -1,0 +1,3031 @@
+[
+  {
+    "id": "mai-tai-1944",
+    "name": "Mai Tai",
+    "variant": "1944 original, Trader Vic's Oakland (17-year J. Wray & Nephew)",
+    "aka": [
+      "Maita'i",
+      "Mai Tai (Original)"
+    ],
+    "family": "mai-tai",
+    "families_secondary": [],
+    "year": 1944,
+    "circa": false,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 5,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "juice of one fresh lime (one spent shell kept for garnish)"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "17-year-old J. Wray & Nephew Jamaican rum"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Holland DeKuyper orange curaçao"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "French Garnier orgeat"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "rock candy syrup"
+      },
+      {
+        "id": "mint",
+        "amount": 1,
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "shaved",
+    "glass": "double old-fashioned (Mai Tai glass)",
+    "garnish": [
+      "half spent lime shell",
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Victor Bergeron's own published account of the 1944 formula (as quoted in Trader Vic's later writings and by Jeff Berry)",
+    "source_urls": [
+      "https://liquid-alchemist.com/blogs/blog/original-mai-tai-recipe",
+      "https://www.parchedaroundtheworld.com/articles/mai-tai-cocktail-recipe/",
+      "https://ultimatemaitai.com/2023/02/20/trader-vics-mai-tai-recipes/",
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/youtube-channel/mixing-up-tiki/mai-tai.json"
+    ],
+    "confidence": "high",
+    "notes": "Vic built this in 1944 around a single aged Jamaican rum, using orgeat and orange curaçao as a nutty-orange sweetener pair and only a quarter ounce of rock candy syrup. Shaken with shaved ice and dumped unstrained, the spent lime shell and mint sprig are meant to look like an island with a palm tree. Don the Beachcomber later claimed the drink derived from his Q.B. Cooler, a claim Vic disputed."
+  },
+  {
+    "id": "mai-tai-trader-vic-second-formula",
+    "name": "Mai Tai",
+    "variant": "Trader Vic's second formula, 1950s (1 oz Jamaican + 1 oz Martinique rum; Berry, Sippin' Safari)",
+    "aka": [
+      "Mai Tai (Jamaican/Martinique blend)"
+    ],
+    "family": "mai-tai",
+    "families_secondary": [],
+    "year": 1955,
+    "circa": true,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 5,
+    "parents": [
+      "Mai Tai"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "juice of one lime"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "gold Jamaican rum (Vic used his own Trader Vic Jamaican)"
+      },
+      {
+        "id": "rum-agricole-vieux",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Martinique rum (Rhum St. James type)"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "orange curaçao"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "sugar syrup / rock candy syrup"
+      },
+      {
+        "id": "mint",
+        "amount": 1,
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "double old-fashioned",
+    "garnish": [
+      "spent lime shell",
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Sippin' Safari (2007), after Trader Vic's post-17-year-rum formula (published in Trader Vic's Bartender's Guide, rev. 1972)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/book/sippin-safari/mai-tai.json",
+      "https://www.curacaoliqueur.com/articles/the-mai-tai-history-and-its-recipes-explained",
+      "https://www.diffordsguide.com/cocktails/recipe/1219/mai-tai-trader-vics"
+    ],
+    "confidence": "high",
+    "notes": "When the 17-year Wray & Nephew ran out (and a 15-year stopgap after it), Vic split the rum between a Jamaican and a Martinique rum to imitate its weight and funk. This two-rum Mai Tai is the template most modern bars follow."
+  },
+  {
+    "id": "menehune-juice",
+    "name": "Menehune Juice",
+    "variant": "Trader Vic's Bartender's Guide (1947-72 editions)",
+    "aka": [],
+    "family": "mai-tai",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 2,
+    "parents": [
+      "Mai Tai"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "1 lime, squeezed over shaved ice; one shell saved"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "orange curaçao"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "rock candy syrup"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "Trader Vic light Puerto Rican rum"
+      },
+      {
+        "id": "mint",
+        "amount": 1,
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "shaved",
+    "glass": "double old-fashioned (Mai Tai glass)",
+    "garnish": [
+      "spent lime shell",
+      "mint sprig",
+      "Menehune swizzle stick"
+    ],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide (1947, revised 1972), as adapted by Difford's Guide",
+    "source_urls": [
+      "https://www.diffordsguide.com/cocktails/recipe/1293/menehune-juice",
+      "https://cocktailvirgin.blogspot.com/2020/06/mehune-juice.html",
+      "https://github.com/LauraMarby/IA-SRI-SIM_Project/blob/HEAD/src/data/menehune_juice.json"
+    ],
+    "confidence": "high",
+    "notes": "A Mai Tai built on light Puerto Rican rum instead of aged Jamaican, so the orgeat and curaçao sit in front. Vic's menu line promised that one sip might let you see a Menehune, the little people of Hawaiian legend."
+  },
+  {
+    "id": "honi-honi",
+    "name": "Honi Honi",
+    "variant": "Trader Vic's Bartender's Guide, rev. 1972 (Mai Tai template with bourbon)",
+    "aka": [
+      "Honi Honi Cocktail"
+    ],
+    "family": "mai-tai",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "late-classic",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 2,
+    "parents": [
+      "Mai Tai"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "juice of one lime"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "orange curaçao"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "rock candy syrup"
+      },
+      {
+        "id": "bourbon",
+        "amount": 2,
+        "unit": "oz"
+      },
+      {
+        "id": "mint",
+        "amount": 1,
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "double old-fashioned",
+    "garnish": [
+      "spent lime shell",
+      "mint sprig",
+      "pineapple stick",
+      "cherry"
+    ],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide (rev. 1972); proportions follow Vic's Mai Tai template (Difford's adaptation trims the lime)",
+    "source_urls": [
+      "https://www.diffordsguide.com/cocktails/recipe/2446/honi-honi",
+      "https://github.com/LauraMarby/IA-SRI-SIM_Project/blob/HEAD/src/data/honi_honi.json"
+    ],
+    "confidence": "medium",
+    "notes": "The name means 'kiss kiss'; it is Vic's Mai Tai skeleton with bourbon swapped in for rum. Vic ran several spirit-swap versions of the Mai Tai (bourbon, tequila, light rum), and this is the whiskey one."
+  },
+  {
+    "id": "pinky-gonzales",
+    "name": "Pinky Gonzales",
+    "variant": "Trader Vic's Bartender's Guide, rev. 1972 (tequila Mai Tai)",
+    "aka": [
+      "Pinky Gonzalez"
+    ],
+    "family": "mai-tai",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "late-classic",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Mai Tai"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "juice of one lime"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "orange curaçao"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "rock candy syrup (Make and Drink's reading substitutes agave syrup)"
+      },
+      {
+        "id": "tequila-blanco",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "tequila"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "double old-fashioned",
+    "garnish": [
+      "spent lime shell"
+    ],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide (rev. 1972) via Make and Drink (YouTube) transcription; cross-checked with Everyday Drinkers' version",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/youtube-channel/make-and-drink/pinky-gonzales.json",
+      "https://github.com/mberkow/mendydrinks/blob/HEAD/content/post/2018-06-19-pinky-gonzales.md"
+    ],
+    "confidence": "medium",
+    "notes": "Vic's tequila Mai Tai, one of many tequila drinks in his 1972 revised guide, which gave agave spirits far more space than earlier bar books. The 2 : 1 : ½ : ¼ : ¼ proportions are the same as his other spirit-swap Mai Tais."
+  },
+  {
+    "id": "space-needle",
+    "name": "Space Needle",
+    "variant": "Trader Vic's Bartender's Guide (rev. 1972)",
+    "aka": [],
+    "family": "mai-tai",
+    "families_secondary": [
+      "orgeat-punch"
+    ],
+    "year": 1962,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Seattle, Washington, USA",
+    "popularity": 1,
+    "parents": [
+      "Mai Tai"
+    ],
+    "ingredients": [
+      {
+        "id": "lemon",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "orange curaçao"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "light rum"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Jamaican rum"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "tiki mug",
+    "garnish": [],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide (rev. 1972) via Make and Drink (YouTube) transcription",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/youtube-channel/make-and-drink/space-needle.json"
+    ],
+    "confidence": "low",
+    "notes": "A big two-rum Mai Tai relative that swaps lime for lemon and doubles the curaçao; the name points to Seattle's 1962 World's Fair, where Trader Vic's had a presence. Date and venue are inferred from the name."
+  },
+  {
+    "id": "scorpion-bowl-1946",
+    "name": "Scorpion",
+    "variant": "1946 punch-bowl recipe for about 12 (Trader Vic's Book of Food and Drink)",
+    "aka": [
+      "Scorpion Punch",
+      "Scorpion Bowl (Original)"
+    ],
+    "family": "orgeat-punch",
+    "families_secondary": [
+      "punch"
+    ],
+    "year": 1946,
+    "circa": true,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 4,
+    "parents": [
+      "Okolehao punch (Honolulu)"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 38.4,
+        "unit": "oz",
+        "orig": "1 1/2 bottles Puerto Rican rum (Ron Merito or Brugal); fifth-size bottles assumed"
+      },
+      {
+        "id": "gin",
+        "amount": 2,
+        "unit": "oz"
+      },
+      {
+        "id": "brandy",
+        "amount": 2,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 16,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 8,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 8,
+        "unit": "oz",
+        "orig": "orgeat (almond flavoring)"
+      },
+      {
+        "id": "white-wine",
+        "amount": 12.8,
+        "unit": "oz",
+        "orig": "1/2 bottle white wine (fifth assumed)"
+      },
+      {
+        "id": "mint",
+        "amount": 2,
+        "unit": "sprig",
+        "orig": "2 sprigs mint, steeped with the punch"
+      }
+    ],
+    "method": "build",
+    "ice": "crushed",
+    "glass": "punch bowl",
+    "garnish": [
+      "gardenias"
+    ],
+    "servings": 12,
+    "source": "Trader Vic's Book of Food and Drink (1946), p. 77, as quoted by the Food Timeline",
+    "source_urls": [
+      "https://www.foodtimeline.org/tradervic.html",
+      "https://github.com/velomash/culinary-wiki/blob/HEAD/www.foodtimeline.org/tradervic.html"
+    ],
+    "confidence": "high",
+    "notes": "Vic's first printed Scorpion is a make-ahead punch: rum with a little gin and brandy, lots of lemon, orange and orgeat, stretched with white wine and left on cracked ice for two hours. He credited the idea to a Honolulu punch originally made with okolehao (ti-root spirit)."
+  },
+  {
+    "id": "scorpion-individual-1972",
+    "name": "Scorpion",
+    "variant": "Individual serving, Trader Vic's Bartender's Guide (rev. 1972)",
+    "aka": [
+      "Scorpion (Individual)"
+    ],
+    "family": "orgeat-punch",
+    "families_secondary": [],
+    "year": 1955,
+    "circa": true,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 4,
+    "parents": [
+      "Scorpion"
+    ],
+    "ingredients": [
+      {
+        "id": "lemon",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 2,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "brandy",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "light Puerto Rican rum"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "cubed",
+    "glass": "grapefruit supreme glass",
+    "garnish": [
+      "gardenia"
+    ],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide (rev. 1972)",
+    "source_urls": [
+      "https://vintageamericancocktails.com/scorpion-cocktail/",
+      "https://www.diffordsguide.com/cocktails/recipe/1756/scorpion",
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/youtube-channel/make-and-drink/trader-vics-scorpion.json"
+    ],
+    "confidence": "high",
+    "notes": "The single-glass Scorpion drops the gin and wine of the 1946 punch and keeps a 2:1 rum-to-brandy base with orange, lemon and orgeat. It is spindle-mixed with a scoop of shaved ice, then poured over ice cubes."
+  },
+  {
+    "id": "scorpion-bowl-1972",
+    "name": "Scorpion Bowl",
+    "variant": "Bowl for a group, Trader Vic's Bartender's Guide (rev. 1972)",
+    "aka": [
+      "Scorpion"
+    ],
+    "family": "orgeat-punch",
+    "families_secondary": [],
+    "year": 1972,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 4,
+    "parents": [
+      "Scorpion"
+    ],
+    "ingredients": [
+      {
+        "id": "orange",
+        "amount": 6,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 4,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 6,
+        "unit": "oz",
+        "orig": "light Puerto Rican rum"
+      },
+      {
+        "id": "brandy",
+        "amount": 1,
+        "unit": "oz"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "Scorpion bowl",
+    "garnish": [
+      "gardenias",
+      "long straws"
+    ],
+    "servings": 4,
+    "source": "Trader Vic's Bartender's Guide (rev. 1972), as summarized by Vintage American Cocktails",
+    "source_urls": [
+      "https://vintageamericancocktails.com/scorpion-cocktail/"
+    ],
+    "confidence": "medium",
+    "notes": "The communal Scorpion as served in Trader Vic's restaurants, blended with two scoops of shaved ice and poured into a ceramic bowl with long straws. The book does not give a head count; servings=4 is an estimate by volume (about 2.5 individual Scorpions' worth of liquid before dilution)."
+  },
+  {
+    "id": "fog-cutter-1946",
+    "name": "Fog Cutter",
+    "variant": "Trader Vic's Book of Food and Drink (1946) / Bartender's Guide (1947)",
+    "aka": [],
+    "family": "orgeat-punch",
+    "families_secondary": [],
+    "year": 1946,
+    "circa": true,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 3,
+    "parents": [
+      "Scorpion"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "Puerto Rican rum (Ron Merito, Boca Chica or Brugal)"
+      },
+      {
+        "id": "brandy",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "gin",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 2,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "amontillado-sherry",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "sherry wine float (amount not specified)",
+        "float": true
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "14-oz tall glass",
+    "garnish": [
+      "straws"
+    ],
+    "servings": 1,
+    "source": "Trader Vic's Book of Food and Drink (1946), via the Food Timeline; same spec in the 1947 and 1972 Bartender's Guides",
+    "source_urls": [
+      "https://www.foodtimeline.org/tradervic.html",
+      "https://en.wikipedia.org/wiki/Fog_Cutter",
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/youtube-channel/mixing-up-tiki/fog-cutter.json"
+    ],
+    "confidence": "high",
+    "notes": "Rum, brandy and gin stacked on a lemon-heavy orgeat base, with a sherry float that adds a nutty top note. Vic warned it was a 'triple threat', and the 1972 guide added his line that after two of these you won't even see the fog."
+  },
+  {
+    "id": "samoan-fog-cutter",
+    "name": "Samoan Fog Cutter",
+    "variant": "1950s lighter, blended version (Berry, Total Tiki)",
+    "aka": [],
+    "family": "orgeat-punch",
+    "families_secondary": [],
+    "year": 1950,
+    "circa": true,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 2,
+    "parents": [
+      "Fog Cutter"
+    ],
+    "ingredients": [
+      {
+        "id": "lemon",
+        "amount": 2,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "light Puerto Rican rum"
+      },
+      {
+        "id": "brandy",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "gin",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "amontillado-sherry",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "cream sherry (e.g. Harvey's Bristol Cream), floated",
+        "float": true
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "Samoan Fog Cutter ceramic mug",
+    "garnish": [],
+    "servings": 1,
+    "source": "Jeff Berry, Total Tiki / Beachbum Berry Remixed, after Trader Vic c. 1950s",
+    "source_urls": [
+      "https://www.bamboosams.com/post/the-fog-cutter",
+      "https://australianbartender.com.au/2018/10/10/rum-gin-sherry-and-more-its-trader-vics-samoan-fog-cutter-recipe/",
+      "https://www.diffordsguide.com/cocktails/recipe/778/fog-cutter"
+    ],
+    "confidence": "high",
+    "notes": "Vic toned down his Fog Cutter by cutting the rum to 1½ oz and the brandy to ½ oz and flash-blending it with crushed ice. It became the version on Trader Vic's menus, served in its own tall ceramic mug."
+  },
+  {
+    "id": "eastern-sour",
+    "name": "Eastern Sour",
+    "variant": "Trader Vic's Bartender's Guide (1947)",
+    "aka": [],
+    "family": "orgeat-punch",
+    "families_secondary": [
+      "daiquiri"
+    ],
+    "year": 1947,
+    "circa": true,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 2,
+    "parents": [
+      "Whiskey Sour"
+    ],
+    "ingredients": [
+      {
+        "id": "orange",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "juice of 1/2 orange (shell added to glass)"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "juice of 1/2 lemon (shell added to glass)"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "sugar syrup / rock candy syrup"
+      },
+      {
+        "id": "bourbon",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "bourbon or rye"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "double old-fashioned",
+    "garnish": [
+      "spent orange and lemon shells"
+    ],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide (1947); proportions per Jeff Berry and Make and Drink / Jason Miller readings of the book",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/youtube-channel/jason-miller/eastern-sour.json",
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/youtube-channel/make-and-drink/eastern-sour-trader-vic-bourbon.json",
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/book/easy-tiki/01_Classic Recipes/eastern-sour.json"
+    ],
+    "confidence": "medium",
+    "notes": "A whiskey sour done the Trader Vic way: orange juice lengthens it and a quarter ounce of orgeat plus sugar rounds it out, with the squeezed fruit shells left in the glass. Readings of 'half an orange' range from 1½ to 2½ oz, so the orange amount here is a midpoint."
+  },
+  {
+    "id": "london-sour",
+    "name": "London Sour",
+    "variant": "1963, Trader Vic's at the London Hilton (Bartender's Guide, rev. 1972)",
+    "aka": [],
+    "family": "orgeat-punch",
+    "families_secondary": [
+      "daiquiri"
+    ],
+    "year": 1963,
+    "circa": false,
+    "era": "late-classic",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's (London Hilton)",
+    "location": "London, England",
+    "popularity": 1,
+    "parents": [
+      "Eastern Sour"
+    ],
+    "ingredients": [
+      {
+        "id": "scotch-blended",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "Scotch whisky"
+      },
+      {
+        "id": "orange",
+        "amount": 2.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 1,
+        "unit": "tsp"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "sugar syrup"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "collins",
+    "garnish": [
+      "orange wheel",
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide (rev. 1972), as adapted by Difford's Guide",
+    "source_urls": [
+      "https://www.diffordsguide.com/cocktails/recipe/3582/london-sour",
+      "https://github.com/LauraMarby/IA-SRI-SIM_Project/blob/HEAD/src/data/london_sour.json"
+    ],
+    "confidence": "low",
+    "notes": "Vic's Scotch counterpart to the Eastern Sour, made for the opening of his London restaurant in the Hilton on Park Lane in 1963. It is orange-dominant and only lightly sweetened with orgeat."
+  },
+  {
+    "id": "potted-parrot",
+    "name": "Potted Parrot",
+    "variant": "Trader Vic's Bartender's Guide (1947-72)",
+    "aka": [],
+    "family": "orgeat-punch",
+    "families_secondary": [
+      "mai-tai"
+    ],
+    "year": 1947,
+    "circa": true,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Mai Tai",
+      "Scorpion"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "light Puerto Rican rum"
+      },
+      {
+        "id": "orange",
+        "amount": 2,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "orange curaçao (Difford's adaptation uses triple sec)"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "rock candy syrup"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "mint",
+        "amount": 1,
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "Potted Parrot mug or sling glass",
+    "garnish": [
+      "parrot pick"
+    ],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide (1947-72), as adapted by Difford's Guide",
+    "source_urls": [
+      "https://www.diffordsguide.com/cocktails/recipe/1594/potted-parrot",
+      "https://github.com/LauraMarby/IA-SRI-SIM_Project/blob/HEAD/src/data/potted_parrot.json"
+    ],
+    "confidence": "low",
+    "notes": "A long light-rum drink that is effectively a Menehune Juice lengthened with orange and lemon, the Mai Tai and Scorpion templates merged. It stayed on Trader Vic's menus for decades, served in a parrot-shaped mug."
+  },
+  {
+    "id": "trader-vic-grog",
+    "name": "Trader Vic Grog",
+    "variant": "Trader Vic's (Berry, Grog Log / Total Tiki)",
+    "aka": [
+      "Trader Vic's Grog"
+    ],
+    "family": "grog",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 2,
+    "parents": [
+      "Grog"
+    ],
+    "ingredients": [
+      {
+        "id": "lemon",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-syrup",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "angostura",
+        "amount": 3,
+        "unit": "dash"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "dark Jamaican rum (Smuggler's Cove uses a blended overproof rum)"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "footed pilsner",
+    "garnish": [
+      "maraschino cherries on a pick",
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Trader Vic via Jeff Berry (Grog Log, Total Tiki); cross-checked with Martin Cate's spec in Easy Tiki and the TikiBot dataset",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/book/easy-tiki/01_Classic Recipes/trader-vics-grog.json",
+      "https://github.com/kikiorg/TikiBot/blob/HEAD/TikiDrinks.csv"
+    ],
+    "confidence": "medium",
+    "notes": "Vic's house grog is not a Navy Grog copy: dark rum with equal parts lemon, pineapple and passion fruit syrup, sharpened with a heavy dose of Angostura. It is a simple 2 : 1 : 1 : 1 structure."
+  },
+  {
+    "id": "navy-grog-trader-vic",
+    "name": "Navy Grog",
+    "variant": "Trader Vic's version (Bartender's Guide rev. / Rum Cookery & Drinkery, 1970s)",
+    "aka": [],
+    "family": "grog",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "late-classic",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 3,
+    "parents": [
+      "Navy Grog",
+      "Grog"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "grapefruit",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "demerara-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "demerara (brown sugar) syrup"
+      },
+      {
+        "id": "allspice-dram",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "pimento dram"
+      },
+      {
+        "id": "rum-demerara",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Demerara rum"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Jamaican rum"
+      },
+      {
+        "id": "rum-barbados",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "third, lighter blended rum (modern readings use Chairman's Reserve or a light blended rum)"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "double old-fashioned",
+    "garnish": [
+      "spent lime shell",
+      "mint sprig",
+      "rock candy stick"
+    ],
+    "servings": 1,
+    "source": "Trader Vic's 1970s Navy Grog as reproduced by Anders Erickson and discussed by Vintage American Cocktails / The Lost Tiki Lounge; structure cross-checked with Smuggler's Cove",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/youtube-channel/anders-erickson/navy-grog-trader-vic.json",
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/book/smugglers-cove/09_Eight Essential Exotic Elixirs/navy-grog.json",
+      "https://vintageamericancocktails.com/navy-grog-victor-bergeron-recipe/",
+      "https://thelosttikilounge.com/cocktails/navy-grog-guide/"
+    ],
+    "confidence": "medium",
+    "notes": "Where Don the Beachcomber sweetened his Navy Grog with honey and added soda, Vic's version splits the sweetener between demerara syrup and pimento dram, which gives it an allspice edge. At the restaurants it was built from his bottled Navy Grog mix, and it became the best-known grog of the 1960s and 70s."
+  },
+  {
+    "id": "tiki-puka-puka",
+    "name": "Tiki Puka Puka",
+    "variant": "Trader Vic's Bartender's Guide (rev. 1972); Navy Grog mix reconstructed",
+    "aka": [],
+    "family": "grog",
+    "families_secondary": [
+      "zombie"
+    ],
+    "year": 1972,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 2,
+    "parents": [
+      "Navy Grog"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "light Puerto Rican rum"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "dark Jamaican rum"
+      },
+      {
+        "id": "rum-demerara-overproof",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "151-proof Demerara rum"
+      },
+      {
+        "id": "orange",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "part of 3 oz Trader Vic Navy Grog Mix (reconstructed)"
+      },
+      {
+        "id": "grapefruit",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "part of 3 oz Trader Vic Navy Grog Mix (reconstructed)"
+      },
+      {
+        "id": "demerara-syrup",
+        "amount": 0.66,
+        "unit": "oz",
+        "orig": "part of 3 oz Trader Vic Navy Grog Mix (reconstructed)"
+      },
+      {
+        "id": "allspice-dram",
+        "amount": 0.33,
+        "unit": "oz",
+        "orig": "part of 3 oz Trader Vic Navy Grog Mix (reconstructed)"
+      },
+      {
+        "id": "grenadine",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orange-flower-water",
+        "amount": 1,
+        "unit": "dash",
+        "orig": "dashed onto the gardenia garnish",
+        "garnish": true
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "tall glass or tiki mug",
+    "garnish": [
+      "gardenia"
+    ],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide (rev. 1972), as reported by Cocktail Virgin Slut; the Navy Grog mix is split using the lime : grapefruit : demerara : pimento ratio of Vic's Navy Grog",
+    "source_urls": [
+      "https://cocktailvirgin.blogspot.com/2016/07/tiki-puka-puka.html",
+      "https://www.tiktok.com/@tradervicsworldwide/video/7225997879612214574"
+    ],
+    "confidence": "low",
+    "notes": "Vic's three-rum strong drink (light, dark Jamaican and 151 Demerara) is lengthened with orange juice and his bottled Navy Grog mix, then reddened with grenadine. The published recipe calls for 3 oz of the mix, and its breakdown into lime, grapefruit, demerara syrup and pimento dram here is a reconstruction. Trader Vic's current recipe is different, using orange, lemon, grenadine and only 1 oz of grog mix."
+  },
+  {
+    "id": "doctor-funk-trader-vic-1946",
+    "name": "Doctor Funk",
+    "variant": "Trader Vic's version, Book of Food and Drink (1946)",
+    "aka": [
+      "Dr. Funk",
+      "Doctor Funk of Tahiti"
+    ],
+    "family": "punch",
+    "families_secondary": [],
+    "year": 1946,
+    "circa": true,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 2,
+    "parents": [
+      "Doctor Funk"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 2.5,
+        "unit": "oz",
+        "orig": "dark Jamaica or Martinique rum (Red Heart, Myers's or Rum Negrita)"
+      },
+      {
+        "id": "pastis",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "Pernod or Herbsaint"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "grenadine",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "pomegranate syrup (or grenadine)"
+      },
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "1 lime, halved and squeezed; shells dropped into the shaker"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.5,
+        "unit": "tsp",
+        "orig": "1/2 teaspoon sugar"
+      },
+      {
+        "id": "soda-water",
+        "unit": "top",
+        "orig": "charged water to fill"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "12-oz chimney glass",
+    "garnish": [
+      "fruit or a fresh geranium leaf"
+    ],
+    "servings": 1,
+    "source": "Trader Vic's Book of Food and Drink (1946), p. 54, as quoted by the Food Timeline",
+    "source_urls": [
+      "https://www.foodtimeline.org/tradervic.html",
+      "https://github.com/velomash/culinary-wiki/blob/HEAD/www.foodtimeline.org/tradervic.html",
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/HEAD/src/recipes/doctor-funk.md"
+    ],
+    "confidence": "high",
+    "notes": "Named for Dr. Bernard Funk, the German physician in Samoa whose absinthe, grenadine and lime tonic appears in South Seas travel writing. Vic's version is a strong dark-rum punch with a quarter ounce of Pernod, both lemon and lime, and a soda top."
+  },
+  {
+    "id": "trader-vics-punch-1946",
+    "name": "Trader Vic Punch",
+    "variant": "Trader Vic's Book of Food and Drink (1946)",
+    "aka": [
+      "Trader Vic's Punch",
+      "Trader Vic's Rum Punch"
+    ],
+    "family": "punch",
+    "families_secondary": [],
+    "year": 1946,
+    "circa": true,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 2,
+    "parents": [
+      "Planter's Punch"
+    ],
+    "ingredients": [
+      {
+        "id": "orange",
+        "amount": 1.25,
+        "unit": "oz",
+        "orig": "1/2 orange, squeezed and dropped in"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "1/2 lemon, squeezed and dropped in"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 1.25,
+        "unit": "oz",
+        "orig": "dark Jamaica rum (Red Heart or Myers's)"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 1.25,
+        "unit": "oz",
+        "orig": "Puerto Rican rum (Ron Merito or Brugal)"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "1 slice pineapple, hand-shaken with the drink"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon sugar"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.5,
+        "unit": "tsp",
+        "orig": "1/2 teaspoon orgeat syrup (almond flavoring)"
+      }
+    ],
+    "method": "shake",
+    "ice": "shaved",
+    "glass": "14-oz stubby glass",
+    "garnish": [
+      "pineapple slice"
+    ],
+    "servings": 1,
+    "source": "Trader Vic's Book of Food and Drink (1946), p. 69, as quoted by the Food Timeline",
+    "source_urls": [
+      "https://www.foodtimeline.org/tradervic.html",
+      "https://github.com/velomash/culinary-wiki/blob/HEAD/www.foodtimeline.org/tradervic.html"
+    ],
+    "confidence": "high",
+    "notes": "Vic's own house rum punch pairs dark Jamaican and light Puerto Rican rum over half an orange and half a lemon, with a pineapple slice and a touch of orgeat. It is shaken by hand with shaved ice and served unstrained, and the orgeat is an early sign of the Mai Tai's flavor pairing."
+  },
+  {
+    "id": "planters-punch-trader-vic-1946",
+    "name": "Planter's Punch",
+    "variant": "Trader Vic's own version, Book of Food and Drink (1946)",
+    "aka": [],
+    "family": "punch",
+    "families_secondary": [],
+    "year": 1946,
+    "circa": true,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 2,
+    "parents": [
+      "Planter's Punch"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 3,
+        "unit": "oz",
+        "orig": "Jamaica rum (Red Heart or Myers's)"
+      },
+      {
+        "id": "grenadine",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "1 lime"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.25,
+        "unit": "tsp",
+        "orig": "1/4 teaspoon sugar"
+      },
+      {
+        "id": "soda-water",
+        "unit": "top",
+        "orig": "charged water to fill"
+      }
+    ],
+    "method": "stir",
+    "ice": "crushed",
+    "glass": "12-oz glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Trader Vic's Book of Food and Drink (1946), p. 61, as quoted by the Food Timeline",
+    "source_urls": [
+      "https://www.foodtimeline.org/tradervic.html",
+      "https://github.com/velomash/culinary-wiki/blob/HEAD/www.foodtimeline.org/tradervic.html"
+    ],
+    "confidence": "high",
+    "notes": "Vic's personal Planter's Punch is a strong one, with 3 oz of dark Jamaican rum, lime plus lemon, and grenadine as nearly the only sweetener. It is stirred with large ice, poured over cracked ice and topped with soda."
+  },
+  {
+    "id": "zombie-trader-vic-1946",
+    "name": "Zombie",
+    "variant": "Trader Vic's simplified home version, Book of Food and Drink (1946)",
+    "aka": [
+      "Zombie (Trader Vic's)"
+    ],
+    "family": "zombie",
+    "families_secondary": [],
+    "year": 1946,
+    "circa": true,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 2,
+    "parents": [
+      "Zombie"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Jamaica rum (Red Heart or Myers's)"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "Puerto Rican rum (Ron Merito or Brugal)"
+      },
+      {
+        "id": "rum-demerara-overproof",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Demerara 151 proof (Lemon Hart)"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "orange curaçao (De Kuyper or Nuyens)"
+      },
+      {
+        "id": "lemon",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "grenadine",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "pastis",
+        "amount": 1,
+        "unit": "dash",
+        "orig": "Pernod or Herbsaint"
+      }
+    ],
+    "method": "stir",
+    "ice": "crushed",
+    "glass": "14-oz chimney glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Trader Vic's Book of Food and Drink (1946), pp. 70-71, as quoted by the Food Timeline",
+    "source_urls": [
+      "https://www.foodtimeline.org/tradervic.html",
+      "https://github.com/velomash/culinary-wiki/blob/HEAD/www.foodtimeline.org/tradervic.html",
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/HEAD/src/recipes/zombie-2-trader-vics-1947.md"
+    ],
+    "confidence": "high",
+    "notes": "Vic openly credited the Zombie to Don the Beachcomber and printed this simpler version of his own: three rums with a full ounce of orange curaçao, lemon, orange and grenadine instead of Don's secret mixes. It is stirred rather than blended and poured over cracked ice."
+  },
+  {
+    "id": "shingle-stain",
+    "name": "Shingle Stain",
+    "variant": "Trader Vic's Book of Food and Drink (1946)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [
+      "beachcomber-sour"
+    ],
+    "year": 1946,
+    "circa": true,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "1/2 lime"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "dark Jamaican rum (Red Heart or Myers's)"
+      },
+      {
+        "id": "rum-agricole-vieux",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "St. James rhum (Martinique)"
+      },
+      {
+        "id": "allspice-dram",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "Pimento Dram"
+      },
+      {
+        "id": "grenadine",
+        "amount": 1,
+        "unit": "dash",
+        "orig": "dash of pomegranate syrup (grenadine)"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "12-oz chimney glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Trader Vic's Book of Food and Drink (1946), pp. 67-68, as quoted by the Food Timeline",
+    "source_urls": [
+      "https://www.foodtimeline.org/tradervic.html",
+      "https://github.com/velomash/culinary-wiki/blob/HEAD/www.foodtimeline.org/tradervic.html"
+    ],
+    "confidence": "high",
+    "notes": "A short, rum-forward sour pairing dark Jamaican and Martinique rum, the same combination Vic later used for the Mai Tai, with a quarter ounce of pimento dram for spice. Almost all the sugar comes from the allspice liqueur and a dash of grenadine."
+  },
+  {
+    "id": "mahukona",
+    "name": "Mahukona",
+    "variant": "Trader Vic's Book of Food and Drink (1946)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1940,
+    "circa": true,
+    "era": "golden",
+    "creator": null,
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash",
+        "orig": "2 dashes Angostura, put in the glass first and left unstirred"
+      },
+      {
+        "id": "triple-sec",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Triple Sec (De Kuyper or Nuyens)"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Puerto Rican rum (Ron Merito or Brugal)"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "2 tablespoons crushed pineapple"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 scant teaspoon sugar"
+      }
+    ],
+    "method": "shake",
+    "ice": "shaved",
+    "glass": "10-oz glass",
+    "garnish": [
+      "maraschino cherry"
+    ],
+    "servings": 1,
+    "source": "Trader Vic's Book of Food and Drink (1946), p. 56, as quoted by the Food Timeline; later in the 1972 guide",
+    "source_urls": [
+      "https://www.foodtimeline.org/tradervic.html",
+      "https://github.com/velomash/culinary-wiki/blob/HEAD/www.foodtimeline.org/tradervic.html",
+      "https://www.diffordsguide.com/cocktails/recipe/2187/mahukona",
+      "https://github.com/LauraMarby/IA-SRI-SIM_Project/blob/HEAD/src/data/mahukona.json"
+    ],
+    "confidence": "high",
+    "notes": "A light, lower-proof pineapple-lemon rum sour that Vic said he had served for years, from a recipe scribbled on a scrap of paper whose origin he had forgotten. The bitters go into the glass first and are left unmixed, so they come through as a streak."
+  },
+  {
+    "id": "wahine",
+    "name": "Wahine",
+    "variant": "Trader Vic's Book of Food and Drink (1946)",
+    "aka": [],
+    "family": "resort-punch",
+    "families_secondary": [],
+    "year": 1946,
+    "circa": true,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "pineapple-juice",
+        "amount": 2,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "Puerto Rican rum (Ron Merito, Boca Chica or Brugal)"
+      }
+    ],
+    "method": "build",
+    "ice": "block",
+    "glass": "fresh coconut shell",
+    "garnish": [
+      "small gardenia",
+      "short straws"
+    ],
+    "servings": 1,
+    "source": "Trader Vic's Book of Food and Drink (1946), p. 108, as quoted by the Food Timeline",
+    "source_urls": [
+      "https://www.foodtimeline.org/tradervic.html",
+      "https://github.com/velomash/culinary-wiki/blob/HEAD/www.foodtimeline.org/tradervic.html"
+    ],
+    "confidence": "high",
+    "notes": "Equal parts rum and pineapple juice over one large piece of ice in a coconut shell, which Vic suggested for hostesses entertaining at luncheon. It is about the simplest possible tropical drink and an early coconut-shell presentation."
+  },
+  {
+    "id": "tortuga",
+    "name": "Tortuga",
+    "variant": "Trader Vic's Book of Food and Drink (1946) / Bartender's Guide (1947)",
+    "aka": [
+      "Tortuga Punch"
+    ],
+    "family": "punch",
+    "families_secondary": [
+      "daiquiri"
+    ],
+    "year": 1946,
+    "circa": true,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 2,
+    "parents": [
+      "La Florida Cocktail"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-overproof-white",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "123-proof Havana Club rum"
+      },
+      {
+        "id": "rum-demerara-overproof",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Lemon Hart 151 Demerara rum"
+      },
+      {
+        "id": "sweet-vermouth",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 0.375,
+        "unit": "oz",
+        "orig": "2 dashes curaçao (modern readings: 3/8-1/2 oz)"
+      },
+      {
+        "id": "creme-de-cacao",
+        "amount": 0.375,
+        "unit": "oz",
+        "orig": "2 dashes crème de cacao (modern readings: 3/8-1/2 oz)"
+      },
+      {
+        "id": "grenadine",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "1 dash grenadine"
+      },
+      {
+        "id": "orange",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.5,
+        "unit": "oz"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "14-oz chimney glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Trader Vic's Book of Food and Drink (1946) / Bartender's Guide (1947, unchanged in 1972), via Cocktail Virgin Slut and Vintage American Cocktails",
+    "source_urls": [
+      "https://cocktailvirgin.blogspot.com/2016/05/tortuga.html",
+      "https://vintageamericancocktails.com/tortuga-cocktail/",
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/youtube-channel/make-and-drink/tortuga-trader-vic.json",
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/youtube-channel/spike-breezeway-cocktail-hour/tortuga.json"
+    ],
+    "confidence": "medium",
+    "notes": "Two overproof rums (Cuban and 151 Demerara) with sweet vermouth, three citrus juices, and chocolate-orange accents from cacao and curaçao. Jeff Berry thinks Vic modeled it on the Havana La Florida cocktail. The book lists the liqueurs as 'dashes', which modern makers read as roughly 3/8 to 1/2 oz each."
+  },
+  {
+    "id": "myrtle-bank-punch",
+    "name": "Myrtle Bank Punch",
+    "variant": "As recorded in Trader Vic's Bartender's Guide (1947); Berry reading",
+    "aka": [],
+    "family": "punch",
+    "families_secondary": [
+      "daiquiri"
+    ],
+    "year": null,
+    "circa": false,
+    "era": "golden",
+    "creator": null,
+    "venue": "Myrtle Bank Hotel",
+    "location": "Kingston, Jamaica",
+    "popularity": 1,
+    "parents": [
+      "Planter's Punch"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-demerara-overproof",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "151-proof Demerara rum"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "juice of 1/2 lime"
+      },
+      {
+        "id": "grenadine",
+        "amount": 6,
+        "unit": "dash"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon sugar"
+      },
+      {
+        "id": "maraschino",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "maraschino liqueur, floated",
+        "float": true
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "old-fashioned",
+    "garnish": [],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide (1947) as reprinted by Jeff Berry (from memory of Beachbum Berry Remixed; not re-verified online); Difford's gives a different Jamaican-rum/Heering spec",
+    "source_urls": [
+      "https://www.diffordsguide.com/cocktails/recipe/2513/myrtle-bank-special-rum-punch",
+      "https://github.com/LauraMarby/IA-SRI-SIM_Project/blob/HEAD/src/data/myrtle_bank_special_rum_punch.json"
+    ],
+    "confidence": "low",
+    "notes": "A Jamaican hotel punch that Vic recorded: a short shot of overproof rum sharpened with lime and grenadine, with a cherry-liqueur float. Vic's books also printed the hotel's Northside Special, which shows how much the Kingston hotel bars shaped his early drinks."
+  },
+  {
+    "id": "mexican-el-diablo",
+    "name": "El Diablo",
+    "variant": "'Mexican El Diablo', Trader Vic's Book of Food and Drink (1946)",
+    "aka": [
+      "Mexican El Diablo",
+      "Diablo"
+    ],
+    "family": "buck",
+    "families_secondary": [],
+    "year": 1946,
+    "circa": true,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 3,
+    "parents": [
+      "Buck"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "juice of 1/2 lime; squeezed shell dropped in the glass"
+      },
+      {
+        "id": "creme-de-cassis",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "tequila-blanco",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "tequila"
+      },
+      {
+        "id": "ginger-ale",
+        "amount": 4,
+        "unit": "top",
+        "orig": "ginger ale to fill"
+      }
+    ],
+    "method": "build",
+    "ice": "crushed",
+    "glass": "collins / highball",
+    "garnish": [
+      "lime shell",
+      "swizzle stick"
+    ],
+    "servings": 1,
+    "source": "Trader Vic's Book of Food and Drink (1946), in Smuggler's Cove's reading",
+    "source_urls": [
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/HEAD/src/recipes/mexican-diablo.md",
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/youtube-channel/anders-erickson/el-diablo-1946.json",
+      "https://github.com/adamsome/lqr/blob/HEAD/scripts/specs-books.csv"
+    ],
+    "confidence": "medium",
+    "notes": "One of the earliest tequila highballs in an American bar book: tequila, lime and crème de cassis topped with ginger ale over cracked ice. It later became a modern-classic standard, usually made with ginger beer."
+  },
+  {
+    "id": "honolulu-trader-vic",
+    "name": "Honolulu",
+    "variant": "Trader Vic's (Bartender's Guide, rev. 1972, 'one of the first drinks we ever originated')",
+    "aka": [
+      "Honolulu Cocktail (Trader Vic)"
+    ],
+    "family": "daiquiri",
+    "families_secondary": [
+      "resort-punch"
+    ],
+    "year": 1936,
+    "circa": true,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "light rum"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "fresh pineapple (about half a slice), blended"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "rock candy syrup (Difford's uses 1/4 oz)"
+      },
+      {
+        "id": "grenadine",
+        "amount": 0.25,
+        "unit": "oz"
+      }
+    ],
+    "method": "blend",
+    "ice": "blended",
+    "glass": "cocktail glass",
+    "garnish": [
+      "pineapple wedge",
+      "cherry"
+    ],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide (rev. 1972) via Make and Drink transcription and Difford's adaptation",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/youtube-channel/make-and-drink/honolulu.json",
+      "https://www.diffordsguide.com/cocktails/recipe/973/honolulu",
+      "https://github.com/LauraMarby/IA-SRI-SIM_Project/blob/HEAD/src/data/honolulu.json"
+    ],
+    "confidence": "medium",
+    "notes": "A blended pink pineapple daiquiri that Vic marked with his TV logo and said was among the very first drinks the Oakland bar originated. It is unrelated to the older gin-based Honolulu Cocktail."
+  },
+  {
+    "id": "tonga-punch",
+    "name": "Tonga Punch",
+    "variant": "Trader Vic's Bartender's Guide",
+    "aka": [],
+    "family": "punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "late-classic",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Planter's Punch"
+    ],
+    "ingredients": [
+      {
+        "id": "grenadine",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "orange curaçao"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "light rum"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "collins",
+    "garnish": [],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide via Make and Drink (YouTube) transcription",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/youtube-channel/make-and-drink/tonga-punch.json",
+      "https://cocktailvirgin.blogspot.com/2015/08/tonga.html"
+    ],
+    "confidence": "medium",
+    "notes": "A light-rum orange punch sharpened with both lemon and lime and lightly sweetened with curaçao and grenadine. It is typical of the easygoing citrus punches that filled out Vic's menus."
+  },
+  {
+    "id": "rum-keg",
+    "name": "Rum Keg",
+    "variant": "Trader Vic's, served in a ceramic keg for sharing",
+    "aka": [
+      "Trader Vic's Rum Keg"
+    ],
+    "family": "punch",
+    "families_secondary": [
+      "resort-punch"
+    ],
+    "year": null,
+    "circa": false,
+    "era": "late-classic",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Planter's Punch"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 5,
+        "unit": "oz",
+        "orig": "light rum"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Jamaican rum"
+      },
+      {
+        "id": "lemon",
+        "amount": 4,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 2,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-nectar",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "apricot-liqueur",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "apricot brandy (liqueur)"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "rock candy syrup"
+      }
+    ],
+    "method": "build",
+    "ice": "cubed",
+    "glass": "ceramic rum keg",
+    "garnish": [],
+    "servings": 4,
+    "source": "Trader Vic's Bartender's Guide via Make and Drink (YouTube) transcription",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/youtube-channel/make-and-drink/trader-vics-rum-keg.json"
+    ],
+    "confidence": "medium",
+    "notes": "A communal punch of mostly light rum with lemon, pineapple, passion fruit and apricot liqueur, served in Trader Vic's small ceramic kegs. The four-serving count comes from the transcription."
+  },
+  {
+    "id": "kava-bowl",
+    "name": "Kava Bowl",
+    "variant": "Trader Vic c. 1942 (Berry, Intoxica!), single-serve adaptation",
+    "aka": [
+      "Kava"
+    ],
+    "family": "punch",
+    "families_secondary": [
+      "resort-punch"
+    ],
+    "year": 1942,
+    "circa": true,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Planter's Punch"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "light rum"
+      },
+      {
+        "id": "rum-gold-column",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "gold rum"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "sugar syrup"
+      },
+      {
+        "id": "grenadine",
+        "amount": 0.25,
+        "unit": "oz"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "collins (originally a kava bowl)",
+    "garnish": [
+      "pineapple wedge",
+      "cherry"
+    ],
+    "servings": 1,
+    "source": "Difford's Guide adaptation of the Trader Vic recipe in Jeff Berry's Intoxica! (2002)",
+    "source_urls": [
+      "https://www.diffordsguide.com/cocktails/recipe/1091/kava",
+      "https://github.com/LauraMarby/IA-SRI-SIM_Project/blob/HEAD/src/data/kava.json"
+    ],
+    "confidence": "low",
+    "notes": "A pineapple-lemon light-rum punch named after the Polynesian kava ceremony, which also inspired Vic's communal Scorpion bowls. Only Difford's single-serve adaptation was available, so the original bowl proportions are unconfirmed."
+  },
+  {
+    "id": "hinky-dinks-fizzy",
+    "name": "Hinky Dinks Fizzy",
+    "variant": "1984, Trader Vic's 50th anniversary (Smuggler's Cove spec)",
+    "aka": [],
+    "family": "resort-punch",
+    "families_secondary": [
+      "buck"
+    ],
+    "year": 1984,
+    "circa": false,
+    "era": "decline",
+    "creator": "Trader Vic's (company)",
+    "venue": "Trader Vic's",
+    "location": "USA",
+    "popularity": 2,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "sparkling-wine",
+        "amount": 2,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "apricot-liqueur",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "gin",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-blended-light",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "blended lightly aged rum"
+      },
+      {
+        "id": "mint",
+        "amount": 1,
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "brandy snifter",
+    "garnish": [
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Martin & Rebecca Cate, Smuggler's Cove (2016)",
+    "source_urls": [
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/HEAD/src/recipes/hinky-dinks-fizzy.md",
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/book/smugglers-cove/03_The Tiki Revival/hinky-dinks-fizzy.json"
+    ],
+    "confidence": "medium",
+    "notes": "Made for Trader Vic's 50th anniversary and named after Hinky Dink's, the Oakland saloon Vic opened in 1934. Gin and rum go over pineapple, passion fruit and apricot, and the drink is poured onto sparkling wine in a snifter."
+  },
+  {
+    "id": "aku-aku",
+    "name": "Aku Aku",
+    "variant": "Trader Vic's Bartender's Guide (rev. 1972), Smuggler's Cove adaptation",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [
+      "resort-punch"
+    ],
+    "year": null,
+    "circa": false,
+    "era": "late-classic",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 2,
+    "parents": [
+      "Missionary's Downfall"
+    ],
+    "ingredients": [
+      {
+        "id": "pineapple-juice",
+        "amount": 1.25,
+        "unit": "oz",
+        "orig": "5 one-inch chunks fresh pineapple, muddled"
+      },
+      {
+        "id": "mint",
+        "amount": 8,
+        "unit": "leaves"
+      },
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "demerara-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "scant 1/2 oz demerara syrup"
+      },
+      {
+        "id": "peach-liqueur",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "peach liqueur (crème de pêche)"
+      },
+      {
+        "id": "rum-blended-light",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "blended lightly aged rum (orig. light rum)"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "none",
+    "glass": "coupe",
+    "garnish": [
+      "large mint leaf or small mint sprig cluster"
+    ],
+    "servings": 1,
+    "source": "Smuggler's Cove (2016), adapting Trader Vic's Bartender's Guide (rev. 1972); cross-checked with Difford's",
+    "source_urls": [
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/HEAD/src/recipes/aku-aku.md",
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/book/smugglers-cove/01_The Birth of Tiki/aku-aku.json",
+      "https://www.diffordsguide.com/cocktails/recipe/513/aku-aku"
+    ],
+    "confidence": "medium",
+    "notes": "A blended, double-strained pineapple-mint daiquiri with a little peach, close kin to Don the Beachcomber's Missionary's Downfall. It is served up, which is unusual for a tiki drink."
+  },
+  {
+    "id": "kamaaina",
+    "name": "Kama'aina",
+    "variant": "Trader Vic's Bartender's Guide",
+    "aka": [
+      "Kamaaina"
+    ],
+    "family": "colada",
+    "families_secondary": [
+      "buck"
+    ],
+    "year": null,
+    "circa": false,
+    "era": "late-classic",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "lemon",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "coconut-cream",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "cream of coconut"
+      },
+      {
+        "id": "triple-sec",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "gin",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon-lime-soda",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "7-Up"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "tiki mug",
+    "garnish": [],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide via Make and Drink (YouTube) transcription",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/youtube-channel/make-and-drink/kamaaina.json"
+    ],
+    "confidence": "low",
+    "notes": "A gin-and-coconut cooler lifted with 7-Up. The name is Hawaiian for a long-time island resident. It shows Vic's later habit of combining cream of coconut with citrus and soda."
+  },
+  {
+    "id": "bourbon-special-trader-vic",
+    "name": "Bourbon Special",
+    "variant": "Trader Vic's Bartender's Guide",
+    "aka": [],
+    "family": "buck",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Whiskey Buck"
+    ],
+    "ingredients": [
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "sugar syrup"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "falernum"
+      },
+      {
+        "id": "bourbon",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "ginger-beer",
+        "amount": 0.75,
+        "unit": "oz"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "collins",
+    "garnish": [],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide via Make and Drink (YouTube) transcription; also listed in Berry's Total Tiki",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/youtube-channel/make-and-drink/bourbon-special-trader-vic.json",
+      "https://github.com/mdoudoroff/mixologytech/blob/HEAD/recipes-tiki3.html"
+    ],
+    "confidence": "medium",
+    "notes": "A short bourbon sour spiced with falernum and Angostura and topped with a splash of ginger beer. It shows how Vic applied tiki modifiers to whiskey for customers who didn't drink rum."
+  },
+  {
+    "id": "western-sour",
+    "name": "Western Sour",
+    "variant": "Trader Vic's Bartender's Guide",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [
+      "beachcomber-sour"
+    ],
+    "year": null,
+    "circa": false,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Eastern Sour",
+      "Whiskey Sour"
+    ],
+    "ingredients": [
+      {
+        "id": "simple-syrup",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "sugar syrup"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "grapefruit",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "falernum"
+      },
+      {
+        "id": "bourbon",
+        "amount": 2,
+        "unit": "oz"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "old-fashioned",
+    "garnish": [],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide via Make and Drink (YouTube) transcription; also listed in Berry's Total Tiki",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/youtube-channel/make-and-drink/western-sour-trader-vic.json",
+      "https://github.com/mdoudoroff/mixologytech/blob/HEAD/recipes-tiki3.html"
+    ],
+    "confidence": "medium",
+    "notes": "The counterpart to Vic's Eastern Sour: bourbon lengthened with grapefruit instead of orange and sweetened with falernum instead of orgeat."
+  },
+  {
+    "id": "montego-bay-trader-vic",
+    "name": "Montego Bay",
+    "variant": "Trader Vic's Bartender's Guide (rev. 1972, TV-logo original)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "late-classic",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-agricole-blanc",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Martinique rum (Difford's uses Clément blanc)"
+      },
+      {
+        "id": "triple-sec",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "sugar syrup"
+      },
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash"
+      }
+    ],
+    "method": "shake",
+    "ice": "none",
+    "glass": "coupe",
+    "garnish": [
+      "lime wedge"
+    ],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide (rev. 1972), as adapted by Difford's Guide",
+    "source_urls": [
+      "https://www.diffordsguide.com/cocktails/recipe/1357/montego-bay"
+    ],
+    "confidence": "low",
+    "notes": "A Martinique-rum daiquiri with triple sec and bitters, marked in Vic's guide as a house original. The Jamaican name despite the French-island rum is typical of Vic's loose use of Caribbean place names."
+  },
+  {
+    "id": "tahitian-honey-bee",
+    "name": "Tahitian Honey Bee",
+    "variant": "Trader Vic's Bartender's Guide (rev. 1972)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "late-classic",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Bee's Knees",
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "light rum"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "honey (Difford's uses 3:1 honey syrup)"
+      }
+    ],
+    "method": "shake",
+    "ice": "none",
+    "glass": "coupe",
+    "garnish": [
+      "lemon twist"
+    ],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide (rev. 1972), as adapted by Difford's Guide",
+    "source_urls": [
+      "https://www.diffordsguide.com/cocktails/recipe/2204/tahitian-honey-bee",
+      "https://github.com/LauraMarby/IA-SRI-SIM_Project/blob/HEAD/src/data/tahitian_honey_bee.json"
+    ],
+    "confidence": "low",
+    "notes": "A light-rum honey sour, essentially a rum Bee's Knees made with lemon. Honey was a common Polynesian-bar sweetener, and here it is the only one."
+  },
+  {
+    "id": "sharks-tooth-trader-vic",
+    "name": "Shark's Tooth",
+    "variant": "Trader Vic's No. 1 (Bartender's Guide, rev. 1972: 'one of the first drinks we ever made')",
+    "aka": [
+      "Shark's Tooth No. 1"
+    ],
+    "family": "punch",
+    "families_secondary": [
+      "daiquiri"
+    ],
+    "year": 1936,
+    "circa": true,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Rum Rickey"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-white-overproof",
+        "amount": 1.33,
+        "unit": "oz",
+        "orig": "overproof rum (Difford's: unaged Jamaican overproof)"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.33,
+        "unit": "oz",
+        "orig": "sugar syrup"
+      },
+      {
+        "id": "grenadine",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "soda-water",
+        "amount": 2,
+        "unit": "oz"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "sling glass",
+    "garnish": [
+      "spent lime shell"
+    ],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide (rev. 1972), as adapted by Difford's Guide",
+    "source_urls": [
+      "https://www.diffordsguide.com/cocktails/recipe/2197/sharks-tooth-no1-trader-vics",
+      "https://github.com/LauraMarby/IA-SRI-SIM_Project/blob/HEAD/src/data/sharks_tooth_no1_trader_vics.json"
+    ],
+    "confidence": "low",
+    "notes": "Vic's own Shark's Tooth, distinct from Don the Beachcomber's, is a strong rum rickey with both lemon and lime, a touch of grenadine and soda. Vic said it was among the first drinks made at Hinky Dink's."
+  },
+  {
+    "id": "pino-pepe",
+    "name": "Pino Pepe",
+    "variant": "Trader Vic's Bartender's Guide (rev. 1972), served in a pineapple shell",
+    "aka": [],
+    "family": "resort-punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "late-classic",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "light rum"
+      },
+      {
+        "id": "vodka",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "triple-sec",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 2,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "sugar syrup"
+      }
+    ],
+    "method": "blend",
+    "ice": "blended",
+    "glass": "hollowed pineapple shell",
+    "garnish": [
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide (rev. 1972), as adapted by Difford's Guide",
+    "source_urls": [
+      "https://www.diffordsguide.com/cocktails/recipe/1554/pino-pepe",
+      "https://github.com/LauraMarby/IA-SRI-SIM_Project/blob/HEAD/src/data/pino_pepe.json"
+    ],
+    "confidence": "low",
+    "notes": "A frozen rum-and-vodka pineapple drink served in a hollowed pineapple, one of the showpiece presentations of Trader Vic's 1960s and 70s menus. Vodka appears as Vic's menus caught up with American tastes of the time."
+  },
+  {
+    "id": "tabu-trader-vic",
+    "name": "Tabu",
+    "variant": "Trader Vic's Bartender's Guide (rev. 1972; 'originated in Seattle')",
+    "aka": [],
+    "family": "resort-punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "late-classic",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Seattle, Washington, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "light rum"
+      },
+      {
+        "id": "vodka",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "sugar syrup"
+      }
+    ],
+    "method": "blend",
+    "ice": "blended",
+    "glass": "coconut shell or collins",
+    "garnish": [
+      "pineapple cubes",
+      "cherry",
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide (rev. 1972), as adapted by Difford's Guide",
+    "source_urls": [
+      "https://www.diffordsguide.com/cocktails/recipe/2203/tabu",
+      "https://github.com/LauraMarby/IA-SRI-SIM_Project/blob/HEAD/src/data/tabu.json"
+    ],
+    "confidence": "low",
+    "notes": "A frozen pineapple-lemon drink split between light rum and vodka, which Vic said came from his Seattle restaurant. It is plain and fruity, typical of the vodka-friendly 1960s menus."
+  },
+  {
+    "id": "banana-cow",
+    "name": "Banana Cow",
+    "variant": "Trader Vic's Bartender's Guide (1947)",
+    "aka": [],
+    "family": "colada",
+    "families_secondary": [],
+    "year": 1947,
+    "circa": true,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Milk Punch"
+    ],
+    "ingredients": [
+      {
+        "id": "banana",
+        "amount": 1,
+        "unit": "piece",
+        "orig": "1 ripe banana"
+      },
+      {
+        "id": "half-and-half",
+        "amount": 3,
+        "unit": "oz",
+        "orig": "milk"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 2,
+        "unit": "tsp",
+        "orig": "2 teaspoons sugar"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "light rum"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      },
+      {
+        "id": "vanilla-extract",
+        "amount": 1,
+        "unit": "dash"
+      }
+    ],
+    "method": "blend",
+    "ice": "blended",
+    "glass": "tall glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide (1947); Make and Drink transcription and Difford's adaptation",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/youtube-channel/make-and-drink/trader-vics-banana-cow.json",
+      "https://www.diffordsguide.com/cocktails/recipe/536/banana-cow",
+      "https://github.com/LauraMarby/IA-SRI-SIM_Project/blob/HEAD/src/data/banana_cow.json"
+    ],
+    "confidence": "medium",
+    "notes": "A blended banana-milk rum shake with a dash each of vanilla and Angostura, and Vic's cold variation on the old milk punch. Difford's credits it as a Bergeron creation."
+  },
+  {
+    "id": "hot-rum-cow",
+    "name": "Hot Rum Cow",
+    "variant": "Trader Vic's Bartender's Guide",
+    "aka": [
+      "Rum Cow (hot)"
+    ],
+    "family": "hot",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Milk Punch"
+    ],
+    "ingredients": [
+      {
+        "id": "vanilla-extract",
+        "amount": 1,
+        "unit": "dash"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon sugar"
+      },
+      {
+        "id": "half-and-half",
+        "amount": 4.5,
+        "unit": "oz",
+        "orig": "very hot milk"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "light rum"
+      },
+      {
+        "id": "nutmeg",
+        "unit": "garnish",
+        "orig": "grated nutmeg on top",
+        "garnish": true
+      }
+    ],
+    "method": "hot",
+    "ice": "none",
+    "glass": "warmed Irish coffee glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide via Make and Drink (YouTube) transcription",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/youtube-channel/make-and-drink/hot-rum-cow.json",
+      "https://github.com/mdoudoroff/mixologytech/blob/HEAD/recipes-tiki3.html"
+    ],
+    "confidence": "medium",
+    "notes": "Hot milk, light rum, sugar and a dash each of vanilla and Angostura, frothed in the spindle mixer and topped with nutmeg. It is the hot form of Vic's Rum Cow."
+  },
+  {
+    "id": "hot-brown-cow",
+    "name": "Hot Brown Cow",
+    "variant": "Trader Vic's Bartender's Guide",
+    "aka": [],
+    "family": "hot",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "golden",
+    "creator": "Victor Bergeron",
+    "venue": "Trader Vic's",
+    "location": "Oakland, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Hot Rum Cow"
+    ],
+    "ingredients": [
+      {
+        "id": "half-and-half",
+        "amount": 3,
+        "unit": "oz",
+        "orig": "hot milk"
+      },
+      {
+        "id": "coffee",
+        "amount": 3,
+        "unit": "oz",
+        "orig": "strong hot coffee"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "Jamaican rum"
+      },
+      {
+        "id": "nutmeg",
+        "unit": "garnish",
+        "orig": "grated nutmeg",
+        "garnish": true
+      }
+    ],
+    "method": "hot",
+    "ice": "none",
+    "glass": "warmed Irish coffee glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Trader Vic's Bartender's Guide via Make and Drink (YouTube) transcription",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/HEAD/packages/data/data/recipes/youtube-channel/make-and-drink/hot-brown-cow.json"
+    ],
+    "confidence": "medium",
+    "notes": "Equal parts hot milk and strong coffee spiked with Jamaican rum and dusted with nutmeg: a café-au-lait version of the Rum Cow, and unsweetened."
+  }
+]

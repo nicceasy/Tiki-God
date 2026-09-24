@@ -1,0 +1,3037 @@
+[
+  {
+    "id": "arrack-punch",
+    "name": "Arrack Punch",
+    "variant": "Single-serve spec, Boothby's The World's Drinks (1908)",
+    "aka": [
+      "Rack Punch",
+      "Batavia Arrack Punch"
+    ],
+    "family": "punch",
+    "families_secondary": [],
+    "year": 1670,
+    "circa": true,
+    "era": "colonial",
+    "creator": null,
+    "venue": null,
+    "location": "East Indies / Britain",
+    "popularity": 2,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "batavia-arrack",
+        "amount": 1.125,
+        "unit": "oz",
+        "orig": "3/4 jigger Batavia arrack"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 0.375,
+        "unit": "oz",
+        "orig": "1/4 jigger Jamaica rum"
+      },
+      {
+        "id": "lemon",
+        "amount": 1.25,
+        "unit": "oz",
+        "orig": "juice of one lemon"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "a large spoonful of sugar ('this punch needs much sweetening')"
+      },
+      {
+        "id": "soda-water",
+        "amount": 1,
+        "unit": "splash",
+        "orig": "a little seltzer"
+      },
+      {
+        "id": "sparkling-wine",
+        "amount": 1,
+        "unit": "dash",
+        "orig": "a dash of champagne"
+      }
+    ],
+    "method": "build",
+    "ice": "cubed",
+    "glass": "punch glass",
+    "garnish": [
+      "fruit in season"
+    ],
+    "servings": 1,
+    "source": "William 'Cocktail' Boothby, The World's Drinks and How to Mix Them (1908), No. 327",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1908%20The%20World%27s%20Drinks%20and%20How%20to%20Mix%20Them%20by%20Hon%20Wm%20Boothby.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1862%20The%20Bar%20Tender%27s%20Guide%20price%20%241.50%20by%20Jerry%20Thomas.txt"
+    ],
+    "confidence": "low",
+    "notes": "Batavia arrack punch is the original Anglo-Indian punch that sailors carried west in the 1600s; rum later displaced arrack in the Caribbean. Boothby's measures are explicit except the loose 'large spoonful' of sugar, so the sweetness here is an interpretation; Jerry Thomas (1862) gives the older bowl form as 3 parts arrack to 2 of rum, lemons, 'a good deal' of sugar and 6 parts water."
+  },
+  {
+    "id": "fish-house-punch-1862",
+    "name": "Fish House Punch",
+    "variant": "Philadelphia Fish-House Punch, Jerry Thomas (1862) bowl recipe",
+    "aka": [
+      "Philadelphia Fish-House Punch",
+      "Schuylkill Fish House Punch"
+    ],
+    "family": "punch",
+    "families_secondary": [],
+    "year": 1732,
+    "circa": true,
+    "era": "colonial",
+    "creator": null,
+    "venue": "State in Schuylkill (Schuylkill Fishing Company)",
+    "location": "Philadelphia, Pennsylvania, USA",
+    "popularity": 3,
+    "parents": [
+      "Arrack Punch"
+    ],
+    "ingredients": [
+      {
+        "id": "lemon",
+        "amount": 5.33,
+        "unit": "oz",
+        "orig": "1/3 pint lemon juice"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 12.9,
+        "unit": "oz",
+        "orig": "3/4 lb white sugar"
+      },
+      {
+        "id": "brandy",
+        "amount": 8,
+        "unit": "oz",
+        "orig": "1/2 pint Cognac brandy"
+      },
+      {
+        "id": "peach-liqueur",
+        "amount": 4,
+        "unit": "oz",
+        "orig": "1/4 pint peach brandy"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 4,
+        "unit": "oz",
+        "orig": "1/4 pint Jamaica rum"
+      },
+      {
+        "id": "water",
+        "amount": 40,
+        "unit": "oz",
+        "orig": "2 1/2 pints cold water"
+      }
+    ],
+    "method": "build",
+    "ice": "block",
+    "glass": "punch bowl and cups",
+    "garnish": [
+      "large block of ice in the bowl"
+    ],
+    "servings": 16,
+    "source": "Jerry Thomas, How to Mix Drinks / Bar-Tender's Guide (1862), No. 46",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1862%20The%20Bar%20Tender%27s%20Guide%20price%20%241.50%20by%20Jerry%20Thomas.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1933%20Lest%20We%20Forget.txt",
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/fish_house_punch.json",
+      "https://www.diffordsguide.com/cocktails/recipe/752/fish-house-punch"
+    ],
+    "confidence": "high",
+    "notes": "The house punch of a Philadelphia gentlemen's fishing club founded in 1732; the classic three-spirit blend (cognac, peach brandy, Jamaica rum) is diluted heavily with water, the template for later multi-spirit tiki bowls. Historic peach brandy was a drier aged fruit brandy, mapped here to peach liqueur (the usual modern stand-in)."
+  },
+  {
+    "id": "regents-punch-1857",
+    "name": "Regent's Punch",
+    "variant": "Bordeaux Wine & Liquor Dealers' Guide (1857), reprinted by Jerry Thomas (1862)",
+    "aka": [
+      "Regent Punch"
+    ],
+    "family": "punch",
+    "families_secondary": [],
+    "year": 1815,
+    "circa": true,
+    "era": "colonial",
+    "creator": null,
+    "venue": null,
+    "location": "England",
+    "popularity": 1,
+    "parents": [
+      "Arrack Punch"
+    ],
+    "ingredients": [
+      {
+        "id": "black-tea",
+        "amount": 24,
+        "unit": "oz",
+        "orig": "1 1/2 pints strong hot green tea"
+      },
+      {
+        "id": "lemon",
+        "amount": 24,
+        "unit": "oz",
+        "orig": "1 1/2 pints lemon juice"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 24,
+        "unit": "oz",
+        "orig": "1 1/2 pints capillaire (orange-flower-scented syrup)"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 16,
+        "unit": "oz",
+        "orig": "1 pint rum"
+      },
+      {
+        "id": "brandy",
+        "amount": 16,
+        "unit": "oz",
+        "orig": "1 pint brandy"
+      },
+      {
+        "id": "batavia-arrack",
+        "amount": 16,
+        "unit": "oz",
+        "orig": "1 pint arrack"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 16,
+        "unit": "oz",
+        "orig": "1 pint curaçao"
+      },
+      {
+        "id": "sparkling-wine",
+        "amount": 25,
+        "unit": "oz",
+        "orig": "1 bottle champagne"
+      }
+    ],
+    "method": "build",
+    "ice": "block",
+    "glass": "punch bowl",
+    "garnish": [
+      "sliced pineapple steeped in the bowl"
+    ],
+    "servings": 32,
+    "source": "The Bordeaux Wine and Liquor Dealers' Guide (1857), Appendix 'Regent's Punch'; Jerry Thomas (1862) No. 31",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1857%20The%20Bordeaux%20wine%20and%20liquor%20dealers%27%20guide.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1862%20The%20Bar%20Tender%27s%20Guide%20price%20%241.50%20by%20Jerry%20Thomas.txt"
+    ],
+    "confidence": "medium",
+    "notes": "A Regency-era party bowl said to honor George IV as Prince Regent: rum, brandy and arrack together with curaçao, tea, citrus and champagne, finished with fresh pineapple. The 1857 source gives 1 1/2 pints of the tea, lemon and capillaire (Jerry Thomas's reprint lost the fraction); green tea is mapped to brewed black tea."
+  },
+  {
+    "id": "barbados-rum-punch",
+    "name": "Barbados Rum Punch",
+    "variant": "Traditional Bajan 1-2-3-4 formula",
+    "aka": [
+      "Bajan Rum Punch",
+      "One of Sour Rum Punch"
+    ],
+    "family": "punch",
+    "families_secondary": [],
+    "year": 1800,
+    "circa": true,
+    "era": "colonial",
+    "creator": null,
+    "venue": null,
+    "location": "Barbados",
+    "popularity": 3,
+    "parents": [
+      "Arrack Punch"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "1 part sour (lime juice)"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "2 parts sweet (sugar syrup)"
+      },
+      {
+        "id": "rum-barbados",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "3 parts strong (Barbados rum)"
+      },
+      {
+        "id": "water",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "4 parts weak (water)"
+      },
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash"
+      },
+      {
+        "id": "nutmeg",
+        "unit": "garnish",
+        "orig": "grated nutmeg",
+        "garnish": true
+      }
+    ],
+    "method": "build",
+    "ice": "cubed",
+    "glass": "highball or rocks glass",
+    "garnish": [
+      "grated nutmeg",
+      "lime wheel"
+    ],
+    "servings": 1,
+    "source": "Barbadian tradition ('one of sour, two of sweet, three of strong, four of weak'); same 1-2-3-4 formula in Charles H. Baker, The Gentleman's Companion Vol. II (1939)",
+    "source_urls": [
+      "https://bajanthings.com/bajan-rum-punch/",
+      "https://www.totallybarbados.com/articles/barbados-recipes/rum-punch-recipe/",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/The%20Gentleman%E2%80%99s%20Companion%2C%20Volume%20II%20An%20Exotic%20Drinking%20Book%20by%20Charles%20H%20Baker%20Jr%20%281939%29.txt"
+    ],
+    "confidence": "medium",
+    "notes": "Barbados keeps the old rum-punch rhyme as a national recipe: one part lime, two of syrup, three of rum, four of water, with Angostura and nutmeg. It is the skeleton every Planter's Punch and most tiki punches hang on; one part = 1/2 oz here."
+  },
+  {
+    "id": "jamaican-rum-punch",
+    "name": "Jamaican Rum Punch",
+    "variant": "1-2-3-4 formula with Jamaican white overproof rum (Difford's Guide 'Rum Punch')",
+    "aka": [
+      "Rum Punch"
+    ],
+    "family": "punch",
+    "families_secondary": [],
+    "year": 1800,
+    "circa": true,
+    "era": "colonial",
+    "creator": null,
+    "venue": null,
+    "location": "Jamaica",
+    "popularity": 3,
+    "parents": [
+      "Arrack Punch"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-white-overproof",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "45 ml white overproof rum (unaged Jamaican)"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "15 ml lime juice"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "30 ml rich sugar syrup (2:1)"
+      },
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash"
+      },
+      {
+        "id": "water",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "60 ml chilled water"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "collins",
+    "garnish": [
+      "orange wheel",
+      "cherry"
+    ],
+    "servings": 1,
+    "source": "Difford's Guide, 'Rum Punch' (classic 1:2:3:4 proportions)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/rum_punch.json",
+      "https://www.diffordsguide.com/cocktails/recipe/1712/rum-punch"
+    ],
+    "confidence": "medium",
+    "notes": "Jamaica's rum punch follows the same sour-sweet-strong-weak rhyme but is built on fiery white overproof rum, which makes a much hotter drink than the Barbadian version. Island versions often swap part of the water for fruit juices and strawberry or sorrel syrup."
+  },
+  {
+    "id": "planters-punch-1908",
+    "name": "Planter's Punch",
+    "variant": "1908 New York Times rhyme ('two of sour, one and a half of sweet, three of strong, four of weak')",
+    "aka": [
+      "Jamaican Planter's Punch"
+    ],
+    "family": "punch",
+    "families_secondary": [],
+    "year": 1908,
+    "circa": false,
+    "era": "pre-tiki",
+    "creator": null,
+    "venue": null,
+    "location": "Jamaica",
+    "popularity": 4,
+    "parents": [
+      "Jamaican Rum Punch",
+      "Barbados Rum Punch"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "2 parts sour ('lime let it be')"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "1 1/2 parts sweet (sugar/cane syrup)"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "3 parts 'Old Jamaica' (strong)"
+      },
+      {
+        "id": "water",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "4 parts weak (water and ice)"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "highball",
+    "garnish": [],
+    "servings": 1,
+    "source": "Verse printed in The New York Times, 8 August 1908 (as quoted by Ted Haigh and others)",
+    "source_urls": [
+      "https://forgottencocktails.com/planters-punch/",
+      "https://forgottencocktails.com/jaspers-jamaican-planters-punch/",
+      "https://tnlpdotw.wordpress.com/2010/06/23/06222010-jaspers-jamaican-planters-punch/"
+    ],
+    "confidence": "medium",
+    "notes": "The earliest printed Planter's Punch is a rhyme rather than a recipe card: it tilts the Caribbean formula toward the sour (two of lime to one and a half of sweet) around three parts of Jamaican rum. One part = 1/2 oz here; the sweetener type is not specified, so rich syrup is an interpretation. Donn Beach's first menu was essentially this drink exploded into variations."
+  },
+  {
+    "id": "planters-punch-angostura-trinidad",
+    "name": "Planter's Punch",
+    "variant": "As mixed at the Angostura Bar, Port of Spain, Trinidad (Angostura Recipes, 1934)",
+    "aka": [
+      "Trinidad Rum Punch"
+    ],
+    "family": "punch",
+    "families_secondary": [],
+    "year": 1934,
+    "circa": false,
+    "era": "golden",
+    "creator": null,
+    "venue": "Angostura Bar",
+    "location": "Port of Spain, Trinidad",
+    "popularity": 2,
+    "parents": [
+      "Barbados Rum Punch",
+      "Jamaican Rum Punch"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "1 liqueur glass lime (or lemon) juice"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "2 liqueur glasses syrup"
+      },
+      {
+        "id": "rum-aged-column",
+        "amount": 3,
+        "unit": "oz",
+        "orig": "3 liqueur glasses 'Bouquet' rum (Trinidad)"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon Angostura bitters"
+      },
+      {
+        "id": "nutmeg",
+        "unit": "garnish",
+        "orig": "nutmeg on top",
+        "garnish": true
+      }
+    ],
+    "method": "build",
+    "ice": "crushed",
+    "glass": "small tumbler",
+    "garnish": [
+      "lime slice",
+      "grated nutmeg"
+    ],
+    "servings": 1,
+    "source": "Angostura Recipes — 42 Cocktails (Angostura-Wuppermann, 1934), 'Planter's Punch as mixed at Angostura Bar, Trinidad'",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1934%20Angostura%20Recipes.txt"
+    ],
+    "confidence": "high",
+    "notes": "A Trinidadian house version of the 1-2-3 rum punch, with a full teaspoon of Angostura and nutmeg on top; the cracked ice supplies the 'four of weak'. Its heavy bitters dose is the ancestor of the Angostura-crowned Queen's Park Swizzle."
+  },
+  {
+    "id": "planters-punch-floridita",
+    "name": "Planter's Punch",
+    "variant": "Bar La Florida (El Floridita), Havana, 1934 menu book",
+    "aka": [
+      "Planters-Punch (Floridita)"
+    ],
+    "family": "punch",
+    "families_secondary": [],
+    "year": 1933,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": "Constantino Ribalaigua Vert",
+    "venue": "Bar La Florida (El Floridita)",
+    "location": "Havana, Cuba",
+    "popularity": 2,
+    "parents": [
+      "Jamaican Rum Punch",
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "2 oz Jamaica rum"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "juice of 1/2 lime"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon curaçao"
+      },
+      {
+        "id": "grenadine",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon grenadine"
+      }
+    ],
+    "method": "build",
+    "ice": "crushed",
+    "glass": "champagne saucer filled with cracked ice",
+    "garnish": [
+      "pineapple slice",
+      "orange slice",
+      "lemon slice"
+    ],
+    "servings": 1,
+    "source": "Cocktails Bar La Florida (Havana, 1934; same in 1935/1937 eds.)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cocktails%20Bar%20La%20Florida%20by%20Constante%20Ribalaigua%20Vert%20%281934%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cocktails%20Bar%20La%20Florida%20by%20Constante%20Ribalaigua%20Vert%20%281935%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cocktails%20Bar%20La%20Florida%20by%20Constante%20Ribalaigua%20Vert%20%281937%29.txt"
+    ],
+    "confidence": "high",
+    "notes": "Havana's take on the Jamaican punch: dark Jamaica rum sharpened with lime and seasoned with a spoon each of curaçao and grenadine, poured unstrained over cracked ice with fruit. Curaçao-plus-grenadine seasoning reappears in many early tiki punches."
+  },
+  {
+    "id": "planters-punch-myers",
+    "name": "Planter's Punch",
+    "variant": "Myers's rum recipe (orange-juice style)",
+    "aka": [
+      "Myers's Planter's Punch"
+    ],
+    "family": "punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "Myers's (Fred L. Myers & Son)",
+    "venue": null,
+    "location": "Kingston, Jamaica",
+    "popularity": 3,
+    "parents": [
+      "Jamaican Rum Punch"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "1 1/2 oz Myers's rum"
+      },
+      {
+        "id": "orange",
+        "amount": 3,
+        "unit": "oz",
+        "orig": "3 oz orange juice"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "juice of 1/2 lemon (or 1 lime)"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon superfine sugar"
+      },
+      {
+        "id": "grenadine",
+        "amount": 1,
+        "unit": "dash"
+      }
+    ],
+    "method": "shake",
+    "ice": "shaved",
+    "glass": "highball",
+    "garnish": [
+      "orange slice",
+      "cherry",
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Myers's rum promotional recipe, as reproduced by several recipe sites",
+    "source_urls": [
+      "https://www.mainespirits.com/recipes/myerss-rum-planters-punch",
+      "https://www.chefsresource.com/recipes/myerss-planters-punch-recipe/"
+    ],
+    "confidence": "medium",
+    "notes": "The brand version that spread the drink across mid-century America: dark Jamaican rum lengthened with orange juice instead of water, a little citrus, sugar and grenadine. Myers's called its rum 'Planters' Punch' brand from 1879, but this card's date is unclear, so year is left blank."
+  },
+  {
+    "id": "jaspers-jamaican-planters-punch",
+    "name": "Jasper's Jamaican Planter's Punch",
+    "variant": "Jasper LeFranc, Bay Roc Hotel (via Ted Haigh / Stephen Remsberg)",
+    "aka": [
+      "Jasper's Rum Punch"
+    ],
+    "family": "punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "Jasper LeFranc",
+    "venue": "Bay Roc Hotel",
+    "location": "Montego Bay, Jamaica",
+    "popularity": 2,
+    "parents": [
+      "Jamaican Rum Punch"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "1 1/2 oz dark Jamaican rum (Coruba)"
+      },
+      {
+        "id": "lime",
+        "amount": 0.9,
+        "unit": "oz",
+        "orig": "Jasper's Secret Mix share: juice of 12 limes per batch"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.85,
+        "unit": "oz",
+        "orig": "Jasper's Secret Mix share: 1 1/2 cups sugar per batch"
+      },
+      {
+        "id": "angostura",
+        "amount": 3,
+        "unit": "dash",
+        "orig": "Jasper's Secret Mix share: 1 1/4 oz Angostura per batch"
+      },
+      {
+        "id": "nutmeg",
+        "unit": "pinch",
+        "orig": "1/2 nutmeg grated into the mix",
+        "garnish": true
+      }
+    ],
+    "method": "swizzle",
+    "ice": "crushed",
+    "glass": "10 oz highball",
+    "garnish": [
+      "grated nutmeg",
+      "lime wheel"
+    ],
+    "servings": 1,
+    "source": "Ted Haigh, Vintage Spirits and Forgotten Cocktails (2004); also taught by Jeff Berry",
+    "source_urls": [
+      "https://forgottencocktails.com/jaspers-jamaican-planters-punch/",
+      "https://www.saveur.com/making-jaspers-rum-punch-jeff-beachbum-berry"
+    ],
+    "confidence": "medium",
+    "notes": "Equal parts dark Jamaican rum and a pre-batched 'secret mix' of lime, sugar, Angostura and a heavy hand of nutmeg — effectively a homemade falernum. The batch mix is converted here to a per-drink share; the hotel-bar date is uncertain."
+  },
+  {
+    "id": "ti-punch",
+    "name": "Ti' Punch",
+    "variant": "Smuggler's Cove spec",
+    "aka": [
+      "Ti Punch",
+      "Petit Punch"
+    ],
+    "family": "punch",
+    "families_secondary": [
+      "daiquiri"
+    ],
+    "year": 1890,
+    "circa": true,
+    "era": "colonial",
+    "creator": null,
+    "venue": null,
+    "location": "Martinique / Guadeloupe",
+    "popularity": 3,
+    "parents": [
+      "Arrack Punch"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-agricole-blanc",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "2 oz AOC Martinique rhum agricole blanc"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 tsp Martinique sugarcane syrup"
+      },
+      {
+        "id": "lime",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "1 chunk (coin) of fresh lime, squeezed and dropped in"
+      }
+    ],
+    "method": "build",
+    "ice": "none",
+    "glass": "small rocks glass",
+    "garnish": [
+      "lime disc"
+    ],
+    "servings": 1,
+    "source": "Martin & Rebecca Cate, Smuggler's Cove (2016)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/stephencattaneo/sc-drink-helper/main/data_generation/processor/raw_data/tipunch.txt",
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/ti_punch.json",
+      "https://www.diffordsguide.com/cocktails/recipe/1952/ti-punch"
+    ],
+    "confidence": "high",
+    "notes": "The French Antilles' 'little punch': grassy cane-juice rhum with a spoon of cane syrup and a squeezed coin of lime, usually no ice, each drinker building his own. Lafcadio Hearn recorded it in Martinique around 1890. The lime amount is an estimate of one squeezed disc."
+  },
+  {
+    "id": "canchanchara",
+    "name": "Canchánchara",
+    "variant": "IBA official spec",
+    "aka": [
+      "Canchanchara"
+    ],
+    "family": "punch",
+    "families_secondary": [
+      "daiquiri"
+    ],
+    "year": 1868,
+    "circa": true,
+    "era": "colonial",
+    "creator": null,
+    "venue": null,
+    "location": "Trinidad (Cuba)",
+    "popularity": 2,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "60 ml Cuban aguardiente de caña"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "15 ml fresh lime juice"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "15 ml raw honey (≈1 oz 1:1 honey mix)"
+      },
+      {
+        "id": "water",
+        "amount": 1.2,
+        "unit": "oz",
+        "orig": "50 ml water (reduced for the honey conversion)"
+      }
+    ],
+    "method": "build",
+    "ice": "crushed",
+    "glass": "clay cup (canchánchara)",
+    "garnish": [
+      "lime wedge"
+    ],
+    "servings": 1,
+    "source": "IBA official cocktail list (New Era Drinks)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/rasmusab/iba-cocktails/main/iba-web/iba-cocktails-web.csv"
+    ],
+    "confidence": "medium",
+    "notes": "Cane aguardiente, raw honey, lime and water stirred in a clay cup — the drink associated with Cuba's independence fighters (mambises) of the 1860s–90s and a folk ancestor of the Daiquiri. Honey is converted to the 1:1 honey mix used across this dataset."
+  },
+  {
+    "id": "pisco-punch",
+    "name": "Pisco Punch",
+    "variant": "After John Lannes's recipe (Difford's adaptation)",
+    "aka": [
+      "Bank Exchange Pisco Punch"
+    ],
+    "family": "punch",
+    "families_secondary": [],
+    "year": 1893,
+    "circa": true,
+    "era": "colonial",
+    "creator": "Duncan Nicol",
+    "venue": "Bank Exchange Saloon",
+    "location": "San Francisco, California, USA",
+    "popularity": 2,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "pisco",
+        "amount": 2.5,
+        "unit": "oz",
+        "orig": "75 ml pisco"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "15 ml lemon juice"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "30 ml pineapple juice (stand-in for pineapple-gum-syrup marinade)"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "15 ml rich syrup"
+      },
+      {
+        "id": "soda-water",
+        "unit": "top"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "collins",
+    "garnish": [
+      "pineapple chunk"
+    ],
+    "servings": 1,
+    "source": "Difford's Guide, 'Pisco Punch (Lannes' recipe)'",
+    "source_urls": [
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/pisco_punch_lannes_recipe.json",
+      "https://www.diffordsguide.com/cocktails/recipe/1559/pisco-punch-lannes-recipe"
+    ],
+    "confidence": "low",
+    "notes": "Duncan Nicol's secret Gold Coast punch of Peruvian pisco and pineapple gum syrup made San Francisco's Bank Exchange famous; every modern spec is a reconstruction (Lannes, Micheli and Prosser versions all differ). It shows the Bay Area pineapple-and-spirit taste Trader Vic grew up with."
+  },
+  {
+    "id": "knickerbocker-1862",
+    "name": "Knickerbocker",
+    "variant": "Jerry Thomas (1862)",
+    "aka": [
+      "Knickerbocker à la Monsieur"
+    ],
+    "family": "punch",
+    "families_secondary": [
+      "daiquiri"
+    ],
+    "year": 1862,
+    "circa": false,
+    "era": "colonial",
+    "creator": null,
+    "venue": null,
+    "location": "New York, USA",
+    "popularity": 2,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-gold-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "1 wine-glass Santa Cruz (St. Croix) rum"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "1/2 a lime or lemon, juice and rind in the glass"
+      },
+      {
+        "id": "raspberry-syrup",
+        "amount": 2,
+        "unit": "tsp",
+        "orig": "2 teaspoonfuls raspberry syrup"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoonful curaçao"
+      }
+    ],
+    "method": "shake",
+    "ice": "shaved",
+    "glass": "small bar glass",
+    "garnish": [
+      "berries in season",
+      "spent lime shell"
+    ],
+    "servings": 1,
+    "source": "Jerry Thomas, How to Mix Drinks (1862), No. 184",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1862%20The%20Bar%20Tender%27s%20Guide%20price%20%241.50%20by%20Jerry%20Thomas.txt",
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/knickerbocker.json",
+      "https://www.diffordsguide.com/cocktails/recipe/3974/knickerbocker"
+    ],
+    "confidence": "high",
+    "notes": "A mid-19th-century 'fancy' rum drink: St. Croix rum, lime shell and juice, raspberry syrup and curaçao shaken with shaved ice and served with the ice and berries. Beachbum Berry points to it as a proto-tiki drink — fruit syrup plus orange liqueur plus rum and lime."
+  },
+  {
+    "id": "singapore-sling-baker",
+    "name": "Singapore Sling",
+    "variant": "Raffles Hotel 'original formula' as recorded by Charles H. Baker (met 1926, pub. 1939)",
+    "aka": [
+      "Raffles Gin Sling",
+      "Straits Sling"
+    ],
+    "family": "buck",
+    "families_secondary": [],
+    "year": 1915,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": "Ngiam Tong Boon (attributed)",
+    "venue": "Raffles Hotel",
+    "location": "Singapore",
+    "popularity": 2,
+    "parents": [
+      "Gin Sling"
+    ],
+    "ingredients": [
+      {
+        "id": "gin",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "1/3 dry gin"
+      },
+      {
+        "id": "cherry-heering",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "1/3 cherry brandy"
+      },
+      {
+        "id": "benedictine",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "1/3 Bénédictine"
+      },
+      {
+        "id": "soda-water",
+        "amount": 3,
+        "unit": "oz",
+        "orig": "fill to taste with chilled club soda (10 oz highball)"
+      }
+    ],
+    "method": "build",
+    "ice": "cubed",
+    "glass": "10 oz highball",
+    "garnish": [
+      "spiral lime peel"
+    ],
+    "servings": 1,
+    "source": "Charles H. Baker Jr., The Gentleman's Companion Vol. II: An Exotic Drinking Book (1939)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/The%20Gentleman%E2%80%99s%20Companion%2C%20Volume%20II%20An%20Exotic%20Drinking%20Book%20by%20Charles%20H%20Baker%20Jr%20%281939%29.txt",
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/singapore_sling_bakers_formula.json",
+      "https://www.diffordsguide.com/cocktails/recipe/1824/singapore-sling-bakers-formula"
+    ],
+    "confidence": "medium",
+    "notes": "Baker's account of the Raffles sling is equal parts gin, cherry brandy and Bénédictine lengthened with soda — no citrus or pineapple. It shows the colonial Far-East sling before the fruit-juice punch version took over; soda volume is 'to taste'."
+  },
+  {
+    "id": "singapore-sling-raffles",
+    "name": "Singapore Sling",
+    "variant": "Raffles Hotel / IBA modern formula (with pineapple)",
+    "aka": [
+      "Raffles Singapore Sling"
+    ],
+    "family": "punch",
+    "families_secondary": [
+      "resort-punch"
+    ],
+    "year": 1915,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": "Ngiam Tong Boon (attributed)",
+    "venue": "Raffles Hotel",
+    "location": "Singapore",
+    "popularity": 4,
+    "parents": [
+      "Gin Sling"
+    ],
+    "ingredients": [
+      {
+        "id": "gin",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "30 ml gin"
+      },
+      {
+        "id": "cherry-heering",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "15 ml cherry liqueur"
+      },
+      {
+        "id": "triple-sec",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "7.5 ml Cointreau"
+      },
+      {
+        "id": "benedictine",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "7.5 ml Bénédictine"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 4,
+        "unit": "oz",
+        "orig": "120 ml fresh pineapple juice"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "15 ml lime juice"
+      },
+      {
+        "id": "grenadine",
+        "amount": 0.33,
+        "unit": "oz",
+        "orig": "10 ml grenadine"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "hurricane or sling glass",
+    "garnish": [
+      "pineapple",
+      "maraschino cherry"
+    ],
+    "servings": 1,
+    "source": "IBA official cocktail list (Contemporary Classics); Difford's 'Raffles Formula'",
+    "source_urls": [
+      "https://raw.githubusercontent.com/rasmusab/iba-cocktails/main/iba-web/iba-cocktails-web.csv",
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/singapore_sling_raffles_formula.json",
+      "https://www.diffordsguide.com/cocktails/recipe/1825/singapore-sling-raffles-formula"
+    ],
+    "confidence": "high",
+    "notes": "Today's Raffles/IBA sling is a long pineapple punch seasoned with cherry, orange and herbal liqueurs, grenadine and bitters — structurally a resort tropical. The pineapple-heavy formula almost certainly postdates Baker's 1920s equal-parts sling; year reflects the drink's origin."
+  },
+  {
+    "id": "daiquiri-1898",
+    "name": "Daiquiri",
+    "variant": "Original Cox/Stout mixture as recorded by Charles H. Baker (1939)",
+    "aka": [
+      "Original Cuban Daiquiri"
+    ],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1898,
+    "circa": true,
+    "era": "colonial",
+    "creator": "Jennings Cox & Harry E. Stout",
+    "venue": null,
+    "location": "Daiquirí (near Santiago de Cuba), Cuba",
+    "popularity": 3,
+    "parents": [
+      "Canchánchara",
+      "Grog"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "1 whisky glass level full of Bacardi Carta Blanca (or Carta de Oro)"
+      },
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "juice of 1 1/2 small green limes, strained"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 2,
+        "unit": "tsp",
+        "orig": "2 tsp sugar"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "tall flute cocktail glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Charles H. Baker Jr., The Gentleman's Companion Vol. II (1939), 'The One & Only Tropical Daiquiri'",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/The%20Gentleman%E2%80%99s%20Companion%2C%20Volume%20II%20An%20Exotic%20Drinking%20Book%20by%20Charles%20H%20Baker%20Jr%20%281939%29.txt"
+    ],
+    "confidence": "medium",
+    "notes": "Baker credits American mining engineers Jennings Cox and Harry Stout (summer 1898) with lacing boiled drinking water with Bacardi, lime and sugar; the mixture is shaken hard with fine ice and poured unstrained. Baker himself advises cutting the sugar to 1 tsp."
+  },
+  {
+    "id": "daiquiri",
+    "name": "Daiquiri",
+    "variant": "IBA official spec",
+    "aka": [
+      "Daiquirí",
+      "Natural Daiquiri"
+    ],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1898,
+    "circa": true,
+    "era": "colonial",
+    "creator": null,
+    "venue": null,
+    "location": "Cuba",
+    "popularity": 5,
+    "parents": [
+      "Canchánchara",
+      "Grog"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "60 ml white Cuban ron"
+      },
+      {
+        "id": "lime",
+        "amount": 0.67,
+        "unit": "oz",
+        "orig": "20 ml fresh lime juice"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 2,
+        "unit": "barspoon",
+        "orig": "2 bar spoons superfine sugar"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "coupe",
+    "garnish": [],
+    "servings": 1,
+    "source": "IBA official cocktail list (The Unforgettables)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/rasmusab/iba-cocktails/main/iba-web/iba-cocktails-web.csv",
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/daiquiri_diffords_recipe.json",
+      "https://www.diffordsguide.com/cocktails/recipe/611/daiquiri-diffords-recipe"
+    ],
+    "confidence": "high",
+    "notes": "Rum, lime and sugar shaken and served up — punch concentrated into a sour. It is the chassis for Donn Beach's flash-blended rum drinks and, through Trader Vic, the Mai Tai."
+  },
+  {
+    "id": "daiquiri-no-1-floridita",
+    "name": "Daiquiri No. 1",
+    "variant": "Bar La Florida (El Floridita), Havana — 1934/1939 menu books",
+    "aka": [
+      "Daiquiri Natural"
+    ],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1933,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": "Constantino Ribalaigua Vert",
+    "venue": "Bar La Florida (El Floridita)",
+    "location": "Havana, Cuba",
+    "popularity": 3,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "2 oz Bacardi"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon sugar"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "juice of 1/2 lime (limón verde)"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "cocktail glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Cocktails Bar La Florida (Havana, 1934; 1939 'Cuña del Daiquiri' ed.)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cocktails%20Bar%20La%20Florida%20by%20Constante%20Ribalaigua%20Vert%20%281934%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1939%20Bar%20La%20Florida%20Cu%C3%B1a%20del%20Daiquiri%20Cocktail.txt"
+    ],
+    "confidence": "high",
+    "notes": "Constante's base Daiquiri: two ounces of Bacardi, a teaspoon of sugar and half a lime, shaken with cracked ice and strained. By modern standards it is very dry and rum-forward."
+  },
+  {
+    "id": "daiquiri-no-2-floridita",
+    "name": "Daiquiri No. 2",
+    "variant": "Bar La Florida (El Floridita), Havana — 1934/1939 menu books",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1933,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": "Constantino Ribalaigua Vert",
+    "venue": "Bar La Florida (El Floridita)",
+    "location": "Havana, Cuba",
+    "popularity": 2,
+    "parents": [
+      "Daiquiri No. 1"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-gold-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "2 oz Bacardi Carta Oro"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 4,
+        "unit": "dash",
+        "orig": "several dashes curaçao"
+      },
+      {
+        "id": "orange",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon orange juice"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon sugar"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "juice of 1/2 lime"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "cocktail glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Cocktails Bar La Florida (Havana, 1934; 1939 ed.)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cocktails%20Bar%20La%20Florida%20by%20Constante%20Ribalaigua%20Vert%20%281934%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1939%20Bar%20La%20Florida%20Cu%C3%B1a%20del%20Daiquiri%20Cocktail.txt",
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/daiquiri_no_2.json",
+      "https://www.diffordsguide.com/cocktails/recipe/2154/daiquiri-no-2"
+    ],
+    "confidence": "high",
+    "notes": "Gold Bacardi with an orange accent from curaçao and a spoon of orange juice. 'Several dashes' of curaçao is recorded as 4 dashes."
+  },
+  {
+    "id": "daiquiri-no-3-floridita",
+    "name": "Daiquiri No. 3",
+    "variant": "Bar La Florida (El Floridita) — 'Maidique Style' (1934) / 'B. Orbón' (1935–37) / 'Floridita Special' (1939)",
+    "aka": [
+      "Floridita Special"
+    ],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1933,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": "Constantino Ribalaigua Vert",
+    "venue": "Bar La Florida (El Floridita)",
+    "location": "Havana, Cuba",
+    "popularity": 2,
+    "parents": [
+      "Daiquiri No. 1"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "2 oz Bacardi"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 1,
+        "unit": "tbsp",
+        "orig": "1 cucharada (tablespoon) sugar"
+      },
+      {
+        "id": "grapefruit",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon grapefruit juice"
+      },
+      {
+        "id": "maraschino",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon maraschino"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "juice of 1/2 lime"
+      }
+    ],
+    "method": "shake",
+    "ice": "shaved",
+    "glass": "cocktail glass (served frappé)",
+    "garnish": [],
+    "servings": 1,
+    "source": "Cocktails Bar La Florida (Havana, 1934, 1935, 1937, 1939 eds.)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cocktails%20Bar%20La%20Florida%20by%20Constante%20Ribalaigua%20Vert%20%281934%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cocktails%20Bar%20La%20Florida%20by%20Constante%20Ribalaigua%20Vert%20%281935%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cocktails%20Bar%20La%20Florida%20by%20Constante%20Ribalaigua%20Vert%20%281937%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1939%20Bar%20La%20Florida%20Cu%C3%B1a%20del%20Daiquiri%20Cocktail.txt"
+    ],
+    "confidence": "high",
+    "notes": "The grapefruit-and-maraschino Daiquiri that became the Hemingway's template; unlike the others it calls for a tablespoon (cucharada) of sugar in every edition, and is shaken with frappé ice and served frappé."
+  },
+  {
+    "id": "daiquiri-no-4-floridita",
+    "name": "Daiquiri No. 4",
+    "variant": "Bar La Florida (El Floridita) 'Florida Style' — the frappé Daiquiri",
+    "aka": [
+      "Floridita Daiquiri",
+      "Daiquiri Frappé",
+      "Frozen Daiquiri (Floridita)"
+    ],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1933,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": "Constantino Ribalaigua Vert",
+    "venue": "Bar La Florida (El Floridita)",
+    "location": "Havana, Cuba",
+    "popularity": 3,
+    "parents": [
+      "Daiquiri No. 1"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-gold-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "2 oz Bacardi Carta Oro"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon finely granulated sugar"
+      },
+      {
+        "id": "maraschino",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon maraschino"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "juice of 1/2 lime"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "shaved",
+    "glass": "chilled cocktail glass (served frappé)",
+    "garnish": [],
+    "servings": 1,
+    "source": "Cocktails Bar La Florida (1934, 1937, 1939 eds.), incl. Jack Cuddy's 1937 interview with Constante",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cocktails%20Bar%20La%20Florida%20by%20Constante%20Ribalaigua%20Vert%20%281934%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cocktails%20Bar%20La%20Florida%20by%20Constante%20Ribalaigua%20Vert%20%281937%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1939%20Bar%20La%20Florida%20Cu%C3%B1a%20del%20Daiquiri%20Cocktail.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cocktails%20Bar%20La%20Florida%20by%20Constante%20Ribalaigua%20Vert%20%281939-2%29.txt"
+    ],
+    "confidence": "high",
+    "notes": "Constante's signature: shaken on a drugstore spindle mixer with ice shaved 'almost to snow' for about three minutes, then strained through a coarse strainer into chilled glasses. This electric-mixer frappé technique is the direct ancestor of Donn Beach's flash-blending."
+  },
+  {
+    "id": "daiquiri-no-5-floridita",
+    "name": "Daiquiri No. 5",
+    "variant": "Bar La Florida (El Floridita) 1939 — 'Pink' Daiquiri",
+    "aka": [
+      "Pink Daiquiri"
+    ],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1939,
+    "circa": true,
+    "era": "golden",
+    "creator": "Constantino Ribalaigua Vert",
+    "venue": "Bar La Florida (El Floridita)",
+    "location": "Havana, Cuba",
+    "popularity": 2,
+    "parents": [
+      "Daiquiri No. 4"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "2 oz Bacardi"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon sugar"
+      },
+      {
+        "id": "maraschino",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon maraschino"
+      },
+      {
+        "id": "grenadine",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon grenadine syrup"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "juice of 1/2 lime"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "shaved",
+    "glass": "cocktail glass (served frappé)",
+    "garnish": [],
+    "servings": 1,
+    "source": "Bar La Florida — Cuña del Daiquirí Cocktail (Havana, 1939)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1939%20Bar%20La%20Florida%20Cu%C3%B1a%20del%20Daiquiri%20Cocktail.txt",
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/daiquiri_no_5_pink_daiquiri.json",
+      "https://www.diffordsguide.com/cocktails/recipe/2369/daiquiri-no-5-pink-daiquiri"
+    ],
+    "confidence": "high",
+    "notes": "No. 4 tinted pink with a spoon of grenadine, electric-blended with powdered ice. It first appears in the 1939 booklet."
+  },
+  {
+    "id": "hemingway-special-1939",
+    "name": "Hemingway Daiquiri",
+    "variant": "'E. Hemingway Special', Bar La Florida (1939)",
+    "aka": [
+      "E. Hemingway Special",
+      "Hemingway Special",
+      "Papa Doble"
+    ],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1939,
+    "circa": true,
+    "era": "golden",
+    "creator": "Constantino Ribalaigua Vert (for Ernest Hemingway)",
+    "venue": "Bar La Florida (El Floridita)",
+    "location": "Havana, Cuba",
+    "popularity": 3,
+    "parents": [
+      "Daiquiri No. 3"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "2 oz Bacardi"
+      },
+      {
+        "id": "grapefruit",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon grapefruit juice"
+      },
+      {
+        "id": "maraschino",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon maraschino"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "juice of 1/2 lime"
+      }
+    ],
+    "method": "shake",
+    "ice": "shaved",
+    "glass": "cocktail glass (served frappé)",
+    "garnish": [],
+    "servings": 1,
+    "source": "Bar La Florida — Cuña del Daiquirí Cocktail (1939); Floridita Cocktails (1939)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1939%20Bar%20La%20Florida%20Cu%C3%B1a%20del%20Daiquiri%20Cocktail.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Floridita%20Cocktails%20by%20Constante%20Ribalaigua%20Vert%20%281939%29.txt"
+    ],
+    "confidence": "high",
+    "notes": "Daiquiri No. 3 with the sugar left out, for a customer famous for disliking sweet drinks. Later retellings (the 'Papa Doble') double the rum and add more grapefruit; the 1939 menu is the earliest printed spec."
+  },
+  {
+    "id": "hemingway-daiquiri-iba",
+    "name": "Hemingway Daiquiri",
+    "variant": "IBA official 'Hemingway Special' spec (modern)",
+    "aka": [
+      "Hemingway Special"
+    ],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1939,
+    "circa": true,
+    "era": "golden",
+    "creator": null,
+    "venue": null,
+    "location": "Havana, Cuba",
+    "popularity": 4,
+    "parents": [
+      "Daiquiri No. 3"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "60 ml rum"
+      },
+      {
+        "id": "grapefruit",
+        "amount": 1.33,
+        "unit": "oz",
+        "orig": "40 ml grapefruit juice"
+      },
+      {
+        "id": "maraschino",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "15 ml Maraschino Luxardo"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "15 ml fresh lime"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "large cocktail glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "IBA official cocktail list (Contemporary Classics)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/rasmusab/iba-cocktails/main/iba-web/iba-cocktails-web.csv"
+    ],
+    "confidence": "high",
+    "notes": "The modern codified Hemingway: grapefruit becomes a major juice and maraschino the only sweetener, giving a bittersweet, pale-pink sour served up."
+  },
+  {
+    "id": "mulata-daiquiri",
+    "name": "Mulata Daiquiri",
+    "variant": "Bar La Florida (1939) — original with Elixir Bacardí",
+    "aka": [
+      "Mulata",
+      "Daiquiri Mulata"
+    ],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1939,
+    "circa": true,
+    "era": "golden",
+    "creator": null,
+    "venue": "Bar La Florida (El Floridita)",
+    "location": "Havana, Cuba",
+    "popularity": 2,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-aged-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "2 oz Bacardi Añejo ('stale Bacardi rum')"
+      },
+      {
+        "id": "creme-de-cacao",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "1/2 oz Elixir Bacardí (plum-infused rum liqueur, defunct; modern specs use dark crème de cacao)"
+      },
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "squeeze one lime"
+      }
+    ],
+    "method": "shake",
+    "ice": "shaved",
+    "glass": "cocktail glass (served frappé)",
+    "garnish": [],
+    "servings": 1,
+    "source": "Bar La Florida — Cuña del Daiquirí Cocktail (1939); Manual de Coctelería (Havana, 1959)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1939%20Bar%20La%20Florida%20Cu%C3%B1a%20del%20Daiquiri%20Cocktail.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1959%20Manual%20de%20Cocteleria%20a%C3%B1o%20de%20la%20liberacion.txt",
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/mulata_daiquiri.json",
+      "https://www.diffordsguide.com/cocktails/recipe/1375/mulata-daiquiri"
+    ],
+    "confidence": "medium",
+    "notes": "The 'dark' Daiquiri: aged Bacardi with Elixir Bacardí, a sweet plum-rum liqueur that vanished when Bacardi left Cuba; since the 1970s bartenders substitute crème de cacao, which is how it is mapped here."
+  },
+  {
+    "id": "golden-glove-floridita",
+    "name": "Golden Glove",
+    "variant": "Bar La Florida 'Floridita Style' (1934/1937)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1934,
+    "circa": true,
+    "era": "golden",
+    "creator": null,
+    "venue": "Bar La Florida (El Floridita)",
+    "location": "Havana, Cuba",
+    "popularity": 1,
+    "parents": [
+      "Daiquiri No. 4"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "2 oz Jamaica rum"
+      },
+      {
+        "id": "triple-sec",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon Cointreau"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon sugar"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "juice of 1/2 lime"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "shaved",
+    "glass": "cocktail glass (served frappé)",
+    "garnish": [
+      "orange peel expressed over the top"
+    ],
+    "servings": 1,
+    "source": "Cocktails Bar La Florida (Havana, 1934; 1937 ed.)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cocktails%20Bar%20La%20Florida%20by%20Constante%20Ribalaigua%20Vert%20%281934%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cocktails%20Bar%20La%20Florida%20by%20Constante%20Ribalaigua%20Vert%20%281937%29.txt"
+    ],
+    "confidence": "high",
+    "notes": "A Jamaican-rum Daiquiri No. 4 with Cointreau, electric-blended and finished with orange oil — an early pairing of funky Jamaican rum with orange liqueur that the Mai Tai would make famous."
+  },
+  {
+    "id": "mary-pickford",
+    "name": "Mary Pickford",
+    "variant": "Hollywood Cocktails (1933) spec",
+    "aka": [
+      "Mary Pickford Cocktail"
+    ],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1928,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": null,
+    "venue": null,
+    "location": "Havana, Cuba",
+    "popularity": 3,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "1/2 Bacardi rum"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "1/2 pineapple juice"
+      },
+      {
+        "id": "grenadine",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoonful grenadine"
+      },
+      {
+        "id": "maraschino",
+        "amount": 6,
+        "unit": "drop",
+        "orig": "6 drops maraschino"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "cocktail glass",
+    "garnish": [
+      "cherry"
+    ],
+    "servings": 1,
+    "source": "Hollywood Cocktails (1933); same spec in UKBG Approved Cocktails (1937); Club de Cantineros manual (1930) omits the maraschino",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1933%20Hollywood%20Cocktails%20%28third%20printing%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1937%20U.K.B.G.%20Approved%20Cocktails%20%28United%20Kingdom%20Bartender%27s%20Guild%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Club%20de%20Cantinero%20de%20la%20Republica%20de%20Cuba%20Manual%20Oficial%20by%20Gerardo%20Corrales%20%281930%29.txt"
+    ],
+    "confidence": "high",
+    "notes": "A Prohibition-era Havana tribute to the silent-film star: equal rum and pineapple tinted with grenadine and a whisper of maraschino, no citrus. The rum-pineapple-grenadine core is a straight line to Don the Beachcomber's pineapple drinks."
+  },
+  {
+    "id": "hotel-nacional-special",
+    "name": "Hotel Nacional Special",
+    "variant": "Wil P. Taylor's recipe, as given by Charles H. Baker (1939)",
+    "aka": [
+      "Hotel Nacional",
+      "Nacional"
+    ],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1933,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": "Wil P. Taylor",
+    "venue": "Hotel Nacional de Cuba",
+    "location": "Havana, Cuba",
+    "popularity": 3,
+    "parents": [
+      "Mary Pickford",
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-gold-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "1 jigger Bacardi Carta de Oro"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "1 jigger fresh pineapple juice"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "juice of 1/2 lime"
+      },
+      {
+        "id": "apricot-liqueur",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 tsp dry apricot brandy"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "tall stemmed cocktail glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Charles H. Baker Jr., The Gentleman's Companion Vol. II (1939)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/The%20Gentleman%E2%80%99s%20Companion%2C%20Volume%20II%20An%20Exotic%20Drinking%20Book%20by%20Charles%20H%20Baker%20Jr%20%281939%29.txt",
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/hotel_nacional_special.json",
+      "https://www.diffordsguide.com/cocktails/recipe/1383/hotel-nacional-special"
+    ],
+    "confidence": "high",
+    "notes": "Baker credits hotel manager Wil Taylor and calls it a Mary Pickford with lime added: gold Bacardi and fresh pineapple sharpened with lime and scented with apricot brandy. Donn Beach's pineapple-and-apricot rum drinks sit right next to it."
+  },
+  {
+    "id": "national-cocktail-floridita",
+    "name": "Hotel Nacional Special",
+    "variant": "'National Cocktail', Bar La Florida (1934–1939) — no lime",
+    "aka": [
+      "National Cocktail",
+      "Nacional"
+    ],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1934,
+    "circa": true,
+    "era": "golden",
+    "creator": null,
+    "venue": "Bar La Florida (El Floridita)",
+    "location": "Havana, Cuba",
+    "popularity": 1,
+    "parents": [
+      "Mary Pickford"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "1/2 Bacardi"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "1/4 pineapple juice"
+      },
+      {
+        "id": "apricot-liqueur",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "1/4 apricot brandy"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "cocktail glass",
+    "garnish": [
+      "pineapple slices",
+      "cherries"
+    ],
+    "servings": 1,
+    "source": "Cocktails Bar La Florida (1934, 1935, 1939 eds.); 1948 Club de Cantineros manual adds 'drops of lime'",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cocktails%20Bar%20La%20Florida%20by%20Constante%20Ribalaigua%20Vert%20%281934%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cocktails%20Bar%20La%20Florida%20by%20Constante%20Ribalaigua%20Vert%20%281935%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1939%20Bar%20La%20Florida%20Cu%C3%B1a%20del%20Daiquiri%20Cocktail.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/El%20Arte%20del%20Cantinero%20by%20Hilaro%20Alonso%20Sanchez%20%281948%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1935%20Old%20Waldorf-Astoria%20Bar%20Book.txt"
+    ],
+    "confidence": "high",
+    "notes": "Havana's bar books print the 'National' as half rum and a quarter each of pineapple and apricot brandy, with no lime — a much sweeter, apricot-forward drink than Baker's Hotel Nacional Special. The 1935 Old Waldorf version instead uses equal rum and pineapple with a dash of apricot."
+  },
+  {
+    "id": "havana-special",
+    "name": "Havana Special",
+    "variant": "Bar La Florida (1939)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1939,
+    "circa": true,
+    "era": "golden",
+    "creator": null,
+    "venue": "Bar La Florida (El Floridita)",
+    "location": "Havana, Cuba",
+    "popularity": 1,
+    "parents": [
+      "Mary Pickford"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "1/2 Bacardi (or Havana Club)"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "1/2 pineapple juice"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon sugar"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "cocktail glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Bar La Florida — Cuña del Daiquirí Cocktail (1939); Floridita Cocktails (1939)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1939%20Bar%20La%20Florida%20Cu%C3%B1a%20del%20Daiquiri%20Cocktail.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Floridita%20Cocktails%20by%20Constante%20Ribalaigua%20Vert%20%281939%29.txt"
+    ],
+    "confidence": "high",
+    "notes": "Rum and pineapple in equal parts with a spoon of sugar, shaken hard and strained — the plainest of the Havana pineapple cocktails. Sloppy Joe's (1939–40) served a different Havana Special of equal rum, pineapple and Cointreau."
+  },
+  {
+    "id": "isle-of-pines",
+    "name": "Isle of Pines",
+    "variant": "Cuban Cookery (Havana, 1931)",
+    "aka": [
+      "Isle of Pines Cocktail",
+      "Bacardi Isle of Pines"
+    ],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1931,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": null,
+    "venue": null,
+    "location": "Havana, Cuba",
+    "popularity": 1,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "2/3 Bacardi rum"
+      },
+      {
+        "id": "grapefruit",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "1/3 grapefruit juice"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.5,
+        "unit": "tsp",
+        "orig": "1/2 teaspoonful sugar"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "very cold cocktail glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Blanche Z. de Baralt, Cuban Cookery (1931); also 'Jimmy' of Ciro's, Cocktails (1930) and Old Waldorf-Astoria Bar Book (1935)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cuban%20Cookery%20by%20Blanche%20Z%20de%20Baralt%20%281931%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1930%20Cocktails%20by%20_Jimmy_%20late%20of%20Ciro%27s%20London.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1935%20Old%20Waldorf-Astoria%20Bar%20Book.txt"
+    ],
+    "confidence": "high",
+    "notes": "Named for Cuba's grapefruit-growing Isla de Pinos: a Daiquiri in which grapefruit replaces the lime, barely sweetened. Grapefruit as a rum partner runs from here to the Hemingway, the Navy Grog and Don's Mix."
+  },
+  {
+    "id": "periodista",
+    "name": "Periodista",
+    "variant": "Difford's Guide 'Periodista Daiquiri' (after the 1948 Cuban bartenders' manual)",
+    "aka": [
+      "Periodista Daiquiri"
+    ],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1948,
+    "circa": true,
+    "era": "golden",
+    "creator": null,
+    "venue": null,
+    "location": "Havana, Cuba",
+    "popularity": 2,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 1.67,
+        "unit": "oz",
+        "orig": "50 ml light white rum"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "7.5 ml orange curaçao"
+      },
+      {
+        "id": "apricot-liqueur",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "7.5 ml apricot brandy liqueur"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "15 ml lime juice"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.17,
+        "unit": "oz",
+        "orig": "5 ml rich syrup"
+      },
+      {
+        "id": "saline",
+        "amount": 2,
+        "unit": "drop"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "coupe",
+    "garnish": [
+      "lime wedge",
+      "cherry"
+    ],
+    "servings": 1,
+    "source": "Difford's Guide, 'Periodista Daiquiri'; earliest known print: El Arte del Cantinero (Club de Cantineros, Havana, 1948)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/periodista_daiquiri.json",
+      "https://www.diffordsguide.com/cocktails/recipe/1510/periodista-daiquiri",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/El%20Arte%20del%20Cantinero%20by%20Hilaro%20Alonso%20Sanchez%20%281948%29.txt"
+    ],
+    "confidence": "medium",
+    "notes": "'The journalist': a Bacardi Daiquiri seasoned with small amounts of apricot brandy and curaçao, first printed in Havana's 1948 bartenders' manual (whose OCR-garbled fractions are hard to read); Boston's revived version uses more lime and liqueur."
+  },
+  {
+    "id": "bacardi-cocktail",
+    "name": "Bacardi Cocktail",
+    "variant": "Grenadine version, 'Lest We Forget' (1933); earliest grenadine print Jacques Straub (1914)",
+    "aka": [
+      "Bacardi"
+    ],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1914,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": null,
+    "venue": null,
+    "location": "Cuba / New York",
+    "popularity": 3,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "2/3 Bacardi rum"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "juice of half a lime"
+      },
+      {
+        "id": "grenadine",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "one teaspoonful grenadine"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "cocktail glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Lest We Forget (1933); Jacques Straub, Drinks (1914)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1933%20Lest%20We%20Forget.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Drinks%20by%20Jacques%20Straub%20%281914%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1917%20Recipes%20for%20Mixed%20Drinks%20by%20Hugo%20R%20Ensslin%20%28second%20edition%29.txt",
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/bacardi_cocktail.json",
+      "https://www.diffordsguide.com/cocktails/recipe/143/bacardi-cocktail"
+    ],
+    "confidence": "medium",
+    "notes": "A pink Daiquiri sweetened with grenadine that became so popular in the 1930s that a 1936 New York court ruled it must be made with Bacardi. Some early books (Ensslin 1917) print it as a plain Daiquiri with gum syrup."
+  },
+  {
+    "id": "air-mail",
+    "name": "Air Mail",
+    "variant": "Difford's Guide spec (after Bacardi pamphlet, 1930s; Esquire, 1949)",
+    "aka": [
+      "Airmail"
+    ],
+    "family": "daiquiri",
+    "families_secondary": [
+      "buck"
+    ],
+    "year": 1930,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": null,
+    "venue": null,
+    "location": "Cuba",
+    "popularity": 3,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-gold-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "30 ml light gold rum (Bacardi Gold in the Bacardi leaflet)"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "15 ml lime juice"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 0.8,
+        "unit": "oz",
+        "orig": "15 ml 3:1 honey syrup (≈0.8 oz 1:1 honey mix)"
+      },
+      {
+        "id": "sparkling-wine",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "45 ml brut champagne, to top"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "highball (max 10 oz)",
+    "garnish": [
+      "mint sprig tip (optional)"
+    ],
+    "servings": 1,
+    "source": "Difford's Guide, 'Air Mail' (history: 1930s Bacardi pamphlet 'Bacardi and Its Many Uses'; Whitfield 1941; Embury 1948; Esquire 1949)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/air_mail.json",
+      "https://www.diffordsguide.com/cocktails/recipe/27/air-mail"
+    ],
+    "confidence": "medium",
+    "notes": "A honey Daiquiri with gold rum topped with champagne and served tall over ice — honey-sweetened rum sours like this lead straight to Donn Beach's 'honey mix' drinks."
+  },
+  {
+    "id": "doctor-cocktail",
+    "name": "Doctor Cocktail",
+    "variant": "Swedish punsch and lime (Ensslin 1917; UKBG 1937 proportions)",
+    "aka": [
+      "Doctor",
+      "Doctor No. 1"
+    ],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1917,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": null,
+    "venue": null,
+    "location": null,
+    "popularity": 2,
+    "parents": [
+      "Arrack Punch"
+    ],
+    "ingredients": [
+      {
+        "id": "swedish-punsch",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "2/3 Swedish punch (Cederlund's in Ensslin)"
+      },
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "1/3 lemon or fresh lime juice (Ensslin: juice of 1 lime)"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "cocktail glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Hugo R. Ensslin, Recipes for Mixed Drinks (1917); U.K.B.G. Approved Cocktails (1937)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1917%20Recipes%20for%20Mixed%20Drinks%20by%20Hugo%20R%20Ensslin%20%28second%20edition%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1937%20U.K.B.G.%20Approved%20Cocktails%20%28United%20Kingdom%20Bartender%27s%20Guild%29.txt",
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/doctor_no_1.json",
+      "https://www.diffordsguide.com/cocktails/recipe/2630/doctor-no-1"
+    ],
+    "confidence": "high",
+    "notes": "Swedish punsch — a bottled descendant of the old Batavia arrack punch — simply soured with lime. Trader Vic reprinted a Doctor (1947), and punsch-and-lime drinks inspired later tiki riffs like the Doctor Funk."
+  },
+  {
+    "id": "caipirinha",
+    "name": "Caipirinha",
+    "variant": "IBA official spec",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1918,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": null,
+    "venue": null,
+    "location": "São Paulo state, Brazil",
+    "popularity": 4,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-cachaca",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "60 ml cachaça"
+      },
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "1 lime cut into small wedges, muddled"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 4,
+        "unit": "tsp",
+        "orig": "4 teaspoons white cane sugar"
+      }
+    ],
+    "method": "muddle-build",
+    "ice": "crushed",
+    "glass": "double old fashioned",
+    "garnish": [],
+    "servings": 1,
+    "source": "IBA official cocktail list (Contemporary Classics)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/rasmusab/iba-cocktails/main/iba-web/iba-cocktails-web.csv",
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/caipirinha.json",
+      "https://www.diffordsguide.com/cocktails/recipe/354/caipirinha"
+    ],
+    "confidence": "high",
+    "notes": "Brazil's national drink: lime wedges muddled with sugar so the peel oils join the juice, then cachaça over cracked ice. Origin stories point to the São Paulo countryside around the 1918 flu epidemic; the lime yield of muddled wedges is estimated."
+  },
+  {
+    "id": "west-indian-swizzle",
+    "name": "West Indian Swizzle",
+    "variant": "Angostura Bitters Centenary Gift Book (Trinidad, 1924)",
+    "aka": [
+      "Rum Swizzle",
+      "Trinidad Rum Swizzle",
+      "Demerara Swizzle"
+    ],
+    "family": "swizzle",
+    "families_secondary": [],
+    "year": 1924,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": null,
+    "venue": null,
+    "location": "Trinidad / British Guiana",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "half wineglass brandy or Jamaica rum"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "one teaspoonful fine sugar"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "one teaspoonful Dr. Siegert's Angostura Bitters"
+      }
+    ],
+    "method": "swizzle",
+    "ice": "crushed",
+    "glass": "cocktail glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Angostura Bitters Centenary Gift Book of Cocktail and Other Recipes (1924); cf. Bird & Turner, Cocktails: Their Kicks and Side-Kicks (1933) 'Rum Swizzle'",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1924%20Angostura%20Bitters%20Centenary%20Gift%20Book%20of%20Cocktail%20and%20other%20recipes.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1933%20Cocktails%20Their%20Kicks%20and%20Side-Kicks%20by%20Bird%20and%20Turner.txt"
+    ],
+    "confidence": "high",
+    "notes": "The old Caribbean bitters swizzle: spirit, sugar and a whole teaspoon of Angostura beaten with half a wineglass of crushed ice until the ice melts, then poured off. Bird & Turner (1933) give the same no-citrus pitcher formula and trace the Rum Swizzle to Demerara."
+  },
+  {
+    "id": "queens-park-swizzle",
+    "name": "Queen's Park Swizzle",
+    "variant": "Smuggler's Cove spec",
+    "aka": [],
+    "family": "swizzle",
+    "families_secondary": [],
+    "year": 1920,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": null,
+    "venue": "Queen's Park Hotel",
+    "location": "Port of Spain, Trinidad",
+    "popularity": 4,
+    "parents": [
+      "West Indian Swizzle"
+    ],
+    "ingredients": [
+      {
+        "id": "mint",
+        "amount": 4,
+        "unit": "leaves",
+        "orig": "4 whole mint leaves"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "1/2 oz fresh lime juice"
+      },
+      {
+        "id": "demerara-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "1/2 oz SC Demerara Syrup"
+      },
+      {
+        "id": "rum-black-blended",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "2 oz black blended rum (Demerara style)"
+      },
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash"
+      }
+    ],
+    "method": "swizzle",
+    "ice": "crushed",
+    "glass": "collins or pilsner",
+    "garnish": [
+      "mint sprig",
+      "Angostura crown on top"
+    ],
+    "servings": 1,
+    "source": "Martin & Rebecca Cate, Smuggler's Cove (2016)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/stephencattaneo/sc-drink-helper/main/data_generation/processor/raw_data/queensparkswizzle.txt",
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/queens_park_swizzle.json",
+      "https://www.diffordsguide.com/cocktails/recipe/2740/queens-park-swizzle"
+    ],
+    "confidence": "high",
+    "notes": "The signature of Trinidad's Queen's Park Hotel (opened 1895): dark Demerara-style rum, lime, demerara sugar and mint swizzled until the glass frosts, then crowned with Angostura. Trader Vic printed it in 1946–47 and praised it lavishly, carrying it into the tiki canon."
+  },
+  {
+    "id": "bermuda-rum-swizzle",
+    "name": "Bermuda Rum Swizzle",
+    "variant": "Swizzle Inn style (Difford's Guide, via Del Pedro)",
+    "aka": [
+      "Rum Swizzle (Bermuda)"
+    ],
+    "family": "swizzle",
+    "families_secondary": [
+      "resort-punch"
+    ],
+    "year": 1932,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": null,
+    "venue": "Swizzle Inn",
+    "location": "Bailey's Bay, Bermuda",
+    "popularity": 3,
+    "parents": [
+      "West Indian Swizzle"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-gold-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "30 ml light gold rum (Gosling's Gold)"
+      },
+      {
+        "id": "rum-black-blended",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "30 ml dark/blackstrap rum (Gosling's Black Seal)"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "22.5 ml falernum liqueur"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "grapefruit",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "15 ml pink grapefruit juice"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash"
+      }
+    ],
+    "method": "swizzle",
+    "ice": "crushed",
+    "glass": "collins",
+    "garnish": [],
+    "servings": 1,
+    "source": "Difford's Guide, 'Bermuda Rum Swizzle' (adapted from Del Pedro's Swizzle Inn recipe)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/bermuda_rum_swizzle.json",
+      "https://www.diffordsguide.com/cocktails/recipe/544/bermuda-rum-swizzle"
+    ],
+    "confidence": "medium",
+    "notes": "Bermuda's national drink as poured at the Swizzle Inn (founded 1932): Gosling's gold and black rums with pineapple, orange and lemon-lime juices, falernum and Angostura, swizzled by the pitcher. The juicier, falernum-spiced style anticipates the resort punches."
+  },
+  {
+    "id": "corn-n-oil",
+    "name": "Corn 'n' Oil",
+    "variant": "Smuggler's Cove spec",
+    "aka": [
+      "Corn and Oil"
+    ],
+    "family": "stirred",
+    "families_secondary": [
+      "swizzle"
+    ],
+    "year": null,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": null,
+    "venue": null,
+    "location": "Barbados",
+    "popularity": 3,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-barbados",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "2 oz blended aged rum (Barbados); blackstrap rum is also common"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "1/2 oz John D. Taylor's Velvet Falernum"
+      },
+      {
+        "id": "angostura",
+        "amount": 3,
+        "unit": "dash",
+        "orig": "2 to 4 dashes Angostura bitters"
+      }
+    ],
+    "method": "build",
+    "ice": "crushed",
+    "glass": "old fashioned",
+    "garnish": [
+      "lime wedge"
+    ],
+    "servings": 1,
+    "source": "Martin & Rebecca Cate, Smuggler's Cove (2016); Difford's Guide 'Corn 'n' Oil'",
+    "source_urls": [
+      "https://raw.githubusercontent.com/stephencattaneo/sc-drink-helper/main/data_generation/processor/raw_data/cornandoli.txt",
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/corn_n_oil.json",
+      "https://www.diffordsguide.com/cocktails/recipe/3029/corn-n-oil"
+    ],
+    "confidence": "high",
+    "notes": "A Barbadian planters' dram of rum and falernum with bitters, named (per Difford's) for a line in Deuteronomy about corn, wine and oil; it was popularized on the Velvet Falernum back label. It is the prototype of the spirit-forward rum-and-spice 'stirred' tropicals."
+  },
+  {
+    "id": "presidente-menocal-special",
+    "name": "Presidente Menocal Special",
+    "variant": "Bar La Florida (1934–1939)",
+    "aka": [],
+    "family": "swizzle",
+    "families_secondary": [
+      "buck"
+    ],
+    "year": 1915,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": null,
+    "venue": "Bar La Florida (El Floridita)",
+    "location": "Havana, Cuba",
+    "popularity": 1,
+    "parents": [
+      "Mint Julep"
+    ],
+    "ingredients": [
+      {
+        "id": "mint",
+        "unit": "sprig",
+        "orig": "plenty of mint leaves, crushed"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon sugar"
+      },
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "several drops of lime juice"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "2 oz Bacardi"
+      }
+    ],
+    "method": "muddle-build",
+    "ice": "crushed",
+    "glass": "8 oz glass",
+    "garnish": [
+      "whole mint sprig",
+      "2 cherries"
+    ],
+    "servings": 1,
+    "source": "Cocktails Bar La Florida (Havana, 1934, 1935, 1939 eds.)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cocktails%20Bar%20La%20Florida%20by%20Constante%20Ribalaigua%20Vert%20%281934%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cocktails%20Bar%20La%20Florida%20by%20Constante%20Ribalaigua%20Vert%20%281935%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cocktails%20Bar%20La%20Florida%20by%20Constante%20Ribalaigua%20Vert%20%281939%29.txt"
+    ],
+    "confidence": "high",
+    "notes": "A Cuban rum julep named for President Mario García Menocal (1913–21): mint crushed with sugar and a few drops of lime, Bacardi, and a glass packed with crushed ice. It sits between the Mojito and the mint-bouquet swizzles; 'several drops' of lime is recorded as 1 tsp."
+  },
+  {
+    "id": "mojito",
+    "name": "Mojito",
+    "variant": "'Mojito Criollo No. 1', Bar La Florida (1934)",
+    "aka": [
+      "Mojito Criollo"
+    ],
+    "family": "buck",
+    "families_secondary": [
+      "daiquiri"
+    ],
+    "year": 1931,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": null,
+    "venue": null,
+    "location": "Havana, Cuba",
+    "popularity": 5,
+    "parents": [
+      "El Draque",
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "mint",
+        "unit": "sprig",
+        "orig": "several sprigs of mint, bruised in the glass"
+      },
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "peel of one lime with its juice squeezed into the glass"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoon sugar"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "2 oz Bacardi"
+      },
+      {
+        "id": "soda-water",
+        "amount": 2,
+        "unit": "top",
+        "orig": "sparkling water to fill an 8 oz glass"
+      }
+    ],
+    "method": "muddle-build",
+    "ice": "crushed",
+    "glass": "8 oz highball",
+    "garnish": [
+      "mint sprig",
+      "spent lime shell"
+    ],
+    "servings": 1,
+    "source": "Cocktails Bar La Florida (Havana, 1934; 1935 ed.); same build in Sloppy Joe's Bar manuals (1931–1940) and Club de Cantineros (1930)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cocktails%20Bar%20La%20Florida%20by%20Constante%20Ribalaigua%20Vert%20%281934%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cocktails%20Bar%20La%20Florida%20by%20Constante%20Ribalaigua%20Vert%20%281935%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1940%20Sloppy%20Joe%27s%20%28%20season%201940%20%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Club%20de%20Cantinero%20de%20la%20Republica%20de%20Cuba%20Manual%20Oficial%20by%20Gerardo%20Corrales%20%281930%29.txt"
+    ],
+    "confidence": "high",
+    "notes": "Havana's rum highball: lime shell and juice, sugar and mint stirred so the mint gives up its juice, then rum and sparkling water, served unstrained over cracked ice. Printed by Havana bars from the early 1930s; folk ancestry is traced to the older 'Draque'."
+  },
+  {
+    "id": "cuba-libre",
+    "name": "Cuba Libre",
+    "variant": "Sloppy Joe's Bar, Havana (1940 manual)",
+    "aka": [
+      "Rum and Coke"
+    ],
+    "family": "buck",
+    "families_secondary": [],
+    "year": 1900,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": null,
+    "venue": "Sloppy Joe's Bar",
+    "location": "Havana, Cuba",
+    "popularity": 4,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "1 1/2 oz rum (Sloppy Joe's)"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "juice of half a lime"
+      },
+      {
+        "id": "cola",
+        "amount": 3.25,
+        "unit": "oz",
+        "orig": "1/2 bottle Coca-Cola (6.5 oz bottle)"
+      }
+    ],
+    "method": "build",
+    "ice": "cubed",
+    "glass": "10 oz highball",
+    "garnish": [
+      "lime shell"
+    ],
+    "servings": 1,
+    "source": "Sloppy Joe's Bar Cocktails Manual (Havana, season 1940); cf. Zabriskie (1948), Baker (1939)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1940%20Sloppy%20Joe%27s%20%28%20season%201940%20%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1948%20The%20Bon%20Vivant%27s%20Companion%20by%20George%20A%20Zabriskie%20%282nd%20edition%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/The%20Gentleman%E2%80%99s%20Companion%2C%20Volume%20II%20An%20Exotic%20Drinking%20Book%20by%20Charles%20H%20Baker%20Jr%20%281939%29.txt",
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/cuba_libre.json",
+      "https://www.diffordsguide.com/cocktails/recipe/495/cuba-libre"
+    ],
+    "confidence": "high",
+    "notes": "Rum, lime and Coca-Cola, said to date from the years just after 1898. Baker complained it was too sweet and muddled the lime peel to add bitterness; the lime is what separates it from a plain rum-and-coke."
+  },
+  {
+    "id": "dark-n-stormy",
+    "name": "Dark 'n Stormy",
+    "variant": "IBA official spec",
+    "aka": [
+      "Dark and Stormy",
+      "Dark 'n' Stormy"
+    ],
+    "family": "buck",
+    "families_secondary": [],
+    "year": 1920,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": null,
+    "venue": null,
+    "location": "Bermuda",
+    "popularity": 4,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-black-blended",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "60 ml Gosling's (Black Seal) rum",
+        "float": true
+      },
+      {
+        "id": "ginger-beer",
+        "amount": 3.4,
+        "unit": "oz",
+        "orig": "100 ml ginger beer"
+      }
+    ],
+    "method": "build",
+    "ice": "cubed",
+    "glass": "highball",
+    "garnish": [
+      "lime wedge or slice"
+    ],
+    "servings": 1,
+    "source": "IBA official cocktail list (New Era Drinks)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/rasmusab/iba-cocktails/main/iba-web/iba-cocktails-web.csv"
+    ],
+    "confidence": "high",
+    "notes": "Bermuda's black rum floated on spicy ginger beer — a trademark of Gosling's, whose lore places it just after World War I. It is the template for the rum-and-ginger tiki coolers."
+  },
+  {
+    "id": "grog",
+    "name": "Grog",
+    "variant": "Difford's single-serve after Admiral Vernon's 1740 ration",
+    "aka": [
+      "Navy Grog (original)",
+      "Vernon's Grog"
+    ],
+    "family": "grog",
+    "families_secondary": [],
+    "year": 1740,
+    "circa": false,
+    "era": "colonial",
+    "creator": "Admiral Edward Vernon (ration order)",
+    "venue": null,
+    "location": "Royal Navy, Caribbean station",
+    "popularity": 3,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-navy",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "60 ml navy rum (54.5% abv)"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "15 ml lime juice"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "15 ml rich sugar syrup"
+      },
+      {
+        "id": "water",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "45 ml chilled water"
+      },
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "double old fashioned",
+    "garnish": [
+      "lime wedge"
+    ],
+    "servings": 1,
+    "source": "Difford's Guide, 'Grog' (history: Vernon's 1740 order cutting the half-pint ration with water, 4:1)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/grog.json",
+      "https://www.diffordsguide.com/cocktails/recipe/920/grog"
+    ],
+    "confidence": "medium",
+    "notes": "In 1740 Admiral Vernon ('Old Grogram') ordered the half-pint daily rum ration served in two portions diluted with four parts water, with lime and sugar allowed to make it palatable. The historical ration was far weaker than this modern single serve; Donn Beach's Navy Grog is its luxurious descendant."
+  },
+  {
+    "id": "hot-buttered-rum-1862",
+    "name": "Hot Buttered Rum",
+    "variant": "'Hot Spiced Rum', Jerry Thomas (1862)",
+    "aka": [
+      "Hot Spiced Rum"
+    ],
+    "family": "hot",
+    "families_secondary": [],
+    "year": 1862,
+    "circa": false,
+    "era": "colonial",
+    "creator": null,
+    "venue": null,
+    "location": "United States",
+    "popularity": 3,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "1 wine-glass Jamaica rum"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 teaspoonful sugar"
+      },
+      {
+        "id": "clove",
+        "unit": "pinch",
+        "orig": "1 teaspoonful mixed spices (allspice and cloves)",
+        "garnish": true
+      },
+      {
+        "id": "butter",
+        "amount": 2,
+        "unit": "tsp",
+        "orig": "1 piece of butter as large as half a chestnut"
+      },
+      {
+        "id": "hot-water",
+        "amount": 4,
+        "unit": "oz",
+        "orig": "fill tumbler with hot water"
+      }
+    ],
+    "method": "hot",
+    "ice": "none",
+    "glass": "small bar glass / tumbler",
+    "garnish": [],
+    "servings": 1,
+    "source": "Jerry Thomas, How to Mix Drinks (1862), No. 207 'Hot Spiced Rum'",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/1862%20The%20Bar%20Tender%27s%20Guide%20price%20%241.50%20by%20Jerry%20Thomas.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/The%20Gentleman%E2%80%99s%20Companion%2C%20Volume%20II%20An%20Exotic%20Drinking%20Book%20by%20Charles%20H%20Baker%20Jr%20%281939%29.txt"
+    ],
+    "confidence": "medium",
+    "notes": "Colonial America's winter rum: Jamaica rum, sugar, allspice and cloves, a knob of butter and boiling water. Trader Vic and Don the Beachcomber later sold batter-based versions; allspice is noted in orig since only cloves map to the vocabulary."
+  },
+  {
+    "id": "el-presidente-1930",
+    "name": "El Presidente",
+    "variant": "Club de Cantineros de la República de Cuba manual (1930)",
+    "aka": [
+      "Presidente",
+      "Presidente Cocktail"
+    ],
+    "family": "stirred",
+    "families_secondary": [],
+    "year": 1915,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": null,
+    "venue": null,
+    "location": "Havana, Cuba",
+    "popularity": 3,
+    "parents": [
+      "Manhattan"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "1/2 ron"
+      },
+      {
+        "id": "dry-vermouth",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "1/2 vermouth Chambéry (blanc)"
+      },
+      {
+        "id": "grenadine",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "cucharadita de granadina"
+      }
+    ],
+    "method": "stir",
+    "ice": "cubed",
+    "glass": "cocktail glass",
+    "garnish": [
+      "cherry",
+      "orange peel"
+    ],
+    "servings": 1,
+    "source": "Manual Oficial, Club de Cantineros de la República de Cuba (1930); same in El Arte del Cantinero (1948)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Club%20de%20Cantinero%20de%20la%20Republica%20de%20Cuba%20Manual%20Oficial%20by%20Gerardo%20Corrales%20%281930%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/El%20Arte%20del%20Cantinero%20by%20Hilaro%20Alonso%20Sanchez%20%281948%29.txt",
+      "https://raw.githubusercontent.com/LauraMarby/IA-SRI-SIM_Project/main/src/data/el_presidente.json",
+      "https://www.diffordsguide.com/cocktails/recipe/701/el-presidente"
+    ],
+    "confidence": "high",
+    "notes": "Havana's answer to the Manhattan, first recorded in a 1915 Cuban bartender's manual: equal rum and Chambéry-style vermouth, stirred and pinked with grenadine. Chambéry blanc is mapped to dry vermouth."
+  },
+  {
+    "id": "el-presidente-floridita",
+    "name": "El Presidente",
+    "variant": "Bar La Florida (1934) — curaçao instead of grenadine",
+    "aka": [
+      "Presidente Cocktail (Floridita)"
+    ],
+    "family": "stirred",
+    "families_secondary": [],
+    "year": 1933,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": "Constantino Ribalaigua Vert (claimed)",
+    "venue": "Bar La Florida (El Floridita)",
+    "location": "Havana, Cuba",
+    "popularity": 2,
+    "parents": [
+      "Manhattan"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-gold-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "1/2 Bacardi Oro"
+      },
+      {
+        "id": "dry-vermouth",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "1/2 vermouth Chambéry"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 0.5,
+        "unit": "tsp",
+        "orig": "1/2 teaspoonful curaçao"
+      }
+    ],
+    "method": "stir",
+    "ice": "cubed",
+    "glass": "cocktail glass",
+    "garnish": [
+      "cherries",
+      "orange peel"
+    ],
+    "servings": 1,
+    "source": "Cocktails Bar La Florida (Havana, 1934; 1937, 1939 eds.)",
+    "source_urls": [
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cocktails%20Bar%20La%20Florida%20by%20Constante%20Ribalaigua%20Vert%20%281934%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Cocktails%20Bar%20La%20Florida%20by%20Constante%20Ribalaigua%20Vert%20%281937%29.txt",
+      "https://raw.githubusercontent.com/robinn4k/Stirio/main/data/euvs-books/Floridita%20Cocktails%20by%20Constante%20Ribalaigua%20Vert%20%281939%29.txt"
+    ],
+    "confidence": "high",
+    "notes": "Constante, who told a 1937 interviewer he invented the Presidente, made it with gold Bacardi and a half-spoon of curaçao and no grenadine. Modern specs combine both versions (curaçao plus a barspoon of grenadine)."
+  }
+]

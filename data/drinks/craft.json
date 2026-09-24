@@ -1,0 +1,4455 @@
+[
+  {
+    "id": "top-notch-volcano",
+    "name": "Top Notch Volcano",
+    "variant": "",
+    "aka": [],
+    "family": "punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Smuggler's Cove staff (Martin Cate)",
+    "venue": "Smuggler's Cove",
+    "location": "San Francisco, California, USA",
+    "popularity": 2,
+    "parents": [
+      "Volcano Bowl"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 4,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 4,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-juice",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "passion fruit purée"
+      },
+      {
+        "id": "demerara-syrup",
+        "amount": 3,
+        "unit": "oz",
+        "orig": "SC Demerara Syrup"
+      },
+      {
+        "id": "maraschino",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Luxardo Maraschino"
+      },
+      {
+        "id": "rum-blended-light",
+        "amount": 4,
+        "unit": "oz",
+        "orig": "blended lightly aged rum (e.g. Denizen Aged White)"
+      },
+      {
+        "id": "rum-aged-column",
+        "amount": 4,
+        "unit": "oz",
+        "orig": "blended aged rum (e.g. Diplomático Reserva Exclusiva)"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "volcano bowl",
+    "garnish": [
+      "flaming lime shell"
+    ],
+    "servings": 4,
+    "source": "Martin & Rebecca Cate, Smuggler's Cove: Exotic Cocktails, Rum, and the Cult of Tiki (2016), p. 134",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/05_Curating%20the%20Experience/top-notch-volcano.json",
+      "https://github.com/stephencattaneo/sc-drink-helper/blob/main/data.json",
+      "https://cocktailvirgin.blogspot.com/2016/07/top-notch-volcano.html",
+      "https://kindredcocktails.com/cocktail/top-notch-volcano"
+    ],
+    "confidence": "high",
+    "notes": "Smuggler's Cove's sharing bowl, named for the bar's designer Ignacio 'Notch' Gonzalez. Unlike the 1970s Volcano Bowl it is a passion fruit–maraschino daiquiri scaled up for four, flash-blended in two batches and set alight."
+  },
+  {
+    "id": "expedition",
+    "name": "The Expedition",
+    "variant": "",
+    "aka": [
+      "Expedition"
+    ],
+    "family": "beachcomber-sour",
+    "families_secondary": [
+      "zombie"
+    ],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Martin Cate",
+    "venue": "Smuggler's Cove",
+    "location": "San Francisco, California, USA",
+    "popularity": 2,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "cinnamon-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "vanilla-syrup",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "coffee-liqueur",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "Bittermens New Orleans Coffee Liqueur"
+      },
+      {
+        "id": "rum-black-blended",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "black blended rum"
+      },
+      {
+        "id": "bourbon",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "soda-water",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "seltzer"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "tiki mug",
+    "garnish": [
+      "edible orchid"
+    ],
+    "servings": 1,
+    "source": "Martin & Rebecca Cate, Smuggler's Cove: Exotic Cocktails, Rum, and the Cult of Tiki (2016), p. 140",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/05_Curating%20the%20Experience/the-expedition.json",
+      "https://github.com/stephencattaneo/sc-drink-helper/blob/main/data.json",
+      "https://cocktailvirgin.blogspot.com/2016/08/the-expedition.html"
+    ],
+    "confidence": "high",
+    "notes": "Cate's homage to Donn Beach: a dark daiquiri skeleton layered with Don-style cinnamon, honey and vanilla plus a quarter ounce of coffee liqueur. Splitting the base between black rum and bourbon shows how whiskey slots into a Beachcomber spice sour."
+  },
+  {
+    "id": "mastadon",
+    "name": "The Mastadon",
+    "variant": "",
+    "aka": [
+      "Mastodon"
+    ],
+    "family": "resort-punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Alex Smith",
+    "venue": "Smuggler's Cove",
+    "location": "San Francisco, California, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "pineapple-juice",
+        "amount": 3,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-juice",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "passion fruit purée"
+      },
+      {
+        "id": "licor-43",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "maraschino",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Luxardo Maraschino"
+      },
+      {
+        "id": "rum-barbados",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "blended aged rum"
+      },
+      {
+        "id": "bourbon",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "peychauds",
+        "amount": 2,
+        "unit": "dash"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "hollowed pineapple / tiki mug",
+    "garnish": [
+      "charred pineapple wedge",
+      "pineapple fronds"
+    ],
+    "servings": 1,
+    "source": "Martin & Rebecca Cate, Smuggler's Cove: Exotic Cocktails, Rum, and the Cult of Tiki (2016), p. 251",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/08_The%20Theater%20of%20Exotic%20Cocktail/the-mastadon.json",
+      "https://github.com/stephencattaneo/sc-drink-helper/blob/main/data.json",
+      "https://www.monkeybrad.com/the-mastadon/"
+    ],
+    "confidence": "high",
+    "notes": "A Smuggler's Cove bartender's showpiece served in a hollowed pineapple: equal bourbon and aged rum carried by a big pineapple and passion fruit base, with vanilla (Licor 43) and maraschino as modifiers. Earlier versions circulated with Tuaca and half the passion fruit."
+  },
+  {
+    "id": "twenty-seventy-swizzle",
+    "name": "The Twenty Seventy Swizzle",
+    "variant": "",
+    "aka": [
+      "2070 Swizzle"
+    ],
+    "family": "swizzle",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Martin Cate",
+    "venue": "Smuggler's Cove",
+    "location": "San Francisco, California, USA",
+    "popularity": 2,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "demerara-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "SC Demerara Syrup"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "SC Honey Syrup"
+      },
+      {
+        "id": "allspice-dram",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "St. Elizabeth Allspice Dram"
+      },
+      {
+        "id": "rum-aged-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Angostura 1919 (column still aged rum)"
+      },
+      {
+        "id": "rum-demerara-overproof",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Lemon Hart 151 (black blended overproof rum)"
+      },
+      {
+        "id": "angostura",
+        "amount": 0.5,
+        "unit": "dash",
+        "orig": "Herbstura (1 dash of equal parts Angostura and Herbsaint)"
+      },
+      {
+        "id": "pastis",
+        "amount": 0.5,
+        "unit": "dash",
+        "orig": "Herbstura (Herbsaint half)"
+      },
+      {
+        "id": "nutmeg",
+        "unit": "garnish",
+        "garnish": true
+      }
+    ],
+    "method": "swizzle",
+    "ice": "crushed",
+    "glass": "collins",
+    "garnish": [
+      "grated nutmeg"
+    ],
+    "servings": 1,
+    "source": "Martin & Rebecca Cate, Smuggler's Cove: Exotic Cocktails, Rum, and the Cult of Tiki (2016), p. 116",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/04_Creating%20the%20Space/the-twenty-seventy-swizzle.json",
+      "https://github.com/stephencattaneo/sc-drink-helper/blob/main/data.json",
+      "https://www.wayward-spirits.com/blog/featured-recipe-twenty-seventy-swizzle"
+    ],
+    "confidence": "high",
+    "notes": "Named for its two rums, Angostura 1919 and Lemon Hart 151 (1919 + 151 = 2070). A split demerara/honey sweetener and allspice dram over a light column rum and a 151 kicker; 'Herbstura' is the bar's premix of Angostura and Herbsaint."
+  },
+  {
+    "id": "kaiteur-swizzle",
+    "name": "Kaiteur Swizzle",
+    "variant": "",
+    "aka": [
+      "Kaieteur Swizzle"
+    ],
+    "family": "swizzle",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Smuggler's Cove staff",
+    "venue": "Smuggler's Cove",
+    "location": "San Francisco, California, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "maple-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Grade A maple syrup"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "John D. Taylor's Velvet Falernum"
+      },
+      {
+        "id": "rum-demerara",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "blended aged rum (Demerara)"
+      },
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash"
+      }
+    ],
+    "method": "swizzle",
+    "ice": "crushed",
+    "glass": "collins",
+    "garnish": [],
+    "servings": 1,
+    "source": "Martin & Rebecca Cate, Smuggler's Cove: Exotic Cocktails, Rum, and the Cult of Tiki (2016), p. 140",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/05_Curating%20the%20Experience/kaiteur-swizzle.json",
+      "https://github.com/stephencattaneo/sc-drink-helper/blob/main/data.json"
+    ],
+    "confidence": "high",
+    "notes": "Named for Guyana's Kaieteur Falls, so the base is aged Demerara rum. A four-ingredient swizzle that pairs maple syrup with falernum, a Smuggler's Cove habit."
+  },
+  {
+    "id": "swizzle-francais",
+    "name": "Swizzle Français",
+    "variant": "",
+    "aka": [],
+    "family": "swizzle",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Martin Cate",
+    "venue": "Smuggler's Cove",
+    "location": "San Francisco, California, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Martinique sugarcane syrup"
+      },
+      {
+        "id": "allspice-dram",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "St. Elizabeth Allspice Dram"
+      },
+      {
+        "id": "rum-agricole-vieux",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "AOC Martinique rhum agricole vieux"
+      },
+      {
+        "id": "nutmeg",
+        "unit": "garnish",
+        "garnish": true
+      }
+    ],
+    "method": "swizzle",
+    "ice": "crushed",
+    "glass": "collins",
+    "garnish": [
+      "grated nutmeg",
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Martin & Rebecca Cate, Smuggler's Cove: Exotic Cocktails, Rum, and the Cult of Tiki (2016), p. 136",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/05_Curating%20the%20Experience/swizzle-francais.json",
+      "https://github.com/stephencattaneo/sc-drink-helper/blob/main/data.json",
+      "https://cocktailpartyapp.com/drinks/swizzle-francais/"
+    ],
+    "confidence": "high",
+    "notes": "Essentially a Ti' Punch stretched into a swizzle: aged Martinique rhum, cane syrup and lime with a quarter ounce of allspice dram. It shows how little a strong base spirit needs."
+  },
+  {
+    "id": "paniolo-old-fashioned",
+    "name": "Paniolo Old-Fashioned",
+    "variant": "",
+    "aka": [
+      "Paniolo Old Fashioned"
+    ],
+    "family": "stirred",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Smuggler's Cove staff",
+    "venue": "Smuggler's Cove",
+    "location": "San Francisco, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Old Fashioned"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-barbados",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "blended aged rum"
+      },
+      {
+        "id": "li-hing-mui-syrup",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "li hing mui syrup"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      }
+    ],
+    "method": "stir",
+    "ice": "block",
+    "glass": "double old fashioned",
+    "garnish": [],
+    "servings": 1,
+    "source": "Martin & Rebecca Cate, Smuggler's Cove: Exotic Cocktails, Rum, and the Cult of Tiki (2016), p. 203",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/07_Understanding%20Rum/paniolo-old-fashioned.json",
+      "https://github.com/stephencattaneo/sc-drink-helper/blob/main/data.json"
+    ],
+    "confidence": "high",
+    "notes": "A rum Old Fashioned sweetened with li hing mui (salted dried plum) syrup, a Hawaiian snack flavor; 'paniolo' is the Hawaiian word for cowboy. The salty-sour plum does the work that orange peel and sugar do in the classic."
+  },
+  {
+    "id": "norwegian-paralysis",
+    "name": "Norwegian Paralysis",
+    "variant": "",
+    "aka": [],
+    "family": "orgeat-punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Smuggler's Cove staff",
+    "venue": "Smuggler's Cove",
+    "location": "San Francisco, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Polynesian Paralysis"
+    ],
+    "ingredients": [
+      {
+        "id": "orange",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "demerara-syrup",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "SC Demerara Syrup"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "SC Orgeat"
+      },
+      {
+        "id": "aquavit",
+        "amount": 1.5,
+        "unit": "oz"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "collins",
+    "garnish": [],
+    "servings": 1,
+    "source": "Martin & Rebecca Cate, Smuggler's Cove: Exotic Cocktails, Rum, and the Cult of Tiki (2016), p. 119",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/04_Creating%20the%20Space/norwegian-paralysis.json",
+      "https://github.com/stephencattaneo/sc-drink-helper/blob/main/data.json"
+    ],
+    "confidence": "high",
+    "notes": "An aquavit take on Don the Beachcomber's okolehao-based Polynesian Paralysis: orange, pineapple and lemon with a little orgeat. Caraway and dill stand in for the ti-root spirit."
+  },
+  {
+    "id": "juan-ho-royale",
+    "name": "Juan Ho Royale",
+    "variant": "",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Smuggler's Cove staff",
+    "venue": "Smuggler's Cove",
+    "location": "San Francisco, California, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "SC Orgeat"
+      },
+      {
+        "id": "blue-curacao",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "John D. Taylor's Velvet Falernum"
+      },
+      {
+        "id": "tequila-blanco",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "sparkling-wine",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "champagne or sparkling wine"
+      }
+    ],
+    "method": "shake",
+    "ice": "none",
+    "glass": "coupe",
+    "garnish": [],
+    "servings": 1,
+    "source": "Martin & Rebecca Cate, Smuggler's Cove: Exotic Cocktails, Rum, and the Cult of Tiki (2016), p. 119",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/04_Creating%20the%20Space/juan-ho-royale.json",
+      "https://github.com/stephencattaneo/sc-drink-helper/blob/main/data.json"
+    ],
+    "confidence": "high",
+    "notes": "A rare agave drink on the Smuggler's Cove list: blanco tequila with orgeat, falernum and blue curaçao, served up and topped with sparkling wine. The 'royale' means the sparkling top."
+  },
+  {
+    "id": "monks-respite",
+    "name": "Monk's Respite",
+    "variant": "",
+    "aka": [],
+    "family": "buck",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Smuggler's Cove staff",
+    "venue": "Smuggler's Cove",
+    "location": "San Francisco, California, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "coconut-water",
+        "amount": 3,
+        "unit": "oz",
+        "orig": "fresh coconut water"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "SC Honey Syrup"
+      },
+      {
+        "id": "yellow-chartreuse",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "gin",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Broker's London dry gin"
+      },
+      {
+        "id": "soda-water",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "seltzer"
+      },
+      {
+        "id": "orange-bitters",
+        "amount": 1,
+        "unit": "dash"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "tiki mug (served in a coconut)",
+    "garnish": [],
+    "servings": 1,
+    "source": "Martin & Rebecca Cate, Smuggler's Cove: Exotic Cocktails, Rum, and the Cult of Tiki (2016), p. 251",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/08_The%20Theater%20of%20Exotic%20Cocktail/monks-respite.json",
+      "https://github.com/stephencattaneo/sc-drink-helper/blob/main/data.json"
+    ],
+    "confidence": "high",
+    "notes": "A light gin cooler lengthened with fresh coconut water and seltzer rather than juice, with a quarter ounce of yellow Chartreuse for herbal lift. The name plays on the monks who make Chartreuse."
+  },
+  {
+    "id": "bumboat",
+    "name": "Bumboat",
+    "variant": "",
+    "aka": [],
+    "family": "punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Smuggler's Cove staff",
+    "venue": "Smuggler's Cove",
+    "location": "San Francisco, California, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "pineapple-juice",
+        "amount": 2,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "cinnamon-syrup",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "SC Cinnamon Syrup"
+      },
+      {
+        "id": "rye",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-blended-light",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "blended lightly aged rum"
+      },
+      {
+        "id": "rum-black-overproof",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "black blended overproof rum"
+      },
+      {
+        "id": "almond-extract",
+        "amount": 3,
+        "unit": "drop"
+      },
+      {
+        "id": "tiki-bitters",
+        "amount": 6,
+        "unit": "drop",
+        "orig": "Bittermens 'Elemakule Tiki bitters"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "tiki mug",
+    "garnish": [],
+    "servings": 1,
+    "source": "Martin & Rebecca Cate, Smuggler's Cove: Exotic Cocktails, Rum, and the Cult of Tiki (2016), p. 252",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/08_The%20Theater%20of%20Exotic%20Cocktail/bumboat.json",
+      "https://github.com/stephencattaneo/sc-drink-helper/blob/main/data.json"
+    ],
+    "confidence": "high",
+    "notes": "Rye and two rums over a pineapple-lemon-cinnamon base, with drops of almond extract instead of orgeat so the almond note arrives without extra sugar. A bumboat was the small craft that sold provisions to ships at anchor."
+  },
+  {
+    "id": "naked-ape",
+    "name": "The Naked Ape",
+    "variant": "",
+    "aka": [
+      "Naked Ape"
+    ],
+    "family": "beachcomber-sour",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Smuggler's Cove staff",
+    "venue": "Smuggler's Cove",
+    "location": "San Francisco, California, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "lemon",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "cinnamon-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "SC Cinnamon Syrup"
+      },
+      {
+        "id": "banana-liqueur",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Giffard Banane du Brésil"
+      },
+      {
+        "id": "rum-black-blended",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "black blended rum"
+      },
+      {
+        "id": "rum-jamaican-pot",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "pot still lightly aged rum"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "tiki mug",
+    "garnish": [],
+    "servings": 1,
+    "source": "Martin & Rebecca Cate, Smuggler's Cove: Exotic Cocktails, Rum, and the Cult of Tiki (2016), p. 134",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/05_Curating%20the%20Experience/the-naked-ape.json",
+      "https://github.com/stephencattaneo/sc-drink-helper/blob/main/data.json"
+    ],
+    "confidence": "high",
+    "notes": "A short, dark sour where banana liqueur and cinnamon syrup share the sweetening; the only citrus is half an ounce of lemon, so the drink leans rich. A splash of funky pot-still rum sharpens the black rum base."
+  },
+  {
+    "id": "for-petes-sake",
+    "name": "For Pete's Sake",
+    "variant": "",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Smuggler's Cove staff",
+    "venue": "Smuggler's Cove",
+    "location": "San Francisco, California, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "demerara-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "SC Demerara Syrup"
+      },
+      {
+        "id": "hibiscus-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "SC Hibiscus Liqueur (house hibiscus-infused liqueur)"
+      },
+      {
+        "id": "cherry-heering",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "pisco",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Peruvian pisco"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "double old fashioned",
+    "garnish": [],
+    "servings": 1,
+    "source": "Martin & Rebecca Cate, Smuggler's Cove: Exotic Cocktails, Rum, and the Cult of Tiki (2016), p. 145",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/05_Curating%20the%20Experience/for-petes-sake.json",
+      "https://github.com/stephencattaneo/sc-drink-helper/blob/main/data.json"
+    ],
+    "confidence": "medium",
+    "notes": "Peruvian pisco made tropical with hibiscus and Cherry Heering; an example of tiki structure carried onto an unaged grape brandy. The house hibiscus liqueur is recorded here as hibiscus syrup."
+  },
+  {
+    "id": "pinata-smugglers-cove",
+    "name": "Piñata",
+    "variant": "Smuggler's Cove",
+    "aka": [
+      "Pinata"
+    ],
+    "family": "punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Smuggler's Cove staff",
+    "venue": "Smuggler's Cove",
+    "location": "San Francisco, California, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "pineapple-juice",
+        "amount": 3,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "demerara-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "SC Demerara Syrup"
+      },
+      {
+        "id": "ginger-liqueur",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "allspice-dram",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "St. Elizabeth Allspice Dram"
+      },
+      {
+        "id": "rum-black-blended",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "black blended rum"
+      },
+      {
+        "id": "rum-blended-light",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "blended lightly aged rum"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "tiki mug",
+    "garnish": [],
+    "servings": 1,
+    "source": "Martin & Rebecca Cate, Smuggler's Cove: Exotic Cocktails, Rum, and the Cult of Tiki (2016), p. 252",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/08_The%20Theater%20of%20Exotic%20Cocktail/pinata.json",
+      "https://github.com/stephencattaneo/sc-drink-helper/blob/main/data.json"
+    ],
+    "confidence": "high",
+    "notes": "A pineapple-heavy party drink where a full ounce of ginger liqueur and half an ounce of allspice dram supply the spice. It uses the common Smuggler's Cove pairing of one black rum with one lightly aged rum."
+  },
+  {
+    "id": "bitter-mai-tai",
+    "name": "Bitter Mai Tai",
+    "variant": "",
+    "aka": [],
+    "family": "mai-tai",
+    "families_secondary": [
+      "bitter-tiki"
+    ],
+    "year": 2012,
+    "circa": true,
+    "era": "craft",
+    "creator": "Jeremy Oertel",
+    "venue": "Dram",
+    "location": "Brooklyn, New York, USA",
+    "popularity": 3,
+    "parents": [
+      "Mai Tai"
+    ],
+    "ingredients": [
+      {
+        "id": "campari",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-jamaican-pot",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Smith & Cross"
+      },
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "mint",
+        "unit": "sprig",
+        "garnish": true,
+        "orig": "mint bouquet"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "double old fashioned",
+    "garnish": [
+      "mint bouquet"
+    ],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 130",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/bitter-mai-tai.json"
+    ],
+    "confidence": "high",
+    "notes": "Moves Campari from modifier to base (1.5 oz) and keeps a Mai Tai frame of lime, orgeat and curaçao, with navy-strength Jamaican rum as the backbone. It became the template for amaro-based Mai Tai riffs."
+  },
+  {
+    "id": "kentucky-mai-tai",
+    "name": "Kentucky Mai Tai",
+    "variant": "",
+    "aka": [],
+    "family": "mai-tai",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Dan Sabo",
+    "venue": "Pali Society",
+    "location": "Los Angeles, California, USA",
+    "popularity": 2,
+    "parents": [
+      "Mai Tai"
+    ],
+    "ingredients": [
+      {
+        "id": "bourbon",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Evan Williams Black Label"
+      },
+      {
+        "id": "mezcal",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Nuestra Soledad Espadín Joven"
+      },
+      {
+        "id": "cynar",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "peach-liqueur",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Giffard Crème de Pêche de Vigne"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "mint",
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "double old fashioned",
+    "garnish": [
+      "mint sprig",
+      "cherry",
+      "pineapple slice"
+    ],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 133",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/kentucky-mai-tai.json"
+    ],
+    "confidence": "medium",
+    "notes": "No rum at all: bourbon and mezcal split the base, and Cynar plus peach liqueur replace curaçao. Lemon rather than lime keeps it softer, showing the Mai Tai frame working on whiskey and agave."
+  },
+  {
+    "id": "iron-ranger",
+    "name": "Iron Ranger",
+    "variant": "",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Erick Castro",
+    "venue": "Polite Provisions",
+    "location": "San Diego, California, USA",
+    "popularity": 2,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "bourbon",
+        "amount": 2,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "John D. Taylor's Velvet Falernum"
+      },
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash"
+      },
+      {
+        "id": "cinnamon",
+        "unit": "garnish",
+        "garnish": true,
+        "orig": "freshly grated cinnamon"
+      },
+      {
+        "id": "mint",
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "hurricane",
+    "garnish": [
+      "grated cinnamon",
+      "cinnamon stick",
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 104",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/iron-ranger.json"
+    ],
+    "confidence": "medium",
+    "notes": "A bourbon sour made tropical with pineapple and falernum and served over crushed ice; an often-cited example of whiskey tiki. It is whip-shaken with a single cube, poured and topped with crushed ice."
+  },
+  {
+    "id": "mai-sha-roa-na",
+    "name": "Mai Sha Roa Na",
+    "variant": "",
+    "aka": [],
+    "family": "mai-tai",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Anthony Schmidt",
+    "venue": "False Idol",
+    "location": "San Diego, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Mai Tai"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-pot",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "Jamaican overproof rum"
+      },
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Orgeat Works macadamia nut syrup"
+      },
+      {
+        "id": "banana-liqueur",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Giffard Banane du Brésil"
+      },
+      {
+        "id": "mint",
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "double old fashioned",
+    "garnish": [
+      "spent lime hull",
+      "mint sprig",
+      "banana chips"
+    ],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 132",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/mai-sha-roa-na.json"
+    ],
+    "confidence": "medium",
+    "notes": "From Martin Cate's San Diego bar False Idol: a Mai Tai skeleton where banana liqueur takes the curaçao slot and macadamia nut syrup the orgeat slot, over an overproof Jamaican base."
+  },
+  {
+    "id": "sleeping-lotus",
+    "name": "Sleeping Lotus",
+    "variant": "",
+    "aka": [],
+    "family": "orgeat-punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Sierra Kirk",
+    "venue": "Hale Pele",
+    "location": "Portland, Oregon, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "gin",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "London dry gin"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "mint",
+        "amount": 10,
+        "unit": "leaves"
+      },
+      {
+        "id": "orange-bitters",
+        "amount": 2,
+        "unit": "dash"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "collins",
+    "garnish": [
+      "edible orchid",
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 145",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/sleeping-lotus.json"
+    ],
+    "confidence": "medium",
+    "notes": "A gin, lemon and orgeat sour shaken with mint leaves, from Blair Reynolds's Portland tiki bar. It is a stripped-down example of the orgeat sour carried over to gin."
+  },
+  {
+    "id": "breakfast-mai-tai",
+    "name": "Breakfast Mai Tai",
+    "variant": "",
+    "aka": [],
+    "family": "mai-tai",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Fanny Chu",
+    "venue": "Donna",
+    "location": "Brooklyn, New York, USA",
+    "popularity": 1,
+    "parents": [
+      "Mai Tai"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-pot",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Smith & Cross"
+      },
+      {
+        "id": "banana-liqueur",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Giffard Banane du Brésil"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "cinnamon-syrup",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Hamilton Jamaican Pot Still Black",
+        "float": true
+      },
+      {
+        "id": "mint",
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "double old fashioned",
+    "garnish": [
+      "mint sprig",
+      "charred cinnamon stick",
+      "edible flowers"
+    ],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 135",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/breakfast-mai-tai.json"
+    ],
+    "confidence": "medium",
+    "notes": "Banana and cinnamon replace curaçao to give a 'banana bread' Mai Tai. The black pot-still rum goes in after the shake as a dark top layer."
+  },
+  {
+    "id": "paradise-lost",
+    "name": "Paradise Lost",
+    "variant": "",
+    "aka": [],
+    "family": "orgeat-punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Kirk Estopinal",
+    "venue": "Cane & Table",
+    "location": "New Orleans, Louisiana, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "vodka",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "amontillado-sherry",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "fino sherry"
+      },
+      {
+        "id": "coconut-water",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash",
+        "orig": "2 dashes aromatic bitters on top (garnish)",
+        "float": true
+      },
+      {
+        "id": "mint",
+        "unit": "sprig",
+        "garnish": true,
+        "orig": "mint bouquet"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "footed pilsner",
+    "garnish": [
+      "mint bouquet"
+    ],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 96",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/paradise-lost.json"
+    ],
+    "confidence": "medium",
+    "notes": "A light, savory tiki drink from Cane & Table's 'proto-tiki' program: vodka and dry fino sherry split the base and coconut water lengthens it. Bitters dashed on top give the aroma."
+  },
+  {
+    "id": "staycation",
+    "name": "Staycation",
+    "variant": "",
+    "aka": [],
+    "family": "colada",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Devin Kennedy",
+    "venue": "Pouring Ribbons",
+    "location": "New York City, New York, USA",
+    "popularity": 1,
+    "parents": [
+      "Piña Colada"
+    ],
+    "ingredients": [
+      {
+        "id": "rye",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Rittenhouse Rye"
+      },
+      {
+        "id": "rum-demerara",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Hamilton 86 Demerara"
+      },
+      {
+        "id": "lemon",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "coconut-cream",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "cream of coconut"
+      },
+      {
+        "id": "apricot-liqueur",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-syrup",
+        "amount": 0.25,
+        "unit": "oz"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "collins",
+    "garnish": [],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 115",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/staycation.json"
+    ],
+    "confidence": "medium",
+    "notes": "A colada with no pineapple: a full ounce of lemon cuts the cream of coconut, and rye shares the base with Demerara rum. Apricot and passion fruit in small amounts supply the tropical fruit."
+  },
+  {
+    "id": "island-to-islay-punch",
+    "name": "Island to Islay Punch",
+    "variant": "",
+    "aka": [],
+    "family": "punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Taylor Rae Adorno",
+    "venue": "Ghost Donkey",
+    "location": "New York City, New York, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-barbados",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "Mount Gay Eclipse"
+      },
+      {
+        "id": "scotch-islay",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Bruichladdich Port Charlotte"
+      },
+      {
+        "id": "passion-fruit-juice",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "cinnamon-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "tiki-bitters",
+        "amount": 2,
+        "unit": "dash",
+        "orig": "Bittermens 'Elemakule Tiki bitters"
+      },
+      {
+        "id": "nutmeg",
+        "unit": "garnish",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "collins",
+    "garnish": [
+      "grated nutmeg"
+    ],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 147",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/island-to-islay-punch.json"
+    ],
+    "confidence": "medium",
+    "notes": "Barbados rum with half an ounce of peated Islay whisky for smoke, over an unsweetened passion fruit and cinnamon sour. It uses peated Scotch as a smoky accent, a common craft-era move."
+  },
+  {
+    "id": "good-enough-gatsby",
+    "name": "Good Enough Gatsby",
+    "variant": "",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Sean Quinn",
+    "venue": "Death & Co",
+    "location": "New York City, New York, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "bourbon",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Wild Turkey 101"
+      },
+      {
+        "id": "brandy",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Clear Creek Pear Brandy (eau-de-vie)"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "cinnamon-syrup",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "fernet",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "Fernet-Branca"
+      },
+      {
+        "id": "cinnamon",
+        "unit": "garnish",
+        "garnish": true,
+        "orig": "grated cinnamon"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "double old fashioned",
+    "garnish": [
+      "pineapple fronds",
+      "grated cinnamon"
+    ],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 151",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/good-enough-gatsby.json"
+    ],
+    "confidence": "medium",
+    "notes": "High-proof bourbon and pear eau-de-vie with pineapple and cinnamon, plus a teaspoon of Fernet-Branca for a bitter, minty edge. The pear brandy is recorded as generic brandy."
+  },
+  {
+    "id": "tequi-la-banane",
+    "name": "Tequi La Banane",
+    "variant": "",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Orlando Franklin McCray",
+    "venue": "Nightmoves",
+    "location": "Brooklyn, New York, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "tequila-reposado",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "La Gritona reposado"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "banana-liqueur",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "Giffard Banane du Brésil"
+      },
+      {
+        "id": "passion-fruit-liqueur",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "Giffard Crème de Fruit de la Passion"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "julep tin",
+    "garnish": [
+      "shaved almonds"
+    ],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 127",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/tequi-la-banane.json"
+    ],
+    "confidence": "medium",
+    "notes": "Reposado tequila in an orgeat sour, with quarter ounces of banana and passion fruit liqueur. Served in a julep tin with crushed ice."
+  },
+  {
+    "id": "privateer",
+    "name": "Privateer",
+    "variant": "",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Chris Vanderginst",
+    "venue": "Mutiny Bar",
+    "location": null,
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "tequila-blanco",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "tequila"
+      },
+      {
+        "id": "passion-fruit-syrup",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "saline",
+        "unit": "pinch",
+        "orig": "pinch of salt"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "tiki mug or coupe",
+    "garnish": [
+      "torched rosemary sprig"
+    ],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 110",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/privateer.json"
+    ],
+    "confidence": "medium",
+    "notes": "A short tequila sour with passion fruit syrup and pineapple, seasoned with salt the way a margarita is. Torched rosemary supplies the aroma."
+  },
+  {
+    "id": "amaro-di-cocco",
+    "name": "Amaro di Cocco",
+    "variant": "",
+    "aka": [],
+    "family": "colada",
+    "families_secondary": [
+      "bitter-tiki"
+    ],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Ryan Lotz",
+    "venue": "Shore Leave",
+    "location": "Boston, Massachusetts, USA",
+    "popularity": 1,
+    "parents": [
+      "Piña Colada",
+      "Negroni"
+    ],
+    "ingredients": [
+      {
+        "id": "campari",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "sweet-vermouth",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Dolin Rouge"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "blended aged rum (Jamaica)"
+      },
+      {
+        "id": "rum-black-blended",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "black blended rum"
+      },
+      {
+        "id": "coconut-cream",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "cream of coconut"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1.5,
+        "unit": "oz"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "tiki mug",
+    "garnish": [],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 117",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/amaro-di-cocco.json"
+    ],
+    "confidence": "medium",
+    "notes": "A Negroni-colada hybrid with Campari and sweet vermouth in equal parts, rum, and a colada body, and no citrus at all. Pineapple and the bitter aperitivo provide the acidity and edge."
+  },
+  {
+    "id": "third-wave-swizzle",
+    "name": "Third Wave Swizzle",
+    "variant": "",
+    "aka": [],
+    "family": "swizzle",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Ryan Lotz",
+    "venue": "Shore Leave",
+    "location": "Boston, Massachusetts, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "gin",
+        "amount": 2,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "coffee",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "cold-brew coffee concentrate"
+      },
+      {
+        "id": "ginger-syrup",
+        "amount": 0.25,
+        "unit": "oz"
+      }
+    ],
+    "method": "swizzle",
+    "ice": "crushed",
+    "glass": "collins",
+    "garnish": [
+      "lemon twist",
+      "grated coffee bean"
+    ],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 111",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/third-wave-swizzle.json"
+    ],
+    "confidence": "medium",
+    "notes": "A gin swizzle built on a Bee's Knees (gin, lemon, honey) with cold-brew coffee and ginger added. The name refers to third-wave specialty coffee."
+  },
+  {
+    "id": "apres-ski-swizzle",
+    "name": "Après-Ski Swizzle",
+    "variant": "",
+    "aka": [],
+    "family": "swizzle",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Nathan Hazard",
+    "venue": "Coconut Club",
+    "location": "Washington, D.C., USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-blended-light",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "The Real McCoy 3 Year"
+      },
+      {
+        "id": "green-chartreuse",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.5,
+        "unit": "oz"
+      }
+    ],
+    "method": "swizzle",
+    "ice": "crushed",
+    "glass": "collins",
+    "garnish": [
+      "pineapple wedge",
+      "pineapple fronds",
+      "dusting of confectioners' sugar"
+    ],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 126",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/apres-ski-swizzle.json"
+    ],
+    "confidence": "medium",
+    "notes": "Light Barbados rum with three-quarters of an ounce of green Chartreuse, pineapple and orgeat; related to the Chartreuse Swizzle. The powdered-sugar garnish is meant to look like snow."
+  },
+  {
+    "id": "baldwins-sherry-colada",
+    "name": "Baldwin's (Easy) Sherry Colada",
+    "variant": "",
+    "aka": [
+      "Sherry Colada"
+    ],
+    "family": "colada",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Ran Duan",
+    "venue": "Baldwin Bar",
+    "location": "Woburn, Massachusetts, USA",
+    "popularity": 1,
+    "parents": [
+      "Piña Colada"
+    ],
+    "ingredients": [
+      {
+        "id": "amontillado-sherry",
+        "amount": 2,
+        "unit": "oz"
+      },
+      {
+        "id": "coconut-cream",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "cream of coconut"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.75,
+        "unit": "oz"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "highball",
+    "garnish": [
+      "pineapple wedge",
+      "pineapple fronds",
+      "optional Angostura dashes"
+    ],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 109",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/baldwins-easy-sherry-colada.json"
+    ],
+    "confidence": "medium",
+    "notes": "A low-proof colada with two ounces of amontillado sherry as the whole base. Lemon keeps it from turning cloying, and the nutty, saline sherry pairs well with coconut."
+  },
+  {
+    "id": "wishful-thinking",
+    "name": "Wishful Thinking",
+    "variant": "",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Julia McKinley",
+    "venue": null,
+    "location": null,
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "sloe-gin",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "Hayman's Sloe Gin"
+      },
+      {
+        "id": "rum-agricole-blanc",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Rhum J.M Blanc"
+      },
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "ginger-syrup",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "angostura",
+        "amount": 3,
+        "unit": "dash"
+      },
+      {
+        "id": "absinthe",
+        "amount": 3,
+        "unit": "dash"
+      },
+      {
+        "id": "mint",
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "tiki mug",
+    "garnish": [
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 101",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/wishful-thinking.json"
+    ],
+    "confidence": "medium",
+    "notes": "Sloe gin, a liqueur, makes up the largest share of the base, with grassy agricole rhum, a hot ginger syrup, bitters and absinthe. An unusual case of a fruit liqueur as the main spirit in a tiki drink."
+  },
+  {
+    "id": "quarantine-order",
+    "name": "Quarantine Order",
+    "variant": "",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [
+      "zombie"
+    ],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "William Prestwood",
+    "venue": "Pagan Idol",
+    "location": "San Francisco, California, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Appleton Estate Signature"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Rum-Bar Gold (Worthy Park)"
+      },
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "grapefruit",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "cinnamon-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "angostura",
+        "amount": 5,
+        "unit": "dash"
+      },
+      {
+        "id": "mint",
+        "unit": "sprig",
+        "garnish": true,
+        "orig": "mint bouquet"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "snifter",
+    "garnish": [
+      "mint bouquet",
+      "lime wheel",
+      "speared cherry"
+    ],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 95; also Matt Pietrek & Carrie Smith, Minimalist Tiki (2019)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/quarantine-order.json",
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/minimalist-tiki/03_The%20Next%20Wave/quarantine-order.json"
+    ],
+    "confidence": "high",
+    "notes": "Three ounces of Jamaican rum over Don the Beachcomber's grapefruit–cinnamon pairing plus passion fruit and heavy Angostura, much like a pared-down Zombie. Easy Tiki and Minimalist Tiki print the same spec."
+  },
+  {
+    "id": "coco-no-coco",
+    "name": "Coco No Coco",
+    "variant": "",
+    "aka": [],
+    "family": "colada",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Ezra Star",
+    "venue": "Drink",
+    "location": "Boston, Massachusetts, USA",
+    "popularity": 1,
+    "parents": [
+      "Piña Colada"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-demerara",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "El Dorado 12 Year"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "heavy-cream",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "nutmeg",
+        "unit": "garnish",
+        "garnish": true
+      },
+      {
+        "id": "cinnamon",
+        "unit": "garnish",
+        "garnish": true,
+        "orig": "grated cinnamon"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "tiki mug",
+    "garnish": [
+      "grated nutmeg",
+      "grated cinnamon",
+      "tonka bean"
+    ],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 118",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/coco-no-coco.json"
+    ],
+    "confidence": "medium",
+    "notes": "A colada made without coconut: orgeat and heavy cream supply the nutty richness and a short shake keeps the cream from over-aerating. Aged Demerara rum gives it a dessert-like depth."
+  },
+  {
+    "id": "spectacle-island",
+    "name": "Spectacle Island",
+    "variant": "",
+    "aka": [],
+    "family": "swizzle",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Chantal Tseng",
+    "venue": "Petworth Citizen & Reading Room",
+    "location": "Washington, D.C., USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-agricole-blanc",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Neisson Rhum Agricole Blanc"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Thomas Tew dark rum (Rhode Island)"
+      },
+      {
+        "id": "green-chartreuse",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "amontillado-sherry",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Saveiro 'Vento do Oeste' Madeira"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "nutmeg",
+        "unit": "garnish",
+        "garnish": true
+      },
+      {
+        "id": "mint",
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "swizzle",
+    "ice": "crushed",
+    "glass": "tiki mug",
+    "garnish": [
+      "mint sprig",
+      "flaming rum-soaked lime shell",
+      "grated nutmeg"
+    ],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 123",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/spectacle-island.json"
+    ],
+    "confidence": "medium",
+    "notes": "Split-base swizzle of agricole and New England dark rum with green Chartreuse and Madeira and no added syrup; the Chartreuse supplies the sweetness. The Madeira is mapped to the closest oxidized fortified wine."
+  },
+  {
+    "id": "southpaw-swizzle",
+    "name": "Southpaw Swizzle",
+    "variant": "",
+    "aka": [],
+    "family": "swizzle",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Abigail Gullo",
+    "venue": "Ben Paris",
+    "location": "Seattle, Washington, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "amontillado-sherry",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "manzanilla sherry"
+      },
+      {
+        "id": "rum-agricole-blanc",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Martinique rhum agricole blanc"
+      },
+      {
+        "id": "coconut-water",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "blended aged Jamaican rum",
+        "float": true
+      }
+    ],
+    "method": "swizzle",
+    "ice": "crushed",
+    "glass": "collins",
+    "garnish": [
+      "toasted coconut chips",
+      "lime wheel"
+    ],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 116",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/southpaw-swizzle.json"
+    ],
+    "confidence": "medium",
+    "notes": "A lighter swizzle: manzanilla sherry and agricole share the base and coconut water lengthens it, with a Jamaican rum float on top. Salty sherry and grassy cane rum are a common modern pairing."
+  },
+  {
+    "id": "elusive-dreams",
+    "name": "Elusive Dreams",
+    "variant": "",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Demi Natoli",
+    "venue": "Patterson House",
+    "location": "Nashville, Tennessee, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-pineapple",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Planteray Stiggins' Fancy Pineapple"
+      },
+      {
+        "id": "rum-blended-light",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Planteray 3 Stars"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "cinnamon-syrup",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "banana-liqueur",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Giffard Banane du Brésil"
+      }
+    ],
+    "method": "shake",
+    "ice": "none",
+    "glass": "coupe",
+    "garnish": [
+      "pineapple wedge",
+      "edible orchid"
+    ],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 98",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/elusive-dreams.json"
+    ],
+    "confidence": "medium",
+    "notes": "A tiki drink served up: pineapple rum and light rum with pineapple juice, cinnamon and banana, shaken hard and fine-strained into a coupe. It shows modern bars putting tiki flavors in a daiquiri format."
+  },
+  {
+    "id": "something-tequila",
+    "name": "Something Tequila",
+    "variant": "",
+    "aka": [],
+    "family": "resort-punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "John Bernard",
+    "venue": "Porco Lounge & Tiki Room",
+    "location": "Cleveland, Ohio, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "tequila-reposado",
+        "amount": 3,
+        "unit": "oz",
+        "orig": "tequila añejo"
+      },
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "mint",
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "tiki mug (barrel)",
+    "garnish": [
+      "mint",
+      "citrus wheels",
+      "flowers"
+    ],
+    "servings": 1,
+    "source": "Chloe Frechette & the editors of Punch, Easy Tiki (2021), p. 112",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/easy-tiki/02_Modern%20Recipes/something-tequila.json"
+    ],
+    "confidence": "medium",
+    "notes": "A big three-ounce añejo tequila punch with lime, orange, pineapple and passion fruit, like a rum barrel with agave in place of rum. Mapped to reposado, the closest aged tequila in the vocabulary."
+  },
+  {
+    "id": "lost-lake",
+    "name": "Lost Lake",
+    "variant": "",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [
+      "bitter-tiki"
+    ],
+    "year": 2015,
+    "circa": true,
+    "era": "craft",
+    "creator": "Paul McGee",
+    "venue": "Lost Lake",
+    "location": "Chicago, Illinois, USA",
+    "popularity": 3,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "Planteray Xaymaca (Jamaican rum)"
+      },
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-syrup",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "maraschino",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "Luxardo Maraschino"
+      },
+      {
+        "id": "campari",
+        "amount": 0.25,
+        "unit": "oz"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "collins",
+    "garnish": [
+      "pineapple crescent and fronds",
+      "orange floret",
+      "orchid"
+    ],
+    "servings": 1,
+    "source": "Matt Pietrek & Carrie Smith, Minimalist Tiki (2019), p. 240",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/minimalist-tiki/03_The%20Next%20Wave/lost-lake.json"
+    ],
+    "confidence": "high",
+    "notes": "The house drink of Paul McGee and Shelby Allison's Chicago bar. Jamaican rum with passion fruit, pineapple and lime, and quarter-ounce accents of maraschino and Campari that add depth without making it bitter."
+  },
+  {
+    "id": "youre-not-my-real-trinidad",
+    "name": "You're Not My Real Trinidad",
+    "variant": "",
+    "aka": [],
+    "family": "colada",
+    "families_secondary": [
+      "bitter-tiki"
+    ],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Kevin Beary",
+    "venue": "Three Dots and a Dash",
+    "location": "Chicago, Illinois, USA",
+    "popularity": 1,
+    "parents": [
+      "Trinidad Sour",
+      "Piña Colada"
+    ],
+    "ingredients": [
+      {
+        "id": "angostura",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Angostura bitters as base"
+      },
+      {
+        "id": "px-sherry",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "coconut-cream",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "cream of coconut"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "tiki mug",
+    "garnish": [
+      "pineapple crescent",
+      "pineapple fronds",
+      "lime wheel",
+      "orchid"
+    ],
+    "servings": 1,
+    "source": "Matt Pietrek & Carrie Smith, Minimalist Tiki (2019), p. 186",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/minimalist-tiki/01_The%20New%20Tiki%20Vanguard/you-re-not-my-real-trinidad.json"
+    ],
+    "confidence": "medium",
+    "notes": "Uses an ounce and a half of Angostura bitters as the base, as the Trinidad Sour does, inside a colada with PX sherry. Two ounces of cream of coconut balance the bitterness."
+  },
+  {
+    "id": "angostura-colada",
+    "name": "Angostura Colada",
+    "variant": "",
+    "aka": [],
+    "family": "colada",
+    "families_secondary": [
+      "bitter-tiki"
+    ],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Zac Overman",
+    "venue": null,
+    "location": null,
+    "popularity": 2,
+    "parents": [
+      "Piña Colada"
+    ],
+    "ingredients": [
+      {
+        "id": "angostura",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Angostura bitters as base"
+      },
+      {
+        "id": "rum-jamaican-pot",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Smith & Cross"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 2,
+        "unit": "oz"
+      },
+      {
+        "id": "coconut-cream",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "cream of coconut"
+      },
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "nutmeg",
+        "unit": "garnish",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "snifter",
+    "garnish": [
+      "grated nutmeg",
+      "orange slice",
+      "pineapple fronds"
+    ],
+    "servings": 1,
+    "source": "Matt Pietrek & Carrie Smith, Minimalist Tiki (2019), p. 211",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/minimalist-tiki/01_The%20New%20Tiki%20Vanguard/angostura-colada.json"
+    ],
+    "confidence": "medium",
+    "notes": "A widely copied modern colada with Angostura bitters as the base and half an ounce of Smith & Cross for backbone. The heavy clove-cinnamon bitterness takes the place of the usual rum."
+  },
+  {
+    "id": "theres-always-money-in-the-banana-stand",
+    "name": "There's Always Money in the Banana Stand",
+    "variant": "",
+    "aka": [
+      "Banana Stand"
+    ],
+    "family": "beachcomber-sour",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Zac Overman",
+    "venue": null,
+    "location": null,
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "scotch-islay",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Laphroaig 10"
+      },
+      {
+        "id": "banana-liqueur",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Giffard Banane du Brésil"
+      },
+      {
+        "id": "lemon",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "cinnamon-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "yellow-chartreuse",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "allspice-dram",
+        "amount": 0.125,
+        "unit": "oz",
+        "orig": "St. Elizabeth Allspice Dram"
+      },
+      {
+        "id": "cinnamon",
+        "unit": "garnish",
+        "garnish": true,
+        "orig": "grated cinnamon"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "collins (lined with banana leaf)",
+    "garnish": [
+      "grated cinnamon",
+      "cinnamon stick",
+      "gold coin"
+    ],
+    "servings": 1,
+    "source": "Matt Pietrek & Carrie Smith, Minimalist Tiki (2019), p. 212",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/minimalist-tiki/01_The%20New%20Tiki%20Vanguard/theres-always-money-in-the-banana-stand.json"
+    ],
+    "confidence": "medium",
+    "notes": "Uses a full pour of peated Islay Scotch as the tiki base, softened by banana liqueur and cinnamon with herbal Chartreuse and allspice. It shows smoky whisky taking the place of funky Jamaican rum."
+  },
+  {
+    "id": "three-scots-and-a-dash",
+    "name": "Three Scots and a Dash",
+    "variant": "",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Zac Overman",
+    "venue": null,
+    "location": null,
+    "popularity": 1,
+    "parents": [
+      "Three Dots and a Dash"
+    ],
+    "ingredients": [
+      {
+        "id": "scotch-blended",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "blended Scotch"
+      },
+      {
+        "id": "scotch-islay",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "Laphroaig 10"
+      },
+      {
+        "id": "drambuie",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "rich honey syrup"
+      },
+      {
+        "id": "allspice-dram",
+        "amount": 1,
+        "unit": "tsp"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "tiki mug",
+    "garnish": [
+      "three cherries on a pineapple spear"
+    ],
+    "servings": 1,
+    "source": "Matt Pietrek & Carrie Smith, Minimalist Tiki (2019), p. 211",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/minimalist-tiki/01_The%20New%20Tiki%20Vanguard/three-scots-and-a-dash.json"
+    ],
+    "confidence": "medium",
+    "notes": "A Scotch version of Don the Beachcomber's Three Dots and a Dash: blended and Islay Scotch plus Drambuie in place of the rum and agricole, with honey, allspice and passion fruit. Whisky slots neatly into the Don honey-allspice template."
+  },
+  {
+    "id": "rum-river-mystic",
+    "name": "Rum River Mystic",
+    "variant": "",
+    "aka": [],
+    "family": "stirred",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": null,
+    "venue": "Lost Lake",
+    "location": "Chicago, Illinois, USA",
+    "popularity": 1,
+    "parents": [
+      "Manhattan"
+    ],
+    "ingredients": [
+      {
+        "id": "rye",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Rittenhouse Rye"
+      },
+      {
+        "id": "rum-aged-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Panamá-Pacific 9 Year"
+      },
+      {
+        "id": "sweet-vermouth",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Byrrh Grand Quinquina"
+      },
+      {
+        "id": "benedictine",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash"
+      },
+      {
+        "id": "tiki-bitters",
+        "amount": 3,
+        "unit": "drop",
+        "orig": "3 drops Bittermens 'Elemakule Tiki on the ice",
+        "garnish": true
+      }
+    ],
+    "method": "stir",
+    "ice": "block",
+    "glass": "double old fashioned",
+    "garnish": [
+      "expressed orange peel"
+    ],
+    "servings": 1,
+    "source": "Matt Pietrek & Carrie Smith, Minimalist Tiki (2019), p. 241",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/minimalist-tiki/03_The%20Next%20Wave/rum-river-mystic.json"
+    ],
+    "confidence": "medium",
+    "notes": "A split rye/rum Manhattan-style drink from Lost Lake, with Byrrh quinquina and Bénédictine; the tiki bitters dropped on the ice give the aroma. An example of a stirred drink on a tiki bar menu."
+  },
+  {
+    "id": "day-of-the-dead",
+    "name": "Day of the Dead",
+    "variant": "",
+    "aka": [],
+    "family": "zombie",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Rod Moore",
+    "venue": "The Shameful Tiki Room",
+    "location": null,
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Appleton Estate Signature"
+      },
+      {
+        "id": "rum-aged-column",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Flor de Caña 5 Year"
+      },
+      {
+        "id": "rum-demerara-overproof",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Lemon Hart 151"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "coconut-cream",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "cream of coconut"
+      },
+      {
+        "id": "orange",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "allspice-dram",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "pastis",
+        "amount": 6,
+        "unit": "drop",
+        "orig": "Pernod"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      },
+      {
+        "id": "soda-water",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "seltzer top"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "skull mug",
+    "garnish": [
+      "pineapple and cherry skewer"
+    ],
+    "servings": 1,
+    "source": "Matt Pietrek & Carrie Smith, Minimalist Tiki (2019), p. 257",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/minimalist-tiki/03_The%20Next%20Wave/day-of-the-dead.json"
+    ],
+    "confidence": "medium",
+    "notes": "A Zombie-style heavyweight with three rums including a 151, Pernod drops and allspice, and a softer body from cream of coconut and orange juice. Topped with seltzer."
+  },
+  {
+    "id": "pilikia",
+    "name": "Pilikia",
+    "variant": "",
+    "aka": [],
+    "family": "punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Shea Hogan",
+    "venue": "The Shameful Tiki Room",
+    "location": null,
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "raspberry-liqueur",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Chambord"
+      },
+      {
+        "id": "bourbon",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "mezcal",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "falernum"
+      },
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "basil",
+        "amount": 6,
+        "unit": "leaves"
+      },
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "collins",
+    "garnish": [
+      "mint sprig",
+      "flaming bamboo chopstick"
+    ],
+    "servings": 1,
+    "source": "Matt Pietrek & Carrie Smith, Minimalist Tiki (2019), p. 257",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/minimalist-tiki/03_The%20Next%20Wave/pilikia.json"
+    ],
+    "confidence": "medium",
+    "notes": "Raspberry liqueur is the largest spirit-based ingredient, with a small bourbon and mezcal base, blended with basil. 'Pilikia' is Hawaiian for trouble; the smoky garnish echoes the mezcal."
+  },
+  {
+    "id": "porch-light",
+    "name": "Porch Light",
+    "variant": "",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Chris Coy",
+    "venue": "The Inferno Room",
+    "location": "Indianapolis, Indiana, USA",
+    "popularity": 1,
+    "parents": [
+      "Port Light"
+    ],
+    "ingredients": [
+      {
+        "id": "applejack",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Laird's Bonded Apple Brandy"
+      },
+      {
+        "id": "rye",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Rittenhouse Rye"
+      },
+      {
+        "id": "px-sherry",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Lustau East India Solera sherry"
+      },
+      {
+        "id": "lemon",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "grenadine",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-syrup",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "egg-white",
+        "amount": 1,
+        "unit": "piece"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "footed cider glass",
+    "garnish": [
+      "mint sprig",
+      "flower"
+    ],
+    "servings": 1,
+    "source": "Matt Pietrek & Carrie Smith, Minimalist Tiki (2019), p. 276",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/minimalist-tiki/04_Minimalist%20Tiki%20Classic%20Thirty...%20Modern%20Take/porch-light.json"
+    ],
+    "confidence": "medium",
+    "notes": "A modern take on Trader Vic's bourbon-based Port Light: apple brandy and rye with sweet sherry, grenadine and passion fruit, given a silky texture with egg white."
+  },
+  {
+    "id": "trinidadi-issues",
+    "name": "Trinidadi Issues",
+    "variant": "",
+    "aka": [],
+    "family": "swizzle",
+    "families_secondary": [
+      "bitter-tiki"
+    ],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Chad Austin",
+    "venue": null,
+    "location": null,
+    "popularity": 1,
+    "parents": [
+      "Trinidad Sour"
+    ],
+    "ingredients": [
+      {
+        "id": "angostura",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Angostura bitters as base"
+      },
+      {
+        "id": "rum-barbados",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "blended aged rum (Barbados)"
+      },
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "cinnamon-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "nutmeg",
+        "unit": "garnish",
+        "garnish": true
+      },
+      {
+        "id": "mint",
+        "unit": "sprig",
+        "garnish": true,
+        "orig": "mint bouquet"
+      }
+    ],
+    "method": "swizzle",
+    "ice": "crushed",
+    "glass": "zombie glass",
+    "garnish": [
+      "grated nutmeg",
+      "mint bouquet"
+    ],
+    "servings": 1,
+    "source": "Matt Pietrek & Carrie Smith, Minimalist Tiki (2019), p. 152",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/minimalist-tiki/01_The%20New%20Tiki%20Vanguard/trinidadi-issues.json"
+    ],
+    "confidence": "medium",
+    "notes": "A Trinidad Sour turned into a swizzle, with an ounce and a half of Angostura, orgeat and cinnamon, and pineapple for body. One of several craft drinks that use Angostura as the base."
+  },
+  {
+    "id": "almost-famous",
+    "name": "Almost Famous",
+    "variant": "",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [
+      "bitter-tiki"
+    ],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Shannon Mustipher",
+    "venue": null,
+    "location": "New York City, New York, USA",
+    "popularity": 1,
+    "parents": [
+      "Naked and Famous",
+      "Last Word"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-white-overproof",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Hampden Estate Rum Fire"
+      },
+      {
+        "id": "yellow-chartreuse",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "aperol",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz"
+      }
+    ],
+    "method": "shake",
+    "ice": "none",
+    "glass": "coupe",
+    "garnish": [
+      "dehydrated lime wheel"
+    ],
+    "servings": 1,
+    "source": "Shannon Mustipher, Tiki: Modern Tropical Cocktails (2019), p. 47",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/tiki-modern-tropical-cocktails/03_Sours/almost-famous.json"
+    ],
+    "confidence": "medium",
+    "notes": "The equal-parts Naked and Famous (a Last Word descendant) with unaged, high-ester Jamaican overproof in place of mezcal. The funky rum does the job the smoke did."
+  },
+  {
+    "id": "lorikeet",
+    "name": "Lorikeet",
+    "variant": "",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Shannon Mustipher",
+    "venue": null,
+    "location": "New York City, New York, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rye",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "Rittenhouse Rye"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "banana-liqueur",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Giffard Banane du Brésil"
+      },
+      {
+        "id": "cinnamon-syrup",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "angostura",
+        "amount": 4,
+        "unit": "dash"
+      },
+      {
+        "id": "peychauds",
+        "amount": 6,
+        "unit": "dash"
+      }
+    ],
+    "method": "shake",
+    "ice": "pebble",
+    "glass": "collins",
+    "garnish": [
+      "orange twist",
+      "2 pineapple spears"
+    ],
+    "servings": 1,
+    "source": "Shannon Mustipher, Tiki: Modern Tropical Cocktails (2019), p. 70",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/tiki-modern-tropical-cocktails/04_Long%20Drinks%20and%20Coolers/lorikeet.json"
+    ],
+    "confidence": "medium",
+    "notes": "A rye tiki cooler: pineapple, banana and cinnamon over spicy rye, with ten dashes of mixed bitters for structure."
+  },
+  {
+    "id": "golden-barnacle",
+    "name": "Golden Barnacle",
+    "variant": "",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Shannon Mustipher",
+    "venue": null,
+    "location": "New York City, New York, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-agricole-blanc",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Neisson Rhum Agricole Blanc"
+      },
+      {
+        "id": "rum-jamaican-pot",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Two James Doctor Bird"
+      },
+      {
+        "id": "allspice-dram",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Hamilton Pimento Dram"
+      },
+      {
+        "id": "grapefruit",
+        "amount": 0.66,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "cinnamon-syrup",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 0.25,
+        "unit": "oz"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "double old fashioned",
+    "garnish": [],
+    "servings": 1,
+    "source": "Shannon Mustipher, Tiki: Modern Tropical Cocktails (2019), p. 101",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/tiki-modern-tropical-cocktails/05_Bold%20and%20Full-Flavored/golden-barnacle.json"
+    ],
+    "confidence": "medium",
+    "notes": "Agricole and Jamaican pot-still rum with Don the Beachcomber's grapefruit–cinnamon combination and a heavy half ounce of pimento dram. Honey rounds it out."
+  },
+  {
+    "id": "kill-devyl-reef",
+    "name": "Kill Devyl Reef",
+    "variant": "",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Shannon Mustipher",
+    "venue": null,
+    "location": "New York City, New York, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-demerara",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "Hamilton 86 Demerara"
+      },
+      {
+        "id": "rum-agricole-blanc",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Damoiseau Blanc"
+      },
+      {
+        "id": "rum-jamaican-white-overproof",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Hampden Estate Rum Fire"
+      },
+      {
+        "id": "allspice-dram",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "St. Elizabeth Allspice Dram"
+      },
+      {
+        "id": "passion-fruit-juice",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "0.5 oz honey (undiluted), recorded as 1 oz 1:1 honey syrup"
+      },
+      {
+        "id": "nutmeg",
+        "unit": "garnish",
+        "garnish": true
+      },
+      {
+        "id": "mint",
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "pebble",
+    "glass": "snifter",
+    "garnish": [
+      "mint",
+      "grated nutmeg"
+    ],
+    "servings": 1,
+    "source": "Shannon Mustipher, Tiki: Modern Tropical Cocktails (2019), p. 80",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/tiki-modern-tropical-cocktails/05_Bold%20and%20Full-Flavored/kill-devyl-reef.json"
+    ],
+    "confidence": "medium",
+    "notes": "Three rums from three traditions (Demerara, Guadeloupe, Jamaica) with unsweetened passion fruit, honey and allspice dram. 'Kill-devil' was an early colonial name for rum."
+  },
+  {
+    "id": "song-of-the-siren",
+    "name": "Song of the Siren",
+    "variant": "",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [
+      "bitter-tiki"
+    ],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Shannon Mustipher",
+    "venue": null,
+    "location": "New York City, New York, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-agricole-blanc",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Rhum J.M Blanc"
+      },
+      {
+        "id": "mezcal",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Del Maguey Vida"
+      },
+      {
+        "id": "creme-de-cacao",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Tempus Fugit Crème de Cacao"
+      },
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "amaro",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "Braulio",
+        "float": true
+      },
+      {
+        "id": "nutmeg",
+        "unit": "garnish",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "pebble",
+    "glass": "hurricane (banana-leaf lined)",
+    "garnish": [
+      "grated nutmeg"
+    ],
+    "servings": 1,
+    "source": "Shannon Mustipher, Tiki: Modern Tropical Cocktails (2019), p. 106",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/tiki-modern-tropical-cocktails/06_Fiery%2C%20Savory%2C%20and%20Bitters/song-of-the-siren.json"
+    ],
+    "confidence": "medium",
+    "notes": "Agricole and mezcal with crème de cacao as the only sweetener, finished with a float of alpine amaro. It combines grassy, smoky, chocolate and bitter notes in one short drink."
+  },
+  {
+    "id": "rum-firewalker",
+    "name": "Rum Firewalker",
+    "variant": "",
+    "aka": [],
+    "family": "bitter-tiki",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Jason Alexander",
+    "venue": "Tacoma Cabana",
+    "location": "Tacoma, Washington, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-white-overproof",
+        "amount": 3,
+        "unit": "oz",
+        "orig": "Hampden Estate Rum Fire"
+      },
+      {
+        "id": "campari",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "cinnamon-syrup",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "mint",
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "collins",
+    "garnish": [
+      "mint sprig",
+      "edible flower"
+    ],
+    "servings": 1,
+    "source": "Shannon Mustipher, Tiki: Modern Tropical Cocktails (2019), p. 119",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/tiki-modern-tropical-cocktails/06_Fiery%2C%20Savory%2C%20and%20Bitters/rum-firewalker.json"
+    ],
+    "confidence": "medium",
+    "notes": "Three ounces of unaged high-ester Jamaican overproof balanced by Campari, lime and cinnamon syrup in equal ounces. A very strong, bitter-spiced sour."
+  },
+  {
+    "id": "sos-mai-tai",
+    "name": "S.O.S. Mai Tai",
+    "variant": "",
+    "aka": [],
+    "family": "mai-tai",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Ean Bancroft",
+    "venue": "S.O.S. Tiki Bar",
+    "location": "Decatur, Georgia, USA",
+    "popularity": 1,
+    "parents": [
+      "Mai Tai"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Hamilton Jamaican Pot Still Black"
+      },
+      {
+        "id": "rum-agricole-blanc",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "La Favorite Coeur de Canne"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Clément Créole Shrubb"
+      },
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.75,
+        "unit": "oz"
+      }
+    ],
+    "method": "shake",
+    "ice": "pebble",
+    "glass": "collins",
+    "garnish": [
+      "flaming lime shell dusted with cinnamon"
+    ],
+    "servings": 1,
+    "source": "Shannon Mustipher, Tiki: Modern Tropical Cocktails (2019), p. 120",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/tiki-modern-tropical-cocktails/06_Fiery%2C%20Savory%2C%20and%20Bitters/s-o-s-mai-tai.json"
+    ],
+    "confidence": "medium",
+    "notes": "A Mai Tai built on black Jamaican pot-still rum with a little agricole blanc, served tall with a flaming lime shell. It keeps Trader Vic's Jamaica-plus-Martinique idea using modern rums."
+  },
+  {
+    "id": "mr-bodi-hai",
+    "name": "Mr. Bodi Hai",
+    "variant": "",
+    "aka": [],
+    "family": "punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Nathan Hazard",
+    "venue": "Coconut Club",
+    "location": "Washington, D.C., USA",
+    "popularity": 1,
+    "parents": [
+      "Mr. Bali Hai"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-barbados",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "The Real McCoy 5 Year"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "macadamia nut orgeat"
+      },
+      {
+        "id": "coffee-liqueur",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "St. George NOLA Coffee Liqueur"
+      },
+      {
+        "id": "banana-liqueur",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "Giffard Banane du Brésil"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "hurricane",
+    "garnish": [
+      "pineapple round and leaves"
+    ],
+    "servings": 1,
+    "source": "Shannon Mustipher, Tiki: Modern Tropical Cocktails (2019), p. 102",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/tiki-modern-tropical-cocktails/05_Bold%20and%20Full-Flavored/mr-bodi-hai.json"
+    ],
+    "confidence": "medium",
+    "notes": "A riff on the Bali Hai restaurant's Mr. Bali Hai, which pairs coffee liqueur with pineapple. Barbados rum, macadamia orgeat and a touch of banana make a lighter, nuttier version."
+  },
+  {
+    "id": "muertito-vivo",
+    "name": "Muertito Vivo",
+    "variant": "",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [
+      "bitter-tiki"
+    ],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Shannon Mustipher",
+    "venue": null,
+    "location": "New York City, New York, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-aged-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Flor de Caña 7 Year"
+      },
+      {
+        "id": "rum-demerara-overproof",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Hamilton 151 Demerara"
+      },
+      {
+        "id": "amaro",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Jägermeister"
+      },
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "grapefruit",
+        "amount": 0.375,
+        "unit": "oz"
+      },
+      {
+        "id": "cinnamon-syrup",
+        "amount": 0.375,
+        "unit": "oz"
+      }
+    ],
+    "method": "shake",
+    "ice": "pebble",
+    "glass": "skull mug",
+    "garnish": [
+      "2 cinnamon sticks",
+      "edible flower"
+    ],
+    "servings": 1,
+    "source": "Shannon Mustipher, Tiki: Modern Tropical Cocktails (2019), p. 109",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/tiki-modern-tropical-cocktails/06_Fiery%2C%20Savory%2C%20and%20Bitters/muertito-vivo.json"
+    ],
+    "confidence": "medium",
+    "notes": "A Don's Mix sour (grapefruit plus cinnamon) with a 151 kicker, with Jägermeister in the modifier slot adding herbal bitterness."
+  },
+  {
+    "id": "penang-punch",
+    "name": "Penang Punch",
+    "variant": "",
+    "aka": [],
+    "family": "punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Garret Richard",
+    "venue": null,
+    "location": "New York City, New York, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-haitian",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Barbancourt White"
+      },
+      {
+        "id": "rum-aged-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "English Harbour 5 Year"
+      },
+      {
+        "id": "passion-fruit-juice",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "cane syrup"
+      },
+      {
+        "id": "absinthe",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "Vieux Pontarlier"
+      },
+      {
+        "id": "mint",
+        "amount": 8,
+        "unit": "leaves"
+      },
+      {
+        "id": "saline",
+        "amount": 5,
+        "unit": "drop"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "hurricane",
+    "garnish": [],
+    "servings": 1,
+    "source": "Garret Richard & Ben Schaffer, Tropical Standard (2023), p. 50",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/tropical-standard/01_Preparations%20-%20Flash%20Blended/penang-punch.json"
+    ],
+    "confidence": "medium",
+    "notes": "Richard's flash-blended punch: two light-bodied rums over a mix of four juices with mint and a teaspoon of absinthe. Saline seasoning, which the Tropical Standard adds to nearly every recipe, brightens the fruit."
+  },
+  {
+    "id": "colonial-grog",
+    "name": "Colonial Grog",
+    "variant": "",
+    "aka": [],
+    "family": "grog",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Garret Richard",
+    "venue": null,
+    "location": "New York City, New York, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-barbados",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Dos Maderas 5+5 (sherry-finished Caribbean rum)"
+      },
+      {
+        "id": "rum-aged-column",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Ron Navazos Palazzi Oloroso Cask Strength"
+      },
+      {
+        "id": "dry-vermouth",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Noilly Prat Extra Dry"
+      },
+      {
+        "id": "orange",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "maple-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "allspice-dram",
+        "amount": 0.5,
+        "unit": "tsp"
+      },
+      {
+        "id": "angostura",
+        "amount": 3,
+        "unit": "dash"
+      },
+      {
+        "id": "saline",
+        "amount": 5,
+        "unit": "drop"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "double old fashioned (with ice cone)",
+    "garnish": [],
+    "servings": 1,
+    "source": "Garret Richard & Ben Schaffer, Tropical Standard (2023), p. 123",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/tropical-standard/06_Preparations%20-%20Ice%20Molds%20and%20Shaved%20Ice/colonial-grog.json"
+    ],
+    "confidence": "medium",
+    "notes": "A New England–flavored grog sweetened with maple and seasoned with allspice, using dry vermouth for dilution and structure alongside sherry-cask rums. Served around an ice mold, like the Navy Grog's ice cone."
+  },
+  {
+    "id": "kiruna-cooler",
+    "name": "Kiruna Cooler",
+    "variant": "",
+    "aka": [],
+    "family": "colada",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Garret Richard",
+    "venue": null,
+    "location": "New York City, New York, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "aquavit",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Gamle Ode Dill Aquavit"
+      },
+      {
+        "id": "rum-aged-column",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Scarlet Ibis Trinidad Rum"
+      },
+      {
+        "id": "rum-blended-light",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Banks 5 Island"
+      },
+      {
+        "id": "coconut-cream",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "coconut mix (house blend of cream of coconut and coconut milk)"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "saline",
+        "amount": 5,
+        "unit": "drop"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "collins",
+    "garnish": [],
+    "servings": 1,
+    "source": "Garret Richard & Ben Schaffer, Tropical Standard (2023), p. 165",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/tropical-standard/10_Expansion%20-%20Savory/kiruna-cooler.json"
+    ],
+    "confidence": "medium",
+    "notes": "A savory coconut cooler that splits the base between dill aquavit and two light rums; sharing its name with a town in Swedish Lapland. The dill-coconut pairing is the book's example of pushing tiki toward savory flavors."
+  },
+  {
+    "id": "yacht-rock",
+    "name": "Yacht Rock",
+    "variant": "",
+    "aka": [],
+    "family": "bitter-tiki",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Garret Richard",
+    "venue": null,
+    "location": "New York City, New York, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-pot",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Smith & Cross"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Coruba"
+      },
+      {
+        "id": "campari",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "creme-de-cacao",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Tempus Fugit Crème de Cacao"
+      },
+      {
+        "id": "lillet-blanc",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Comoz Blanc vermouth"
+      },
+      {
+        "id": "orange",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "mole-bitters",
+        "amount": 3,
+        "unit": "dash",
+        "orig": "Dave Arnold's chocolate bitters"
+      },
+      {
+        "id": "saline",
+        "amount": 5,
+        "unit": "drop"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "double old fashioned",
+    "garnish": [],
+    "servings": 1,
+    "source": "Garret Richard & Ben Schaffer, Tropical Standard (2023), p. 259",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/tropical-standard/19_Restoration%20-%20Victor%20Bergeron%20and%20Trader%20Vics/yacht-rock.json"
+    ],
+    "confidence": "medium",
+    "notes": "A bitter tiki drink pairing Campari with chocolate: two Jamaican rums, crème de cacao, blanc vermouth, orange and lime. It shows a Jungle Bird–style drink with a cacao modifier."
+  },
+  {
+    "id": "red-sky-at-night",
+    "name": "Red Sky at Night",
+    "variant": "",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Garret Richard",
+    "venue": null,
+    "location": "New York City, New York, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rye",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "Rittenhouse Rye"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-juice",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "passion fruit purée"
+      },
+      {
+        "id": "grenadine",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "egg-white",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash"
+      },
+      {
+        "id": "saline",
+        "amount": 5,
+        "unit": "drop"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "double old fashioned",
+    "garnish": [],
+    "servings": 1,
+    "source": "Garret Richard & Ben Schaffer, Tropical Standard (2023), p. 261",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/tropical-standard/19_Restoration%20-%20Victor%20Bergeron%20and%20Trader%20Vics/red-sky-at-night.json"
+    ],
+    "confidence": "medium",
+    "notes": "A rye drink in the style of Trader Vic's whiskey-passion fruit sours such as the Port Light, with grenadine, honey and egg white for a foamy texture."
+  },
+  {
+    "id": "manta-ray-tropical-standard",
+    "name": "Manta Ray",
+    "variant": "Garret Richard, Tropical Standard",
+    "aka": [],
+    "family": "colada",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Garret Richard",
+    "venue": null,
+    "location": "New York City, New York, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-haitian",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Barbancourt 5 Star"
+      },
+      {
+        "id": "gin",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Fords Gin"
+      },
+      {
+        "id": "coconut-cream",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "coconut mix (house blend)"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "peach-liqueur",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "Giffard Crème de Pêche de Vigne"
+      },
+      {
+        "id": "ginger-syrup",
+        "amount": 1,
+        "unit": "tsp"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 0.5,
+        "unit": "tsp"
+      },
+      {
+        "id": "mint",
+        "amount": 6,
+        "unit": "leaves"
+      },
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash"
+      },
+      {
+        "id": "saline",
+        "amount": 5,
+        "unit": "drop"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "shaved",
+    "glass": "coupe (over shaved ice)",
+    "garnish": [],
+    "servings": 1,
+    "source": "Garret Richard & Ben Schaffer, Tropical Standard (2023), p. 117",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/tropical-standard/06_Preparations%20-%20Ice%20Molds%20and%20Shaved%20Ice/manta-ray.json"
+    ],
+    "confidence": "medium",
+    "notes": "Haitian rum and gin with a small amount of coconut, peach, ginger and mint. It is a light, herbal take on coconut rather than a rich colada."
+  },
+  {
+    "id": "full-fathom-five",
+    "name": "Full Fathom Five",
+    "variant": "",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Garret Richard",
+    "venue": null,
+    "location": "New York City, New York, USA",
+    "popularity": 1,
+    "parents": [
+      "Pearl Diver"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-demerara",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Hamilton 86 Demerara"
+      },
+      {
+        "id": "rum-haitian",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Barbancourt 5 Star"
+      },
+      {
+        "id": "rum-jamaican-pot",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Two James Doctor Bird"
+      },
+      {
+        "id": "gardenia-mix",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "falernum (Tropical Standard house recipe)"
+      },
+      {
+        "id": "orange",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "calamansi purée"
+      },
+      {
+        "id": "angostura",
+        "amount": 3,
+        "unit": "dash"
+      },
+      {
+        "id": "saline",
+        "amount": 5,
+        "unit": "drop"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "tiki mug",
+    "garnish": [],
+    "servings": 1,
+    "source": "Garret Richard & Ben Schaffer, Tropical Standard (2023), p. 181",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/tropical-standard/11_Innovation%20-%20Acid%20Adjusting/full-fathom-five.json"
+    ],
+    "confidence": "medium",
+    "notes": "Built on Don the Beachcomber's buttery Gardenia Mix (as in the Pearl Diver) with three rums, falernum and orange; tart calamansi is used to adjust the acidity."
+  },
+  {
+    "id": "pina-verde",
+    "name": "Piña Verde",
+    "variant": "",
+    "aka": [
+      "Pina Verde"
+    ],
+    "family": "colada",
+    "families_secondary": [],
+    "year": null,
+    "circa": false,
+    "era": "craft",
+    "creator": "Erick Castro",
+    "venue": null,
+    "location": "San Diego, California, USA",
+    "popularity": 3,
+    "parents": [
+      "Piña Colada"
+    ],
+    "ingredients": [
+      {
+        "id": "green-chartreuse",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "coconut-cream",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "cream of coconut"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "hurricane",
+    "garnish": [
+      "pineapple wedge",
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Erick Castro spec as demonstrated on Make and Drink (YouTube), transcribed in the SBoudrias cocktail index",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/youtube-channel/make-and-drink/pina-verde.json"
+    ],
+    "confidence": "high",
+    "notes": "A Piña Colada with green Chartreuse (55% abv) as the entire base, an early example of the craft-era trend of using an intense liqueur as the main spirit. Lime keeps the herbal liqueur and coconut from being cloying."
+  }
+]

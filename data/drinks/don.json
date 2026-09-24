@@ -1,0 +1,1571 @@
+[
+  {
+    "id": "zombie-1934",
+    "name": "Zombie",
+    "variant": "1934, Don the Beachcomber (Berry decode, Sippin' Safari)",
+    "aka": [
+      "Zombie Punch"
+    ],
+    "family": "zombie",
+    "families_secondary": [],
+    "year": 1934,
+    "circa": false,
+    "era": "golden",
+    "creator": "Donn Beach",
+    "venue": "Don the Beachcomber",
+    "location": "Hollywood, California, USA",
+    "popularity": 5,
+    "parents": [
+      "Planter's Punch",
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "dons-mix",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Don's Mix (2 parts white grapefruit juice : 1 part cinnamon syrup)"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "falernum"
+      },
+      {
+        "id": "rum-gold-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "gold Puerto Rican rum"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "gold or dark Jamaican rum"
+      },
+      {
+        "id": "rum-demerara-overproof",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Lemon Hart (or Hamilton) 151 Demerara rum"
+      },
+      {
+        "id": "grenadine",
+        "amount": 1,
+        "unit": "tsp"
+      },
+      {
+        "id": "pastis",
+        "amount": 6,
+        "unit": "drop",
+        "orig": "Pernod"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      },
+      {
+        "id": "mint",
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "tall chimney (Zombie) glass, topped up with ice cubes",
+    "garnish": [
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Sippin' Safari (2007), decoded from a Don the Beachcomber bartender's notebook",
+    "source_urls": [
+      "https://punchdrink.com/recipes/zombie/",
+      "https://beachbumberry.com/recipe-zombie.html",
+      "https://recipe.awesomedrinks.com/recipe/zombie-1934/"
+    ],
+    "confidence": "high",
+    "notes": "The drink that launched tiki: three rums over a lime and grapefruit-cinnamon sour, with falernum and a spoon of grenadine for sweetness and anise plus bitters as seasoning. Beach hid the recipe behind coded bottles; Berry's 2007 decode replaced decades of guesswork. Flash-blended for a few seconds only and famously limited to two per customer."
+  },
+  {
+    "id": "zombie-1950",
+    "name": "Zombie",
+    "variant": "c. 1950 version (printed by Louis Spievak, 1950; Berry, Intoxica!)",
+    "aka": [],
+    "family": "zombie",
+    "families_secondary": [],
+    "year": 1950,
+    "circa": true,
+    "era": "golden",
+    "creator": "Donn Beach",
+    "venue": "Don the Beachcomber",
+    "location": "Hollywood, California, USA",
+    "popularity": 3,
+    "parents": [
+      "Zombie"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "unsweetened pineapple juice"
+      },
+      {
+        "id": "passion-fruit-syrup",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "demerara-syrup",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 tsp brown sugar, dissolved in the citrus"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "white Puerto Rican rum"
+      },
+      {
+        "id": "rum-gold-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "gold Puerto Rican rum"
+      },
+      {
+        "id": "rum-demerara-overproof",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "151-proof Demerara rum"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      },
+      {
+        "id": "mint",
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "chimney (Zombie) glass",
+    "garnish": [
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Intoxica! (2002); also Ted Haigh, Vintage Spirits & Forgotten Cocktails; originally published by Louis Spievak (1950)",
+    "source_urls": [
+      "https://ultimatemaitai.com/2020/10/29/1950-and-1956-zombie/",
+      "https://forgottencocktails.com/don-the-beachcombers-zombie/",
+      "https://ratedrcocktails.wordpress.com/2012/10/31/remixed-recipes-the-zombies-of-donn-beach/"
+    ],
+    "confidence": "high",
+    "notes": "The Zombie as Beach was pouring it around 1950. There is no Don's Mix, falernum or grenadine; lemon, lime, pineapple and passion fruit syrup carry a lighter three-rum base. This was the best-known 'authentic' Zombie until the 1934 original was decoded."
+  },
+  {
+    "id": "zombie-1956",
+    "name": "Zombie",
+    "variant": "1956, Don the Beachcomber Waikiki (Cabaret Quarterly; Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "zombie",
+    "families_secondary": [],
+    "year": 1956,
+    "circa": false,
+    "era": "golden",
+    "creator": "Donn Beach",
+    "venue": "Don the Beachcomber (Waikiki)",
+    "location": "Waikiki, Honolulu, Hawaii, USA",
+    "popularity": 3,
+    "parents": [
+      "Zombie"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "grapefruit",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "unsweetened pineapple juice"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "falernum"
+      },
+      {
+        "id": "maraschino",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "maraschino liqueur"
+      },
+      {
+        "id": "grenadine",
+        "amount": 0.25,
+        "unit": "tsp"
+      },
+      {
+        "id": "rum-gold-column",
+        "amount": 1.25,
+        "unit": "oz",
+        "orig": "gold Puerto Rican rum"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "dark Jamaican rum"
+      },
+      {
+        "id": "rum-demerara-overproof",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Lemon Hart 151 Demerara rum"
+      },
+      {
+        "id": "pastis",
+        "amount": 0.125,
+        "unit": "tsp",
+        "orig": "1/8 tsp Pernod"
+      },
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "tall glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Jeff Berry, Sippin' Safari (2007), from Cabaret Quarterly (1956)",
+    "source_urls": [
+      "https://ultimatemaitai.com/2020/10/29/1950-and-1956-zombie/",
+      "https://temperedspirits.com/2012/02/19/mxmo-lxiv-tiki-and-zombification/"
+    ],
+    "confidence": "medium",
+    "notes": "Beach's Hawaii-era Zombie keeps the 1934 skeleton of lime, grapefruit, falernum, grenadine, anise and 151. It adds pineapple and a large dose of maraschino liqueur. Modern tasters often cut the maraschino to 1/4-1/3 oz."
+  },
+  {
+    "id": "navy-grog-don",
+    "name": "Navy Grog",
+    "variant": "c. 1941, Don the Beachcomber (Berry)",
+    "aka": [],
+    "family": "grog",
+    "families_secondary": [],
+    "year": 1941,
+    "circa": true,
+    "era": "golden",
+    "creator": "Donn Beach",
+    "venue": "Don the Beachcomber",
+    "location": "Hollywood, California, USA",
+    "popularity": 4,
+    "parents": [
+      "Grog"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "grapefruit",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "white grapefruit juice"
+      },
+      {
+        "id": "soda-water",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "honey mix (equal parts clover honey and hot water)"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "light Puerto Rican rum"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "dark Jamaican rum"
+      },
+      {
+        "id": "rum-demerara",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Demerara rum"
+      }
+    ],
+    "method": "shake",
+    "ice": "ice-cone",
+    "glass": "double old-fashioned, around a shaved-ice cone",
+    "garnish": [
+      "shaved-ice cone frozen around a drinking straw"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry (Grog Log / Beachbum Berry Remixed), Don the Beachcomber spec",
+    "source_urls": [
+      "https://chicagoist.com/2013/06/13/make_an_authentic_navy_grog_with_he.php",
+      "https://en.wikipedia.org/wiki/Navy_Grog",
+      "https://www.diffordsguide.com/cocktails/recipe/4866/navy-grog"
+    ],
+    "confidence": "high",
+    "notes": "Beach's upgrade of the Royal Navy ration: three rums (light, Jamaican, Demerara) with equal parts lime and grapefruit, sweetened with honey and lengthened with a little soda. It is served around a cone of shaved ice with the straw frozen inside. Trader Vic later answered with an allspice-accented Navy Grog of his own."
+  },
+  {
+    "id": "missionarys-downfall",
+    "name": "Missionary's Downfall",
+    "variant": "Don the Beachcomber (Berry, Beachbum Berry Remixed)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [
+      "beachcomber-sour"
+    ],
+    "year": 1940,
+    "circa": true,
+    "era": "golden",
+    "creator": "Donn Beach",
+    "venue": "Don the Beachcomber",
+    "location": "Hollywood, California, USA",
+    "popularity": 4,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "light Puerto Rican rum"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "honey mix (1:1)"
+      },
+      {
+        "id": "peach-liqueur",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "peach brandy"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "1/4 cup diced fresh pineapple (blended)"
+      },
+      {
+        "id": "mint",
+        "unit": "leaves",
+        "orig": "1/4 cup mint leaves, tightly packed (blended in)"
+      },
+      {
+        "id": "mint",
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "blend",
+    "ice": "blended",
+    "glass": "coupe / cocktail glass",
+    "garnish": [
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry Remixed (2010)",
+    "source_urls": [
+      "https://kindredcocktails.com/cocktail/missionarys-downfall-don-beachcomber",
+      "https://vinepair.com/cocktail-recipe/missionarys-downfall/",
+      "https://www.washingtonpost.com/recipes/missionarys-downfall/"
+    ],
+    "confidence": "high",
+    "notes": "A frozen, bright-green Daiquiri: fresh pineapple and a big handful of mint are blended with rum, honey and a half-shot of peach brandy (about 20 seconds). It appears on 1940s Beachcomber menus, and Berry suggests it may go back to 1937."
+  },
+  {
+    "id": "three-dots-and-a-dash",
+    "name": "Three Dots and a Dash",
+    "variant": "WWII era, Don the Beachcomber (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [],
+    "year": 1942,
+    "circa": true,
+    "era": "golden",
+    "creator": "Donn Beach",
+    "venue": "Don the Beachcomber",
+    "location": "Hollywood, California, USA",
+    "popularity": 3,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "honey mix (1:1)"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "falernum"
+      },
+      {
+        "id": "allspice-dram",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "allspice liqueur (pimento dram)"
+      },
+      {
+        "id": "rum-agricole-vieux",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "aged Martinique rhum"
+      },
+      {
+        "id": "rum-demerara",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Demerara rum"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "tulip glass",
+    "garnish": [
+      "three cherries and a pineapple chunk speared together (Morse 'V')"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Sippin' Safari (2007)",
+    "source_urls": [
+      "https://imbibemagazine.com/recipe/three-dots-and-a-dash-recipe/",
+      "https://kindredcocktails.com/cocktail/three-dots-and-a-dash",
+      "https://ultimatemaitai.com/2023/02/14/three-dots-and-a-dash-3/",
+      "https://liquid-alchemist.com/blogs/blog/three-dots-and-a-dash-cocktail"
+    ],
+    "confidence": "high",
+    "notes": "A wartime drink named for Morse code 'V' for Victory, which the garnish spells out with three cherries and a pineapple spear. Aged Martinique rhum leads, with a little Demerara, and falernum plus allspice dram give it a baking-spice finish over lime, orange and honey."
+  },
+  {
+    "id": "test-pilot",
+    "name": "Test Pilot",
+    "variant": "c. 1941, Don the Beachcomber (Berry)",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [
+      "zombie"
+    ],
+    "year": 1941,
+    "circa": true,
+    "era": "golden",
+    "creator": "Donn Beach",
+    "venue": "Don the Beachcomber",
+    "location": "Hollywood, California, USA",
+    "popularity": 3,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "falernum"
+      },
+      {
+        "id": "triple-sec",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "3 tsp Cointreau"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "dark Jamaican rum"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "light Puerto Rican rum"
+      },
+      {
+        "id": "pastis",
+        "amount": 6,
+        "unit": "drop",
+        "orig": "Pernod (about 1/8 tsp)"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "double old-fashioned",
+    "garnish": [
+      "cherry on a cocktail pick"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Grog Log (1998) / Beachbum Berry Remixed (2010)",
+    "source_urls": [
+      "https://en.wikipedia.org/wiki/Test_pilot_(cocktail)",
+      "https://vinepair.com/cocktail-recipe/test-pilot/",
+      "http://www.cocktailchronicles.com/2006/08/01/test-pilot/"
+    ],
+    "confidence": "high",
+    "notes": "A short, strong two-rum sour sweetened by Cointreau and falernum rather than syrup, with Beach's Pernod-and-Angostura seasoning. It led to the Space Pilot and, most famously, the Luau's Jet Pilot."
+  },
+  {
+    "id": "cobras-fang",
+    "name": "Cobra's Fang",
+    "variant": "c. 1937, Don the Beachcomber (Berry, Total Tiki)",
+    "aka": [],
+    "family": "zombie",
+    "families_secondary": [
+      "beachcomber-sour"
+    ],
+    "year": 1937,
+    "circa": true,
+    "era": "golden",
+    "creator": "Donn Beach",
+    "venue": "Don the Beachcomber",
+    "location": "Hollywood, California, USA",
+    "popularity": 2,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Passionola / fassionola"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "falernum (older Berry printings: 1/2 oz)"
+      },
+      {
+        "id": "rum-demerara-overproof",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "151-proof Demerara rum"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      },
+      {
+        "id": "absinthe",
+        "amount": 6,
+        "unit": "drop",
+        "orig": "absinthe (or Pernod)"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "tall glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Jeff Berry, Total Tiki app (earlier: Grog Log / Remixed)",
+    "source_urls": [
+      "https://www.pastemagazine.com/drink/cocktails/cobras-fang-cocktail-recipe-history-fassionola-ingredients-flavors-rums",
+      "https://en.wikipedia.org/wiki/Cobra's_fang",
+      "https://distiller.com/articles/tiki-drinks-cobras-fang"
+    ],
+    "confidence": "medium",
+    "notes": "A single-rum knockout: a full 1.5 oz of 151 Demerara over lime, orange and passion-fruit syrup, seasoned with falernum, bitters and absinthe. The original called for Passionola, the ancestor of fassionola. The falernum dose differs between Berry's editions (1/4 vs 1/2 oz)."
+  },
+  {
+    "id": "pearl-diver",
+    "name": "Pearl Diver",
+    "variant": "Don the Beachcomber (Berry decode; modern spec as adapted by Smuggler's Cove)",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "Donn Beach",
+    "venue": "Don the Beachcomber",
+    "location": "Hollywood, California, USA",
+    "popularity": 2,
+    "parents": [
+      "Hot Buttered Rum"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-gold-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "gold Puerto Rican rum (Smuggler's Cove: blended lightly aged rum)"
+      },
+      {
+        "id": "rum-demerara",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "aged Demerara rum"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "gold Jamaican rum"
+      },
+      {
+        "id": "orange",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "gardenia-mix",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Don's Gardenia Mix (butter, honey, cinnamon syrup, vanilla syrup, allspice dram)"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "falernum"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "Pearl Diver glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Jeff Berry, Sippin' Safari (2007) decode, as adapted in Martin & Rebecca Cate, Smuggler's Cove (2016) and reproduced by Punch/Imbibe",
+    "source_urls": [
+      "https://punchdrink.com/recipes/pearl-diver/",
+      "https://punchdrink.com/articles/rediscovering-don-the-beachcomber-gardenia-mix-pearl-diver-tiki-cocktail-recipe/",
+      "https://imbibemagazine.com/recipe/pearl-diver-recipe/"
+    ],
+    "confidence": "medium",
+    "notes": "An iced take on Hot Buttered Rum. Three rums, orange and lime are blended hard (15-20 s) with Gardenia Mix, a whipped butter-honey-spice batter, then fine-strained over fresh crushed ice. The blending is what emulsifies the butter. Rum proportions here follow the widely printed modern adaptation, not a verified transcription of Berry's card."
+  },
+  {
+    "id": "nui-nui",
+    "name": "Nui Nui",
+    "variant": "Don the Beachcomber (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [
+      "grog"
+    ],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "Donn Beach",
+    "venue": "Don the Beachcomber",
+    "location": "Hollywood, California, USA",
+    "popularity": 2,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-gold-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "amber Virgin Islands rum (e.g. Cruzan)"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "cinnamon-syrup",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "Don's Spices #4 (decoded by Berry as cinnamon syrup)"
+      },
+      {
+        "id": "dons-spices-2",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "Don's Spices #2 (1:1 vanilla syrup + allspice dram)"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "pilsner / tall glass",
+    "garnish": [
+      "long spiral of orange peel"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Sippin' Safari (2007)",
+    "source_urls": [
+      "https://imbibemagazine.com/recipe/don-the-beachcombers-nui-nui-cocktail/",
+      "https://food52.com/recipes/88642-don-the-beachcomber-s-nui-nui",
+      "http://cocktailchem.blogspot.com/2012/08/tiki-classics-nui-nui.html"
+    ],
+    "confidence": "high",
+    "notes": "A single-rum spiced sour. Amber Virgin Islands rum with lime and orange is sweetened entirely by two of Beach's coded 'spices': #4 (cinnamon) and #2 (vanilla plus allspice). Decoding it was one of Berry's hardest puzzles."
+  },
+  {
+    "id": "qb-cooler-1937",
+    "name": "Q.B. Cooler",
+    "variant": "c. 1937, Don the Beachcomber (Berry, Beachbum Berry Remixed)",
+    "aka": [
+      "QB Cooler"
+    ],
+    "family": "buck",
+    "families_secondary": [
+      "beachcomber-sour"
+    ],
+    "year": 1937,
+    "circa": true,
+    "era": "golden",
+    "creator": "Donn Beach",
+    "venue": "Don the Beachcomber",
+    "location": "Hollywood, California, USA",
+    "popularity": 2,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "orange",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "honey mix"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "falernum"
+      },
+      {
+        "id": "ginger-syrup",
+        "amount": 0.5,
+        "unit": "tsp"
+      },
+      {
+        "id": "soda-water",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "gold Jamaican rum"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "light Puerto Rican rum"
+      },
+      {
+        "id": "rum-demerara",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Demerara rum"
+      },
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash"
+      },
+      {
+        "id": "mint",
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "tall glass",
+    "garnish": [
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry Remixed (2010)",
+    "source_urls": [
+      "https://en.wikipedia.org/wiki/Q.B._Cooler",
+      "https://ultimatemaitai.com/about/history/qb-cooler/",
+      "http://cocktailchem.blogspot.com/2012/04/tiki-classics-qb-cooler.html"
+    ],
+    "confidence": "high",
+    "notes": "Three rums with orange, lime, honey, falernum and a touch of ginger, lengthened with soda. Some historians argue it is a Mai Tai precursor. A later Mai-Kai version swaps in fassionola, Pernod and grenadine for the ginger."
+  },
+  {
+    "id": "sharks-tooth-don",
+    "name": "Shark's Tooth",
+    "variant": "Don the Beachcomber chain (Berry, Beachbum Berry Remixed)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [
+      "punch"
+    ],
+    "year": null,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "Don the Beachcomber (chain)",
+    "venue": "Don the Beachcomber",
+    "location": "USA",
+    "popularity": 2,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "sugar syrup"
+      },
+      {
+        "id": "grenadine",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "syrup from a jar of maraschino cherries"
+      },
+      {
+        "id": "rum-barbados",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Barbados rum (Difford's: light gold rum)"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Jamaican rum, served on the side in a shot glass and poured in by the guest"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "double old-fashioned, with a sidecar shot glass",
+    "garnish": [
+      "pineapple wedge",
+      "cherry"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry Remixed (2010)",
+    "source_urls": [
+      "https://www.moodymixologist.com/blog/sharks-tooth-easy-tiki-cocktail",
+      "https://www.diffordsguide.com/cocktails/recipe/2577/sharks-tooth-by-don-beach",
+      "https://www.grouchy-bartender.com/cocktails/sharks-tooth"
+    ],
+    "confidence": "medium",
+    "notes": "A cherry-tinted pineapple Daiquiri with a bit of theater. One rum is flash-blended into the drink and the Jamaican rum arrives in a shot glass for the guest to pour in. Adaptations date it to the 1960s chain era, but the date is not firm. Not related to Trader Vic's soda-topped Shark's Tooth."
+  },
+  {
+    "id": "beachcombers-gold-1937",
+    "name": "Beachcomber's Gold",
+    "variant": "1937, Hollywood & Palm Springs version (Berry)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1937,
+    "circa": true,
+    "era": "golden",
+    "creator": "Donn Beach",
+    "venue": "Don the Beachcomber",
+    "location": "Hollywood & Palm Springs, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-gold-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "gold Puerto Rican rum"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "gold Jamaican rum"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "dark Jamaican rum"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "sugar syrup"
+      },
+      {
+        "id": "pastis",
+        "amount": 6,
+        "unit": "drop",
+        "orig": "Pernod"
+      },
+      {
+        "id": "almond-extract",
+        "amount": 4,
+        "unit": "drop",
+        "orig": "almond extract"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "ice-cone",
+    "glass": "cocktail glass lined with a shaved-ice shell",
+    "garnish": [],
+    "servings": 1,
+    "source": "Jeff Berry (Grog Log / Beachbum Berry Remixed), 1937 Hollywood & Palm Springs version",
+    "source_urls": [
+      "https://www.squirrelfarts.com/2012/12/14/rule-37-beachcombers-gold/",
+      "http://matthew-rowley.blogspot.com/2011/01/ungarnished-beachcombers-gold.html",
+      "https://garnishesthesizeofyourhead.blogspot.com/2017/05/cocktail-45-beachcombers-gold.html"
+    ],
+    "confidence": "medium",
+    "notes": "A three-rum Daiquiri seasoned with Pernod and a few drops of almond extract, strained into a cocktail glass lined with a shell of shaved ice. A later, simpler house version paired rum with dry and sweet vermouth."
+  },
+  {
+    "id": "colonel-beachs-plantation-punch",
+    "name": "Colonel Beach's Plantation Punch",
+    "variant": "1950s, The Colonel's Plantation Beefsteak & Coffee House, Waikiki (Berry)",
+    "aka": [],
+    "family": "punch",
+    "families_secondary": [
+      "buck"
+    ],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "Donn Beach",
+    "venue": "The Colonel's Plantation Beefsteak and Coffee House",
+    "location": "Waikiki, Honolulu, Hawaii, USA",
+    "popularity": 1,
+    "parents": [
+      "Planter's Punch"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 2,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "dark Jamaican rum"
+      },
+      {
+        "id": "rum-gold-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "gold Puerto Rican rum"
+      },
+      {
+        "id": "rum-barbados",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "gold Barbados rum"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "falernum"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      },
+      {
+        "id": "pastis",
+        "amount": 6,
+        "unit": "drop",
+        "orig": "Pernod"
+      },
+      {
+        "id": "ginger-beer",
+        "amount": 2,
+        "unit": "oz"
+      },
+      {
+        "id": "mint",
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "tall glass",
+    "garnish": [
+      "pineapple chunk",
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry (Don the Beachcomber Hawaii-era spec), as reproduced by Cocktail Virgin Slut",
+    "source_urls": [
+      "https://cocktailvirgin.blogspot.com/2016/11/colonel-beachs-plantation-punch.html",
+      "https://www.tumblr.com/elixirforthesoul/60933893688/colonel-beachs-plantation-punch-dark-jamaican",
+      "https://thecigarsmokingman.com/2020/10/27/colonel-beachs-plantation-punch-tiki-tuesday/"
+    ],
+    "confidence": "medium",
+    "notes": "Beach's Hawaii-era Planter's Punch, made for his Colonel's Plantation restaurant in Waikiki. It has three rums with pineapple, lime and falernum, seasoned with Pernod and Angostura. Pouring it over ginger beer turns the punch into a cooler."
+  },
+  {
+    "id": "mystery-gardenia",
+    "name": "Mystery Gardenia",
+    "variant": "Don the Beachcomber (Berry)",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [
+      "daiquiri"
+    ],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "Donn Beach",
+    "venue": "Don the Beachcomber",
+    "location": "Hollywood, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "light rum"
+      },
+      {
+        "id": "gardenia-mix",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Gardenia Mix (honey-butter-spice cream)"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash",
+        "orig": "1-2 dashes Angostura"
+      }
+    ],
+    "method": "blend",
+    "ice": "none",
+    "glass": "cocktail glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Jeff Berry, Sippin' Safari (2007), as reproduced by Webtender Wiki and BG Reynolds",
+    "source_urls": [
+      "https://wiki.webtender.com/wiki/Mystery_Gardenia",
+      "https://bgreynolds.com/pages/cocktail-recipe-mystery-gardenia",
+      "http://tastyturntable.com/2015/06/08/mystery-gardenia/"
+    ],
+    "confidence": "medium",
+    "notes": "A creamy, honeyed Daiquiri: light rum and lime blended at high speed with Gardenia Mix, then strained up. It probably gave the mix its name, and it is the simpler single-rum sibling of the Pearl Diver."
+  },
+  {
+    "id": "vicious-virgin",
+    "name": "Vicious Virgin",
+    "variant": "c. 1937, Don the Beachcomber",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [
+      "daiquiri"
+    ],
+    "year": 1937,
+    "circa": true,
+    "era": "golden",
+    "creator": "Donn Beach",
+    "venue": "Don the Beachcomber",
+    "location": "Hollywood, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "triple-sec",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Cointreau"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "falernum"
+      },
+      {
+        "id": "rum-aged-column",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Puerto Rican dark rum"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Virgin Islands light rum"
+      }
+    ],
+    "method": "blend",
+    "ice": "blended",
+    "glass": "thin 6-oz champagne glass, frozen",
+    "garnish": [],
+    "servings": 1,
+    "source": "Donn Beach's recipe as reproduced by Kitchen Riffs (2016) and the Cocktail Party app",
+    "source_urls": [
+      "http://www.kitchenriffs.com/2016/08/the-vicious-virgin-cocktail.html",
+      "https://cocktailpartyapp.com/drinks/vicious-virgin/"
+    ],
+    "confidence": "medium",
+    "notes": "A two-rum frappé Daiquiri with Cointreau and falernum as the only sweeteners, blended with cracked ice and served in a freezer-chilled champagne glass. The Virgin Islands rum inspired the name. The Mai-Kai later served a descendant, the Impatient Virgin."
+  },
+  {
+    "id": "sumatra-kula",
+    "name": "Sumatra Kula",
+    "variant": "c. 1934, Don the Beachcomber (Berry)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [
+      "beachcomber-sour"
+    ],
+    "year": 1934,
+    "circa": true,
+    "era": "golden",
+    "creator": "Donn Beach",
+    "venue": "Don the Beachcomber",
+    "location": "Hollywood, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "grapefruit",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "white grapefruit juice"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "honey mix"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "light Puerto Rican rum"
+      },
+      {
+        "id": "mint",
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "old-fashioned glass",
+    "garnish": [
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Sippin' Safari (2007): amounts recalled, not re-verified online in this session",
+    "source_urls": [],
+    "confidence": "low",
+    "notes": "One of Beach's earliest menu drinks: a light-rum Daiquiri stretched with orange and grapefruit and sweetened with honey. It shows the three-citrus-plus-honey template that later carried the Navy Grog. Amounts are unverified; the ingredient list is solid."
+  },
+  {
+    "id": "mai-tai-swizzle-1933",
+    "name": "Mai Tai Swizzle",
+    "variant": "1933, Don's Beachcomber Café (per Phoebe Beach)",
+    "aka": [],
+    "family": "swizzle",
+    "families_secondary": [
+      "beachcomber-sour"
+    ],
+    "year": 1933,
+    "circa": true,
+    "era": "pre-tiki",
+    "creator": "Donn Beach",
+    "venue": "Don's Beachcomber Café",
+    "location": "Hollywood, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Planter's Punch"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Myers's Plantation rum"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Cuban rum"
+      },
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "grapefruit",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "falernum"
+      },
+      {
+        "id": "triple-sec",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Cointreau"
+      },
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash"
+      },
+      {
+        "id": "pastis",
+        "amount": 1,
+        "unit": "dash",
+        "orig": "Pernod"
+      },
+      {
+        "id": "mint",
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "shaved",
+    "glass": "double old-fashioned",
+    "garnish": [
+      "mint sprigs"
+    ],
+    "servings": 1,
+    "source": "Phoebe Beach & Arnold Bitner, Hawaii: Tropical Rum Drinks & Cuisine by Don the Beachcomber (2001), as cited in Wikipedia's Mai Tai article; recalled, not re-verified online in this session",
+    "source_urls": [],
+    "confidence": "low",
+    "notes": "Beach's widow said this swizzle was on his 1933 menu, which would predate Trader Vic's 1944 Mai Tai. Historians see little in common beyond the name. Its grapefruit, falernum, Cointreau, Pernod and bitters are classic Beachcomber seasoning, and the 1933 date is disputed."
+  },
+  {
+    "id": "donga-punch",
+    "name": "Donga Punch",
+    "variant": "Don the Beachcomber, 1930s (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [
+      "zombie"
+    ],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "Donn Beach",
+    "venue": "Don the Beachcomber",
+    "location": "Hollywood, California, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-agricole-vieux",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "Martinique rum"
+      },
+      {
+        "id": "dons-mix",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Don's Mix (2 grapefruit : 1 cinnamon syrup)"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "highball",
+    "garnish": [
+      "grapefruit twist",
+      "cinnamon stick"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Sippin' Safari (2007): ingredient list confirmed (VinePair, Kindred Cocktails); amounts recalled, not re-verified",
+    "source_urls": [
+      "https://vinepair.com/cocktail-recipe/donga-punch/",
+      "https://kindredcocktails.com/cocktail/donga-punch"
+    ],
+    "confidence": "low",
+    "notes": "A three-ingredient showcase for Don's Mix: Martinique rum, lime and the grapefruit-cinnamon blend. It reads like a stripped-down Zombie. The ingredients are confirmed, but the proportions come from memory."
+  },
+  {
+    "id": "151-swizzle-don",
+    "name": "151 Swizzle",
+    "variant": "Don the Beachcomber (Berry)",
+    "aka": [],
+    "family": "swizzle",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "Donn Beach",
+    "venue": "Don the Beachcomber",
+    "location": "Hollywood, California, USA",
+    "popularity": 2,
+    "parents": [
+      "Rum Swizzle"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "sugar syrup"
+      },
+      {
+        "id": "rum-demerara-overproof",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Lemon Hart 151 Demerara rum"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      },
+      {
+        "id": "pastis",
+        "amount": 6,
+        "unit": "drop",
+        "orig": "Pernod"
+      },
+      {
+        "id": "nutmeg",
+        "unit": "garnish",
+        "garnish": true,
+        "orig": "freshly grated nutmeg on top"
+      }
+    ],
+    "method": "swizzle",
+    "ice": "crushed",
+    "glass": "frosted metal swizzle cup or pilsner",
+    "garnish": [
+      "grated nutmeg"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry (Grog Log / Beachbum Berry Remixed), Don the Beachcomber spec (recalled; not re-verified)",
+    "source_urls": [],
+    "confidence": "low",
+    "notes": "A one-rum swizzle: 1.5 oz of 151 Demerara with lime and sugar, seasoned with Beach's usual Angostura and drops of Pernod, churned over crushed ice until the cup frosts, then topped with nutmeg. The Mai-Kai kept a close relative on its menu for decades. Proportions are recalled, not checked."
+  },
+  {
+    "id": "beachcombers-gold-vermouth",
+    "name": "Beachcomber's Gold",
+    "variant": "later rum-and-vermouth version (commonly printed)",
+    "aka": [],
+    "family": "stirred",
+    "families_secondary": [
+      "daiquiri"
+    ],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "Donn Beach",
+    "venue": "Don the Beachcomber",
+    "location": "USA",
+    "popularity": 1,
+    "parents": [
+      "Beachcomber's Gold"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "light rum"
+      },
+      {
+        "id": "dry-vermouth",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "sweet-vermouth",
+        "amount": 0.5,
+        "unit": "oz"
+      }
+    ],
+    "method": "shake",
+    "ice": "ice-cone",
+    "glass": "cocktail glass lined with crushed/shaved ice",
+    "garnish": [],
+    "servings": 1,
+    "source": "Bar None Drinks / Absolut Drinks rum-and-vermouth Beachcomber's Gold (weak secondary sources, seen via search extracts)",
+    "source_urls": [
+      "https://www.barnonedrinks.com/drinks/b/beachcombers-gold-495.html",
+      "https://www.absolutdrinks.com/en/drinks/beachcombers-gold/"
+    ],
+    "confidence": "low",
+    "notes": "The simpler Beachcomber's Gold with no citrus that shows up in general bar guides: light rum split between dry and sweet vermouth (effectively a rum Perfect Manhattan), served in or over a shell of crushed ice. It probably reflects a later house simplification of the 1937 three-rum original, and the attribution to Beach himself is unconfirmed."
+  }
+]

@@ -1,0 +1,3127 @@
+[
+  {
+    "id": "jet-pilot",
+    "name": "Jet Pilot",
+    "variant": "The Luau, c. 1958 (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "zombie",
+    "families_secondary": [
+      "beachcomber-sour"
+    ],
+    "year": 1958,
+    "circa": true,
+    "era": "golden",
+    "creator": "",
+    "venue": "The Luau (Steve Crane)",
+    "location": "Beverly Hills, California, USA",
+    "popularity": 3,
+    "parents": [
+      "Test Pilot",
+      "Zombie"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "grapefruit",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "cinnamon-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "falernum"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "dark Jamaican rum"
+      },
+      {
+        "id": "rum-gold-column",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "gold Puerto Rican rum"
+      },
+      {
+        "id": "rum-demerara-overproof",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Lemon Hart 151 Demerara rum"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      },
+      {
+        "id": "pastis",
+        "amount": 6,
+        "unit": "drop",
+        "orig": "Pernod"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "double old fashioned",
+    "garnish": [],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007), p. 130; same spec in Smuggler's Cove (2016), p. 61",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/jet-pilot.json",
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/02_The%20Golden%20Era/jet-pilot.json",
+      "https://www.proofcocktails.nl/2018/10/19/jet-pilot-test-pilot/",
+      "https://www.foodrepublic.com/2070085/jet-pilot-retro-cocktail-ingredients/"
+    ],
+    "confidence": "high",
+    "notes": "Steve Crane's Luau took Don the Beachcomber's Test Pilot frame (lime, grapefruit, cinnamon, falernum, Pernod, bitters) and loaded it with three rums including Lemon Hart 151. Effectively a compact Zombie; blended only about five seconds."
+  },
+  {
+    "id": "tiki-bowl-kon-tiki",
+    "name": "Tiki Bowl",
+    "variant": "Kon-Tiki, Portland (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [
+      "zombie"
+    ],
+    "year": null,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "",
+    "venue": "Kon-Tiki (Steve Crane's chain, Sheraton-Portland)",
+    "location": "Portland, Oregon, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "honey mix"
+      },
+      {
+        "id": "orange",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-demerara-overproof",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Lemon Hart 151"
+      },
+      {
+        "id": "rum-gold-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "gold (column-still aged) rum"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 1.25,
+        "unit": "oz",
+        "orig": "dark Jamaican rum"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      },
+      {
+        "id": "pastis",
+        "amount": 6,
+        "unit": "drop",
+        "orig": "Pernod"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "single-serving tiki bowl",
+    "garnish": [],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007); Smuggler's Cove (2016) p. 68 uses 1 oz honey",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/tiki-bowl.json",
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/02_The%20Golden%20Era/tiki-bowl.json"
+    ],
+    "confidence": "medium",
+    "notes": "A single-serving 'bowl' from Crane's hotel Kon-Tiki chain: orange juice and honey soften a three-rum Beachcomber-style base with a 151 kick. Pernod plus Angostura is the same accent pair the Luau used."
+  },
+  {
+    "id": "cobra-kon-tiki",
+    "name": "Cobra",
+    "variant": "Kon-Tiki, Chicago (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "",
+    "venue": "Kon-Tiki (Steve Crane's chain, Sheraton-Chicago)",
+    "location": "Chicago, Illinois, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-demerara-overproof",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Lemon Hart 151"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      },
+      {
+        "id": "pastis",
+        "amount": 6,
+        "unit": "drop",
+        "orig": "Pernod"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "tall glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/cobra.json"
+    ],
+    "confidence": "medium",
+    "notes": "A small, very strong single-rum drink: one ounce of 151 Demerara over equal parts lime, orange and passion fruit syrup, sharpened with Pernod and bitters, then topped with crushed ice."
+  },
+  {
+    "id": "kon-tiki-mai-tai",
+    "name": "Kon-Tiki Mai Tai",
+    "variant": "Kon-Tiki, Cleveland (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [
+      "mai-tai"
+    ],
+    "year": null,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "",
+    "venue": "Kon-Tiki (Steve Crane's chain, Sheraton-Cleveland)",
+    "location": "Cleveland, Ohio, USA",
+    "popularity": 1,
+    "parents": [
+      "Mai Tai"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "honey mix"
+      },
+      {
+        "id": "ginger-syrup",
+        "amount": 0.25,
+        "unit": "tsp"
+      },
+      {
+        "id": "rum-gold-column",
+        "amount": 1.25,
+        "unit": "oz",
+        "orig": "gold (column-still aged) rum"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "aged Jamaican rum (transcription names Appleton 12)"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      },
+      {
+        "id": "pastis",
+        "amount": 6,
+        "unit": "drop",
+        "orig": "Pernod"
+      },
+      {
+        "id": "mint",
+        "amount": 1,
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "tiki mug / double old fashioned",
+    "garnish": [
+      "mint sprigs",
+      "pineapple spear"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/kon-tiki-mai-tai.json"
+    ],
+    "confidence": "medium",
+    "notes": "Shows how far 'Mai Tai' drifted outside Trader Vic's bars: no orgeat or curaçao, instead a Beachcomber-style honey, orange, ginger and Pernod build. Useful as a name-versus-structure outlier."
+  },
+  {
+    "id": "lady-of-singapore",
+    "name": "Lady of Singapore",
+    "variant": "Kon-Tiki, Portland (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "colada",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "",
+    "venue": "Kon-Tiki (Steve Crane's chain, Sheraton-Portland)",
+    "location": "Portland, Oregon, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-gold-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "gold (column-still aged) rum"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "coconut-cream",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "coconut cream"
+      },
+      {
+        "id": "half-and-half",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "grenadine",
+        "amount": 1,
+        "unit": "tsp"
+      }
+    ],
+    "method": "blend",
+    "ice": "blended",
+    "glass": "specialty glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/lady-of-singapore.json"
+    ],
+    "confidence": "medium",
+    "notes": "A creamy blended pineapple-coconut drink with dairy and a touch of grenadine, a Kon-Tiki cousin of the Piña Colada from the same era."
+  },
+  {
+    "id": "derby-daiquiri",
+    "name": "Derby Daiquiri",
+    "variant": "Mai-Kai, Mariano Licudine (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "Mariano Licudine",
+    "venue": "The Mai-Kai",
+    "location": "Fort Lauderdale, Florida, USA",
+    "popularity": 2,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "light rum"
+      },
+      {
+        "id": "orange",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      }
+    ],
+    "method": "blend",
+    "ice": "blended",
+    "glass": "cocktail glass set with a Spanish-comb ice shell",
+    "garnish": [],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/derby-daiquiri.json"
+    ],
+    "confidence": "medium",
+    "notes": "A frozen daiquiri where orange juice outweighs the lime, served in a coupe framed by one of the Mai-Kai's molded ice shells. The Mai-Kai (opened 1956) kept many Beachcomber techniques alive under ex-Don bartender Mariano Licudine."
+  },
+  {
+    "id": "last-rites",
+    "name": "Last Rites",
+    "variant": "Mai-Kai, Mariano Licudine (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "Mariano Licudine",
+    "venue": "The Mai-Kai",
+    "location": "Fort Lauderdale, Florida, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-agricole-vieux",
+        "amount": 3,
+        "unit": "oz",
+        "orig": "aged Martinique rum"
+      },
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "falernum"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "tall glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/last-rites.json"
+    ],
+    "confidence": "medium",
+    "notes": "Three ounces of aged Martinique rum with only light passion fruit and falernum sweetening: a very spirit-heavy Mai-Kai sour."
+  },
+  {
+    "id": "jamoca",
+    "name": "Jamoca",
+    "variant": "Mariano Licudine (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "Mariano Licudine",
+    "venue": "",
+    "location": "",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "coffee",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "cold coffee"
+      },
+      {
+        "id": "demerara-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "coffee syrup (made with brown sugar)"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-gold-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "gold (column-still aged) rum"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "aged Jamaican rum"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "footed pilsner",
+    "garnish": [],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007), p. 144",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/jamoca.json"
+    ],
+    "confidence": "medium",
+    "notes": "Coffee as a tiki modifier, a Mariano Licudine signature later seen in the Mai-Kai's Black Magic. The coffee syrup is mapped to brown-sugar syrup since the drink already carries brewed coffee."
+  },
+  {
+    "id": "white-cloud-mai-kai",
+    "name": "White Cloud",
+    "variant": "Mai-Kai (as presented by Make and Drink)",
+    "aka": [],
+    "family": "colada",
+    "families_secondary": [
+      "daiquiri"
+    ],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "",
+    "venue": "The Mai-Kai",
+    "location": "Fort Lauderdale, Florida, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "light rum"
+      },
+      {
+        "id": "coconut-cream",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "cream of coconut"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "triple-sec",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "Cointreau"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "snifter",
+    "garnish": [],
+    "servings": 1,
+    "source": "Make and Drink (YouTube), catalogued with Sippin' Safari recipes in SBoudrias/cocktails",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/white-cloud.json"
+    ],
+    "confidence": "low",
+    "notes": "A small coconut daiquiri with falernum and orange liqueur. Only a secondary transcription was available, so treat the proportions as provisional."
+  },
+  {
+    "id": "barrel-o-rum",
+    "name": "Barrel O' Rum",
+    "variant": "Mai-Kai signature, Atomic Grog tribute reconstruction",
+    "aka": [
+      "Rum Barrel (Mai-Kai)"
+    ],
+    "family": "beachcomber-sour",
+    "families_secondary": [
+      "zombie"
+    ],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "Mariano Licudine",
+    "venue": "The Mai-Kai",
+    "location": "Fort Lauderdale, Florida, USA",
+    "popularity": 2,
+    "parents": [
+      "Rum Barrel"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "grapefruit",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-syrup",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "allspice-dram",
+        "amount": 0.5,
+        "unit": "tsp"
+      },
+      {
+        "id": "angostura",
+        "amount": 3,
+        "unit": "dash"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "light rum"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "Mai-Kai-style dark Jamaican rum blend"
+      },
+      {
+        "id": "soda-water",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "seltzer"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "barrel mug",
+    "garnish": [],
+    "servings": 1,
+    "source": "The Atomic Grog (Jim 'Hurricane' Hayward) tribute recipe, as made by Make and Drink (YouTube)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/youtube-channel/make-and-drink/barrel-o-rum.json",
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/youtube-channel/mixing-up-tiki/barrel-o-rum.json",
+      "https://www.slammie.com/atomicgrog/blog/2011/06/27/the-rum-barrel-the-rodney-dangerfield-of-tropical-drinks/"
+    ],
+    "confidence": "low",
+    "notes": "The Mai-Kai's house signature, likely a descendant of Don the Beachcomber's Rum Barrel; the real recipe is secret. A second Atomic Grog-derived version (Mixing Up Tiki) uses 2 oz each of lime, orange, grapefruit and passion syrup with only 1 tsp honey, so proportions are uncertain."
+  },
+  {
+    "id": "black-magic-mai-kai",
+    "name": "Black Magic",
+    "variant": "Mai-Kai, Atomic Grog tribute reconstruction",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "Mariano Licudine",
+    "venue": "The Mai-Kai",
+    "location": "Fort Lauderdale, Florida, USA",
+    "popularity": 2,
+    "parents": [
+      "Jamoca"
+    ],
+    "ingredients": [
+      {
+        "id": "coffee",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "cold coffee"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "grapefruit",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "allspice-dram",
+        "amount": 0.5,
+        "unit": "tsp"
+      },
+      {
+        "id": "rum-jamaican-pot",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Smith & Cross"
+      },
+      {
+        "id": "rum-demerara",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "El Dorado 12"
+      },
+      {
+        "id": "rum-black-blended",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Goslings Black Seal"
+      },
+      {
+        "id": "rum-gold-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Don Q Gold"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      },
+      {
+        "id": "pastis",
+        "amount": 1,
+        "unit": "drop",
+        "orig": "Pernod"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "tall glass or mug",
+    "garnish": [],
+    "servings": 1,
+    "source": "The Atomic Grog (Hurricane Hayward) tribute recipe, as made by Make and Drink (YouTube)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/youtube-channel/make-and-drink/black-magic.json"
+    ],
+    "confidence": "low",
+    "notes": "A secret Mai-Kai coffee drink; this tribute layers four rums over coffee, honey, citrus, falernum and allspice. The coffee-plus-spice idea follows Mariano's earlier Jamoca."
+  },
+  {
+    "id": "151-swizzle-mai-kai",
+    "name": "151 Swizzle",
+    "variant": "Mai-Kai version, Atomic Grog tribute reconstruction",
+    "aka": [],
+    "family": "swizzle",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "",
+    "venue": "The Mai-Kai",
+    "location": "Fort Lauderdale, Florida, USA",
+    "popularity": 1,
+    "parents": [
+      "151 Swizzle"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-demerara-overproof",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Hamilton 151 Demerara"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Mai-Kai-style dark Jamaican blend"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "grenadine",
+        "amount": 1,
+        "unit": "tsp"
+      },
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash"
+      },
+      {
+        "id": "pastis",
+        "amount": 3,
+        "unit": "drop",
+        "orig": "Pernod"
+      }
+    ],
+    "method": "swizzle",
+    "ice": "crushed",
+    "glass": "metal swizzle cup / tall glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "The Atomic Grog (Hurricane Hayward) tribute recipe, as made by Make and Drink (YouTube)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/youtube-channel/make-and-drink/mai-kai-151-swizzle.json"
+    ],
+    "confidence": "low",
+    "notes": "The Mai-Kai's take on the Beachcomber 151 Swizzle adds falernum, grenadine and a little dark Jamaican to the overproof Demerara base."
+  },
+  {
+    "id": "moonkist-coconut",
+    "name": "Moonkist Coconut",
+    "variant": "Mai-Kai (recipe published in Esquire; adapted by Make and Drink)",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [
+      "colada"
+    ],
+    "year": null,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "",
+    "venue": "The Mai-Kai",
+    "location": "Fort Lauderdale, Florida, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "light rum"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Hamilton West Indies 1670 blend"
+      },
+      {
+        "id": "rum-barbados",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Mount Gay Eclipse"
+      },
+      {
+        "id": "coconut-milk",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "falernum-syrup",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "falernum syrup"
+      },
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "coconut or tiki mug",
+    "garnish": [],
+    "servings": 1,
+    "source": "Mai-Kai recipe printed in Esquire, as adapted by Make and Drink (YouTube)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/youtube-channel/make-and-drink/moonkist-coconut.json"
+    ],
+    "confidence": "low",
+    "notes": "Unsweetened coconut milk plus honey and falernum over three rums: a lighter, spicier coconut drink than the cream-of-coconut colada style."
+  },
+  {
+    "id": "shrunken-skull",
+    "name": "Shrunken Skull",
+    "variant": "Popular 1:1:1:1 spec (Anders Erickson / Mixing Up Tiki)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "",
+    "venue": "",
+    "location": "",
+    "popularity": 2,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "grenadine",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-demerara",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Demerara rum (Hamilton 86)"
+      },
+      {
+        "id": "rum-gold-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "gold Puerto Rican rum (Don Q Gold)"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "skull mug",
+    "garnish": [],
+    "servings": 1,
+    "source": "Anders Erickson (YouTube), as transcribed in SBoudrias/cocktails",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/youtube-channel/anders-erickson/shrunken-skull.json"
+    ],
+    "confidence": "low",
+    "notes": "A skull-mug staple of mid-century menus including the Mai-Kai. The widely circulated spec is simply equal parts lime, grenadine, Demerara and gold rum; origin and original proportions are not documented here."
+  },
+  {
+    "id": "blue-hawaii",
+    "name": "Blue Hawaii",
+    "variant": "1957, Harry Yee (Hawaiian Village)",
+    "aka": [],
+    "family": "resort-punch",
+    "families_secondary": [],
+    "year": 1957,
+    "circa": false,
+    "era": "golden",
+    "creator": "Harry Yee",
+    "venue": "Kaiser's Hawaiian Village Hotel (later Hilton Hawaiian Village)",
+    "location": "Waikiki, Honolulu, Hawaii, USA",
+    "popularity": 4,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "light Puerto Rican rum"
+      },
+      {
+        "id": "vodka",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "blue-curacao",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 3,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "sweet & sour mix, 1 oz (lemon half)"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "sweet & sour mix, 1 oz (sugar half)"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "hurricane / tall glass",
+    "garnish": [
+      "pineapple wedge",
+      "paper umbrella"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/blue-hawaii.json",
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/main/src/recipes/blue-hawaii.md",
+      "https://hawaiisbesttravel.com/blue-hawaii-cocktail-recipe/",
+      "https://www.saveur.com/article/recipes/blue-hawaii"
+    ],
+    "confidence": "high",
+    "notes": "Created when a Bols representative asked Yee for a drink to sell blue curaçao. A pineapple-and-sour base split between rum and vodka; not the same drink as the later cream-of-coconut Blue Hawaiian."
+  },
+  {
+    "id": "tropical-itch",
+    "name": "Tropical Itch",
+    "variant": "Harry Yee, Hawaiian Village Hotel (late 1950s)",
+    "aka": [
+      "Backscratcher"
+    ],
+    "family": "resort-punch",
+    "families_secondary": [],
+    "year": 1957,
+    "circa": true,
+    "era": "golden",
+    "creator": "Harry Yee",
+    "venue": "Hawaiian Village Hotel (Hilton Hawaiian Village)",
+    "location": "Waikiki, Honolulu, Hawaii, USA",
+    "popularity": 2,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "bourbon",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "dark Jamaican rum"
+      },
+      {
+        "id": "rum-demerara-overproof",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "overproof rum (Lemon Hart 151)"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-nectar",
+        "amount": 8,
+        "unit": "oz",
+        "orig": "passion fruit juice (Hawaiian bottled, sweetened)"
+      },
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "hurricane",
+    "garnish": [
+      "bamboo backscratcher",
+      "pineapple wedge"
+    ],
+    "servings": 1,
+    "source": "Harry Yee's recipe as reported by PUNCH / Imbibe (per Jeff Berry, Yee used no juice other than passion fruit)",
+    "source_urls": [
+      "https://punchdrink.com/articles/tropical-itch-cocktail-recipe/",
+      "https://www.kaiserpenguin.com/tropical-itch/",
+      "http://www.shareyourbuzz.com/recipes-1/2021/7/1/tropical-itch-harry-yee"
+    ],
+    "confidence": "medium",
+    "notes": "Yee's long passion-fruit highball on a bourbon-plus-rum base, served with a bamboo backscratcher to take home. The spirits are sometimes given as 1.5 oz amber 151, and later versions add pineapple and lemon."
+  },
+  {
+    "id": "mai-tai-royal-hawaiian",
+    "name": "Mai Tai",
+    "variant": "Royal Hawaiian Hotel, 1953 (Trader Vic for Matson); spec from 1956 hotel recipe",
+    "aka": [
+      "Royal Hawaiian Mai Tai",
+      "Hawaiian Mai Tai"
+    ],
+    "family": "mai-tai",
+    "families_secondary": [],
+    "year": 1953,
+    "circa": false,
+    "era": "golden",
+    "creator": "Victor Bergeron (Trader Vic)",
+    "venue": "Royal Hawaiian Hotel",
+    "location": "Waikiki, Honolulu, Hawaii, USA",
+    "popularity": 3,
+    "parents": [
+      "Mai Tai"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "juice of one lime"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Trader Vic's Puerto Rican rum"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Myers's Plantation Punch rum (97 proof)"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "dash of curaçao (dash = 1/4 oz per Vic 1972 guide)"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "dash of orgeat"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "dash of rock candy syrup"
+      },
+      {
+        "id": "mint",
+        "amount": 1,
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "stir",
+    "ice": "crushed",
+    "glass": "double old fashioned",
+    "garnish": [
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "1956 Royal Hawaiian recipe as documented by Kevin Crossman, The Search for the Ultimate Mai Tai (ultimatemaitai.com)",
+    "source_urls": [
+      "https://ultimatemaitai.com/about/history/1956-mai-tai/",
+      "https://ultimatemaitai.com/about/history/deevolution-hawaiian-mai-tai/",
+      "https://www.vietworldkitchen.com/blog/2024/09/mai-tai-recipes-trader-vics-vs-royal-hawaiian.html"
+    ],
+    "confidence": "medium",
+    "notes": "Vic's Hawaiian adaptation replaced the long-aged Jamaican rum with light Puerto Rican plus Myers's and trimmed the sweeteners to equal dashes; it had no pineapple or orange juice. The juice-heavy, dark-rum-float Royal Hawaiian Mai Tai served today is a later evolution."
+  },
+  {
+    "id": "halekulani-cocktail",
+    "name": "Halekulani Cocktail",
+    "variant": "House Without a Key, Halekulani Hotel, c. 1930s (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [
+      "punch"
+    ],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "",
+    "venue": "House Without a Key, Halekulani Hotel",
+    "location": "Waikiki, Honolulu, Hawaii, USA",
+    "popularity": 2,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "bourbon",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "bourbon (earlier versions used okolehao)"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "demerara-syrup",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "sugar syrup (in Smuggler's Cove spec; absent from one Sippin' Safari transcription)"
+      },
+      {
+        "id": "grenadine",
+        "amount": 0.5,
+        "unit": "tsp"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      }
+    ],
+    "method": "shake",
+    "ice": "none",
+    "glass": "coupe",
+    "garnish": [
+      "orchid"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007); Smuggler's Cove (2016) p. 61",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/halekulani.json",
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/02_The%20Golden%20Era/halekulani-cocktail.json",
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/main/src/recipes/halekulani-cocktail.md"
+    ],
+    "confidence": "medium",
+    "notes": "A pre-war Waikiki hotel sour: bourbon with a three-juice mix (lemon, orange, pineapple), grenadine and bitters, served up. A whiskey drink in tropical dress rather than a rum drink."
+  },
+  {
+    "id": "kamehameha-rum-punch",
+    "name": "Kamehameha Rum Punch",
+    "variant": "Hotel King Kamehameha (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "resort-punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "",
+    "venue": "Hotel King Kamehameha",
+    "location": "Kailua-Kona, Hawaii, USA",
+    "popularity": 1,
+    "parents": [
+      "Planter's Punch"
+    ],
+    "ingredients": [
+      {
+        "id": "pineapple-juice",
+        "amount": 2,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "grenadine",
+        "amount": 1,
+        "unit": "tsp"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 1,
+        "unit": "tsp"
+      },
+      {
+        "id": "blackberry-liqueur",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "crème de mûre / blackberry brandy"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "light Puerto Rican rum"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "dark Jamaican rum",
+        "float": true
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "tall glass",
+    "garnish": [
+      "pineapple chunk",
+      "cherry"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/kamehameha-rum-punch.json",
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/main/src/recipes/kamehameha-rum-punch.md"
+    ],
+    "confidence": "medium",
+    "notes": "A pineapple-led hotel punch with a dark-rum float and just a teaspoon each of grenadine, syrup and blackberry liqueur, typical of the Hawaii resort style."
+  },
+  {
+    "id": "lovely-lovely",
+    "name": "Lovely Lovely",
+    "variant": "Papeete Bar, Waikikian Hotel, c. 1964 (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1964,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "'Danny' (Papeete Bar)",
+    "venue": "Papeete Bar, Tahitian Lanai, Waikikian Hotel",
+    "location": "Waikiki, Honolulu, Hawaii, USA",
+    "popularity": 1,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "demerara-syrup",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "2 tablespoons brown sugar (one transcription reads 2 teaspoons)"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-overproof-white",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Bacardi 151"
+      }
+    ],
+    "method": "blend",
+    "ice": "blended",
+    "glass": "large snifter",
+    "garnish": [
+      "orchid",
+      "pineapple chunk"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/lovely-lovely.json",
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/main/src/recipes/lovely-lovely.md"
+    ],
+    "confidence": "medium",
+    "notes": "A frozen daiquiri built on 151-proof Puerto Rican rum, split lime and lemon, and brown sugar. The sugar reads as 2 tbsp in one transcription and 2 tsp in another; tablespoons fits the 2 oz of citrus."
+  },
+  {
+    "id": "mauna-kea-kiaha",
+    "name": "Mauna Kea Kiaha",
+    "variant": "Batik Bar, Mauna Kea Beach Hotel (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "colada",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "",
+    "venue": "Batik Bar, Mauna Kea Beach Hotel",
+    "location": "Kohala Coast, Hawaii, USA",
+    "popularity": 1,
+    "parents": [
+      "Piña Colada"
+    ],
+    "ingredients": [
+      {
+        "id": "coconut-cream",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "cream of coconut"
+      },
+      {
+        "id": "coconut-milk",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "coffee-liqueur",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-blended-light",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "light rum"
+      },
+      {
+        "id": "mint",
+        "amount": 1,
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "footed pilsner",
+    "garnish": [
+      "pineapple frond",
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/mauna-kea-kiaha.json",
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/youtube-channel/make-and-drink/mauna-kea-kiaha.json"
+    ],
+    "confidence": "medium",
+    "notes": "Coconut two ways (sweetened cream and unsweetened milk) with coffee liqueur and no citrus at all, an unusual acid-free resort drink."
+  },
+  {
+    "id": "pahoehoe",
+    "name": "Pahoehoe",
+    "variant": "Batik Bar, Mauna Kea Beach Hotel (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "resort-punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "",
+    "venue": "Batik Bar, Mauna Kea Beach Hotel",
+    "location": "Kohala Coast, Hawaii, USA",
+    "popularity": 1,
+    "parents": [
+      "Hurricane"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "light rum"
+      },
+      {
+        "id": "passion-fruit-nectar",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "passion fruit juice"
+      },
+      {
+        "id": "lemon",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "grenadine",
+        "amount": 1,
+        "unit": "oz"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "double old fashioned or small tiki bowl",
+    "garnish": [
+      "flaming lemon shell with sugar cube and 151 rum"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/pahoehoe.json"
+    ],
+    "confidence": "medium",
+    "notes": "Rum, passion fruit, lemon and grenadine, the Hurricane's flavor profile in a short glass, finished with a flaming lemon shell. Named for the smooth lava found around the hotel."
+  },
+  {
+    "id": "sleeping-giant",
+    "name": "Sleeping Giant",
+    "variant": "Lagoon Cocktail Terrace, Coco Palms Resort, c. 1960s (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "resort-punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "",
+    "venue": "Lagoon Cocktail Terrace, Coco Palms Resort",
+    "location": "Kapaa, Kauai, Hawaii, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "light Puerto Rican rum"
+      },
+      {
+        "id": "orange",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "sweet & sour mix, 0.5 oz (lemon half)"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "sweet & sour mix, 0.5 oz (sugar half)"
+      },
+      {
+        "id": "mint",
+        "amount": 1,
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "collins",
+    "garnish": [
+      "mint sprig",
+      "cherry"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/sleeping-giant.json",
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/main/src/recipes/sleeping-giant.md"
+    ],
+    "confidence": "medium",
+    "notes": "An orange-pineapple rum cooler with a little orgeat and sour mix, named for the ridge above the Coco Palms. Very low acid, which is typical of the island resort style."
+  },
+  {
+    "id": "bali-hai-hanalei",
+    "name": "Bali Hai",
+    "variant": "House of Happy Talk, Hanalei Plantation, early 1960s (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "resort-punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "",
+    "venue": "House of Happy Talk, Hanalei Plantation",
+    "location": "Hanalei, Kauai, Hawaii, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "light Puerto Rican rum"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.8,
+        "unit": "oz",
+        "orig": "Hanalei house mix (2 oz total: 3 lemon : 1 each orange, pineapple, guava nectar, orgeat : 1/4 each passion fruit juice, simple)"
+      },
+      {
+        "id": "orange",
+        "amount": 0.27,
+        "unit": "oz",
+        "orig": "Hanalei house mix"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 0.27,
+        "unit": "oz",
+        "orig": "Hanalei house mix"
+      },
+      {
+        "id": "guava-nectar",
+        "amount": 0.27,
+        "unit": "oz",
+        "orig": "Hanalei house mix"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.27,
+        "unit": "oz",
+        "orig": "Hanalei house mix"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 0.07,
+        "unit": "oz",
+        "orig": "Hanalei house mix"
+      },
+      {
+        "id": "passion-fruit-juice",
+        "amount": 0.07,
+        "unit": "oz",
+        "orig": "Hanalei house mix"
+      },
+      {
+        "id": "sparkling-wine",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "Champagne"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "15-oz brandy snifter or hollowed pineapple",
+    "garnish": [
+      "pineapple chunk",
+      "cherry"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007), from the California Bartenders Guild magazine Good Taste; house-mix proportions per teekee-deebee",
+    "source_urls": [
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/main/src/recipes/bali-hai.md",
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/main/src/mixes/hanalei-house-mix.md",
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/youtube-channel/make-and-drink/bali-hai.json"
+    ],
+    "confidence": "low",
+    "notes": "A sparkling hotel punch: rum and a lemon-heavy house juice mix topped with Champagne. Another version uses okolehao, lime, lemon and simple syrup, so the spec is uncertain. The mix is expanded into its parts here."
+  },
+  {
+    "id": "hanalei-rum-punch",
+    "name": "Hanalei Rum Punch",
+    "variant": "House of Happy Talk, Hanalei Plantation, early 1960s (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "resort-punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "",
+    "venue": "House of Happy Talk, Hanalei Plantation",
+    "location": "Hanalei, Kauai, Hawaii, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "pineapple-juice",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "2 level tablespoons diced fresh pineapple"
+      },
+      {
+        "id": "banana",
+        "amount": 2,
+        "unit": "tbsp",
+        "orig": "2 level tablespoons diced fresh banana"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.8,
+        "unit": "oz",
+        "orig": "Hanalei house mix (2 oz total)"
+      },
+      {
+        "id": "orange",
+        "amount": 0.27,
+        "unit": "oz",
+        "orig": "Hanalei house mix"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 0.27,
+        "unit": "oz",
+        "orig": "Hanalei house mix"
+      },
+      {
+        "id": "guava-nectar",
+        "amount": 0.27,
+        "unit": "oz",
+        "orig": "Hanalei house mix"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.27,
+        "unit": "oz",
+        "orig": "Hanalei house mix"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 0.07,
+        "unit": "oz",
+        "orig": "Hanalei house mix"
+      },
+      {
+        "id": "passion-fruit-juice",
+        "amount": 0.07,
+        "unit": "oz",
+        "orig": "Hanalei house mix"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "dry curaçao"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "light Puerto Rican rum"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "dark rum",
+        "float": true
+      }
+    ],
+    "method": "blend",
+    "ice": "cubed",
+    "glass": "footed pilsner",
+    "garnish": [
+      "paper umbrella"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007); house-mix proportions per teekee-deebee",
+    "source_urls": [
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/main/src/recipes/hanalei-rum-punch.md",
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/main/src/mixes/hanalei-house-mix.md"
+    ],
+    "confidence": "low",
+    "notes": "Fresh pineapple and banana blended with the Hanalei house mix, curaçao and rum, poured over ice and finished with a spoon of dark rum. It shares its uncertain house mix with the hotel's Bali Hai."
+  },
+  {
+    "id": "mr-bali-hai",
+    "name": "Mr. Bali Hai",
+    "variant": "Bali Hai restaurant (Berry, Beachbum Berry Remixed)",
+    "aka": [],
+    "family": "punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "",
+    "venue": "Bali Hai (Tom Ham's)",
+    "location": "Shelter Island, San Diego, California, USA",
+    "popularity": 2,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "dark Jamaican rum"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "light Puerto Rican rum"
+      },
+      {
+        "id": "coffee-liqueur",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "coffee-flavored brandy"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "sugar syrup"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "Mr. Bali Hai mug",
+    "garnish": [],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry Remixed (2010)",
+    "source_urls": [
+      "https://github.com/cmsparks/cocktail-db/blob/master/cocktail-web/src/data/cocktails.json",
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/youtube-channel/mixing-up-tiki/mr-bali-hai.json"
+    ],
+    "confidence": "medium",
+    "notes": "The house drink of the Bali Hai on Shelter Island, which is still open: dark and light rum with pineapple and lemon, plus coffee liqueur. Coffee as a tiki modifier shows up again in the Mai-Kai's Jamoca and Black Magic."
+  },
+  {
+    "id": "tropical-itch-bali-hai",
+    "name": "Tropical Itch",
+    "variant": "Bali Hai, San Diego (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "",
+    "venue": "Bali Hai",
+    "location": "Shelter Island, San Diego, California, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "gin",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "London dry gin"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "light rum"
+      },
+      {
+        "id": "mango-nectar",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "mango juice"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "cinnamon-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 2,
+        "unit": "drop",
+        "orig": "almond extract"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "tiki mug or tall glass",
+    "garnish": [
+      "mango slice speared on a bamboo backscratcher"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/tropical-itch.json"
+    ],
+    "confidence": "medium",
+    "notes": "A different drink from Harry Yee's Tropical Itch that keeps the backscratcher gimmick: gin and light rum with mango, cinnamon and a hint of almond."
+  },
+  {
+    "id": "hawaiian-sunset-aku-aku",
+    "name": "Hawaiian Sunset",
+    "variant": "Aku Aku, Stardust Hotel (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1960,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "",
+    "venue": "Aku Aku Polynesian Restaurant, Stardust Hotel",
+    "location": "Las Vegas, Nevada, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "vodka",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "grenadine",
+        "amount": 1,
+        "unit": "tsp"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "coupe",
+    "garnish": [
+      "lime peel"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007); identical in Smuggler's Cove (2016) p. 62",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/02_The%20Golden%20Era/hawaiian-sunset.json",
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/main/src/recipes/hawaiian-sunset.md",
+      "https://github.com/stephencattaneo/sc-drink-helper/blob/main/data_generation/processor/raw_data/hawaiiansunset.txt"
+    ],
+    "confidence": "high",
+    "notes": "A vodka sour sweetened with orgeat and a little grenadine, served up. It shows vodka showing up on Polynesian menus by 1960."
+  },
+  {
+    "id": "aku-aku-gold-cup",
+    "name": "Aku-Aku Gold Cup",
+    "variant": "Aku Aku, Stardust Hotel (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [
+      "beachcomber-sour"
+    ],
+    "year": 1960,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "",
+    "venue": "Aku Aku Polynesian Restaurant, Stardust Hotel",
+    "location": "Las Vegas, Nevada, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-white-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "light rum"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Myers's dark rum"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "falernum"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "1 tsp sugar, dissolved in the lemon juice"
+      }
+    ],
+    "method": "shake",
+    "ice": "ice-cone",
+    "glass": "coupe with Spanish-comb ice shell",
+    "garnish": [],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/aku-aku-gold-cup.json"
+    ],
+    "confidence": "medium",
+    "notes": "A falernum-sweetened lemon sour on light rum with a Myers's accent, strained over a molded ice shell like the Mai-Kai's."
+  },
+  {
+    "id": "sidewinders-fang",
+    "name": "Sidewinder's Fang",
+    "variant": "The Lanai, c. 1960s (Smuggler's Cove spec)",
+    "aka": [],
+    "family": "punch",
+    "families_secondary": [
+      "resort-punch"
+    ],
+    "year": null,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "",
+    "venue": "The Lanai",
+    "location": "San Mateo, California, USA",
+    "popularity": 2,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-syrup",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "soda-water",
+        "amount": 3,
+        "unit": "oz",
+        "orig": "seltzer"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "blended aged rum"
+      },
+      {
+        "id": "rum-black-blended",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "black blended rum"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "large snifter lined with a spiral orange peel",
+    "garnish": [
+      "orange-peel 'snake' with fang",
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Martin & Rebecca Cate, Smuggler's Cove (2016), p. 62 (drink documented in Beachbum Berry Remixed)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/02_The%20Golden%20Era/sidewinders-fang.json",
+      "https://github.com/stephencattaneo/sc-drink-helper/blob/main/data_generation/processor/raw_data/sidewindersfang.txt",
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/main/src/recipes/sidewinders-fang.md"
+    ],
+    "confidence": "medium",
+    "notes": "A long, sour-sweet passion fruit and citrus rum drink stretched with seltzer, presented with an orange peel carved into a snake. Equal parts lime, orange and passion syrup make it a clean 1:1:1 template."
+  },
+  {
+    "id": "port-light-kahiki",
+    "name": "Port Light",
+    "variant": "Kahiki Supper Club version (as presented by Mixing Up Tiki)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "",
+    "venue": "Kahiki Supper Club",
+    "location": "Columbus, Ohio, USA",
+    "popularity": 2,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "bourbon",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "grenadine",
+        "amount": 0.25,
+        "unit": "oz"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "collins",
+    "garnish": [],
+    "servings": 1,
+    "source": "Mixing Up Tiki (YouTube), Kahiki version, as transcribed in SBoudrias/cocktails",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/youtube-channel/mixing-up-tiki/port-light-kahiki.json",
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/01_The%20Birth%20of%20Tiki/port-light.json",
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/main/src/recipes/port-light.md"
+    ],
+    "confidence": "low",
+    "notes": "A bourbon, lemon and passion fruit sour, one of the few whiskey drinks on classic tiki menus. Attribution is disputed (one database credits Trader Vic). Smuggler's Cove's modern version uses 2 oz bourbon, 1 oz lemon, 0.75 oz honey, 0.5 oz passion fruit and egg white."
+  },
+  {
+    "id": "rays-mistake",
+    "name": "Ray's Mistake",
+    "variant": "Tiki-Ti, 1968: amateur reconstruction (the house recipe is secret)",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [],
+    "year": 1968,
+    "circa": false,
+    "era": "late-classic",
+    "creator": "Ray Buhen",
+    "venue": "Tiki-Ti",
+    "location": "Los Angeles, California, USA",
+    "popularity": 2,
+    "parents": [
+      "Anting Anting"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-syrup",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "gin",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "inexpensive white rum"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 1,
+        "unit": "dash",
+        "orig": "falernum"
+      },
+      {
+        "id": "soda-water",
+        "amount": 2.75,
+        "unit": "oz",
+        "orig": "seltzer"
+      },
+      {
+        "id": "angostura",
+        "amount": 3,
+        "unit": "dash"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Coruba dark rum",
+        "float": true
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "collins",
+    "garnish": [
+      "pineapple wedge",
+      "cherry"
+    ],
+    "servings": 1,
+    "source": "Ian Moerson, 'Making Ray's Mistake' (blog, 2016), via teekee-deebee; origin story per Berry, Sippin' Safari",
+    "source_urls": [
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/main/src/recipes/rays-mistake.md"
+    ],
+    "confidence": "low",
+    "notes": "The Tiki-Ti's best-known drink, said to be born when Ray Buhen used the wrong syrups in an Anting Anting. The recipe is still secret, and Jeff Berry reportedly rejects this reconstruction. Only passion fruit and a dark-rum float are widely agreed on."
+  },
+  {
+    "id": "hula-hula-ray-buhen",
+    "name": "Hula-Hula",
+    "variant": "Ray Buhen, Beverly Hills Hotel, 1934 (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1934,
+    "circa": false,
+    "era": "golden",
+    "creator": "Ray Buhen",
+    "venue": "Beverly Hills Hotel",
+    "location": "Beverly Hills, California, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "gin",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "London dry gin"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "dry curaçao"
+      },
+      {
+        "id": "orange",
+        "amount": 1,
+        "unit": "oz"
+      }
+    ],
+    "method": "shake",
+    "ice": "none",
+    "glass": "coupe",
+    "garnish": [
+      "orchid (optional)"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007)",
+    "source_urls": [
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/main/src/recipes/hula-hula.md"
+    ],
+    "confidence": "medium",
+    "notes": "Created by the Filipino bartender who later founded the Tiki-Ti (1961), in his first bar job. An equal-parts gin, curaçao and orange juice cocktail with no added citrus acid, closer to an Orange Blossom than a tiki sour."
+  },
+  {
+    "id": "scorpion-kelbos",
+    "name": "Scorpion",
+    "variant": "Kelbo's, Hank Riddle, 1950s (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "orgeat-punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "Hank Riddle",
+    "venue": "Kelbo's",
+    "location": "Fairfax Avenue, Los Angeles, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Scorpion"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "brandy",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Cognac"
+      },
+      {
+        "id": "gin",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Jamaican rum"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "small single-serving tiki bowl",
+    "garnish": [],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/scorpion-kelbos.json",
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/main/src/recipes/kelbos-scorpion.md"
+    ],
+    "confidence": "medium",
+    "notes": "A single-serving version of Trader Vic's Scorpion bowl: it keeps the brandy-gin-rum and orgeat core but uses lime and adds passion fruit."
+  },
+  {
+    "id": "polynesian-guava-daiquiri",
+    "name": "Polynesian Guava Daiquiri",
+    "variant": "Kelbo's, Hank Riddle, 1950s (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "Hank Riddle",
+    "venue": "Kelbo's",
+    "location": "Fairfax Avenue, Los Angeles, California, USA",
+    "popularity": 1,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "gin",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "London dry gin"
+      },
+      {
+        "id": "guava-nectar",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "banana-liqueur",
+        "amount": 1,
+        "unit": "tsp"
+      },
+      {
+        "id": "mint",
+        "amount": 1,
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "old fashioned",
+    "garnish": [
+      "mint sprig",
+      "cherry",
+      "pineapple chunk"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/polynesian-guava-daiquiri.json",
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/main/src/recipes/polynesian-guava-daiquiri.md"
+    ],
+    "confidence": "medium",
+    "notes": "Despite the name it is a gin drink: guava nectar and lime with a teaspoon of crème de banane, flash-blended."
+  },
+  {
+    "id": "tiger-shark",
+    "name": "Tiger Shark",
+    "variant": "The China Trader, 1950s, per Tony Ramos (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "Tony Ramos (recorded)",
+    "venue": "The China Trader",
+    "location": "Burbank, California, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-blended-light",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "light rum"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "blended aged rum"
+      },
+      {
+        "id": "rum-demerara-overproof",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "151-proof rum (black blended overproof)"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "none",
+    "glass": "old fashioned / specialty glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007)",
+    "source_urls": [
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/main/src/recipes/tiger-shark.md"
+    ],
+    "confidence": "medium",
+    "notes": "A three-rum pineapple daiquiri blended briefly and strained. Recorded by ex-Beachcomber bartender Tony Ramos from the China Trader, where the Hawaiian Eye TV crew drank."
+  },
+  {
+    "id": "merciless-virgin",
+    "name": "Merciless Virgin",
+    "variant": "Skipper Kent's, 1942–1967 (Smuggler's Cove spec)",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "Frank 'Skipper' Kent",
+    "venue": "Skipper Kent's",
+    "location": "San Francisco, California, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-blended-light",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "blended lightly aged rum"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "cherry-heering",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "Pierre Ferrand Dry Curaçao"
+      },
+      {
+        "id": "soda-water",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "seltzer"
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "footed pilsner",
+    "garnish": [
+      "three cherries on a pick"
+    ],
+    "servings": 1,
+    "source": "Martin & Rebecca Cate, Smuggler's Cove (2016), p. 67, from the collection of Jacqueline Zumwalt",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/02_The%20Golden%20Era/merciless-virgin.json",
+      "https://github.com/stephencattaneo/sc-drink-helper/blob/main/data_generation/processor/raw_data/mercilesvirgin.txt",
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/main/src/recipes/merciless-virgin.md"
+    ],
+    "confidence": "medium",
+    "notes": "From Trader Vic's San Francisco rival Skipper Kent: a lemon rum sour sweetened entirely by liqueurs (Cherry Heering, falernum, curaçao). One transcription gives 0.75 oz curaçao instead of 0.25."
+  },
+  {
+    "id": "captains-grog",
+    "name": "Captain's Grog",
+    "variant": "Captain's Inn, c. 1962 (Berry, Remixed; same in Smuggler's Cove)",
+    "aka": [],
+    "family": "grog",
+    "families_secondary": [],
+    "year": 1962,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "",
+    "venue": "Captain's Inn",
+    "location": "Long Beach, California, USA",
+    "popularity": 2,
+    "parents": [
+      "Navy Grog"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "grapefruit",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "maple-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "falernum"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "dry curaçao"
+      },
+      {
+        "id": "vanilla-extract",
+        "amount": 3,
+        "unit": "drop"
+      },
+      {
+        "id": "orgeat",
+        "amount": 3,
+        "unit": "drop",
+        "orig": "almond extract"
+      },
+      {
+        "id": "rum-black-blended",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "black blended rum"
+      },
+      {
+        "id": "rum-blended-light",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "blended lightly aged rum"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "blended aged rum"
+      },
+      {
+        "id": "soda-water",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "seltzer"
+      },
+      {
+        "id": "mint",
+        "amount": 1,
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "flash-blend",
+    "ice": "crushed",
+    "glass": "double old fashioned",
+    "garnish": [
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry Remixed (2010); Smuggler's Cove (2016), p. 65",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/02_The%20Golden%20Era/captains-grog.json",
+      "https://github.com/seezee/teekee-deebee-by-seezee/blob/main/src/recipes/captains-grog.md",
+      "https://github.com/stephencattaneo/sc-drink-helper/blob/main/data_generation/processor/raw_data/captainsgrog.txt"
+    ],
+    "confidence": "high",
+    "notes": "A grog sweetened with maple syrup, a rare tiki sweetener, with vanilla and almond extracts, falernum and curaçao over three rums, lengthened with seltzer."
+  },
+  {
+    "id": "suffering-bastard",
+    "name": "Suffering Bastard",
+    "variant": "1942, Joe Scialom (from his papers, via Berry, Remixed)",
+    "aka": [],
+    "family": "buck",
+    "families_secondary": [],
+    "year": 1942,
+    "circa": false,
+    "era": "golden",
+    "creator": "Joe Scialom",
+    "venue": "Long Bar, Shepheard's Hotel",
+    "location": "Cairo, Egypt",
+    "popularity": 3,
+    "parents": [
+      "Gin Buck"
+    ],
+    "ingredients": [
+      {
+        "id": "gin",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "brandy",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lime-cordial",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Rose's lime juice cordial"
+      },
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash"
+      },
+      {
+        "id": "ginger-beer",
+        "amount": 4,
+        "unit": "oz"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "collins / highball",
+    "garnish": [
+      "mint sprig",
+      "orange slice"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry Remixed (2010), from Scialom papers lent by his daughter Colette",
+    "source_urls": [
+      "http://www.kitchenriffs.com/2015/08/the-suffering-bastard-cocktail.html",
+      "https://cocktail-society.com/history/suffering-bastard-history/",
+      "https://iba-world.com/iba-cocktail/suffering-bastard/",
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/02_The%20Golden%20Era/suffering-bastard.json"
+    ],
+    "confidence": "medium",
+    "notes": "A wartime hangover cure for Allied officers: gin and brandy with lime cordial, bitters and ginger beer. The IBA and Smuggler's Cove use 0.5 oz fresh lime (Smuggler's adds 0.25 oz demerara syrup), and bourbon often replaces the brandy. Unrelated to Trader Vic's later rum drink of the same name."
+  },
+  {
+    "id": "dead-bastard",
+    "name": "Dead Bastard",
+    "variant": "Joe Scialom four-spirit escalation (via Berry, Remixed)",
+    "aka": [],
+    "family": "buck",
+    "families_secondary": [],
+    "year": 1960,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "Joe Scialom",
+    "venue": "",
+    "location": "",
+    "popularity": 1,
+    "parents": [
+      "Suffering Bastard"
+    ],
+    "ingredients": [
+      {
+        "id": "gin",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "brandy",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "bourbon",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-blended-light",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "rum (Cocktail Virgin used Plantation 3 Stars)"
+      },
+      {
+        "id": "lime-cordial",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "lime cordial"
+      },
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash"
+      },
+      {
+        "id": "ginger-beer",
+        "amount": 4,
+        "unit": "oz"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "double old fashioned",
+    "garnish": [
+      "orange slice",
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry Remixed (2010), as made by Cocktail Virgin Slut (2016)",
+    "source_urls": [
+      "https://cocktailvirgin.blogspot.com/2016/08/dead-bastard.html"
+    ],
+    "confidence": "medium",
+    "notes": "The joke sequel to the Suffering Bastard: four spirits at half an ounce each, so the total alcohol matches the two-spirit original. The Dying Bastard (three spirits) sits between the two."
+  },
+  {
+    "id": "cou-cou-comber",
+    "name": "Cou-Cou-Comber",
+    "variant": "Joe Scialom, Caribe Hilton (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "Joe Scialom",
+    "venue": "Caribe Hilton",
+    "location": "San Juan, Puerto Rico",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "vodka",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 1,
+        "unit": "tsp"
+      },
+      {
+        "id": "pastis",
+        "amount": 1,
+        "unit": "tsp",
+        "orig": "Pernod"
+      },
+      {
+        "id": "cucumber",
+        "unit": "garnish",
+        "garnish": true,
+        "orig": "served in (and eaten from) a hollowed-out cucumber"
+      }
+    ],
+    "method": "shake",
+    "ice": "none",
+    "glass": "hollowed-out cucumber in a stand",
+    "garnish": [],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/cou-cou-comber.json"
+    ],
+    "confidence": "medium",
+    "notes": "Scialom's post-Cairo gimmick for Hilton in the late 1950s: a dry vodka sour with Pernod, served in a cucumber you eat as you drink."
+  },
+  {
+    "id": "bali-bali",
+    "name": "Bali Bali",
+    "variant": "Bali Ha'i at the Beach, New Orleans (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "resort-punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "golden",
+    "creator": "",
+    "venue": "Bali Ha'i at the Beach (Pontchartrain Beach)",
+    "location": "New Orleans, Louisiana, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "falernum"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Jamaican rum"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "light rum"
+      },
+      {
+        "id": "gin",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "brandy",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Cognac"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "tall glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/bali-bali.json"
+    ],
+    "confidence": "medium",
+    "notes": "A four-spirit tall punch (Jamaican and light rum, gin, Cognac) over a three-juice, passion and falernum base, from the amusement-park Polynesian restaurant at Pontchartrain Beach."
+  },
+  {
+    "id": "samoan-typhoon",
+    "name": "Samoan Typhoon",
+    "variant": "Joe King Sui, Hawaiian Village, Tampa (Berry, Sippin' Safari)",
+    "aka": [],
+    "family": "resort-punch",
+    "families_secondary": [],
+    "year": null,
+    "circa": true,
+    "era": "late-classic",
+    "creator": "Joe King Sui",
+    "venue": "Hawaiian Village (motel and restaurant)",
+    "location": "Tampa, Florida, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 4,
+        "unit": "oz"
+      },
+      {
+        "id": "honey-syrup",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "1 oz honey (straight), expressed as 1:1 honey mix"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 2,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 2,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-syrup",
+        "amount": 2,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-gold-column",
+        "amount": 4,
+        "unit": "oz",
+        "orig": "gold (column-still aged) rum"
+      },
+      {
+        "id": "vodka",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Myers's dark rum"
+      }
+    ],
+    "method": "blend",
+    "ice": "blended",
+    "glass": "two tiki mugs",
+    "garnish": [
+      "pineapple slices speared with cherries"
+    ],
+    "servings": 2,
+    "source": "Jeff Berry, Beachbum Berry's Sippin' Safari (2007)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/sippin-safari/samoan-typhoon.json"
+    ],
+    "confidence": "medium",
+    "notes": "A two-serving blended punch from a Florida Polynesian motel restaurant, heavy on lime with honey and passion fruit. The straight honey is doubled here to express it as 1:1 honey mix."
+  },
+  {
+    "id": "saturn",
+    "name": "Saturn",
+    "variant": "1967, J. 'Popo' Galsini (Berry, Beachbum Berry Remixed)",
+    "aka": [],
+    "family": "beachcomber-sour",
+    "families_secondary": [
+      "daiquiri"
+    ],
+    "year": 1967,
+    "circa": false,
+    "era": "late-classic",
+    "creator": "J. 'Popo' Galsini",
+    "venue": "California Bartenders' Guild entry, IBA world championship (winner)",
+    "location": "California, USA",
+    "popularity": 3,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "gin",
+        "amount": 1.25,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "falernum"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.25,
+        "unit": "oz"
+      }
+    ],
+    "method": "blend",
+    "ice": "blended",
+    "glass": "pilsner (often served in a coupe today)",
+    "garnish": [
+      "lemon peel ring around a cherry"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry Remixed (2010)",
+    "source_urls": [
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/youtube-channel/make-and-drink/saturn.json",
+      "https://github.com/SBoudrias/cocktails/blob/main/packages/data/data/recipes/book/smugglers-cove/02_The%20Golden%20Era/saturn.json",
+      "https://drinksworld.com/recipe/saturn-cocktail/",
+      "https://www.moodymixologist.com/blog/the-saturn-a-tiki-cocktail-with-gin"
+    ],
+    "confidence": "high",
+    "notes": "A rare gin-based tiki classic that won the 1967 world bartending championship: passion fruit, falernum and orgeat over London dry gin. It was originally blended; Smuggler's Cove shakes it with 0.75 oz lemon. The garnish rings a cherry with lemon peel to suggest the planet."
+  },
+  {
+    "id": "jungle-bird",
+    "name": "Jungle Bird",
+    "variant": "Kuala Lumpur Hilton original (Poister 1989; Berry, Intoxica 2002)",
+    "aka": [],
+    "family": "bitter-tiki",
+    "families_secondary": [],
+    "year": 1973,
+    "circa": false,
+    "era": "late-classic",
+    "creator": "Jeffrey Ong",
+    "venue": "Aviary Bar, Kuala Lumpur Hilton",
+    "location": "Kuala Lumpur, Malaysia",
+    "popularity": 4,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "dark rum (Berry: dark Jamaican)"
+      },
+      {
+        "id": "campari",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 4,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "sugar syrup"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "bird-shaped ceramic vessel (or hurricane glass)",
+    "garnish": [],
+    "servings": 1,
+    "source": "Kuala Lumpur Hilton recipe via John J. Poister, The New American Bartender's Guide (1989); reprinted by Jeff Berry, Intoxica! (2002)",
+    "source_urls": [
+      "https://thirstmag.com/drinks/The-story-of-Jungle-Bird-cocktail",
+      "https://eatdrinkhilton.com/jungle-bird-cocktail/"
+    ],
+    "confidence": "high",
+    "notes": "Beverage manager Jeffrey Ong created it as the welcome drink for the KL Hilton's July 1973 opening; it is often misdated to 1978. The original is a long, pineapple-dominant drink with Campari as the bitter accent. The 2000s craft version (Giuseppe González) cut the pineapple to 1.5 oz and used blackstrap rum."
+  }
+]

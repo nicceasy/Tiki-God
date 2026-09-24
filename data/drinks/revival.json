@@ -1,0 +1,1294 @@
+[
+  {
+    "id": "ancient-mariner",
+    "name": "Ancient Mariner",
+    "variant": "Jeff Berry & Annene Kaye, 1994 (Beachbum Berry's Grog Log, 1998)",
+    "aka": [],
+    "family": "grog",
+    "families_secondary": [],
+    "year": 1994,
+    "circa": false,
+    "era": "decline",
+    "creator": "Jeff \"Beachbum\" Berry & Annene Kaye",
+    "venue": "",
+    "location": "",
+    "popularity": 3,
+    "parents": [
+      "Navy Grog"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "grapefruit",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "unsweetened white grapefruit juice"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "sugar syrup"
+      },
+      {
+        "id": "allspice-dram",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "pimento liqueur / allspice dram"
+      },
+      {
+        "id": "rum-demerara",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Demerara rum"
+      },
+      {
+        "id": "rum-jamaican-dark",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "dark Jamaican rum"
+      },
+      {
+        "id": "mint",
+        "amount": 1,
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "double old fashioned",
+    "garnish": [
+      "lime wedge",
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Grog Log (1998); spec as reproduced by Punch and Difford's Guide",
+    "source_urls": [
+      "https://en.wikipedia.org/wiki/Ancient_Mariner_(cocktail)",
+      "https://punchdrink.com/recipes/ancient-mariner/",
+      "https://www.diffordsguide.com/cocktails/recipe/4853/ancient-mariner",
+      "http://www.kitchenriffs.com/2022/07/the-ancient-mariner-cocktail.html"
+    ],
+    "confidence": "high",
+    "notes": "Began as Berry's attempt to reverse-engineer Trader Vic's take on the Navy Grog and ended up as a new drink: a Demerara plus dark-Jamaican rum sour with grapefruit and allspice dram as the signature accent. Named for Coleridge's poem because of how long the tinkering took; the best-known original from the revival's chief historian."
+  },
+  {
+    "id": "hell-in-the-pacific",
+    "name": "Hell in the Pacific",
+    "variant": "Jeff Berry, Beachbum Berry's Grog Log (1998)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [
+      "punch"
+    ],
+    "year": 1998,
+    "circa": true,
+    "era": "revival",
+    "creator": "Jeff \"Beachbum\" Berry",
+    "venue": "",
+    "location": "",
+    "popularity": 2,
+    "parents": [
+      "Myrtle Bank Punch"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "maraschino",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "maraschino liqueur"
+      },
+      {
+        "id": "grenadine",
+        "amount": 0.25,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-demerara-overproof",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Lemon Hart 151 Demerara rum"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "pilsner",
+    "garnish": [
+      "lime wedge speared with small American and Japanese flags"
+    ],
+    "servings": 1,
+    "source": "Jeff Berry, Beachbum Berry's Grog Log (1998)",
+    "source_urls": [
+      "https://garnishesthesizeofyourhead.blogspot.com/2016/05/cocktail-5-hell-in-pacific.html",
+      "http://badgergrogblog.blogspot.com/2013/05/3-hell-in-pacific.html",
+      "https://www.exotictikiisland.com/2019/04/12/hell-in-the-pacific-cocktail-2/"
+    ],
+    "confidence": "medium",
+    "notes": "Berry's reworking of the 1930s Myrtle Bank Punch from Kingston's Myrtle Bank Hotel: a straight 151-proof Demerara sour sweetened only with maraschino and a little grenadine, shaken with crushed ice and dumped unstrained. The blood-red color and dueling-flags garnish are a nod to the Pacific War."
+  },
+  {
+    "id": "beachbums-own",
+    "name": "Beachbum's Own",
+    "variant": "Jeff Berry, created to christen Bosko Hrnjak's Beachbum tiki mug",
+    "aka": [],
+    "family": "resort-punch",
+    "families_secondary": [
+      "punch"
+    ],
+    "year": null,
+    "circa": true,
+    "era": "revival",
+    "creator": "Jeff \"Beachbum\" Berry",
+    "venue": "",
+    "location": "",
+    "popularity": 2,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "lemon",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "orange",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "passion-fruit-syrup",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "licor-43",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Licor 43 (Cuarenta y Tres)"
+      },
+      {
+        "id": "rum-white-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "light rum"
+      },
+      {
+        "id": "rum-demerara",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Demerara rum"
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "tiki mug (Bosko Beachbum mug) or tall glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Jeff Berry recipe as reproduced by Rumdood (2010) and the Cocktail Party app",
+    "source_urls": [
+      "https://rumdood.com/2010/03/05/beachbums-own/",
+      "https://cocktailpartyapp.com/drinks/beachbums-own/",
+      "https://elevatedcraft.com/blogs/cocktail-recipes/beachbums-own"
+    ],
+    "confidence": "medium",
+    "notes": "Berry wrote this to launch the tiki mug sculptor Bosko Hrnjak made in his likeness. Unusually for Berry, the vanilla-citrus of Licor 43 stands in for the usual falernum or allspice spice layer, over an even split of lemon, orange, pineapple and passion fruit and a light-plus-Demerara rum base."
+  },
+  {
+    "id": "nuclear-daiquiri",
+    "name": "Nuclear Daiquiri",
+    "variant": "Gregor de Gruyther, LAB, London, 2005",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 2005,
+    "circa": false,
+    "era": "revival",
+    "creator": "Gregor de Gruyther",
+    "venue": "LAB (London Academy of Bartenders)",
+    "location": "Soho, London, UK",
+    "popularity": 3,
+    "parents": [
+      "Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-white-overproof",
+        "amount": 25,
+        "unit": "ml",
+        "orig": "Wray & Nephew White Overproof"
+      },
+      {
+        "id": "green-chartreuse",
+        "amount": 25,
+        "unit": "ml"
+      },
+      {
+        "id": "lime",
+        "amount": 25,
+        "unit": "ml"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 10,
+        "unit": "ml",
+        "orig": "falernum"
+      }
+    ],
+    "method": "shake",
+    "ice": "none",
+    "glass": "cocktail glass",
+    "garnish": [],
+    "servings": 1,
+    "source": "Gregor de Gruyther, spec as published by Difford's Guide and Punch",
+    "source_urls": [
+      "https://www.diffordsguide.com/cocktails/recipe/2719/nuclear-daiquiri",
+      "https://punchdrink.com/recipes/nuclear-daiquiri/",
+      "https://australianbartender.com.au/2016/07/19/nuclear-daiquiri-recipe/",
+      "https://www.grouchy-bartender.com/cocktails/nuclear-daiquiri"
+    ],
+    "confidence": "high",
+    "notes": "Equal parts unaged Jamaican overproof, green Chartreuse and lime, with only a splash of falernum for sugar, so the Chartreuse supplies most of the sweetness. A London cult drink that showed funky rum and falernum could work in a stark, spirit-heavy craft format; the creator's instruction is that no garnish can survive it."
+  },
+  {
+    "id": "chartreuse-swizzle",
+    "name": "Chartreuse Swizzle",
+    "variant": "Marcovaldo Dionysos, c. 2003",
+    "aka": [],
+    "family": "swizzle",
+    "families_secondary": [],
+    "year": 2003,
+    "circa": true,
+    "era": "revival",
+    "creator": "Marcovaldo \"Marco\" Dionysos",
+    "venue": "",
+    "location": "San Francisco, California, USA",
+    "popularity": 3,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "green-chartreuse",
+        "amount": 1.25,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "John D. Taylor's Velvet Falernum"
+      },
+      {
+        "id": "nutmeg",
+        "amount": 1,
+        "unit": "garnish",
+        "garnish": true
+      },
+      {
+        "id": "mint",
+        "amount": 1,
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "swizzle",
+    "ice": "crushed",
+    "glass": "collins",
+    "garnish": [
+      "mint sprig",
+      "freshly grated nutmeg"
+    ],
+    "servings": 1,
+    "source": "Marco Dionysos; spec as reproduced by Punch, Kindred Cocktails and Smuggler's Cove (Cate, 2016)",
+    "source_urls": [
+      "https://en.wikipedia.org/wiki/Chartreuse_swizzle",
+      "https://punchdrink.com/recipes/chartreuse-swizzle/",
+      "https://kindredcocktails.com/cocktail/chartreuse-swizzle",
+      "https://lettersandliquor.com/49-CHARTREUSE-SWIZZLE-2003",
+      "https://robbreport.com/food-drink/spirits/chartreuse-swizzle-recipe-cocktail-chartreuse-lime-pineapple-1234634776/"
+    ],
+    "confidence": "high",
+    "notes": "Won Dionysos a Chartreuse-sponsored bartending competition and became a signature of San Francisco's early craft and tiki scene, later a Smuggler's Cove staple (which is why some sources wrongly say it was created there). It makes a 110-proof herbal liqueur the base of a swizzle, with pineapple, lime and falernum doing the tropical work. Some reproductions use 1.5 oz Chartreuse; dates of 2002 and 2003 both circulate."
+  },
+  {
+    "id": "trinidad-sour",
+    "name": "Trinidad Sour",
+    "variant": "Giuseppe González, Clover Club, 2009",
+    "aka": [],
+    "family": "bitter-tiki",
+    "families_secondary": [
+      "daiquiri"
+    ],
+    "year": 2009,
+    "circa": false,
+    "era": "revival",
+    "creator": "Giuseppe González",
+    "venue": "Clover Club",
+    "location": "Brooklyn, New York, USA",
+    "popularity": 3,
+    "parents": [
+      "Trinidad Especial",
+      "Whiskey Sour"
+    ],
+    "ingredients": [
+      {
+        "id": "angostura",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Angostura aromatic bitters"
+      },
+      {
+        "id": "orgeat",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "rye",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "rye whiskey"
+      }
+    ],
+    "method": "shake",
+    "ice": "none",
+    "glass": "coupe",
+    "garnish": [],
+    "servings": 1,
+    "source": "Giuseppe González; spec as published by Difford's Guide and Punch",
+    "source_urls": [
+      "https://www.diffordsguide.com/cocktails/recipe/3328/trinidad-sour",
+      "https://punchdrink.com/recipes/trinidad-sour/",
+      "https://en.wikipedia.org/wiki/Trinidad_sour",
+      "https://robbreport.com/food-drink/spirits/best-trinidad-sour-recipe-bitters-rye-cocktail-giuseppe-gonzalez-1234639197/"
+    ],
+    "confidence": "high",
+    "notes": "Turns the usual proportions upside down: a full 1.5 oz of Angostura is the base and rye is only the modifier, with orgeat and lemon taming it into a nutty, spiced sour. Grew out of Valentino Bolognese's competition-winning Trinidad Especial and became the model for bitters-as-base drinks."
+  },
+  {
+    "id": "kingston-negroni",
+    "name": "Kingston Negroni",
+    "variant": "Joaquín Simó, Death & Co, 2009",
+    "aka": [],
+    "family": "stirred",
+    "families_secondary": [
+      "bitter-tiki"
+    ],
+    "year": 2009,
+    "circa": false,
+    "era": "revival",
+    "creator": "Joaquín Simó",
+    "venue": "Death & Co",
+    "location": "New York, New York, USA",
+    "popularity": 3,
+    "parents": [
+      "Negroni"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-jamaican-pot",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Smith & Cross Traditional Jamaica Rum"
+      },
+      {
+        "id": "sweet-vermouth",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Carpano Antica Formula"
+      },
+      {
+        "id": "campari",
+        "amount": 1,
+        "unit": "oz"
+      }
+    ],
+    "method": "stir",
+    "ice": "block",
+    "glass": "double old fashioned",
+    "garnish": [
+      "orange twist"
+    ],
+    "servings": 1,
+    "source": "Joaquín Simó (Death & Co menu, spring 2010); spec as reproduced by Punch and Death & Co",
+    "source_urls": [
+      "https://punchdrink.com/articles/kingston-negroni-became-modern-classic-jamaican-rum-cocktail-recipe/",
+      "https://punchdrink.com/recipes/kingston-negroni/",
+      "https://www.deathandcompanymarket.com/blogs/recipes/kingston-negroni-cocktail-recipe",
+      "https://robbreport.com/food-drink/spirits/best-kingston-negroni-recipe-rum-1235694536/"
+    ],
+    "confidence": "high",
+    "notes": "An equal-parts Negroni with navy-strength Smith & Cross in place of gin, reportedly worked out within minutes of Simó first tasting that rum. Carpano Antica was picked because it has the body to stand up to the rum's esters. Created in 2009 and on Death & Co's menu from spring 2010, it made funky Jamaican pot-still rum a normal base for stirred bitter drinks."
+  },
+  {
+    "id": "tia-mia",
+    "name": "Tia Mia",
+    "variant": "Ivy Mix, Lani Kai, 2010",
+    "aka": [
+      "Tía Mía"
+    ],
+    "family": "mai-tai",
+    "families_secondary": [],
+    "year": 2010,
+    "circa": false,
+    "era": "craft",
+    "creator": "Ivy Mix",
+    "venue": "Lani Kai",
+    "location": "New York, New York, USA",
+    "popularity": 3,
+    "parents": [
+      "Mai Tai"
+    ],
+    "ingredients": [
+      {
+        "id": "mezcal",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "aged Jamaican rum"
+      },
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "orange curaçao"
+      },
+      {
+        "id": "orgeat",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "mint",
+        "amount": 1,
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "double old fashioned",
+    "garnish": [
+      "mint sprig"
+    ],
+    "servings": 1,
+    "source": "Ivy Mix, Spirits of Latin America (2020); Imbibe",
+    "source_urls": [
+      "https://imbibemagazine.com/recipe/tia-mia-recipe/",
+      "https://en.wikipedia.org/wiki/Ivy_Mix",
+      "https://www.diffordsguide.com/cocktails/recipe/9786/tia-mia",
+      "https://www.cocktailmag.fr/en/cocktail-recipe/rum/tia-mia"
+    ],
+    "confidence": "high",
+    "notes": "A split-base Mai Tai where mezcal shares the base with Jamaican rum, created for the opening of Julie Reiner's Lani Kai and named for a woman Mix knew in Guatemala. One of the first widely copied drinks to put smoky agave into the Mai Tai template. Created 2010, just after the revival window."
+  },
+  {
+    "id": "dead-reckoning",
+    "name": "Dead Reckoning",
+    "variant": "Martin Cate, c. 2008–09 (pre-Smuggler's Cove)",
+    "aka": [],
+    "family": "punch",
+    "families_secondary": [],
+    "year": 2009,
+    "circa": true,
+    "era": "revival",
+    "creator": "Martin Cate",
+    "venue": "",
+    "location": "San Francisco Bay Area, California, USA",
+    "popularity": 2,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "lemon",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "maple-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "pure maple syrup"
+      },
+      {
+        "id": "ruby-port",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "tawny port"
+      },
+      {
+        "id": "licor-43",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Navan vanilla (cognac) liqueur"
+      },
+      {
+        "id": "rum-barbados",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "premium aged rum (Cockspur 12 or Flor de Caña 12)"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      },
+      {
+        "id": "soda-water",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "mint",
+        "amount": 1,
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "crushed",
+    "glass": "highball",
+    "garnish": [
+      "mint sprig",
+      "lemon zest spiral",
+      "pineapple fronds"
+    ],
+    "servings": 1,
+    "source": "Martin Cate, as published on the Tikidrinks blog (Aug 2009) and Cocktail Virgin (2010); later in Smuggler's Cove (2016)",
+    "source_urls": [
+      "https://tikidrinks.blogspot.com/2009/08/new-tiki-cocktails-dead-reckoning.html",
+      "https://cocktailvirgin.blogspot.com/2010/11/dead-reckoning.html",
+      "http://www.jollybartender.com/2021/02/the-dead-reckoning-smugglers-cove-recipe.html",
+      "https://www.sfexaminer.com/culture/martin-cate-serves-up-authentic-tiki-drinks-at-smugglers-cove/article_e27e0a29-4865-5147-b598-0f9ea4e5f8c3.html"
+    ],
+    "confidence": "medium",
+    "notes": "A competition-winning Cate original from between his Forbidden Island years and the opening of Smuggler's Cove. Aged rum is stretched with lemon and pineapple, sweetened with maple syrup, vanilla-cognac liqueur and tawny port, then lengthened with soda. It shows Cate's habit of using fortified wine and non-cane sweeteners as the hidden modifier layer."
+  },
+  {
+    "id": "china-clipper",
+    "name": "China Clipper",
+    "variant": "Forbidden Island, 2006 (Martin Cate's opening program)",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 2006,
+    "circa": false,
+    "era": "revival",
+    "creator": "Martin Cate (Forbidden Island)",
+    "venue": "Forbidden Island",
+    "location": "Alameda, California, USA",
+    "popularity": 1,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "lemon",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "five-spice-syrup",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "five-spice syrup (1 rounded tsp five-spice powder steeped in 2:1 syrup)"
+      },
+      {
+        "id": "rum-aged-column",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "aged amber rum (Cruzan Estate Dark, Appleton V/X, Brugal Añejo, Lemon Hart 80 or Pyrat XO)"
+      }
+    ],
+    "method": "shake",
+    "ice": "none",
+    "glass": "cocktail glass",
+    "garnish": [
+      "lemon twist"
+    ],
+    "servings": 1,
+    "source": "The Barman Cometh blog (2009); history per Punch",
+    "source_urls": [
+      "https://barmancometh.wordpress.com/2009/08/08/china-clipper/",
+      "https://punchdrink.com/articles/return-of-the-charles-baker-pan-american-clipper-cocktail-recipe/"
+    ],
+    "confidence": "low",
+    "notes": "Named for Pan Am's China Clipper flying boat, which began transpacific service from Alameda in 1935. A plain aged-rum sour made distinctive by a rich syrup steeped with Chinese five-spice, typical of the house-made spice syrups (cinnamon, cardamom, five-spice) that set Forbidden Island's program apart."
+  },
+  {
+    "id": "undead-gentleman",
+    "name": "Undead Gentleman",
+    "variant": "Martin Cate, Smuggler's Cove",
+    "aka": [],
+    "family": "zombie",
+    "families_secondary": [],
+    "year": 2009,
+    "circa": true,
+    "era": "revival",
+    "creator": "Martin Cate",
+    "venue": "Smuggler's Cove",
+    "location": "San Francisco, California, USA",
+    "popularity": 2,
+    "parents": [
+      "Zombie"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "grapefruit",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "white grapefruit juice"
+      },
+      {
+        "id": "cinnamon-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "velvet-falernum",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "John D. Taylor's Velvet Falernum"
+      },
+      {
+        "id": "rum-barbados",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "blended aged rum (R.L. Seale's 10 Year)"
+      },
+      {
+        "id": "rum-black-overproof",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "black blended overproof rum (Plantation O.F.T.D.)"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      },
+      {
+        "id": "absinthe",
+        "amount": 1,
+        "unit": "rinse",
+        "orig": "absinthe blanche (Butterfly) rinse"
+      }
+    ],
+    "method": "shake",
+    "ice": "none",
+    "glass": "coupe",
+    "garnish": [
+      "intertwined lime and grapefruit twists"
+    ],
+    "servings": 1,
+    "source": "Martin & Rebecca Cate, Smuggler's Cove (2016); spec as reproduced by Grouchy Bartender, Jolly Bartender and Cocktail Virgin",
+    "source_urls": [
+      "https://www.grouchy-bartender.com/cocktails/undead-gentleman",
+      "http://www.jollybartender.com/2017/06/the-undead-gentleman-smugglers-cove.html",
+      "https://cocktailvirgin.blogspot.com/2018/01/the-undead-gentleman.html",
+      "https://www.tastingtable.com/688143/the-undead-gentlemen-zombie-cocktail-recipe/"
+    ],
+    "confidence": "medium",
+    "notes": "The 1934 Zombie condensed into an up drink: the same lime, grapefruit, cinnamon, falernum and Angostura skeleton, minus grenadine, over aged and black overproof rums, served in an absinthe-rinsed coupe instead of with Pernod drops. Spec is solid, but the creation year is approximate: it may date from Smuggler's Cove's early years rather than its 2009 opening."
+  },
+  {
+    "id": "old-cuban",
+    "name": "Old Cuban",
+    "variant": "Audrey Saunders, 2001",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 2001,
+    "circa": false,
+    "era": "revival",
+    "creator": "Audrey Saunders",
+    "venue": "",
+    "location": "New York, New York, USA",
+    "popularity": 3,
+    "parents": [
+      "Mojito",
+      "French 75"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "mint",
+        "amount": 6,
+        "unit": "leaves"
+      },
+      {
+        "id": "rum-aged-column",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Bacardi 8"
+      },
+      {
+        "id": "angostura",
+        "amount": 2,
+        "unit": "dash"
+      },
+      {
+        "id": "sparkling-wine",
+        "amount": 2,
+        "unit": "oz",
+        "orig": "Champagne"
+      }
+    ],
+    "method": "shake",
+    "ice": "none",
+    "glass": "coupe",
+    "garnish": [
+      "mint leaf"
+    ],
+    "servings": 1,
+    "source": "Audrey Saunders (later a Pegu Club signature); spec as widely reproduced (recalled; not re-verified)",
+    "source_urls": [],
+    "confidence": "medium",
+    "notes": "A Mojito reworked as an elegant up drink: aged Spanish-style rum, lime, sugar and mint shaken and double-strained, dashed with Angostura and topped with Champagne. Tiki-adjacent rather than tiki, it shares the Queen's Park Swizzle's rum, lime, mint and Angostura core."
+  },
+  {
+    "id": "jungle-bird-gonzalez",
+    "name": "Jungle Bird",
+    "variant": "Giuseppe González re-spec, New York, c. 2009–10 (less pineapple, blackstrap rum)",
+    "aka": [],
+    "family": "bitter-tiki",
+    "families_secondary": [],
+    "year": 2009,
+    "circa": true,
+    "era": "revival",
+    "creator": "Giuseppe González (after Jeffrey Ong, 1978)",
+    "venue": "",
+    "location": "New York, New York, USA",
+    "popularity": 3,
+    "parents": [
+      "Jungle Bird"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-black-blended",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Cruzan Black Strap rum"
+      },
+      {
+        "id": "campari",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "pineapple-juice",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "demerara-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "demerara syrup"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "double old fashioned",
+    "garnish": [],
+    "servings": 1,
+    "source": "Giuseppe González re-spec as widely reproduced in the craft era (recalled; not re-verified)",
+    "source_urls": [],
+    "confidence": "medium",
+    "notes": "González found the 1978 Kuala Lumpur Hilton drink in Berry's Intoxica and rebuilt it for the craft bar: the pineapple is cut from about 4 oz to 1.5 oz and a molasses-heavy blackstrap rum replaces generic dark Jamaican. Campari now reads as a bitter backbone rather than a tint, and this shorter spec is the one most bars now serve."
+  },
+  {
+    "id": "trinidad-especial",
+    "name": "Trinidad Especial",
+    "variant": "Valentino Bolognese, 2008",
+    "aka": [],
+    "family": "bitter-tiki",
+    "families_secondary": [
+      "daiquiri"
+    ],
+    "year": 2008,
+    "circa": true,
+    "era": "revival",
+    "creator": "Valentino Bolognese",
+    "venue": "",
+    "location": "Italy",
+    "popularity": 2,
+    "parents": [
+      "Pisco Sour"
+    ],
+    "ingredients": [
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Angostura aromatic bitters"
+      },
+      {
+        "id": "pisco",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "orgeat",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      }
+    ],
+    "method": "shake",
+    "ice": "none",
+    "glass": "coupe",
+    "garnish": [],
+    "servings": 1,
+    "source": "Valentino Bolognese competition recipe, as reproduced by Kindred Cocktails / Difford's (recalled; not re-verified)",
+    "source_urls": [],
+    "confidence": "low",
+    "notes": "The competition-winning drink that first used a full ounce of Angostura as a base alongside pisco, orgeat and lime. Giuseppe González reworked it into the Trinidad Sour (rye and lemon in place of pisco and lime). Exact proportions vary between reproductions."
+  },
+  {
+    "id": "gin-gin-mule",
+    "name": "Gin-Gin Mule",
+    "variant": "Audrey Saunders, 2000",
+    "aka": [],
+    "family": "buck",
+    "families_secondary": [],
+    "year": 2000,
+    "circa": false,
+    "era": "revival",
+    "creator": "Audrey Saunders",
+    "venue": "",
+    "location": "New York, New York, USA",
+    "popularity": 3,
+    "parents": [
+      "Mojito",
+      "Moscow Mule"
+    ],
+    "ingredients": [
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 1,
+        "unit": "oz"
+      },
+      {
+        "id": "mint",
+        "amount": 1,
+        "unit": "sprig",
+        "orig": "mint sprig, muddled"
+      },
+      {
+        "id": "gin",
+        "amount": 1.75,
+        "unit": "oz",
+        "orig": "Tanqueray"
+      },
+      {
+        "id": "ginger-beer",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "homemade ginger beer"
+      },
+      {
+        "id": "mint",
+        "amount": 1,
+        "unit": "sprig",
+        "garnish": true
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "highball",
+    "garnish": [
+      "mint sprig",
+      "lime wheel",
+      "candied ginger"
+    ],
+    "servings": 1,
+    "source": "Audrey Saunders (Pegu Club house signature); spec as widely reproduced (recalled; not re-verified)",
+    "source_urls": [],
+    "confidence": "medium",
+    "notes": "Saunders' cross of a Mojito and a Moscow Mule: muddled mint, lime and sugar shaken with gin and a spicy house ginger beer. Tiki-adjacent rather than tiki, it became a Pegu Club signature and helped make fresh ginger beer a standard back-bar ingredient."
+  },
+  {
+    "id": "mezcal-mule",
+    "name": "Mezcal Mule",
+    "variant": "Jim Meehan, PDT, late 2000s",
+    "aka": [],
+    "family": "buck",
+    "families_secondary": [],
+    "year": 2009,
+    "circa": true,
+    "era": "revival",
+    "creator": "Jim Meehan",
+    "venue": "PDT",
+    "location": "New York, New York, USA",
+    "popularity": 2,
+    "parents": [
+      "Moscow Mule"
+    ],
+    "ingredients": [
+      {
+        "id": "cucumber",
+        "amount": 3,
+        "unit": "slice",
+        "orig": "cucumber slices, muddled"
+      },
+      {
+        "id": "agave-syrup",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "agave nectar"
+      },
+      {
+        "id": "mezcal",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Sombra mezcal"
+      },
+      {
+        "id": "passion-fruit-juice",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Boiron passion fruit purée"
+      },
+      {
+        "id": "lime",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "ginger-beer",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "Fever-Tree ginger beer"
+      },
+      {
+        "id": "jalapeno",
+        "unit": "pinch",
+        "garnish": true,
+        "orig": "sprinkle of chili powder"
+      }
+    ],
+    "method": "shake",
+    "ice": "cubed",
+    "glass": "double old fashioned",
+    "garnish": [
+      "cucumber slice",
+      "candied ginger",
+      "chili powder"
+    ],
+    "servings": 1,
+    "source": "Jim Meehan, The PDT Cocktail Book (2011) (recalled; not re-verified)",
+    "source_urls": [],
+    "confidence": "low",
+    "notes": "A mule rebuilt around smoky mezcal, unsweetened passion fruit purée and muddled cucumber, finished with a dusting of chili. An early example of mezcal and tropical fruit together in a craft bar, a few years before mezcal tiki became common. Amounts of agave and ginger beer are approximate."
+  },
+  {
+    "id": "cable-car",
+    "name": "Cable Car",
+    "variant": "Tony Abou-Ganim, Starlight Room, 1996",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 1996,
+    "circa": false,
+    "era": "decline",
+    "creator": "Tony Abou-Ganim",
+    "venue": "Starlight Room, Sir Francis Drake Hotel",
+    "location": "San Francisco, California, USA",
+    "popularity": 2,
+    "parents": [
+      "Sidecar"
+    ],
+    "ingredients": [
+      {
+        "id": "rum-spiced",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Captain Morgan Original Spiced Rum"
+      },
+      {
+        "id": "orange-curacao",
+        "amount": 0.75,
+        "unit": "oz",
+        "orig": "Marie Brizard orange curaçao"
+      },
+      {
+        "id": "lemon",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "part of 1.5 oz fresh lemon sour (2 lemon : 1 simple)"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "part of 1.5 oz fresh lemon sour (2 lemon : 1 simple)"
+      },
+      {
+        "id": "cinnamon",
+        "unit": "garnish",
+        "amount": 1,
+        "garnish": true,
+        "orig": "cinnamon-sugar rim"
+      }
+    ],
+    "method": "shake",
+    "ice": "none",
+    "glass": "cocktail glass",
+    "garnish": [
+      "cinnamon-sugar rim",
+      "orange spiral"
+    ],
+    "servings": 1,
+    "source": "Tony Abou-Ganim, The Modern Mixologist (2010) (recalled; not re-verified)",
+    "source_urls": [],
+    "confidence": "low",
+    "notes": "A spiced-rum Sidecar with a cinnamon-sugar rim, named for the cable cars running past the Starlight Room. One of the first fresh-citrus signature drinks of the pre-revival 1990s and an early bar use of spiced rum in a balanced sour."
+  },
+  {
+    "id": "siesta",
+    "name": "Siesta",
+    "variant": "Katie Stipe, Flatiron Lounge, 2006",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [
+      "bitter-tiki"
+    ],
+    "year": 2006,
+    "circa": false,
+    "era": "revival",
+    "creator": "Katie Stipe",
+    "venue": "Flatiron Lounge",
+    "location": "New York, New York, USA",
+    "popularity": 2,
+    "parents": [
+      "Hemingway Daiquiri"
+    ],
+    "ingredients": [
+      {
+        "id": "tequila-blanco",
+        "amount": 1.5,
+        "unit": "oz"
+      },
+      {
+        "id": "campari",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "grapefruit",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "simple-syrup",
+        "amount": 0.5,
+        "unit": "oz"
+      }
+    ],
+    "method": "shake",
+    "ice": "none",
+    "glass": "coupe",
+    "garnish": [
+      "grapefruit twist"
+    ],
+    "servings": 1,
+    "source": "Katie Stipe; spec as reproduced by Punch (recalled; not re-verified)",
+    "source_urls": [],
+    "confidence": "medium",
+    "notes": "A tequila take on the Hemingway Daiquiri, with Campari standing in for maraschino beside lime and grapefruit. Tiki-adjacent: one of the drinks that made bitter-plus-citrus a craft staple around the same time bitter tiki drinks appeared."
+  },
+  {
+    "id": "flor-de-jerez",
+    "name": "Flor de Jerez",
+    "variant": "Joaquín Simó, Death & Co, c. 2009",
+    "aka": [],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 2009,
+    "circa": true,
+    "era": "revival",
+    "creator": "Joaquín Simó",
+    "venue": "Death & Co",
+    "location": "New York, New York, USA",
+    "popularity": 2,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "amontillado-sherry",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "Lustau amontillado sherry"
+      },
+      {
+        "id": "rum-jamaican-aged",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Appleton Estate Reserve"
+      },
+      {
+        "id": "apricot-liqueur",
+        "amount": 0.25,
+        "unit": "oz",
+        "orig": "Rothman & Winter Orchard Apricot"
+      },
+      {
+        "id": "lemon",
+        "amount": 0.75,
+        "unit": "oz"
+      },
+      {
+        "id": "rich-simple",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "cane sugar syrup"
+      },
+      {
+        "id": "angostura",
+        "amount": 1,
+        "unit": "dash"
+      }
+    ],
+    "method": "shake",
+    "ice": "none",
+    "glass": "coupe",
+    "garnish": [],
+    "servings": 1,
+    "source": "Death & Co: Modern Classic Cocktails (2014) (recalled; not re-verified)",
+    "source_urls": [],
+    "confidence": "medium",
+    "notes": "A low-proof sour in which amontillado sherry is the base and Jamaican rum only a modifier, with apricot liqueur and Angostura giving the fruit-and-spice lift of a tiki sour. Only loosely tiki: an early Death & Co example of sherry and rum working together."
+  },
+  {
+    "id": "porn-star-martini",
+    "name": "Porn Star Martini",
+    "variant": "Douglas Ankrah, Townhouse, London, 2002",
+    "aka": [
+      "Pornstar Martini",
+      "Passion Star Martini"
+    ],
+    "family": "daiquiri",
+    "families_secondary": [],
+    "year": 2002,
+    "circa": false,
+    "era": "revival",
+    "creator": "Douglas Ankrah",
+    "venue": "Townhouse",
+    "location": "Knightsbridge, London, UK",
+    "popularity": 3,
+    "parents": [],
+    "ingredients": [
+      {
+        "id": "vodka",
+        "amount": 1.5,
+        "unit": "oz",
+        "orig": "vanilla vodka"
+      },
+      {
+        "id": "passion-fruit-liqueur",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "Passoã"
+      },
+      {
+        "id": "passion-fruit-juice",
+        "amount": 1,
+        "unit": "oz",
+        "orig": "fresh passion fruit pulp / purée"
+      },
+      {
+        "id": "lime",
+        "amount": 0.5,
+        "unit": "oz"
+      },
+      {
+        "id": "vanilla-syrup",
+        "amount": 0.5,
+        "unit": "oz",
+        "orig": "vanilla sugar syrup"
+      }
+    ],
+    "method": "shake",
+    "ice": "none",
+    "glass": "cocktail glass",
+    "garnish": [
+      "half a passion fruit",
+      "side shot of Champagne (not mixed in)"
+    ],
+    "servings": 1,
+    "source": "Douglas Ankrah; spec as widely reproduced (Difford's) (recalled; not re-verified)",
+    "source_urls": [],
+    "confidence": "low",
+    "notes": "A passion-fruit and vanilla vodka sour served with a sidecar shot of Champagne, which is left out of the ingredients here because it is drunk separately. Not tiki, but the most popular tropical-fruit cocktail of the era in Britain; include it or drop it as a tropical-flavor reference point."
+  }
+]

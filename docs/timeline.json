@@ -1,0 +1,869 @@
+[
+  {
+    "year": 1632,
+    "event": "East India Company man Robert Addams writes of drinking 'punch' in India (28 Sept) - earliest known English mention.",
+    "significance": "Punch (spirit, citrus, sugar, water, spice) is the ancestor of every tiki drink.",
+    "tags": [
+      "punch",
+      "roots"
+    ]
+  },
+  {
+    "year": 1655,
+    "event": "England captures Jamaica; rum gradually becomes the Royal Navy's spirit ration.",
+    "significance": "Ties rum to the navy and the Caribbean sugar economy.",
+    "tags": [
+      "rum",
+      "navy",
+      "jamaica",
+      "roots"
+    ]
+  },
+  {
+    "year": 1703,
+    "event": "Mount Gay's oldest surviving estate deed in Barbados (brand's claimed founding date).",
+    "significance": "Barbados is often called rum's birthplace; its balanced blended style is a tiki 'bridge' rum.",
+    "tags": [
+      "rum",
+      "barbados",
+      "roots"
+    ]
+  },
+  {
+    "year": 1740,
+    "event": "Admiral Edward Vernon's Captain's Order No. 349 (21 Aug) cuts the rum ration with water; sugar and lime allowed.",
+    "significance": "Birth of grog - rum, water, lime, sugar - and the template for Don's Navy Grog.",
+    "tags": [
+      "grog",
+      "navy",
+      "roots"
+    ]
+  },
+  {
+    "year": 1749,
+    "event": "Appleton Estate in Jamaica dates its sugar and rum operation to this year.",
+    "significance": "Jamaican pot-still rum supplies the funk and body of classic tiki blends.",
+    "tags": [
+      "rum",
+      "jamaica",
+      "roots"
+    ]
+  },
+  {
+    "year": 1825,
+    "event": "J. Wray & Nephew is established in Kingston, Jamaica.",
+    "significance": "Its 17-year rum became the base of Trader Vic's 1944 Mai Tai.",
+    "tags": [
+      "rum",
+      "jamaica",
+      "mai-tai"
+    ]
+  },
+  {
+    "year": 1862,
+    "event": "Facundo Bacardí Massó founds Bacardi in Santiago de Cuba.",
+    "significance": "Popularizes the light, filtered Spanish-Caribbean style used as a tiki 'backbone' rum.",
+    "tags": [
+      "rum",
+      "cuba",
+      "roots"
+    ]
+  },
+  {
+    "year": 1878,
+    "event": "London's Fun magazine prints a rhyming 'Planter's Punch' recipe: 1 sour, 2 sweet, 3 strong, 4 weak (by glass).",
+    "significance": "Earliest known rhymed ratio recipe for the punch balance tiki still uses.",
+    "tags": [
+      "planters-punch",
+      "ratio",
+      "roots"
+    ]
+  },
+  {
+    "year": 1890,
+    "event": "John D. Taylor's Velvet Falernum is established in Barbados (brand's claimed date).",
+    "significance": "Falernum - lime, clove, ginger, almond - becomes a core tiki spice liqueur.",
+    "tags": [
+      "falernum",
+      "ingredient",
+      "barbados"
+    ]
+  },
+  {
+    "year": 1908,
+    "event": "New York Times (8 Aug) prints the Planter's Punch verse: 2 sour, 1.5 sweet, 3 strong ('Old Jamaica'), 4 weak.",
+    "significance": "Source of the famous sour-sweet-strong-weak mnemonic.",
+    "tags": [
+      "planters-punch",
+      "ratio",
+      "roots"
+    ]
+  },
+  {
+    "year": 1914,
+    "event": "Constantino Ribalaigua Vert is tending bar at El Floridita, Havana.",
+    "significance": "The 'cocktail king' refines rum, lime and sugar into precise Daiquiri variations.",
+    "tags": [
+      "cuba",
+      "floridita",
+      "daiquiri"
+    ]
+  },
+  {
+    "year": 1915,
+    "event": "Hawaii pavilion at San Francisco's Panama-Pacific Exposition sparks a mainland Hawaiian music craze.",
+    "significance": "Early seed of the American South Seas fantasy.",
+    "tags": [
+      "hawaii",
+      "music",
+      "culture"
+    ]
+  },
+  {
+    "year": 1918,
+    "event": "Ribalaigua buys El Floridita.",
+    "significance": "Floridita becomes the 'cradle of the Daiquiri' and a model of tropical bar precision.",
+    "tags": [
+      "cuba",
+      "floridita",
+      "daiquiri"
+    ]
+  },
+  {
+    "year": 1920,
+    "event": "U.S. Prohibition begins (17 Jan); drinkers and bartenders head to Havana.",
+    "significance": "Cuban cocktail tourism shows Americans that a bar can be the destination.",
+    "tags": [
+      "prohibition",
+      "cuba",
+      "travel"
+    ]
+  },
+  {
+    "year": 1926,
+    "event": "Ernest Raymond Beaumont Gantt (future Donn Beach) leaves home to travel the Caribbean and South Pacific.",
+    "significance": "His travels supply the drinks, props and persona of the first tiki bar.",
+    "tags": [
+      "don",
+      "travel"
+    ]
+  },
+  {
+    "year": 1927,
+    "event": "Royal Hawaiian Hotel ('Pink Palace') opens in Waikiki for Matson Line passengers.",
+    "significance": "Luxury Hawaii tourism; later home of the 1953 Royal Hawaiian Mai Tai.",
+    "tags": [
+      "hawaii",
+      "tourism"
+    ]
+  },
+  {
+    "year": 1933,
+    "event": "Don's Beachcomber Café opens at 1722 N. McCadden Place, Hollywood (some date it 5 Dec 1933, others 1934).",
+    "significance": "The first tiki bar: rum 'Rhum Rhapsodies' in a South Seas fantasy room. Opening year contested.",
+    "tags": [
+      "don",
+      "bar",
+      "contested"
+    ]
+  },
+  {
+    "year": 1933,
+    "event": "Repeal of Prohibition (5 Dec).",
+    "significance": "Legal rum returns to U.S. bars just as Don's opens.",
+    "tags": [
+      "prohibition"
+    ]
+  },
+  {
+    "year": 1934,
+    "event": "Donn creates the Zombie in late 1934 (hangover-cure legend; two per customer).",
+    "significance": "The archetypal three-rum, multi-spice tiki drink.",
+    "tags": [
+      "don",
+      "zombie",
+      "drink"
+    ]
+  },
+  {
+    "year": 1934,
+    "event": "Victor Bergeron opens Hinky Dink's at San Pablo Ave & 65th St, Oakland (17 Nov).",
+    "significance": "The bar that became Trader Vic's.",
+    "tags": [
+      "vic",
+      "bar"
+    ]
+  },
+  {
+    "year": 1937,
+    "event": "Don moves across the street to 1727 N. McCadden, renames it Don the Beachcomber and adds Cantonese food.",
+    "significance": "Sets the Polynesian-restaurant formula: exotic rum drinks plus Chinese-American food.",
+    "tags": [
+      "don",
+      "bar",
+      "food"
+    ]
+  },
+  {
+    "year": 1937,
+    "event": "Donn Beach marries Cora Irene 'Sunny' Sund.",
+    "significance": "Sunny becomes the business mind behind the Beachcomber chain.",
+    "tags": [
+      "don",
+      "sunny"
+    ]
+  },
+  {
+    "year": 1937,
+    "event": "Dick Santiago is hired at Don the Beachcomber; his pocket recipe notebook dates from these years.",
+    "significance": "The notebook later lets Jeff Berry decode the original 1934 Zombie.",
+    "tags": [
+      "don",
+      "zombie",
+      "berry"
+    ]
+  },
+  {
+    "year": 1937,
+    "event": "Bergeron visits Havana and Don the Beachcomber, then reworks Hinky Dink's as Trader Vic's (some say 1938).",
+    "significance": "The second founding house of tiki; renaming date slightly contested.",
+    "tags": [
+      "vic",
+      "cuba",
+      "contested"
+    ]
+  },
+  {
+    "year": 1938,
+    "event": "Waring blender comes into bar use, displacing spindle mixers (late 1930s).",
+    "significance": "Enables frozen/blended drinks; Don's flash-blending used the earlier spindle mixers.",
+    "tags": [
+      "technique",
+      "blending"
+    ]
+  },
+  {
+    "year": 1939,
+    "event": "A Zombie copy is poured at Monte Proser's Hurricane Bar at the New York World's Fair.",
+    "significance": "Makes the Zombie a national craze.",
+    "tags": [
+      "zombie",
+      "culture"
+    ]
+  },
+  {
+    "year": 1940,
+    "event": "Donn and Sunny divorce; Sunny keeps mainland rights and grows the chain to about 16 locations.",
+    "significance": "Don the Beachcomber becomes America's first themed restaurant chain.",
+    "tags": [
+      "don",
+      "sunny",
+      "chain"
+    ]
+  },
+  {
+    "year": 1941,
+    "event": "Don the Beachcomber's Navy Grog appears (c. 1941).",
+    "significance": "Three rums, lime, grapefruit, honey and soda, served around an ice cone.",
+    "tags": [
+      "don",
+      "grog",
+      "drink"
+    ]
+  },
+  {
+    "year": 1944,
+    "event": "Donn Beach, USAAF officer, sets up rest camps for 12th and 15th Air Force airmen (Capri, Riviera, Venice); earns Bronze Star.",
+    "significance": "War service later shapes aviation-named drinks and his move to Hawaii.",
+    "tags": [
+      "don",
+      "wwii"
+    ]
+  },
+  {
+    "year": 1944,
+    "event": "Trader Vic creates the Mai Tai with 17-year J. Wray & Nephew rum; Carrie Guild exclaims 'Maita'i roa ae!'",
+    "significance": "The most famous tiki drink; origin disputed by Donn Beach.",
+    "tags": [
+      "vic",
+      "mai-tai",
+      "drink",
+      "contested"
+    ]
+  },
+  {
+    "year": 1945,
+    "event": "Tonga Room opens in the Fairmont San Francisco's former swimming pool.",
+    "significance": "A lasting tiki temple, with a floating band and simulated storms.",
+    "tags": [
+      "bar",
+      "polynesian-pop"
+    ]
+  },
+  {
+    "year": 1946,
+    "event": "Trader Vic's Book of Food and Drink is published.",
+    "significance": "Vic's first book; spreads his recipes to home cooks and drinkers.",
+    "tags": [
+      "vic",
+      "book"
+    ]
+  },
+  {
+    "year": 1947,
+    "event": "Trader Vic's Bartender's Guide is published.",
+    "significance": "Standard bar manual that puts tropical drinks next to the classics.",
+    "tags": [
+      "vic",
+      "book"
+    ]
+  },
+  {
+    "year": 1947,
+    "event": "Thor Heyerdahl's Kon-Tiki raft sails about 101 days from Peru to the Tuamotus.",
+    "significance": "A worldwide sensation that fuels South Seas romanticism.",
+    "tags": [
+      "kon-tiki",
+      "culture",
+      "polynesian-pop"
+    ]
+  },
+  {
+    "year": 1947,
+    "event": "James Michener publishes Tales of the South Pacific (Pulitzer 1948).",
+    "significance": "WWII Pacific stories feed the postwar island fantasy.",
+    "tags": [
+      "michener",
+      "culture",
+      "polynesian-pop"
+    ]
+  },
+  {
+    "year": 1947,
+    "event": "Donn Beach opens a Don the Beachcomber in Waikiki after the war (c. 1947).",
+    "significance": "Beach brings his style to Hawaii, since the mainland rights belong to Sunny.",
+    "tags": [
+      "don",
+      "hawaii"
+    ]
+  },
+  {
+    "year": 1949,
+    "event": "South Pacific opens on Broadway.",
+    "significance": "Rodgers and Hammerstein make the South Seas mainstream.",
+    "tags": [
+      "michener",
+      "culture",
+      "polynesian-pop"
+    ]
+  },
+  {
+    "year": 1949,
+    "event": "Trader Vic's first franchise, the Outrigger, opens in Seattle's Benjamin Franklin Hotel.",
+    "significance": "Start of Vic's hotel-partnership growth model.",
+    "tags": [
+      "vic",
+      "chain"
+    ]
+  },
+  {
+    "year": 1950,
+    "event": "Kon-Tiki's English edition and Heyerdahl's documentary film are released.",
+    "significance": "'Kon-Tiki' becomes a brand name for Pacific adventure.",
+    "tags": [
+      "kon-tiki",
+      "culture"
+    ]
+  },
+  {
+    "year": 1951,
+    "event": "Les Baxter releases Ritual of the Savage, including 'Quiet Village'.",
+    "significance": "Founding album of Exotica music.",
+    "tags": [
+      "exotica",
+      "music"
+    ]
+  },
+  {
+    "year": 1951,
+    "event": "Trader Vic's opens at 20 Cosmo Place, San Francisco.",
+    "significance": "Vic's society flagship in the city.",
+    "tags": [
+      "vic",
+      "chain"
+    ]
+  },
+  {
+    "year": 1953,
+    "event": "Matson hires Trader Vic to create the Royal Hawaiian and Moana hotels' drinks; the Mai Tai reaches Hawaii.",
+    "significance": "Birth of the 'island' Mai Tai; whether it had pineapple juice is contested.",
+    "tags": [
+      "mai-tai",
+      "hawaii",
+      "vic",
+      "contested"
+    ]
+  },
+  {
+    "year": 1953,
+    "event": "Stephen Crane opens The Luau in Beverly Hills.",
+    "significance": "Leads to his Kon-Tiki restaurant chain in Sheraton hotels.",
+    "tags": [
+      "bar",
+      "polynesian-pop",
+      "chain"
+    ]
+  },
+  {
+    "year": 1954,
+    "event": "Caribe Hilton (San Juan) credits Ramón 'Monchito' Marrero with the Piña Colada.",
+    "significance": "One of several contested Piña Colada origin claims.",
+    "tags": [
+      "pina-colada",
+      "puerto-rico",
+      "contested"
+    ]
+  },
+  {
+    "year": 1955,
+    "event": "Conrad Hilton opens a Trader Vic's in the Beverly Hilton.",
+    "significance": "Hilton partnership takes Vic's global.",
+    "tags": [
+      "vic",
+      "chain"
+    ]
+  },
+  {
+    "year": 1956,
+    "event": "Oceanic Arts is founded in Whittier, CA, by LeRoy Schmaltz and Bob Van Oosting.",
+    "significance": "Main supplier of tiki carvings and decor for restaurants and theme parks.",
+    "tags": [
+      "decor",
+      "polynesian-pop"
+    ]
+  },
+  {
+    "year": 1956,
+    "event": "Donn Beach creates the International Market Place in Waikiki, with a treehouse office in a banyan.",
+    "significance": "His Hawaiian showcase; Martin Denny and Don Ho perform there.",
+    "tags": [
+      "don",
+      "hawaii"
+    ]
+  },
+  {
+    "year": 1956,
+    "event": "Mai-Kai opens in Fort Lauderdale (28 Dec) under Bob and Jack Thornton; Mariano Licudine runs the bar.",
+    "significance": "Keeps Don-style recipes alive for decades.",
+    "tags": [
+      "bar",
+      "mai-kai",
+      "polynesian-pop"
+    ]
+  },
+  {
+    "year": 1957,
+    "event": "Harry Yee creates the Blue Hawaii at the Hawaiian Village hotel for Bols.",
+    "significance": "Emblem of the sweeter, colorful resort style; Yee popularizes parasols and orchids.",
+    "tags": [
+      "hawaii",
+      "drink",
+      "resort"
+    ]
+  },
+  {
+    "year": 1957,
+    "event": "Martin Denny releases the album Exotica, with bird calls; Trader Vic's opens in Chicago's Palmer House.",
+    "significance": "Exotica names the genre (No. 1 in 1959); Vic's chain spreads through Hilton.",
+    "tags": [
+      "exotica",
+      "music",
+      "vic",
+      "chain"
+    ]
+  },
+  {
+    "year": 1958,
+    "event": "Arthur Lyman releases Taboo; Stephen Crane's Kon-Tiki chain expands in Sheraton hotels (late 1950s).",
+    "significance": "Peak of Exotica and of the Polynesian restaurant chains.",
+    "tags": [
+      "exotica",
+      "music",
+      "chain"
+    ]
+  },
+  {
+    "year": 1959,
+    "event": "Hawaii becomes the 50th state (21 Aug); jet service to Honolulu begins.",
+    "significance": "Mass tourism turns Waikiki resort drinks into the public face of tiki.",
+    "tags": [
+      "hawaii",
+      "tourism",
+      "polynesian-pop"
+    ]
+  },
+  {
+    "year": 1961,
+    "event": "Kahiki Supper Club opens in Columbus, Ohio.",
+    "significance": "Among the grandest Polynesian palaces of the Midwest (closed 2000).",
+    "tags": [
+      "bar",
+      "polynesian-pop"
+    ]
+  },
+  {
+    "year": 1961,
+    "event": "Ray Buhen, one of Don's original bartenders, opens Tiki-Ti on Sunset Blvd, Los Angeles.",
+    "significance": "A direct, family-run link to Beachcomber technique that is still open.",
+    "tags": [
+      "bar",
+      "don",
+      "polynesian-pop"
+    ]
+  },
+  {
+    "year": 1963,
+    "event": "Walt Disney's Enchanted Tiki Room opens at Disneyland (23 June).",
+    "significance": "Brings tiki imagery to children and families; first Audio-Animatronics show.",
+    "tags": [
+      "disney",
+      "culture",
+      "polynesian-pop"
+    ]
+  },
+  {
+    "year": 1963,
+    "event": "Barrachina restaurant (Old San Juan) claims Ramón Portas Mingot created the Piña Colada.",
+    "significance": "A rival to the Caribe Hilton claim.",
+    "tags": [
+      "pina-colada",
+      "puerto-rico",
+      "contested"
+    ]
+  },
+  {
+    "year": 1970,
+    "event": "Mai Tai dispute: Vic sues Sun-Vac, licensee of Don the Beachcomber mixes; settled in Vic's favor.",
+    "significance": "Settles the 'official' credit for the Mai Tai.",
+    "tags": [
+      "mai-tai",
+      "vic",
+      "don",
+      "contested"
+    ]
+  },
+  {
+    "year": 1970,
+    "event": "Henry Africa's opens in San Francisco, widely called the first fern bar.",
+    "significance": "Fern bars and sweet drinks take tiki's place as the fun night out.",
+    "tags": [
+      "decline",
+      "bar"
+    ]
+  },
+  {
+    "year": 1970,
+    "event": "Royal Navy abolishes the daily rum ration (31 July, 'Black Tot Day').",
+    "significance": "Ends the 230-year grog tradition.",
+    "tags": [
+      "navy",
+      "grog",
+      "rum"
+    ]
+  },
+  {
+    "year": 1972,
+    "event": "Trader Vic's Bartender's Guide, Revised is published; the Oakland original moves to Emeryville.",
+    "significance": "Vic restates his Mai Tai claim in print.",
+    "tags": [
+      "vic",
+      "book",
+      "mai-tai"
+    ]
+  },
+  {
+    "year": 1973,
+    "event": "Jeffrey Ong's Jungle Bird debuts as the Kuala Lumpur Hilton's welcome drink (long misdated to 1978).",
+    "significance": "Jungle Bird is later revived by Berry and craft bartenders.",
+    "tags": [
+      "drink",
+      "bitter-tiki",
+      "jungle-bird"
+    ]
+  },
+  {
+    "year": 1978,
+    "event": "Puerto Rico names the Piña Colada its official drink.",
+    "significance": "Cements the Caribe Hilton/Barrachina drink as the island's calling card.",
+    "tags": [
+      "drink",
+      "resort",
+      "pina-colada"
+    ]
+  },
+  {
+    "year": 1979,
+    "event": "Rupert Holmes's 'Escape (The Piña Colada Song)' becomes a hit.",
+    "significance": "Peak of the commercial 'umbrella drink' image.",
+    "tags": [
+      "decline",
+      "culture",
+      "pina-colada"
+    ]
+  },
+  {
+    "year": 1984,
+    "event": "Victor 'Trader Vic' Bergeron dies (11 Oct).",
+    "significance": "End of an era for the founding generation.",
+    "tags": [
+      "vic"
+    ]
+  },
+  {
+    "year": 1989,
+    "event": "Donn Beach dies in Honolulu (7 June).",
+    "significance": "The founder dies just before the revival rediscovers him.",
+    "tags": [
+      "don"
+    ]
+  },
+  {
+    "year": 1995,
+    "event": "Otto von Stroheim launches the zine Tiki News.",
+    "significance": "Connects the collector community behind the tiki revival.",
+    "tags": [
+      "revival",
+      "culture"
+    ]
+  },
+  {
+    "year": 1996,
+    "event": "Martinique rhum agricole receives AOC status.",
+    "significance": "Protected cane-juice rhum; agricole becomes a staple of revival rum blending.",
+    "tags": [
+      "rum",
+      "martinique"
+    ]
+  },
+  {
+    "year": 1998,
+    "event": "Jeff Berry publishes Beachbum Berry's Grog Log.",
+    "significance": "Starts the recovery of authentic golden-age recipes.",
+    "tags": [
+      "berry",
+      "book",
+      "revival"
+    ]
+  },
+  {
+    "year": 2000,
+    "event": "Sven Kirsten's The Book of Tiki (Taschen) is published.",
+    "significance": "Names and catalogs Polynesian Pop; makes 'tiki' the umbrella term.",
+    "tags": [
+      "kirsten",
+      "book",
+      "revival"
+    ]
+  },
+  {
+    "year": 2000,
+    "event": "Kahiki Supper Club closes and is demolished.",
+    "significance": "A symbolic loss that energizes preservation-minded fans.",
+    "tags": [
+      "decline",
+      "bar"
+    ]
+  },
+  {
+    "year": 2001,
+    "event": "Phoebe Beach and Arnold Bitner publish Don the Beachcomber recipes, restating Donn's 1933 Mai Tai claim.",
+    "significance": "Keeps the Mai Tai dispute alive.",
+    "tags": [
+      "don",
+      "mai-tai",
+      "book",
+      "contested"
+    ]
+  },
+  {
+    "year": 2001,
+    "event": "Tiki Oasis weekender begins (early 2000s), organized by Otto von Stroheim.",
+    "significance": "Becomes the scene's biggest annual gathering.",
+    "tags": [
+      "revival",
+      "culture"
+    ]
+  },
+  {
+    "year": 2002,
+    "event": "Berry's Intoxica! is published, reviving obscure drinks such as the Jungle Bird.",
+    "significance": "Expands the rediscovered canon.",
+    "tags": [
+      "berry",
+      "book",
+      "revival"
+    ]
+  },
+  {
+    "year": 2004,
+    "event": "Wray & Nephew finds a barrel remnant and a few unmarked bottles of its 17-year rum.",
+    "significance": "Relics of the original Mai Tai rum.",
+    "tags": [
+      "mai-tai",
+      "rum"
+    ]
+  },
+  {
+    "year": 2005,
+    "event": "Jennifer Santiago brings Berry her father Dick's 1930s Beachcomber recipe notebook.",
+    "significance": "Key to decoding the 1934 Zombie.",
+    "tags": [
+      "berry",
+      "zombie",
+      "don"
+    ]
+  },
+  {
+    "year": 2006,
+    "event": "Martin Cate opens Forbidden Island in Alameda, CA.",
+    "significance": "Cate's first bar; craft tiki in a classic setting.",
+    "tags": [
+      "cate",
+      "bar",
+      "revival"
+    ]
+  },
+  {
+    "year": 2007,
+    "event": "Berry's Sippin' Safari publishes the decoded 1934 Zombie; Kirsten's Tiki Modern appears.",
+    "significance": "Landmark recovery of Don's recipes and coded mixes.",
+    "tags": [
+      "berry",
+      "zombie",
+      "book",
+      "revival"
+    ]
+  },
+  {
+    "year": 2008,
+    "event": "Haus Alpenz launches St. Elizabeth Allspice Dram in the U.S.",
+    "significance": "Ends a decades-long gap in pimento dram availability.",
+    "tags": [
+      "ingredient",
+      "allspice-dram"
+    ]
+  },
+  {
+    "year": 2009,
+    "event": "Smuggler's Cove opens in San Francisco (Dec); Smith & Cross Jamaican rum reaches the U.S.",
+    "significance": "Sets the template for modern craft tiki bars; brings back high-ester Jamaican rum.",
+    "tags": [
+      "cate",
+      "bar",
+      "rum",
+      "revival"
+    ]
+  },
+  {
+    "year": 2013,
+    "event": "Paul McGee opens Three Dots and a Dash in Chicago; Berry publishes Potions of the Caribbean.",
+    "significance": "Tiki goes big-city mainstream; the Caribbean roots are documented.",
+    "tags": [
+      "bar",
+      "revival",
+      "berry",
+      "book"
+    ]
+  },
+  {
+    "year": 2014,
+    "event": "Jeff Berry opens Latitude 29 in New Orleans' French Quarter.",
+    "significance": "The leading historian runs a working bar.",
+    "tags": [
+      "berry",
+      "bar",
+      "revival"
+    ]
+  },
+  {
+    "year": 2015,
+    "event": "Lost Lake opens in Chicago (Paul McGee, Shelby Allison).",
+    "significance": "Lighter, more contemporary tropical design.",
+    "tags": [
+      "bar",
+      "revival"
+    ]
+  },
+  {
+    "year": 2016,
+    "event": "Smuggler's Cove book introduces a production-based rum classification; Plantation OFTD launches; Bacardí 151 discontinued.",
+    "significance": "Recipes call for rum categories, not brands, protecting them from discontinued rums.",
+    "tags": [
+      "cate",
+      "book",
+      "rum",
+      "ingredient"
+    ]
+  },
+  {
+    "year": 2018,
+    "event": "Appleton Estate releases the limited 17 Year Old 'Legend', evoking the lost Wray & Nephew 17.",
+    "significance": "A modern nod to the original Mai Tai rum.",
+    "tags": [
+      "rum",
+      "mai-tai",
+      "ingredient"
+    ]
+  },
+  {
+    "year": 2019,
+    "event": "Shannon Mustipher publishes Tiki: Modern Tropical Cocktails.",
+    "significance": "Foregrounds the Caribbean roots and a broader rum perspective.",
+    "tags": [
+      "book",
+      "present"
+    ]
+  },
+  {
+    "year": 2020,
+    "event": "The Mai-Kai closes after a roof collapse; the industry debates tiki's cultural appropriation; Plantation announces a rename.",
+    "significance": "Start of the 'reckoning' and 'tropical' reframing.",
+    "tags": [
+      "present",
+      "appropriation",
+      "mai-kai"
+    ]
+  },
+  {
+    "year": 2021,
+    "event": "Berry and Ed Hamilton release a Zombie rum blend.",
+    "significance": "Modern products fill gaps left by lost rums.",
+    "tags": [
+      "berry",
+      "zombie",
+      "rum",
+      "ingredient"
+    ]
+  },
+  {
+    "year": 2023,
+    "event": "Garret Richard and Ben Wald publish Tropical Standard; Plantation's new name, Planteray, is revealed.",
+    "significance": "'Tropical' reframing plus modern technique; rum brand drops colonial language.",
+    "tags": [
+      "present",
+      "book",
+      "appropriation",
+      "rum"
+    ]
+  },
+  {
+    "year": 2024,
+    "event": "The restored Mai-Kai reopens in Fort Lauderdale (reported late 2024).",
+    "significance": "A surviving 1956 tiki temple returns.",
+    "tags": [
+      "mai-kai",
+      "bar",
+      "present"
+    ]
+  }
+]

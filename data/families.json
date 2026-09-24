@@ -1,0 +1,160 @@
+{
+  "version": 1,
+  "about": "Structural families (archetypes) of tropical/tiki drinks. A family groups drinks that share a skeleton and a line of descent. 'parents' encode the family-level lineage graph.",
+  "families": [
+    {
+      "id": "punch",
+      "name": "Planter's Punch & Rum Punch",
+      "tagline": "One of sour, two of sweet, three of strong, four of weak.",
+      "era_origin": "17th-century East Indies → Caribbean plantations",
+      "parents": [],
+      "origin": "Punch (from the Hindi 'panch', five) was carried from India by British sailors in the 1600s: spirit, citrus, sugar, water, spice. In the Caribbean it became rum punch and the Jamaican Planter's Punch, codified by the 1908 rhyme 'one of sour, two of sweet, three of strong, four of weak.' Every tiki drink descends from this template; Don the Beachcomber's first menu was essentially a Planter's Punch exploded into dozens of variations.",
+      "structure": "Dark/aged rum + lime + sugar/grenadine + dilution (water, ice, or juice) + bitters and nutmeg.",
+      "signature_ingredients": ["rum-jamaican-dark", "rum-jamaican-aged", "lime", "grenadine", "simple-syrup", "angostura", "nutmeg"],
+      "method": "shake", "ice": "crushed", "glass": "highball or pilsner"
+    },
+    {
+      "id": "grog",
+      "name": "Grog",
+      "tagline": "Navy rations, turned luxurious.",
+      "era_origin": "1740 Royal Navy (Admiral Vernon) → Don the Beachcomber, 1941",
+      "parents": ["punch"],
+      "origin": "Grog began as Admiral Edward Vernon's 1740 order to cut the sailors' rum ration with water and lime. Don the Beachcomber's Navy Grog (c. 1941) turned the idea into a three-rum sour sweetened with honey, sharpened with grapefruit and lengthened with soda, famously served around an ice cone with a straw through it. Trader Vic answered with his own Grog, and the Coffee Grog and Nui Nui orbit the same idea.",
+      "structure": "2–3 rums + lime + grapefruit + honey (or allspice/spice) + a splash of soda; long and bracing.",
+      "signature_ingredients": ["rum-demerara", "rum-jamaican-aged", "rum-white-column", "lime", "grapefruit", "honey-syrup", "soda-water", "allspice-dram"],
+      "method": "shake", "ice": "crushed", "glass": "double old fashioned (with ice cone)"
+    },
+    {
+      "id": "daiquiri",
+      "name": "Daiquiri & Tropical Sours",
+      "tagline": "Rum, lime, sugar — nothing to hide behind.",
+      "era_origin": "c. 1898 Cuba → Floridita, Havana (1920s–30s)",
+      "parents": ["punch"],
+      "origin": "The Daiquiri is punch concentrated into a sour: light rum, lime, sugar, shaken cold. Constantino Ribalaigua at Havana's El Floridita turned it into a family (Daiquiri Nos. 1–5, the Hemingway/Papa Doble with grapefruit and maraschino) and pioneered the frappé/blended version. Donn Beach spent time in the Caribbean and built many of his 'Don's Daiquiris' and flash-blended drinks on this chassis.",
+      "structure": "Rum + lime + sweetener (1 : 0.75–1 : 0.5–0.75 by volume), optional fruit or liqueur accent; served up or blended.",
+      "signature_ingredients": ["rum-white-column", "rum-blended-light", "lime", "simple-syrup", "maraschino", "grapefruit"],
+      "method": "shake", "ice": "cubed", "glass": "coupe"
+    },
+    {
+      "id": "swizzle",
+      "name": "Swizzle",
+      "tagline": "Crushed ice, a bois lélé, and a frosted glass.",
+      "era_origin": "19th-century Caribbean (Trinidad, Barbados, Bermuda)",
+      "parents": ["punch"],
+      "origin": "Swizzles are Caribbean punches built on crushed ice and churned with a swizzle stick (originally the branched bois lélé) until the glass frosts. The Queen's Park Swizzle (Queen's Park Hotel, Trinidad, 1920s) with its mint base and Angostura crown is the icon; Bermuda's Rum Swizzle, Don's 151 Swizzle and the modern Chartreuse Swizzle keep the line alive.",
+      "structure": "Rum + lime + sweetener (often demerara/falernum) + mint or bitters, swizzled over crushed ice, topped with bitters.",
+      "signature_ingredients": ["rum-demerara", "rum-white-column", "lime", "demerara-syrup", "velvet-falernum", "mint", "angostura"],
+      "method": "swizzle", "ice": "crushed", "glass": "collins or pilsner"
+    },
+    {
+      "id": "zombie",
+      "name": "Zombie & the Beachcomber Heavyweights",
+      "tagline": "Three rums, a secret spice mix, and a two-per-customer limit.",
+      "era_origin": "Don the Beachcomber, Hollywood, 1934",
+      "parents": ["punch", "daiquiri"],
+      "origin": "Donn Beach's Zombie (1934) is the drink that made tiki: a Planter's Punch exploded into three rums, lime, grapefruit-cinnamon 'Don's Mix', falernum, grenadine, a drop of Pernod and Angostura, flash-blended. Its recipe was a closely guarded, coded secret — decoded by Jeff 'Beachbum' Berry in 2007 from bartender Dick Santiago's notebook. Descendants include the Jet Pilot (Luau, 1958), Test Pilot and Cobra's Fang.",
+      "structure": "3 rums (light + gold/Jamaican + demerara/151) + lime + grapefruit/Don's Mix + falernum + grenadine + drops of anise + Angostura.",
+      "signature_ingredients": ["rum-jamaican-aged", "rum-gold-column", "rum-demerara-overproof", "lime", "dons-mix", "velvet-falernum", "grenadine", "pastis", "angostura"],
+      "method": "flash-blend", "ice": "crushed", "glass": "zombie/chimney glass"
+    },
+    {
+      "id": "beachcomber-sour",
+      "name": "Beachcomber Spice Sours",
+      "tagline": "Layered rums, honey, falernum and allspice — the Don's house style.",
+      "era_origin": "Don the Beachcomber, 1930s–1950s",
+      "parents": ["daiquiri", "punch"],
+      "origin": "Beyond the Zombie, Donn Beach built dozens of shorter tropical sours that layer a spice modifier (falernum, allspice dram, 'Don's Spices', Gardenia Mix, cinnamon) on a rum-lime-honey core: Three Dots and a Dash, Test Pilot, Nui Nui, Pearl Diver, Vicious Virgin, Never Say Die. His guiding idea: two or three complementary rums plus a secret modifier would produce a flavor no customer could name or copy.",
+      "structure": "1–3 rums + lime (+ orange/passion) + honey or falernum + a spice liqueur/syrup accent + Angostura; flash-blended.",
+      "signature_ingredients": ["rum-agricole-vieux", "rum-demerara", "lime", "honey-syrup", "velvet-falernum", "allspice-dram", "angostura", "orange"],
+      "method": "flash-blend", "ice": "crushed", "glass": "pilsner or tiki mug"
+    },
+    {
+      "id": "mai-tai",
+      "name": "Mai Tai",
+      "tagline": "Maita'i roa ae — 'out of this world, the best.'",
+      "era_origin": "Trader Vic's, Oakland, 1944",
+      "parents": ["daiquiri"],
+      "origin": "Victor Bergeron created the Mai Tai in 1944 to showcase a 17-year Wray & Nephew Jamaican rum: rum, lime, orange curaçao, orgeat, rock candy syrup, shaken with shaved ice and garnished with the spent lime shell and mint. When the 17-year ran out he blended Jamaican and Martinique rums. The drink became a Hawaiian resort staple (Royal Hawaiian, 1953) and was mangled by pineapple-juice versions for decades before the revival restored the original.",
+      "structure": "Aged rum(s) + lime + orange curaçao + orgeat + a little rich syrup; about 2 : 1 : 0.5 : 0.25–0.5 : 0.25.",
+      "signature_ingredients": ["rum-jamaican-aged", "rum-agricole-vieux", "lime", "orange-curacao", "orgeat", "rich-simple", "mint"],
+      "method": "shake", "ice": "crushed", "glass": "double old fashioned"
+    },
+    {
+      "id": "orgeat-punch",
+      "name": "Scorpion & Fog Cutter (Vic's orgeat punches)",
+      "tagline": "Brandy, rum, orgeat and orange — built for sharing bowls.",
+      "era_origin": "Trader Vic's, 1940s–1950s",
+      "parents": ["punch"],
+      "origin": "Trader Vic's other great archetype mixes rum with brandy and/or gin, lemon and orange juice, and orgeat: the Scorpion (served by the bowl for groups) and the Fog Cutter ('Fog Cutter, hell. After two of these, you won't even see the stuff'), with a sherry float. They are the template for communal tiki bowls.",
+      "structure": "Rum + brandy/gin + lemon + orange juice + orgeat (+ sherry float), shaken over crushed ice.",
+      "signature_ingredients": ["rum-white-column", "brandy", "gin", "lemon", "orange", "orgeat", "amontillado-sherry"],
+      "method": "shake", "ice": "crushed", "glass": "tiki mug or bowl"
+    },
+    {
+      "id": "colada",
+      "name": "Colada & Painkiller",
+      "tagline": "Pineapple, coconut, and a beach chair.",
+      "era_origin": "Caribe Hilton, San Juan, 1954 → Soggy Dollar Bar, BVI, 1970s",
+      "parents": ["punch"],
+      "origin": "The Piña Colada is credited to Ramón 'Monchito' Marrero at the Caribe Hilton (1954), made possible by Coco López cream of coconut (1948/1954). The Painkiller (Soggy Dollar Bar, Jost Van Dyke, 1970s) adds orange juice and nutmeg over Pusser's rum. The Chi Chi (vodka), Lava Flow (strawberry) and Blue Hawaiian (blue curaçao) are resort cousins.",
+      "structure": "Rum + pineapple + cream of coconut (± orange, ± lime), shaken or blended; nutmeg on top.",
+      "signature_ingredients": ["rum-navy", "rum-white-column", "pineapple-juice", "coconut-cream", "orange", "nutmeg"],
+      "method": "shake", "ice": "crushed", "glass": "hurricane or snifter"
+    },
+    {
+      "id": "buck",
+      "name": "Tropical Buck & Cooler",
+      "tagline": "Spirit, citrus, spice, and ginger fizz.",
+      "era_origin": "Bermuda / Shepheard's Hotel Cairo (1942) / Don's Q.B. Cooler",
+      "parents": ["punch"],
+      "origin": "Tall ginger-beer and soda drinks: the Dark 'n Stormy (Bermuda), Joe Scialom's Suffering Bastard (Shepheard's Hotel, Cairo, 1942) — a hangover cure with gin, brandy, lime, bitters and ginger beer — and Don's Q.B. Cooler. Easy-drinking highballs with tiki spice.",
+      "structure": "Spirit(s) + lime + bitters/spice + ginger beer or soda.",
+      "signature_ingredients": ["rum-black-blended", "gin", "brandy", "lime", "ginger-beer", "angostura"],
+      "method": "build", "ice": "cubed", "glass": "highball"
+    },
+    {
+      "id": "resort-punch",
+      "name": "Resort Tropicals",
+      "tagline": "The Hurricane, the Rum Runner, the Blue Hawaii — tiki gone to the beach.",
+      "era_origin": "Pat O'Brien's, New Orleans (1940s) → Hawaii & Florida resorts, 1950s–80s",
+      "parents": ["punch", "zombie"],
+      "origin": "As tiki went mainstream, hotel and beach bars built high-volume fruit punches: Pat O'Brien's Hurricane (passion fruit and rum, 1940s), Harry Yee's Blue Hawaii (Hilton Hawaiian Village, 1957), the Rum Runner (Holiday Isle, Florida, 1972), the Bahama Mama and Goombay Smash. Sweeter, juicier, more colorful; the best of them are great when made with fresh juice.",
+      "structure": "1–2 rums + multiple fruit juices + a fruit liqueur or two + grenadine/syrup; high juice fraction.",
+      "signature_ingredients": ["rum-jamaican-dark", "rum-white-column", "passion-fruit-syrup", "pineapple-juice", "orange", "grenadine", "banana-liqueur", "blackberry-liqueur"],
+      "method": "shake", "ice": "crushed", "glass": "hurricane"
+    },
+    {
+      "id": "bitter-tiki",
+      "name": "Bitter Tiki",
+      "tagline": "Campari meets pineapple: the Jungle Bird's children.",
+      "era_origin": "Aviary Bar, Kuala Lumpur Hilton, 1973 → craft era",
+      "parents": ["punch", "daiquiri"],
+      "origin": "The Jungle Bird (Jeffrey Ong, Kuala Lumpur Hilton, 1973; long misdated to 1978) paired dark rum, Campari, pineapple and lime — rediscovered via Jeff Berry's 'Intoxica' (2002) and reworked by Giuseppe González. It opened the craft era's fascination with amari and bitters in tropical drinks (Trinidad Sour, bitter Mai Tais, Kingston Negroni riffs).",
+      "structure": "Dark/black rum + bitter liqueur (Campari/amaro) + pineapple + lime + demerara.",
+      "signature_ingredients": ["rum-black-blended", "campari", "pineapple-juice", "lime", "demerara-syrup"],
+      "method": "shake", "ice": "cubed", "glass": "double old fashioned"
+    },
+    {
+      "id": "stirred",
+      "name": "Spirit-Forward Tropical",
+      "tagline": "Tiki flavors, old-fashioned structure.",
+      "era_origin": "Craft era, 2000s–present",
+      "parents": ["punch"],
+      "origin": "Modern tiki bars apply falernum, allspice, orgeat and aged rum to stirred Old Fashioned and Manhattan structures — rum old fashioneds with falernum, the Kingston Negroni, and the Paniolo Old Fashioned.",
+      "structure": "2 oz aged rum/spirit + 0.25–0.5 oz tropical modifier/syrup + bitters, stirred.",
+      "signature_ingredients": ["rum-jamaican-aged", "rum-demerara", "velvet-falernum", "allspice-dram", "demerara-syrup", "angostura"],
+      "method": "stir", "ice": "block", "glass": "old fashioned"
+    },
+    {
+      "id": "hot",
+      "name": "Hot Tiki",
+      "tagline": "Buttered, spiced and steaming.",
+      "era_origin": "Colonial hot punches & flips → Trader Vic's Hot Buttered Rum / Coffee Grog",
+      "parents": ["punch"],
+      "origin": "Colonial America drank rum hot — flips, toddies, buttered rum. Trader Vic's and Don the Beachcomber served hot buttered rum and coffee grogs, often flamed, in the cold-weather months.",
+      "structure": "Rum + hot water/coffee/tea + butter/spice batter or spiced syrup, sometimes flamed.",
+      "signature_ingredients": ["rum-jamaican-dark", "hot-buttered-rum-batter", "coffee", "hot-water", "cinnamon", "nutmeg"],
+      "method": "hot", "ice": "none", "glass": "mug"
+    }
+  ]
+}
