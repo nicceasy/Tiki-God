@@ -505,8 +505,8 @@ const FAMOUS = {
   'el presidente': 3, 'dead man walking': 2, 'goombay smash': 3, 'singapore sling': 4, 'mary pickford cocktail': 3,
   'rum and coke': 3, 'cable car': 3, 'kingston negroni': 3, 'daiquiri no 3': 2, 'daiquiri no 4': 2, 'daiquiri no 5': 2,
   'pineapple express': 2, 'bushwacker': 3, 'miami vice': 3, 'lava flow': 3, 'tropical itch': 2, 'suffering bastard': 3,
-  'rum old fashioned': 3, 'corn n oil': 3, 'corn and oil': 3, 'paloma': 4, 'passion fruit martini': 3, 'bay breeze': 3,
-  'sex on the beach': 4, 'malibu bay breeze': 3, 'tequila sunrise': 4, 'singapore sling 1': 4,
+  'rum old fashioned': 3, 'corn n oil': 3, 'corn and oil': 3, 'paloma': 3, 'passion fruit martini': 3, 'bay breeze': 3,
+  'sex on the beach': 3, 'malibu bay breeze': 3, 'tequila sunrise': 3, 'singapore sling 1': 4,
 };
 
 // ---------------------------------------------------------------- notes (generated, own words)
