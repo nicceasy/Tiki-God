@@ -270,8 +270,15 @@ function selectTropical(ctx) {
   // 1. tropical markers
   if (hits.length) {
     if (rumBase || RUM_IDS.has(ctx.baseId)) return { tropical: true, why: `rum + ${hits[0].tag}` };
+    // Non-rum drinks need a real tiki signature: a potent tiki modifier (orgeat, falernum, allspice,
+    // tiki bitters), or two distinct tropical fruits. One splash of pineapple doesn't make a French
+    // Martini or a Bay Breeze tiki.
     const strong = hits.filter(clearMarker);
-    if (strong.length) return { tropical: true, why: `marker ${strong[0].tag}` };
+    const potent = strong.filter(h => POTENT.has(h.tag) || h.tag === 'tiki-bitters');
+    const fruits = new Set(strong.filter(h => !POTENT.has(h.tag) && h.tag !== 'tiki-bitters').map(h => h.tag));
+    const nonTikiName = /martini|cosmo|sex on the beach|breeze|woo woo|kamikaze/i.test(name);
+    if (potent.length) return { tropical: true, why: `marker ${potent[0].tag}` };
+    if (fruits.size >= 2 && !nonTikiName) return { tropical: true, why: `markers ${[...fruits].join('+')}` };
   }
   if (tikiServe) return { tropical: true, why: method === 'swizzle' ? 'swizzled' : 'tiki-mug / crushed-ice serve' };
   // 2. rum / cachaça / agricole sours, punches, swizzles and highballs (the tiki ancestors)

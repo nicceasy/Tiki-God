@@ -230,7 +230,7 @@ export function createEngine({ vocab, families, drinks, model }) {
     for (const f of famList) {
       const F = model.families[f.id];
       if (!F || !F.n) continue;
-      let s = Math.log(1 + F.weight) * 0.35;
+      let s = Math.log(1 + F.weight) * 0.2;
       for (const [t, w] of Object.entries(intent.tags)) s += w * (F.flavor[t] || 0) * 2.2;
       for (const [t, w] of Object.entries(intent.avoidTags)) s -= w * (F.flavor[t] || 0) * 2;
       s += (intent.fam[f.id] || 0) * 1.6;
@@ -277,7 +277,7 @@ export function createEngine({ vocab, families, drinks, model }) {
     if ((ing.color === 'blue' || ing.color === 'green') && intent.color !== ing.color) s -= 3;
     // …and nothing that muddies the color that was asked for (blue + grenadine = purple).
     const CLASH = { blue: ['red', 'pink', 'orange', 'yellow'], red: ['blue', 'green'], pink: ['blue', 'green'], green: ['red', 'pink'], gold: ['blue', 'red'] };
-    if (intent.color && ing.color && (CLASH[intent.color] || []).includes(ing.color)) s -= 2.5;
+    if (intent.color && ing.color && (CLASH[intent.color] || []).includes(ing.color)) s -= 8;
     return s;
   }
 
@@ -567,7 +567,7 @@ export function createEngine({ vocab, families, drinks, model }) {
       rl.forEach(l => { l.oz *= l.req && k < 1 ? Math.max(k, 0.85) : k; });
     }
     for (const l of lines) {
-      if (l.req && ['modifier', 'sweet', 'juice'].includes(l.role)) l.oz = Math.max(l.oz, 0.25);
+      if (l.req && ['modifier', 'sweet', 'juice'].includes(l.role)) l.oz = Math.max(l.oz, l.colorKey ? 0.75 : 0.5);
       l.oz0 = l.oz;
     }
   }
@@ -964,6 +964,13 @@ export function createEngine({ vocab, families, drinks, model }) {
       if (tagAsk >= 1 || famUse >= 0.35) lines.push({ id, role: 'aromatic', garnish: true });
     }
 
+    // Anything that carries an explicitly requested flavor (or color) is protected from the balancer.
+    for (const l of lines) {
+      const v = ingVec[l.id] || {};
+      if (Object.entries(intent.tags).some(([t, w]) => w >= 1.4 && (v[t] || 0) >= 0.55)) l.req = true;
+      const ing = ingMap.get(l.id);
+      if (intent.color && ing && ing.color && ({ blue: ['blue'], red: ['red'], pink: ['pink', 'red'], gold: ['yellow'], green: ['green'] }[intent.color] || []).includes(ing.color)) { l.req = true; l.colorKey = true; }
+    }
     ensureStructure(lines, famId, intent);
     const svc = service(famId, intent, lines, riffSrc && famId === riffSrc.family ? riffSrc : null);
     initialDoses(lines, famId, intent);

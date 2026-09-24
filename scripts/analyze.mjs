@@ -245,7 +245,8 @@ const popularVsObscure = { popular: { n: popular.length, ...unweighted(popular) 
 const ERAS = ['colonial', 'pre-tiki', 'golden', 'late-classic', 'decline', 'revival', 'craft'];
 const eras = {};
 for (const e of ERAS) {
-  const fs = facts.filter(f => f.d.era === e);
+  // Only dated drinks: undated bulk imports carry a guessed era.
+  const fs = facts.filter(f => f.d.era === e && f.d.year !== null && f.d.year !== undefined);
   if (!fs.length) continue;
   const med = fn => (wQuantiles(fs.map(f => [fn(f), 1])) || {}).median;
   eras[e] = {
@@ -310,7 +311,7 @@ md += `## Whole database\n\n| metric | value |\n|---|---|\n`;
 for (const k of ['abv', 'abvPre', 'sugarConc', 'acidConc', 'sweetSour', 'volOz', 'finalOz', 'nIngredients', 'nSpirits', 'nRums', 'baseOz']) md += `| ${k} | ${fmt(model.global[k])} |\n`;
 md += `\n## Popular (4–5) vs obscure (1–2) drinks\n\nDoes popularity correlate with structure? Unweighted medians (IQR).\n\n| metric | popular (n=${popular.length}) | obscure (n=${obscure.length}) |\n|---|---|---|\n`;
 for (const k of cmpKeys) md += `| ${k} | ${fmt(popularVsObscure.popular[k])} | ${fmt(popularVsObscure.obscure[k])} |\n`;
-md += `\n## Era trends\n\nUnweighted medians per era. "multi-rum" = share of drinks with two or more rums; "non-rum base" = share with a non-rum base spirit.\n\n| era | drinks | ABV % | sugar | acid | sugar:acid | juice share of volume | ingredients | multi-rum | non-rum base |\n|---|---|---|---|---|---|---|---|---|---|\n`;
+md += `\n## Era trends\n\nUnweighted medians per era, dated drinks only. "multi-rum" = share of drinks with two or more rums; "non-rum base" = share with a non-rum base spirit.\n\n| era | drinks | ABV % | sugar | acid | sugar:acid | juice share of volume | ingredients | multi-rum | non-rum base |\n|---|---|---|---|---|---|---|---|---|---|\n`;
 for (const [e, v] of Object.entries(eras)) md += `| ${e} | ${v.n} | ${v.abv ?? '—'} | ${v.sugarConc ?? '—'} | ${v.acidConc ?? '—'} | ${v.sweetSour ?? '—'} | ${v.juiceFrac !== undefined ? Math.round(v.juiceFrac * 100) + '%' : '—'} | ${v.nIngredients ?? '—'} | ${Math.round(v.multiRum * 100)}% | ${Math.round(v.nonRum * 100)}% |\n`;
 md += `\n## Family formulas\n\nMedian ounces per role, counting only drinks that use that role (roles used by fewer than 35% of the family are omitted; the percentage is how many use it).\n\n| family | formula |\n|---|---|\n`;
 for (const fam of families) if (formulas[fam.id]) md += `| ${fam.name} | ${formulas[fam.id].map(p => `${p.oz} oz ${p.role}${p.share < 0.9 ? ` (${Math.round(p.share * 100)}%)` : ''}`).join(' : ')} |\n`;
