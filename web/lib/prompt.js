@@ -114,7 +114,7 @@ export const LEXICON = [
   { k: ['nutmeg'], tags: { nutmeg: 2 }, label: 'nutmeg' },
   { k: ['vanilla'], tags: { vanilla: 2 }, label: 'vanilla' },
   { k: ['ginger', 'gingery'], tags: { ginger: 2 }, label: 'ginger' },
-  { k: ['spice', 'spiced', 'baking spice', 'warm spice', 'warming', 'christmas spice', 'pumpkin spice'], tags: { 'baking-spice': 2, cinnamon: 0.5, allspice: 0.5 }, label: 'warm spice' },
+  { k: ['spice', 'spices', 'spiced', 'baking spice', 'tiki spice', 'tiki spices', 'warm spice', 'warming', 'christmas spice', 'pumpkin spice'], tags: { 'baking-spice': 2, cinnamon: 0.5, allspice: 0.5 }, label: 'warm spice' },
   { k: ['spicy'], tags: { chili: 1.5, ginger: 0.8, 'baking-spice': 0.8 }, label: 'spicy' },
   { k: ['chai'], tags: { 'baking-spice': 2, tea: 1, ginger: 1 }, label: 'chai spice' },
   { k: ['anise', 'aniseed', 'licorice', 'liquorice', 'fennel', 'star anise'], tags: { anise: 2 }, label: 'anise' },
@@ -152,6 +152,7 @@ export const LEXICON = [
   { k: ['sweet', 'sugary', 'candy'], sweetness: 1, label: 'sweet' },
   { k: ['tart', 'sour', 'tangy', 'puckery', 'sharp', 'acidic'], tartness: 1, tags: { tart: 1.5 }, label: 'tart' },
   { k: ['bitter', 'bittersweet', 'amaro-like'], tags: { bitter: 2 }, style: { bitter: true }, label: 'bitter' },
+  { k: ['strongest', 'stronger', 'booziest', 'most potent', 'hardest hitting', 'knock me on my ass', 'maximum strength'], strength: 2, tags: { boozy: 1.5 }, fam: { zombie: 1.5 }, label: 'as strong as it gets' },
   { k: ['strong', 'boozy', 'potent', 'stiff', 'knock me out', 'knockout', 'deadly', 'lethal', 'powerful', 'punchy', 'high octane', 'heavy hitter', 'booze forward', 'boozeforward', 'two per customer'], strength: 1.2, tags: { boozy: 1 }, label: 'strong' },
   { k: ['weak', 'low abv', 'low-abv', 'low proof', 'low-proof', 'lighter on the booze', 'sessionable', 'session', 'day drinking', 'lunch', 'low alcohol', 'not too strong', 'easy on the alcohol'], strength: -1.2, label: 'lower-proof' },
   { k: ['fizzy', 'bubbly', 'sparkling', 'effervescent', 'carbonated', 'highball', 'soda', 'spritz', 'tall', 'long drink', 'cooler'], style: { long: true }, tags: { effervescent: 1.5 }, label: 'long & fizzy' },
@@ -165,6 +166,41 @@ export const LEXICON = [
   { k: ['complex', 'layered', 'elaborate', 'showstopper', 'show stopper', 'crazy', 'over the top', 'maximalist', 'intricate', 'impress'], complexity: 1.2, label: 'complex & layered' },
   { k: ['classic', 'old school', 'old-school', 'vintage', 'golden age', 'traditional', 'retro', 'mid century', 'mid-century'], style: { classic: true }, label: 'old-school' },
   { k: ['modern', 'craft', 'new school', 'contemporary', 'innovative', 'unusual', 'weird', 'experimental'], style: { modern: true }, label: 'modern' },
+
+  // ---- flavor references people use ----
+  { k: ['dreamsicle', 'creamsicle', 'orange julius', '50/50 bar'], tags: { orange: 2, vanilla: 2, creamy: 1.5 }, style: { creamy: true }, label: 'orange-vanilla cream' },
+  { k: ['key lime pie', 'key lime'], tags: { lime: 2, creamy: 1.5, vanilla: 1 }, label: 'key lime pie' },
+  { k: ['horchata'], tags: { cinnamon: 2, vanilla: 1.5, creamy: 1.5, nutty: 1 }, style: { creamy: true }, label: 'horchata' },
+  { k: ['bananas foster', 'banana foster'], tags: { banana: 2, caramel: 1.5, buttery: 1, cinnamon: 1 }, label: 'bananas Foster' },
+  { k: ['banana bread'], tags: { banana: 2, 'baking-spice': 1.5, nutty: 1, buttery: 1 }, label: 'banana bread' },
+  { k: ['apple pie'], tags: { apple: 2, cinnamon: 1.5, buttery: 1 }, label: 'apple pie' },
+  { k: ['pumpkin pie', 'pumpkin'], tags: { 'baking-spice': 2, nutmeg: 1.5, cinnamon: 1, creamy: 1 }, label: 'pumpkin spice' },
+  { k: ['smores', "s'mores", 'campfire dessert'], tags: { chocolate: 2, smoky: 1.5, vanilla: 1 }, label: "s'mores" },
+  { k: ['tiramisu'], tags: { coffee: 2, chocolate: 1.5, creamy: 1.5 }, label: 'tiramisu' },
+  { k: ['tres leches'], tags: { creamy: 2, vanilla: 1.5, cinnamon: 1 }, style: { creamy: true }, label: 'tres leches' },
+  { k: ['mango lassi', 'lassi'], tags: { mango: 2, creamy: 1.5, 'baking-spice': 0.8 }, style: { creamy: true }, label: 'mango lassi' },
+  { k: ['thai iced tea', 'thai tea'], tags: { tea: 2, creamy: 1.5, vanilla: 1, anise: 0.8 }, label: 'Thai iced tea' },
+  { k: ['arnold palmer'], tags: { tea: 2, lemon: 2 }, style: { long: true }, label: 'tea and lemonade' },
+  { k: ['lemonade'], tags: { lemon: 2, light: 1 }, style: { long: true }, label: 'lemonade' },
+  { k: ['root beer', 'sarsaparilla'], tags: { vanilla: 1.5, anise: 1.5, 'baking-spice': 1 }, label: 'root beer' },
+  { k: ['gingerbread'], tags: { ginger: 2, molasses: 1.5, 'baking-spice': 1.5 }, label: 'gingerbread' },
+  { k: ['eggnog', 'egg nog'], tags: { nutmeg: 2, creamy: 2, vanilla: 1 }, style: { creamy: true }, label: 'eggnog' },
+  { k: ['sangria'], tags: { berry: 1.5, orange: 1.5, fruity: 1 }, label: 'sangria' },
+  { k: ['margarita'], spirits: ['tequila-blanco'], tags: { lime: 1.5, orange: 1.5, salty: 0.8 }, fam: { daiquiri: 1 }, label: 'margarita' },
+  { k: ['paloma'], spirits: ['tequila-blanco'], tags: { grapefruit: 2, salty: 0.8 }, style: { long: true }, label: 'paloma' },
+  { k: ['mojito'], tags: { mint: 2, lime: 1.5 }, style: { long: true }, label: 'mojito' },
+  { k: ['smoothie', 'milkshake-like', 'slushie-like'], style: { frozen: true }, tags: { fruity: 1.5 }, label: 'smoothie' },
+  { k: ['fruit punch', 'hawaiian punch', 'kool aid', 'kool-aid'], tags: { fruity: 2, berry: 1, pineapple: 1 }, sweetness: 0.5, label: 'fruit punch' },
+  { k: ['candy', 'jolly rancher', 'gummy', 'bubblegum'], sweetness: 1, tags: { fruity: 1.5, berry: 1 }, label: 'candy' },
+  { k: ['cereal milk', 'fruit loops', 'froot loops'], tags: { creamy: 1.5, fruity: 1.5, vanilla: 1 }, label: 'cereal milk' },
+  { k: ['coconut cream pie'], tags: { coconut: 2, creamy: 1.5, vanilla: 1 }, style: { creamy: true }, label: 'coconut cream pie' },
+  { k: ['pina colada flavor', 'colada flavor'], tags: { coconut: 2, pineapple: 2 }, label: 'colada flavors' },
+  { k: ['mexican chocolate', 'mole'], tags: { chocolate: 2, cinnamon: 1.5, chili: 1 }, label: 'Mexican chocolate' },
+  { k: ['christmas cake', 'fruitcake', 'fruit cake'], tags: { 'dried-fruit': 2, 'baking-spice': 1.5, molasses: 1 }, label: 'fruitcake' },
+  { k: ['caramel apple', 'toffee apple'], tags: { apple: 2, caramel: 2 }, label: 'caramel apple' },
+  { k: ['orange blossom honey'], tags: { honey: 2, floral: 1.5, orange: 1 }, label: 'orange-blossom honey' },
+  { k: ['tiki', 'tikified', 'tiki fied', 'tiki style', 'tiki version', 'make it tiki', 'polynesian style'], tags: { tropical: 1, 'baking-spice': 0.6 }, complexity: 0.6, fam: { 'beachcomber-sour': 1, 'mai-tai': 0.6, zombie: 0.6 }, label: 'tiki-fied' },
+  { k: ['surprise me', 'anything', 'dealers choice', "dealer's choice", 'random', 'whatever'], label: "bartender's choice" },
 
   // ---- colors ----
   { k: ['blue', 'turquoise', 'aqua', 'azure', 'teal'], color: 'blue', ings: { 'blue-curacao': 2 }, label: 'blue' },
@@ -181,7 +217,7 @@ export const LEXICON = [
   { k: ['halloween', 'spooky', 'haunted', 'creepy', 'undead', 'monster'], tags: { molasses: 1, anise: 0.8 }, strength: 0.6, fam: { zombie: 1.5 }, color: 'dark', label: 'spooky' },
   { k: ['pirate', 'sailor', 'navy', 'buccaneer', 'shipwreck', 'nautical', 'captain', 'seafaring', 'mariner'], ings: { 'rum-navy': 1 }, tags: { molasses: 1 }, strength: 0.5, fam: { grog: 1 }, label: 'nautical' },
   { k: ['romantic', 'date night', 'date', 'valentine', 'valentines', 'love', 'anniversary'], tags: { floral: 1.2, berry: 1 }, color: 'pink', label: 'romantic' },
-  { k: ['brunch', 'breakfast', 'morning', 'hangover'], tags: { coffee: 0.7, orange: 1 }, strength: -0.8, label: 'brunch' },
+  { k: ['brunch', 'breakfast', 'morning', 'hangover'], tags: { coffee: 0.7, orange: 1.5 }, strength: -0.8, label: 'brunch' },
   { k: ['dessert', 'after dinner', 'digestif', 'sweet tooth'], tags: { creamy: 1, chocolate: 0.8, rich: 1 }, sweetness: 0.4, label: 'dessert' },
   { k: ['jungle', 'rainforest', 'wild'], tags: { herbal: 1, bitter: 0.8 }, label: 'jungle' },
   { k: ['volcano', 'lava', 'eruption', 'magma', 'inferno'], tags: { chili: 0.8, smoky: 0.8 }, style: { flaming: true }, color: 'red', label: 'volcanic' },
@@ -218,7 +254,7 @@ export const FAMILY_WORDS = [
   { k: ['buck', 'mule', 'cooler', 'dark n stormy', "dark 'n stormy", 'dark and stormy'], fam: 'buck' },
   { k: ['hurricane', 'rum runner', 'resort', 'cruise', 'swim up bar', 'swim-up bar', 'all inclusive', 'all-inclusive'], fam: 'resort-punch' },
   { k: ['jungle bird'], fam: 'bitter-tiki' },
-  { k: ['old fashioned', 'stirred'], fam: 'stirred' },
+  { k: ['old fashioned', 'stirred'], fam: 'stirred', style: { stirred: true }, tags: { oaky: 1.2 }, ings: { 'demerara-syrup': 1.5, angostura: 1.5 } },
   { k: ['hot buttered', 'coffee grog', 'toddy'], fam: 'hot', style: { hot: true } },
 ];
 
@@ -345,6 +381,8 @@ export function parsePrompt(raw, { nameIndex = [], familyIds = [] } = {}) {
       else {
         add(intent.fam, f.fam, 3);
         if (f.style) Object.assign(intent.style, f.style);
+        if (f.tags) for (const [t, w] of Object.entries(f.tags)) add(intent.tags, t, w);
+        if (f.ings) for (const [id, w] of Object.entries(f.ings)) add(intent.ings, id, w);
         intent.matched.push({ phrase: k, label: `${f.fam.replace('-', ' ')} family` });
       }
       text = text.split(' ' + normalizeText(k).trim() + ' ').join(' ');

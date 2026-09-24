@@ -37,6 +37,41 @@ Does popularity correlate with structure? Unweighted medians (IQR).
 | nSpirits | 1 (1–2) | 1 (1–2) |
 | baseOz | 2 (1.5–3) | 2 (1.5–2) |
 
+## Era trends
+
+Unweighted medians per era. "multi-rum" = share of drinks with two or more rums; "non-rum base" = share with a non-rum base spirit.
+
+| era | drinks | ABV % | sugar | acid | sugar:acid | juice share of volume | ingredients | multi-rum | non-rum base |
+|---|---|---|---|---|---|---|---|---|---|
+| colonial | 14 | 13.23 | 6.65 | 0.48 | 14.93 | 0% | 5 | 0% | 29% |
+| pre-tiki | 26 | 15.72 | 4.48 | 0.67 | 8.2 | 0% | 4 | 8% | 8% |
+| golden | 91 | 13.72 | 6.25 | 0.68 | 9.36 | 9% | 5 | 32% | 23% |
+| late-classic | 68 | 10.92 | 7.56 | 0.67 | 9.88 | 20% | 5 | 38% | 22% |
+| decline | 10 | 6.94 | 7.8 | 0.5 | 11.64 | 38% | 5 | 20% | 10% |
+| revival | 18 | 12.76 | 8.99 | 0.78 | 11.53 | 0% | 5 | 17% | 33% |
+| craft | 67 | 13.29 | 8.7 | 0.69 | 12.78 | 11% | 6 | 30% | 40% |
+
+## Family formulas
+
+Median ounces per role, counting only drinks that use that role (roles used by fewer than 35% of the family are omitted; the percentage is how many use it).
+
+| family | formula |
+|---|---|
+| Planter's Punch & Rum Punch | 2 oz base : 0.75 oz sour : 1.5 oz juice (53%) : 0.5 oz sweet : 0.5 oz modifier (47%) : 2 oz lengthener (39%) |
+| Grog | 2 oz base : 1.25 oz sour : 1 oz juice (40%) : 0.5 oz sweet : 0.75 oz lengthener (40%) |
+| Daiquiri & Tropical Sours | 1.5 oz base : 0.67 oz sour : 1 oz juice (38%) : 0.5 oz sweet (79%) : 0.5 oz modifier (64%) |
+| Swizzle | 2 oz base : 0.5 oz sour : 1 oz juice (38%) : 0.5 oz sweet (75%) : 0.75 oz modifier (50%) |
+| Zombie & the Beachcomber Heavyweights | 3.25 oz base : 1 oz sour : 1.5 oz juice (67%) : 0.5 oz sweet (89%) : 0.5 oz modifier (78%) |
+| Beachcomber Spice Sours | 2 oz base : 0.75 oz sour : 0.75 oz juice (53%) : 0.51 oz sweet : 0.5 oz modifier (50%) |
+| Mai Tai | 2 oz base : 1 oz sour : 0.75 oz sweet : 0.5 oz modifier |
+| Scorpion & Fog Cutter (Vic's orgeat punches) | 2.25 oz base : 1 oz sour : 1.5 oz juice : 0.5 oz sweet |
+| Colada & Painkiller | 1.5 oz base (88%) : 0.5 oz sour (46%) : 3.5 oz juice (69%) : 1 oz modifier (58%) : 1.01 oz rich |
+| Tropical Buck & Cooler | 2 oz base : 0.5 oz sour (67%) : 0.5 oz sweet (67%) : 0.25 oz modifier (42%) : 3 oz lengthener |
+| Resort Tropicals | 2 oz base : 0.75 oz sour (81%) : 3 oz juice (84%) : 0.63 oz sweet (75%) : 0.75 oz modifier (63%) |
+| Bitter Tiki | 1.5 oz base : 0.5 oz sour : 4 oz juice (50%) : 0.5 oz sweet (83%) : 0.75 oz modifier (67%) |
+| Spirit-Forward Tropical | 1.5 oz base : 1.5 oz modifier (86%) |
+| Hot Tiki | 2 oz base : 0.17 oz sweet (75%) : 3 oz rich (75%) : 4 oz lengthener (75%) |
+
 ## Families
 
 | family | n | ABV % | sugar g/100ml | acid g/100ml | sugar:acid | pre-dilution oz | ingredients | spirits |

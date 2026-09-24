@@ -143,6 +143,7 @@ function renderResult(r) {
         ${r.stats.sweetSour !== null ? meter('Sugar : acid', r.stats.sweetSour, fam.sweetSour, '', 1) : ''}
       </div>
       <div class="flavor-row">${r.flavor.map(t => `<span class="tag">${esc(t.replace('-', ' '))}</span>`).join('')}</div>
+      ${r.explanation.tasting ? `<p class="tasting">${esc(r.explanation.tasting)}</p>` : ''}
     </section>
     <section class="section">
       <h2>Lineage</h2>

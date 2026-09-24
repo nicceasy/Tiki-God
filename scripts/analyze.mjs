@@ -241,6 +241,37 @@ const obscure = facts.filter(f => f.d.popularity <= 2);
 const unweighted = fs => Object.fromEntries(cmpKeys.map(k => [k, wQuantiles(fs.map(f => [metricOf[k](f), 1]))]));
 const popularVsObscure = { popular: { n: popular.length, ...unweighted(popular) }, obscure: { n: obscure.length, ...unweighted(obscure) } };
 
+// ---------- era trends ----------
+const ERAS = ['colonial', 'pre-tiki', 'golden', 'late-classic', 'decline', 'revival', 'craft'];
+const eras = {};
+for (const e of ERAS) {
+  const fs = facts.filter(f => f.d.era === e);
+  if (!fs.length) continue;
+  const med = fn => (wQuantiles(fs.map(f => [fn(f), 1])) || {}).median;
+  eras[e] = {
+    n: fs.length,
+    abv: med(f => f.chem.abv), sugarConc: med(f => f.chem.sugarConc), acidConc: med(f => f.chem.acidConc),
+    sweetSour: med(f => f.chem.sweetSour), nIngredients: med(f => f.nIngredients),
+    juiceFrac: med(f => f.roleFrac.juice), multiRum: round(fs.filter(f => f.nRums >= 2).length / fs.length, 2),
+    nonRum: round(fs.filter(f => f.d.ingredients.some(l => { const i = ingMap.get(l.id); return i && i.cat === 'spirit' && i.role === 'base'; })).length / fs.length, 2),
+  };
+}
+
+// ---------- family formulas: median oz by role among drinks that use the role ----------
+const formulas = {};
+for (const fam of families) {
+  const fs = facts.filter(f => f.d.family === fam.id);
+  if (fs.length < 3) continue;
+  const parts = [];
+  for (const r of ['base', 'sour', 'juice', 'sweet', 'modifier', 'rich', 'lengthener']) {
+    const using = fs.filter(f => (f.chem.byRole[r] || 0) > 0);
+    if (using.length / fs.length < 0.35) continue;
+    const q = wQuantiles(using.map(f => [f.chem.byRole[r], f.w]));
+    parts.push({ role: r, oz: q.median, share: round(using.length / fs.length, 2) });
+  }
+  formulas[fam.id] = parts;
+}
+
 // ---------- per-drink summary (for the web DB view / neighbors) ----------
 const drinkFacts = Object.fromEntries(facts.map(f => [f.d.id, {
   abv: round(f.chem.abv, 1), sugarConc: round(f.chem.sugarConc, 1), acidConc: round(f.chem.acidConc, 2),
@@ -262,6 +293,8 @@ const model = {
   tagPairs,
   rumCombos,
   popularVsObscure,
+  eras,
+  formulas,
   drinks: drinkFacts,
 };
 writeFileSync(join(root, 'data/model.json'), JSON.stringify(model) + '\n');
@@ -277,6 +310,10 @@ md += `## Whole database\n\n| metric | value |\n|---|---|\n`;
 for (const k of ['abv', 'abvPre', 'sugarConc', 'acidConc', 'sweetSour', 'volOz', 'finalOz', 'nIngredients', 'nSpirits', 'nRums', 'baseOz']) md += `| ${k} | ${fmt(model.global[k])} |\n`;
 md += `\n## Popular (4–5) vs obscure (1–2) drinks\n\nDoes popularity correlate with structure? Unweighted medians (IQR).\n\n| metric | popular (n=${popular.length}) | obscure (n=${obscure.length}) |\n|---|---|---|\n`;
 for (const k of cmpKeys) md += `| ${k} | ${fmt(popularVsObscure.popular[k])} | ${fmt(popularVsObscure.obscure[k])} |\n`;
+md += `\n## Era trends\n\nUnweighted medians per era. "multi-rum" = share of drinks with two or more rums; "non-rum base" = share with a non-rum base spirit.\n\n| era | drinks | ABV % | sugar | acid | sugar:acid | juice share of volume | ingredients | multi-rum | non-rum base |\n|---|---|---|---|---|---|---|---|---|---|\n`;
+for (const [e, v] of Object.entries(eras)) md += `| ${e} | ${v.n} | ${v.abv ?? '—'} | ${v.sugarConc ?? '—'} | ${v.acidConc ?? '—'} | ${v.sweetSour ?? '—'} | ${v.juiceFrac !== undefined ? Math.round(v.juiceFrac * 100) + '%' : '—'} | ${v.nIngredients ?? '—'} | ${Math.round(v.multiRum * 100)}% | ${Math.round(v.nonRum * 100)}% |\n`;
+md += `\n## Family formulas\n\nMedian ounces per role, counting only drinks that use that role (roles used by fewer than 35% of the family are omitted; the percentage is how many use it).\n\n| family | formula |\n|---|---|\n`;
+for (const fam of families) if (formulas[fam.id]) md += `| ${fam.name} | ${formulas[fam.id].map(p => `${p.oz} oz ${p.role}${p.share < 0.9 ? ` (${Math.round(p.share * 100)}%)` : ''}`).join(' : ')} |\n`;
 md += `\n## Families\n\n| family | n | ABV % | sugar g/100ml | acid g/100ml | sugar:acid | pre-dilution oz | ingredients | spirits |\n|---|---|---|---|---|---|---|---|---|\n`;
 for (const fam of families) {
   const F = familiesOut[fam.id];

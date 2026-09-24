@@ -258,12 +258,18 @@ export function createEngine({ vocab, families, drinks, model }) {
     const ing = ingMap.get(id);
     let s = 1.6 * Math.log(0.02 + famShare) + 0.6 * Math.log(0.004 + glob);
     s += 2.4 * intentMatch(id, intent);
+    // Does it taste like it belongs in this family?
+    let fit = 0;
+    for (const [t, w] of Object.entries(ingVec[id] || {})) fit += w * (F.flavor[t] || 0);
+    s += 1.5 * fit;
     s += 1.1 * compat(id, chosenIds);
     if (ing.avail === 'specialty') s -= 0.35;
     if (ing.avail === 'homemade' && !['simple-syrup', 'rich-simple', 'demerara-syrup', 'honey-syrup'].includes(id)) s -= intent.style.simple ? 1.5 : 0.25;
     if (ing.cost >= 3) s -= 0.8;
     if (intent.style.simple && ing.avail !== 'common' && ing.avail !== 'homemade') s -= 1;
     if (DAIRY.has(id) && chosenIds.some(o => (ingMap.get(o) || {}).role === 'sour')) s -= 3;
+    // Novelty-colored liqueurs only when the color was asked for.
+    if ((ing.color === 'blue' || ing.color === 'green') && intent.color !== ing.color) s -= 3;
     return s;
   }
 
@@ -406,17 +412,23 @@ export function createEngine({ vocab, families, drinks, model }) {
     return lines;
   }
 
+  const swappedOut = new Set();
   function varyOne(lines, F, intent, rng, greedy, changes) {
-    const swappable = lines.filter(l => ['sweet', 'modifier', 'base', 'juice'].includes(l.role) && !l.float && !l.garnish && !l.req && !intent.ings[l.id]);
+    const swappable = lines.filter(l => ['sweet', 'modifier', 'base', 'juice'].includes(l.role) && !l.float && !l.garnish && !l.req && !intent.ings[l.id] && intentMatch(l.id, intent) < 0.8);
     if (!swappable.length) return;
     // Seed 0 varies the most characterful modifier; later seeds roam.
     const victim = greedy ? swappable.find(l => l.role === 'modifier') || swappable.find(l => l.role === 'sweet') || swappable[0] : swappable[Math.floor(rng() * swappable.length)];
     const others = lines.filter(l => l !== victim).map(l => l.id);
     const pool = (byRole[victim.role] || []).filter(id => id !== victim.id && !others.includes(id) && !forbidden(id, intent) && !conflicts(id, others));
-    const scored = pool.map(id => ({ item: id, s: candidateScore(id, victim.role, F, intent, others) + 1.2 * tagAffinity(id, victim.id) }));
+    const plain = id => { const f = ingMap.get(id).flavors || []; return f.length === 1 && f[0] === 'sweet'; };
+    const scored = pool.filter(id => !swappedOut.has(id)).map(id => ({
+      item: id,
+      s: candidateScore(id, victim.role, F, intent, others) + 1.2 * tagAffinity(id, victim.id) + 1.5 * intentMatch(id, intent) - (plain(id) && !plain(victim.id) ? 5 : 0),
+    }));
     const pick = softPick(rng, scored, 0.6, greedy);
     if (!pick) return;
     changes.push(`swapped ${ingMap.get(victim.id).name.toLowerCase()} for ${ingMap.get(pick).name.toLowerCase()}`);
+    swappedOut.add(victim.id);
     victim.id = pick;
     victim.oz = undefined;
   }
@@ -444,7 +456,7 @@ export function createEngine({ vocab, families, drinks, model }) {
     for (const [tag] of asks) {
       if (flavorCoverage(lines, tag) > 0) continue;
       const pool = vocab.ingredients.filter(i => (i.flavors || []).includes(tag) && !forbidden(i.id, intent) && !ids().includes(i.id) && i.role !== 'base');
-      const scored = pool.map(i => ({ item: i.id, s: candidateScore(i.id, i.role, F, intent, ids()) + (ingVec[i.id][tag] || 0) * 3 + (i.role === 'aromatic' ? -1.5 : 0) }));
+      const scored = pool.map(i => ({ item: i.id, s: candidateScore(i.id, i.role, F, intent, ids()) + (ingVec[i.id][tag] || 0) * 6 + (i.role === 'aromatic' ? -1.5 : 0) + (i.role === 'accent' && !['anise', 'bitter', 'salty'].includes(tag) ? -1 : 0) }));
       const pick = softPick(rng, scored, 0.6, greedy);
       if (!pick) continue;
       const ing = ingMap.get(pick);
@@ -507,6 +519,8 @@ export function createEngine({ vocab, families, drinks, model }) {
       let t = q ? q.median : 2;
       if (intent.strength) t *= 1 + 0.18 * intent.strength;
       if (q) t = Math.max(q.p10 * 0.9, Math.min(q.p90 * 1.15, t));
+      if (famId === 'stirred' || intent.style.stirred) t = Math.max(t, 2);
+      if (intent.strength >= 0 && !['colada', 'resort-punch'].includes(famId)) t = Math.max(t, 1.75);
       return Math.max(1, t);
     })();
     const splits = { 1: [1], 2: [0.55, 0.45], 3: [0.4, 0.35, 0.25], 4: [0.34, 0.26, 0.24, 0.16] };
@@ -534,7 +548,8 @@ export function createEngine({ vocab, families, drinks, model }) {
       if (!q || !q.median) continue;
       const total = rl.reduce((s, l) => s + l.oz, 0);
       const hi = Math.max(q.p75, q.median) * 1.2, lo = q.median * 0.6;
-      const k = total > hi ? hi / total : total < lo && role !== 'rich' ? lo / total : 1;
+      // Only acid gets topped up to the family norm; liqueurs and juices only get trimmed.
+      const k = total > hi ? hi / total : total < lo && role === 'sour' ? lo / total : 1;
       // Lines the prompt asked for keep a dose you can actually taste.
       rl.forEach(l => { l.oz *= l.req && k < 1 ? Math.max(k, 0.85) : k; });
     }
@@ -547,6 +562,7 @@ export function createEngine({ vocab, families, drinks, model }) {
   function targetsFor(famId, intent, method, ice) {
     const m = model.families[famId].metrics;
     return {
+      abvBand: intent.style.zeroProof ? null : [interpQ(m.abv, intent.strength - 1), interpQ(m.abv, intent.strength + 1)],
       abv: intent.style.zeroProof ? 0 : interpQ(m.abv, intent.strength),
       sugar: interpQ(m.sugarConc, intent.sweetness * 1.1 - (intent.tartness > 0 ? 0.3 : 0)),
       acid: (m.acidConc && m.acidConc.median > 0.25) ? interpQ(m.acidConc, intent.tartness * 1.1 - (intent.sweetness > 0 ? 0.3 : 0)) : null,
@@ -560,9 +576,11 @@ export function createEngine({ vocab, families, drinks, model }) {
     const base = targetsFor(famId, intent, svc.method, svc.ice);
     const f = model.drinks[src.id];
     if (!f) return base;
+    const abv = f.abv * (1 + 0.15 * intent.strength);
     return {
       ...base,
-      abv: intent.style.zeroProof ? 0 : f.abv * (1 + 0.15 * intent.strength),
+      abvBand: intent.style.zeroProof ? null : [abv * 0.9, abv * 1.1],
+      abv: intent.style.zeroProof ? 0 : abv,
       sugar: f.sugarConc * (1 + 0.16 * intent.sweetness),
       acid: f.acidConc > 0.25 ? f.acidConc * (1 + 0.16 * intent.tartness) : null,
     };
@@ -573,37 +591,52 @@ export function createEngine({ vocab, families, drinks, model }) {
   }
 
   // Levers are defined by chemistry, not by label: anything acidic moves acid, anything
-  // sugary (syrups, liqueurs, cream of coconut) moves sugar, strong spirits move ABV.
+  // sugary (syrups, liqueurs, cream of coconut) moves sugar. The spirit pour is the anchor —
+  // concentrations alone can't fix a drink's size — and only moves if ABV leaves the family's band.
   function balance(lines, T) {
+    const I = l => ingMap.get(l.id);
     const clampLine = l => {
-      const lo = l.req ? l.oz0 * 0.8 : l.role === 'sweet' ? Math.min(0.08, l.oz0) : l.oz0 * (l.role === 'base' ? 0.7 : 0.45);
-      const hi = Math.max(l.oz0 * (l.role === 'base' ? 1.4 : 2.2), l.role === 'base' ? 1 : 0.5);
+      const lo = l.req ? l.oz0 * 0.8 : l.role === 'sweet' ? Math.min(0.08, l.oz0) : l.oz0 * 0.4;
+      const hi = Math.max(l.oz0 * 2.5, 0.5);
       l.oz = Math.max(lo, Math.min(hi, l.oz));
     };
-    const I = l => ingMap.get(l.id);
     const acidLevers = lines.filter(l => I(l).acid >= 2 && l.role !== 'aromatic');
     let sugarLevers = lines.filter(l => l.role === 'sweet' && I(l).sugar >= 20);
     if (!sugarLevers.length) sugarLevers = lines.filter(l => I(l).sugar >= 20 && l.role !== 'base' && l.role !== 'aromatic');
-    const abvLevers = lines.filter(l => l.role === 'base' && I(l).abv >= 30);
-    for (let iter = 0; iter < 14; iter++) {
-      let c = chemOf(lines, T.method, T.ice);
-      if (T.acid && acidLevers.length && c.acidConc > 0) {
-        const k = Math.max(0.85, Math.min(1.2, (T.acid / c.acidConc) ** 0.9));
-        acidLevers.forEach(l => { l.oz *= k; clampLine(l); });
+    const base = lines.filter(l => l.role === 'base' && I(l).abv >= 30);
+    const solve = () => {
+      for (let iter = 0; iter < 12; iter++) {
+        let c = chemOf(lines, T.method, T.ice);
+        if (T.acid && acidLevers.length && c.acidConc > 0) {
+          const k = Math.max(0.85, Math.min(1.2, (T.acid / c.acidConc) ** 0.9));
+          acidLevers.forEach(l => { l.oz *= k; clampLine(l); });
+        }
+        c = chemOf(lines, T.method, T.ice);
+        if (T.sugar && sugarLevers.length && c.sugarConc > 0) {
+          const k = Math.max(0.82, Math.min(1.2, (T.sugar / c.sugarConc) ** 1.1));
+          sugarLevers.forEach(l => { l.oz *= k; clampLine(l); });
+        }
       }
-      c = chemOf(lines, T.method, T.ice);
-      if (T.sugar && sugarLevers.length && c.sugarConc > 0) {
-        const k = Math.max(0.82, Math.min(1.2, (T.sugar / c.sugarConc) ** 1.1));
-        sugarLevers.forEach(l => { l.oz *= k; clampLine(l); });
-      }
-      c = chemOf(lines, T.method, T.ice);
-      if (T.abv && abvLevers.length && c.abv > 0) {
-        const k = Math.max(0.9, Math.min(1.12, T.abv / c.abv));
-        abvLevers.forEach(l => { l.oz *= k; clampLine(l); });
+    };
+    solve();
+    if (T.abvBand && base.length) {
+      for (let pass = 0; pass < 3; pass++) {
+        const c = chemOf(lines, T.method, T.ice);
+        const [lo, hi] = T.abvBand;
+        if (c.abv >= lo && c.abv <= hi) break;
+        const k = c.abv > hi ? Math.max(0.8, hi / c.abv) : Math.min(1.25, lo / Math.max(c.abv, 0.1));
+        base.forEach(l => { l.oz = Math.max(l.oz0 * 0.75, Math.min(l.oz0 * 1.35, l.oz * k)); });
+        solve();
       }
     }
-    // Oversized? Trim the juicy, non-structural lines once — never the spirits or what was asked for.
-    const c2 = chemOf(lines, T.method, T.ice);
+    // Keep the drink a sensible size: grow a thimble, trim a bucket (juicy lines first).
+    let c2 = chemOf(lines, T.method, T.ice);
+    if (T.vol && c2.volOz < T.vol.p25 * 0.8) {
+      const k = Math.min(1.4, (T.vol.p25 * 0.9) / c2.volOz);
+      lines.forEach(l => { if (['base', 'juice', 'lengthener', 'sour'].includes(l.role)) l.oz *= k; });
+      solve();
+      c2 = chemOf(lines, T.method, T.ice);
+    }
     if (T.vol && c2.volOz > T.vol.p90 * 1.15) {
       const trim = lines.filter(l => ['juice', 'lengthener', 'rich'].includes(l.role) && !l.req);
       const trimVol = trim.reduce((a, l) => a + l.oz, 0);
@@ -803,6 +836,8 @@ export function createEngine({ vocab, families, drinks, model }) {
       lineage.push(`A riff on the ${riffSrc.name}${riffSrc.variant ? ` (${riffSrc.variant})` : ''}${riffSrc.creator ? `, ${riffSrc.creator}` : ''}${riffSrc.year ? `, ${riffSrc.circa ? 'c. ' : ''}${riffSrc.year}` : ''}: ${changes.length ? changes.join('; ') : 'rebalanced'}.`);
       if (riffSrc.notes) lineage.push(riffSrc.notes);
     }
+    const moves = notes.filter(n => !n.startsWith('riff:') && n !== 'split-base');
+    if (!riffSrc && moves.length) lineage.push(`Design moves: ${moves.join('; ')}.`);
     lineage.push(`Family: ${fam.name} — ${fam.tagline} ${firstSentences(fam.origin, 2)}`);
     if (chain.length) lineage.push(`Line of descent: ${[fam.name, ...chain].join(' ← ')}.`);
     if (notes.includes('split-base')) lineage.push('Split base: pairing a non-rum spirit with a rum partner is a revival-era move (see the Tia Mia and the Chartreuse Swizzle) that keeps the tiki backbone while changing the accent.');
@@ -814,7 +849,51 @@ export function createEngine({ vocab, families, drinks, model }) {
       else if (ing.avail === 'specialty') ingredientNotes.push(`${ing.name}: look for ${ing.examples.slice(0, 3).join(', ') || 'a well-stocked shop'}${ing.subs.length ? `; swap in ${ing.subs.map(s => ingMap.get(s).name.toLowerCase()).join(' or ')} if needed` : ''}.`);
     }
 
-    return { influences, whyItWorks, lineage, ingredientNotes };
+    const tasting = tastingNote(recipe.lines.map(l => ({ ...l, role: l.garnish ? 'aromatic' : l.role })), recipe.stats, famId);
+    return { tasting, influences, whyItWorks, lineage, ingredientNotes };
+  }
+
+  // A palate walk: opening (acid, juice, fizz) → body (spirits, richness) → finish (spice, bitters, aromatics).
+  const TASTE = {
+    lime: 'lime', lemon: 'lemon', grapefruit: 'grapefruit', orange: 'orange', citrus: 'citrus', tart: 'sharp acidity',
+    pineapple: 'pineapple', 'passion-fruit': 'passion fruit', guava: 'guava', mango: 'mango', papaya: 'papaya', banana: 'banana',
+    coconut: 'coconut', cherry: 'cherry', berry: 'red berries', apricot: 'apricot', peach: 'peach', pomegranate: 'pomegranate',
+    apple: 'apple', melon: 'melon', lychee: 'lychee', 'dried-fruit': 'dried fruit', almond: 'almond', nutty: 'nuttiness',
+    vanilla: 'vanilla', cinnamon: 'cinnamon', allspice: 'allspice', clove: 'clove', nutmeg: 'nutmeg', ginger: 'ginger',
+    'baking-spice': 'baking spice', anise: 'anise', chili: 'chili heat', pepper: 'pepper', herbal: 'herbs', mint: 'mint',
+    floral: 'florals', honey: 'honey', caramel: 'caramel', molasses: 'molasses', maple: 'maple', buttery: 'butter',
+    chocolate: 'chocolate', coffee: 'coffee', tea: 'tea', funky: 'overripe-banana funk', grassy: 'green cane', vegetal: 'green notes',
+    smoky: 'smoke', oaky: 'oak', rich: 'richness', creamy: 'cream', effervescent: 'fizz', bitter: 'bitterness', salty: 'salinity',
+    earthy: 'earthiness', agave: 'agave', juniper: 'juniper', light: 'clean cane', crisp: 'crispness', dry: 'dryness',
+  };
+  function tastingNote(lines, stats, famId) {
+    const phase = pred => {
+      const v = {};
+      for (const l of lines) {
+        const ing = ingMap.get(l.id);
+        if (!pred(l, ing)) continue;
+        const w = l.role === 'aromatic' ? 0.3 : Math.max(0.1, l.oz || 0.1) * (l.role === 'accent' ? 6 : l.role === 'modifier' ? 1.5 : 1);
+        for (const [t, x] of Object.entries(ingVec[l.id] || {})) if (TASTE[t] && t !== 'sweet') v[t] = (v[t] || 0) + w * x;
+      }
+      return Object.entries(v).sort((a, b) => b[1] - a[1]).map(([t]) => TASTE[t]);
+    };
+    const used = new Set();
+    const take = (arr, n) => { const out = []; for (const x of arr) { if (!used.has(x) && out.length < n) { out.push(x); used.add(x); } } return out; };
+    const citrusNamed = lines.some(l => ['lime', 'lemon', 'grapefruit', 'orange', 'yuzu-juice'].includes(l.id));
+    if (citrusNamed) used.add('citrus');
+    const open = take(phase((l, i) => ['sour', 'juice', 'lengthener'].includes(l.role)), 2);
+    const body = take(phase((l, i) => ['base', 'rich', 'sweet'].includes(l.role)), 3);
+    const finish = take(phase((l, i) => ['modifier', 'accent', 'aromatic'].includes(l.role)), 3);
+    const list = a => a.length > 1 ? `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}` : a[0];
+    const F = model.families[famId].metrics;
+    const sweet = stats.sugarConc > (F.sugarConc ? F.sugarConc.p75 : 9) ? 'lush' : stats.sugarConc < (F.sugarConc ? F.sugarConc.p25 : 5) ? 'dry' : 'balanced';
+    const strength = stats.abv >= 18 ? 'It drinks strong; the ice is doing a lot of work.' : stats.abv >= 13 ? 'Assertive, but the dilution keeps it easy.' : stats.abv >= 8 ? 'Moderate strength, built for sipping through a straw.' : stats.abv > 0.5 ? 'Gentle enough for a long afternoon.' : 'No alcohol at all.';
+    const bits = [];
+    if (open.length) bits.push(`It opens on ${list(open)}`);
+    if (body.length) bits.push(`${bits.length ? 'then' : 'It'} settles into ${list(body)}`);
+    if (finish.length) bits.push(`and finishes with ${list(finish)}`);
+    const balanceLine = sweet === 'dry' ? 'Dry rather than sweet.' : sweet === 'lush' ? 'Lush rather than tart.' : 'Balanced, neither sweet nor tart.';
+    return `${bits.join(', ')}. ${balanceLine} ${strength}`;
   }
 
   function comparableByAbv(abv) {
@@ -829,6 +908,7 @@ export function createEngine({ vocab, families, drinks, model }) {
 
   // ---------- public ----------
   function generate(prompt, { seed = 0 } = {}) {
+    swappedOut.clear();
     const intent = parsePrompt(prompt, { nameIndex });
     const rng = rngFrom(`${prompt}::${seed}`);
     const greedy = seed === 0;
@@ -836,7 +916,12 @@ export function createEngine({ vocab, families, drinks, model }) {
     const riffSrc = intent.riffOf ? drinkById[intent.riffOf] : null;
     let famId;
     if (riffSrc && !(intent.style.hot && riffSrc.family !== 'hot')) famId = riffSrc.family;
-    else famId = softPick(rng, familyScores(intent), 0.9, greedy);
+    else {
+      // No real signal ("surprise me")? Let the roll roam instead of always landing on the biggest family.
+      const blank = !Object.keys(intent.tags).length && !intent.spirits.length && !Object.keys(intent.ings).length && !Object.keys(intent.style).length && !Object.keys(intent.fam).length;
+      famId = softPick(rng, familyScores(intent), blank ? 2.5 : 0.9, greedy && !blank);
+      if (blank) intent.complexity = Math.max(intent.complexity, 0.6);
+    }
 
     let lines = riffSrc && famId === riffSrc.family ? buildRiff(riffSrc, intent, rng, greedy, notes) : buildFresh(famId, intent, rng, greedy, notes);
     if (!riffSrc || famId !== riffSrc.family) {
@@ -900,7 +985,7 @@ export function createEngine({ vocab, families, drinks, model }) {
         family: pickMetrics(model.families[famId].metrics),
       },
     };
-    recipe.notes = notes.map(n => n.replace(/^riff:/, ''));
+    recipe.notes = notes.filter(n => n !== 'split-base').map(n => n.replace(/^riff:/, ''));
     recipe.tagline = tagline(recipe, intent);
     recipe.explanation = explain(recipe, profile, famId, intent, riffSrc, notes);
     return recipe;
