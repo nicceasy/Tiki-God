@@ -158,6 +158,7 @@ body {
 .drink-art { width: 100%; max-width: 100%; aspect-ratio: 3 / 4; }
 .vessel { padding-top: 12px; }
 .caption { margin-top: 6px; text-align: center; font-style: italic; font-size: 14px; color: var(--ink-3); text-wrap: balance; }
+.vessel-actions { display: flex; justify-content: center; margin-top: 14px; }
 
 .recipe { max-width: 62ch; }
 .oracle {

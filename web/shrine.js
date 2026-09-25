@@ -132,10 +132,8 @@ function render(r, seed) {
     <ul class="lineage">${lineage.map(x => `<li class="bleed" ${at(55)}>${x}</li>`).join('')}</ul>
     ${why.length ? `<h3 class="bleed" ${at()}>Why the gods approve</h3><ul class="why">${why.map(w => `<li class="bleed" ${at(55)}>${esc(w)}</li>`).join('')}</ul>` : ''}
     <div class="actions bleed" ${at(80)}>
-      <button type="button" class="btn solid" id="again">Pray again</button>
       <button type="button" class="btn quiet" id="copy">Copy recipe</button>
     </div>`;
-  $('#again').addEventListener('click', () => pray(last.prayer, last.seed + 1));
   $('#copy').addEventListener('click', e => copy(r, e.currentTarget));
 }
 
@@ -165,6 +163,8 @@ async function main() {
   $('#tries').innerHTML = PRAYERS.slice(0, 4).map(p => `<button type="button">${esc(p)}</button>`).join('');
   $('#tries').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { $('#prayer').value = b.textContent; submit(); }));
   $('#prayer-form').addEventListener('submit', e => { e.preventDefault(); submit(); });
+  // Another answer to the same prayer, right under the drawing.
+  $('#again').addEventListener('click', () => pray(last.prayer, last.seed + 1));
   // The page opens with tonight's first offering already answered.
   pray($('#prayer').value, 0, { announce: false });
   // Measure the prayer once the brush face has arrived, so nothing is drawn over the words.
