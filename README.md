@@ -9,6 +9,8 @@ A catalogue of tiki and tropical drinks, a statistical model of what makes them 
 - **Model**: the numbers the generator balances toward: family formulas, the tiki pantry, recurring pairings, rum blends, and famous-versus-obscure comparisons.
 - **History**: a timeline plus the full history and concepts write-ups.
 
+**Adding the Shrine to another website?** See [INTEGRATING.md](INTEGRATING.md): it's one self-contained file you can drop into any static folder.
+
 **Or open `dist/shrine.html`**, the playful front door. Say a prayer ("mezcal and passion fruit") and the same generator answers, while the drink draws itself in brush-pen ink and blooms with watercolor on an off-white sheet. Tiki mugs, a Ku idol and tropical flowers frame the prayer. Every drink comes in its own specific vessel (the Zombie in a chimney glass, the Painkiller in a Pusser's tin, the Fog Cutter in Trader Vic's mug, a Scorpion bowl on kneeling hula girls), chosen from 34 researched vessels in [docs/vessels.md](docs/vessels.md). The art style is researched in [docs/art-direction.md](docs/art-direction.md): Tyler Hobbs' layered-polygon watercolor, Curtis et al.'s edge darkening and granulation, perfect-freehand-style pressure ribbons, and a closed catalog of drawable parts in the spirit of json-render.
 
 ## What's in the repo
