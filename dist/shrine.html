@@ -4061,6 +4061,12 @@ async function main() {
   $('#tries').innerHTML = PRAYERS.slice(0, 4).map(p => `<button type="button">${esc(p)}</button>`).join('');
   $('#tries').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { $('#prayer').value = b.textContent; submit(); }));
   $('#prayer-form').addEventListener('submit', e => { e.preventDefault(); submit(); });
+  // The field opens holding an example prayer, which is what the first
+  // offering answers. Clicking in clears it, so your own words start on an
+  // empty line instead of landing inside someone else's; the placeholder
+  // keeps an example in view. Only the untouched example goes.
+  const opening = $('#prayer').value;
+  $('#prayer').addEventListener('focus', e => { if (e.target.value === opening) e.target.value = ''; }, { once: true });
   // Another answer to the same prayer, right under the drawing.
   $('#again').addEventListener('click', () => pray(last.prayer, last.seed + 1));
   // The page opens with tonight's first offering already answered.
