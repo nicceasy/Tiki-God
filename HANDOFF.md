@@ -14,7 +14,7 @@ The code and the docs linked below are the source of truth; this file is the map
 |---|---|
 | Repo | <https://github.com/nicceasy/Tiki-God> (public, MIT) |
 | Branch | `claude/relaxed-dijkstra-ty5c0h`: the only branch, and the default |
-| Latest pinned build for embedding | `1d94212f58260c966b9d5a2990972abbe0f93704` (`dist/shrine.html`) |
+| Latest pinned build for embedding | `807eab7bce408aadb282c62830e330f341e95efa` (`dist/shrine.html`, includes the local field-clearing change) |
 | Live preview | A private claude.ai artifact of the Shrine that only the owner can open: <https://claude.ai/artifact/X4XiP7FuAvUVRhHKxoz73e>. It is republished from `dist/shrine.fragment.html`, which is gitignored. |
 | Build and test | `npm run build` and `npm test` (Node 20 or newer, no dependencies). 11 tests, all passing at handoff. |
 | Size of the catalogue | 1,070 drinks, 164 ingredients, 14 families, 34 vessels |
@@ -40,7 +40,8 @@ The code and the docs linked below are the source of truth; this file is the map
 6. **License.** MIT plus `NOTICE.md` for the imported recipe data (`f8d879e`).
 7. **Move "Pray again"** from the bottom of the recipe to under the drink drawing (`1d94212`). `INTEGRATING.md` was re-pinned to that build (`d24b162`).
 8. **Moving it local.** This session explained `git clone`, opening `dist/shrine.html`, and `claude --teleport` to resume the session in a local terminal. Teleport needs the same claude.ai account (`/login`), a clean checkout of this repo, and the branch pushed, which it is.
-9. **This file.**
+9. **Local work began.** From their Mac, the user's local session pushed `807eab7`: clicking the prayer field clears the example text, while the placeholder keeps an example in view. It was verified here: `dist/` matches a fresh build and the tests pass. The embed pin now points at this commit.
+10. **This file.**
 
 ## How it works
 
@@ -136,7 +137,7 @@ Full guide (read it first): https://raw.githubusercontent.com/nicceasy/Tiki-God/
 Summary:
 1. The Shrine is one self-contained HTML file (all CSS, JS and data inline; only
    external request is Google Fonts). Download it, pinned to a known-good commit:
-   curl -fsSL https://raw.githubusercontent.com/nicceasy/Tiki-God/1d94212f58260c966b9d5a2990972abbe0f93704/dist/shrine.html -o <static-dir>/tiki/index.html
+   curl -fsSL https://raw.githubusercontent.com/nicceasy/Tiki-God/807eab7bce408aadb282c62830e330f341e95efa/dist/shrine.html -o <static-dir>/tiki/index.html
    where <static-dir> is this framework's static folder (public/ for Next.js,
    Astro and Vite; static/ for SvelteKit and Hugo). Commit the file as is: don't
    minify, template or hand-edit it.

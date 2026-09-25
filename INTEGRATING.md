@@ -19,7 +19,7 @@ The **Tiki God Shrine** is a playful front end to a tiki-drink generator.
 | The file | [`dist/shrine.html`](dist/shrine.html) |
 | Raw download | `https://raw.githubusercontent.com/nicceasy/Tiki-God/HEAD/dist/shrine.html` |
 | Size | about 2.6 MB raw, about 490 KB gzipped (Vercel compresses it automatically) |
-| Known-good commit | `1d94212f58260c966b9d5a2990972abbe0f93704` (2026-09-25) |
+| Known-good commit | `807eab7bce408aadb282c62830e330f341e95efa` (2026-09-25) |
 
 `dist/shrine.html` is a complete HTML document (`<!doctype html>` through `</html>`). It contains:
 - all of its CSS, inline in a `<style>` block;
@@ -45,7 +45,7 @@ Serve the file as-is at its own route. This is the most robust choice:
 # latest
 curl -fsSL https://raw.githubusercontent.com/nicceasy/Tiki-God/HEAD/dist/shrine.html -o <static-dir>/tiki/index.html
 # or pinned to a known commit (reproducible)
-curl -fsSL https://raw.githubusercontent.com/nicceasy/Tiki-God/1d94212f58260c966b9d5a2990972abbe0f93704/dist/shrine.html -o <static-dir>/tiki/index.html
+curl -fsSL https://raw.githubusercontent.com/nicceasy/Tiki-God/807eab7bce408aadb282c62830e330f341e95efa/dist/shrine.html -o <static-dir>/tiki/index.html
 ```
 
 Commit the downloaded file into the site's repo. Vercel then serves it like any other static asset; it needs no network access at build time.
