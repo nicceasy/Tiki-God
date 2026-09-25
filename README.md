@@ -80,3 +80,7 @@ The research sandbox blocked direct page fetches to most cocktail sites and capp
 ## Adding a drink
 
 Add a record to the right slice in `data/drinks/`, following `data/SCHEMA.md`. Run `node scripts/validate.mjs data/drinks/<slice>.json`, then `npm run build`. If it needs an ingredient that isn't in `data/ingredients.json`, add it there with ABV, sugar, acid, flavor tags and availability.
+
+## License
+
+MIT, see [LICENSE](LICENSE). Recipe facts are credited to their creators and sources; [NOTICE.md](NOTICE.md) covers the imported data slices and third-party names.
