@@ -45,6 +45,7 @@ async function loadData() {
 
 const state = { units: store.get('units', 'oz'), seed: 0, prompt: '', current: null, canonSel: null };
 let data, engine;
+const vesselName = id => ((data && data.vessels && data.vessels.vessels.find(v => v.id === id)) || { name: id }).name;
 
 // ---------------- mix ----------------
 function mix(prompt, seed = 0) {
@@ -123,7 +124,7 @@ function renderResult(r) {
         <h2>Build</h2>
         <ol class="steps">${r.method.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol>
         <dl class="service">
-          <dt>Glass</dt><dd>${esc(r.method.glass)}</dd>
+          <dt>Vessel</dt><dd>${esc(r.method.glass)}${r.vessel && r.vessel.story ? `<small class="vessel-story">${esc(r.vessel.story)}</small>` : ''}</dd>
           <dt>Ice</dt><dd>${esc(r.method.ice)}</dd>
           <dt>Garnish</dt><dd>${esc(r.garnish.join(', '))}</dd>
           <dt>Yield</dt><dd>about ${esc(fracString(Math.round(r.stats.finalOz * 4) / 4))} oz after dilution</dd>
@@ -166,7 +167,7 @@ function renderResult(r) {
 
 function recipeText(r) {
   const lines = r.lines.map(l => `${l.garnish ? 'Garnish:' : amountString(l, state.units)} ${l.name}${l.float ? ' (float)' : ''}`);
-  return [`${r.name}`, r.tagline, '', ...lines, '', ...r.method.steps.map((s, i) => `${i + 1}. ${s}`), '', `Glass: ${r.method.glass}`, `Garnish: ${r.garnish.join(', ')}`, '', `Mixed by Tiki God from: "${r.prompt}"`].join('\n');
+  return [`${r.name}`, r.tagline, '', ...lines, '', ...r.method.steps.map((s, i) => `${i + 1}. ${s}`), '', `Vessel: ${r.method.glass}`, `Garnish: ${r.garnish.join(', ')}`, '', `Mixed by Tiki God from: "${r.prompt}"`].join('\n');
 }
 
 function copyRecipe(r, btn) {
@@ -282,7 +283,7 @@ function showDrink(id, scroll = true) {
       const ing = engine.ingMap.get(l.id);
       return `<li><span class="amt${l.unit === 'garnish' ? ' g' : ''}">${esc(origAmount(l))}</span><span class="dot role-${l.garnish ? 'aromatic' : ing ? ing.role : 'base'}"></span><span><span class="ing-name">${esc(l.name)}</span>${l.float ? '<span class="flag">float</span>' : ''}${l.orig ? `<span class="ing-sub">originally: ${esc(l.orig)}</span>` : ''}</span></li>`;
     }).join('')}</ul>
-    <dl class="service"><dt>Method</dt><dd>${esc(d.method)}${d.ice ? `, ${esc(d.ice)} ice` : ''}</dd>${d.glass ? `<dt>Glass</dt><dd>${esc(d.glass)}</dd>` : ''}${d.garnish && d.garnish.length ? `<dt>Garnish</dt><dd>${esc(d.garnish.join(', '))}</dd>` : ''}${d.servings > 1 ? `<dt>Serves</dt><dd>${d.servings}</dd>` : ''}</dl>
+    <dl class="service"><dt>Method</dt><dd>${esc(d.method)}${d.ice ? `, ${esc(d.ice)} ice` : ''}</dd>${d.vessel ? `<dt>Vessel</dt><dd>${esc(vesselName(d.vessel))}${d.glass && d.glass.toLowerCase() !== vesselName(d.vessel).toLowerCase() ? ` <small>(source: ${esc(d.glass)})</small>` : ''}</dd>` : d.glass ? `<dt>Glass</dt><dd>${esc(d.glass)}</dd>` : ''}${d.garnish && d.garnish.length ? `<dt>Garnish</dt><dd>${esc(d.garnish.join(', '))}</dd>` : ''}${d.servings > 1 ? `<dt>Serves</dt><dd>${d.servings}</dd>` : ''}</dl>
     ${d.notes ? `<p class="prose" style="margin-top:14px">${esc(d.notes)}</p>` : ''}
     <p class="conf ${esc(d.confidence)}">Confidence: ${esc(d.confidence)} · ${esc(d.source || 'source not recorded')}</p>
     ${info.parents.length ? `<p><b>Descends from:</b> ${info.parents.map(drinkLink).join(', ')}</p>` : ''}

@@ -2172,7 +2172,17 @@ function createEngine({ vocab, families, drinks, model, vessels = { vessels: [] 
     }
 
     const tasting = tastingNote(recipe.lines.map(l => ({ ...l, role: l.garnish ? 'aromatic' : l.role })), recipe.stats, famId);
-    return { tasting, influences, whyItWorks, lineage, ingredientNotes };
+    let vessel = '';
+    if (recipe.vessel) {
+      const v = recipe.vessel, share = (F.vessels || {})[v.id] || 0;
+      const an = n => `${/^[aeiou]/i.test(n) ? 'an' : 'a'} ${n}`;
+      const why = v.why === 'asked' ? 'as you asked'
+        : v.why === 'riff' && riffSrc ? `the way the ${riffSrc.name} is served`
+        : share >= 0.05 ? `the ${fam.name} family's ${share >= 0.3 ? 'usual' : 'occasional'} vessel (${Math.round(share * 100)}% of the catalogued family)`
+        : `a vessel that suits its size and ice`;
+      vessel = `Served in ${an(v.name)}, ${why}.`;
+    }
+    return { tasting, influences, whyItWorks, lineage, ingredientNotes, vessel };
   }
 
   // A palate walk: opening (acid, juice, fizz) → body (spirits, richness) → finish (spice, bitters, aromatics).
@@ -3142,7 +3152,7 @@ function coconutVessel() {
 function pineappleVessel() {
   const cx = 150, cy = 336, rx = 76, ry = 100, strokes = [], cut = 262;
   const t0 = Math.asin((cut - cy) / ry);
-  strokes.push({ pts: ell(cx, cy, rx, ry, Math.PI - t0, TAU + t0, 36).reverse(), tier: 1 });
+  strokes.push({ pts: ell(cx, cy, rx, ry, t0, Math.PI - t0, 36), tier: 1 });
   strokes.push(...rimStrokes(cx, cut, 51, 0.24));
   // jagged cut along the front of the rim
   const jag = [];
@@ -3215,14 +3225,18 @@ function enamelVessel() {
 
 function scorpionBowlVessel({ glaze = PALETTE.frond } = {}) {
   const left = [[18, 300], [24, 334], [48, 370], [84, 396], [112, 404], [108, 420], [96, 436]];
-  const palm = (x, y, k) => [
-    { pts: [[x, y + 50 * k], [x + 4 * k, y + 24 * k], [x + 2 * k, y]], tier: 2 },
-    ...[-2.6, -2, -1.2, -0.5].map(a => ({ pts: [[x + 2 * k, y], [x + 2 * k + Math.cos(a) * 14 * k, y + Math.sin(a) * 8 * k - 4 * k], [x + 2 * k + Math.cos(a) * 24 * k, y + Math.sin(a) * 4 * k + 4 * k]], tier: 2 })),
-  ];
-  const wave = [];
-  for (let x = 40; x <= 260; x += 10) wave.push([x, 338 + (x % 20 ? 4 : -2) + Math.pow((x - 150) / 110, 2) * 8]);
+  // Relief palms: a leaning trunk and five drooping fronds.
+  const palm = (x, y, lean) => {
+    const top = [x + lean, y];
+    return [
+      { pts: [[x - lean * 0.2, y + 54], [x + lean * 0.4, y + 26], top], tier: 2 },
+      ...[-2.9, -2.3, -1.6, -0.9, -0.3].map(a => ({ pts: [top, [top[0] + Math.cos(a) * 16, top[1] + Math.sin(a) * 10 - 3], [top[0] + Math.cos(a) * 28, top[1] + Math.sin(a) * 4 + 8]], tier: 2 })),
+    ];
+  };
+  const band = [];
+  for (let x = 36; x <= 264; x += 6) band.push([x, 330 + Math.pow((x - 150) / 114, 2) * 10]);
   return {
-    strokes: [{ pts: left, tier: 1 }, { pts: mir(left), tier: 1 }, frontArc(150, 436, 54, 7), ...rimStrokes(150, 300, 132, 0.15), { pts: wave, tier: 3 }, ...palm(92, 346, 0.9), ...palm(206, 346, 0.9), { pts: [[118, 404], [182, 404]], tier: 3 }],
+    strokes: [{ pts: left, tier: 1 }, { pts: mir(left), tier: 1 }, frontArc(150, 436, 54, 7), ...rimStrokes(150, 300, 132, 0.15), { pts: band, tier: 3 }, ...palm(96, 336, 8), ...palm(204, 336, -8), { pts: [[118, 404], [182, 404]], tier: 3 }],
     washes: [{ pts: bodyPoly(left), color: glaze, alpha: 0.036 }],
   };
 }
@@ -3927,7 +3941,7 @@ function render(r, seed) {
     <ul class="lines">${lines}</ul>
     <h3 class="bleed" ${at()}>The ritual</h3>
     <ol class="steps">${r.method.steps.map(s => `<li class="bleed" ${at(55)}>${esc(s)}</li>`).join('')}</ol>
-    ${r.vessel && r.vessel.story ? `<h3 class="bleed" ${at()}>The vessel</h3><p class="vessel-note bleed" ${at()}><b>${esc(withArticle(r.vessel.name).replace(/^./, c => c.toUpperCase()))}.</b> ${esc(r.vessel.story)}</p>` : ''}
+    ${r.vessel ? `<h3 class="bleed" ${at()}>The vessel</h3><p class="vessel-note bleed" ${at()}><b>${esc(r.explanation.vessel || withArticle(r.vessel.name))}</b>${r.vessel.story ? ` ${esc(r.vessel.story)}` : ''}</p>` : ''}
     <p class="stats bleed" ${at()}><span>${r.stats.abv}% abv</span><span>sugar ${r.stats.sugarConc} g/100 ml</span><span>acid ${r.stats.acidConc} g/100 ml</span></p>
     <h3 class="bleed" ${at()}>How it tastes</h3>
     <p class="tasting bleed" ${at()}>${esc(r.explanation.tasting)}</p>

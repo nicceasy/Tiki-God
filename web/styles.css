@@ -388,3 +388,5 @@ tr:last-child td { border-bottom: 0; }
   .spec.fresh { animation: pour 420ms ease-out; }
   @keyframes pour { from { transform: translateY(6px); } to { transform: none; } }
 }
+
+.vessel-story { display: block; margin-top: 4px; color: var(--muted, #6b6b6b); font-size: 0.85em; line-height: 1.45; }

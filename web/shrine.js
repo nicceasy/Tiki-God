@@ -124,7 +124,7 @@ function render(r, seed) {
     <ul class="lines">${lines}</ul>
     <h3 class="bleed" ${at()}>The ritual</h3>
     <ol class="steps">${r.method.steps.map(s => `<li class="bleed" ${at(55)}>${esc(s)}</li>`).join('')}</ol>
-    ${r.vessel && r.vessel.story ? `<h3 class="bleed" ${at()}>The vessel</h3><p class="vessel-note bleed" ${at()}><b>${esc(withArticle(r.vessel.name).replace(/^./, c => c.toUpperCase()))}.</b> ${esc(r.vessel.story)}</p>` : ''}
+    ${r.vessel ? `<h3 class="bleed" ${at()}>The vessel</h3><p class="vessel-note bleed" ${at()}><b>${esc(r.explanation.vessel || withArticle(r.vessel.name))}</b>${r.vessel.story ? ` ${esc(r.vessel.story)}` : ''}</p>` : ''}
     <p class="stats bleed" ${at()}><span>${r.stats.abv}% abv</span><span>sugar ${r.stats.sugarConc} g/100 ml</span><span>acid ${r.stats.acidConc} g/100 ml</span></p>
     <h3 class="bleed" ${at()}>How it tastes</h3>
     <p class="tasting bleed" ${at()}>${esc(r.explanation.tasting)}</p>

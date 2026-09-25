@@ -915,7 +915,17 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     }
 
     const tasting = tastingNote(recipe.lines.map(l => ({ ...l, role: l.garnish ? 'aromatic' : l.role })), recipe.stats, famId);
-    return { tasting, influences, whyItWorks, lineage, ingredientNotes };
+    let vessel = '';
+    if (recipe.vessel) {
+      const v = recipe.vessel, share = (F.vessels || {})[v.id] || 0;
+      const an = n => `${/^[aeiou]/i.test(n) ? 'an' : 'a'} ${n}`;
+      const why = v.why === 'asked' ? 'as you asked'
+        : v.why === 'riff' && riffSrc ? `the way the ${riffSrc.name} is served`
+        : share >= 0.05 ? `the ${fam.name} family's ${share >= 0.3 ? 'usual' : 'occasional'} vessel (${Math.round(share * 100)}% of the catalogued family)`
+        : `a vessel that suits its size and ice`;
+      vessel = `Served in ${an(v.name)}, ${why}.`;
+    }
+    return { tasting, influences, whyItWorks, lineage, ingredientNotes, vessel };
   }
 
   // A palate walk: opening (acid, juice, fizz) → body (spirits, richness) → finish (spice, bitters, aromatics).

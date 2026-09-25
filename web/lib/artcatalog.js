@@ -498,7 +498,7 @@ function coconutVessel() {
 function pineappleVessel() {
   const cx = 150, cy = 336, rx = 76, ry = 100, strokes = [], cut = 262;
   const t0 = Math.asin((cut - cy) / ry);
-  strokes.push({ pts: ell(cx, cy, rx, ry, Math.PI - t0, TAU + t0, 36).reverse(), tier: 1 });
+  strokes.push({ pts: ell(cx, cy, rx, ry, t0, Math.PI - t0, 36), tier: 1 });
   strokes.push(...rimStrokes(cx, cut, 51, 0.24));
   // jagged cut along the front of the rim
   const jag = [];
@@ -571,14 +571,18 @@ function enamelVessel() {
 
 function scorpionBowlVessel({ glaze = PALETTE.frond } = {}) {
   const left = [[18, 300], [24, 334], [48, 370], [84, 396], [112, 404], [108, 420], [96, 436]];
-  const palm = (x, y, k) => [
-    { pts: [[x, y + 50 * k], [x + 4 * k, y + 24 * k], [x + 2 * k, y]], tier: 2 },
-    ...[-2.6, -2, -1.2, -0.5].map(a => ({ pts: [[x + 2 * k, y], [x + 2 * k + Math.cos(a) * 14 * k, y + Math.sin(a) * 8 * k - 4 * k], [x + 2 * k + Math.cos(a) * 24 * k, y + Math.sin(a) * 4 * k + 4 * k]], tier: 2 })),
-  ];
-  const wave = [];
-  for (let x = 40; x <= 260; x += 10) wave.push([x, 338 + (x % 20 ? 4 : -2) + Math.pow((x - 150) / 110, 2) * 8]);
+  // Relief palms: a leaning trunk and five drooping fronds.
+  const palm = (x, y, lean) => {
+    const top = [x + lean, y];
+    return [
+      { pts: [[x - lean * 0.2, y + 54], [x + lean * 0.4, y + 26], top], tier: 2 },
+      ...[-2.9, -2.3, -1.6, -0.9, -0.3].map(a => ({ pts: [top, [top[0] + Math.cos(a) * 16, top[1] + Math.sin(a) * 10 - 3], [top[0] + Math.cos(a) * 28, top[1] + Math.sin(a) * 4 + 8]], tier: 2 })),
+    ];
+  };
+  const band = [];
+  for (let x = 36; x <= 264; x += 6) band.push([x, 330 + Math.pow((x - 150) / 114, 2) * 10]);
   return {
-    strokes: [{ pts: left, tier: 1 }, { pts: mir(left), tier: 1 }, frontArc(150, 436, 54, 7), ...rimStrokes(150, 300, 132, 0.15), { pts: wave, tier: 3 }, ...palm(92, 346, 0.9), ...palm(206, 346, 0.9), { pts: [[118, 404], [182, 404]], tier: 3 }],
+    strokes: [{ pts: left, tier: 1 }, { pts: mir(left), tier: 1 }, frontArc(150, 436, 54, 7), ...rimStrokes(150, 300, 132, 0.15), { pts: band, tier: 3 }, ...palm(96, 336, 8), ...palm(204, 336, -8), { pts: [[118, 404], [182, 404]], tier: 3 }],
     washes: [{ pts: bodyPoly(left), color: glaze, alpha: 0.036 }],
   };
 }
