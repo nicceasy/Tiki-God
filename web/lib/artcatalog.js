@@ -41,7 +41,7 @@ function moaiMug({ glaze = PALETTE.wood } = {}) {
       { pts: [[52, 197], [80, 204], [108, 197]], tier: 3 },
       { pts: [[34, 96], [22, 104], [21, 140], [31, 152]], tier: 1 }, { pts: [[126, 96], [138, 104], [139, 140], [129, 152]], tier: 1 },
     ],
-    washes: [{ pts: body, color: glaze, alpha: 0.05 }],
+    washes: [{ pts: body, color: glaze, alpha: 0.036 }],
     rim: { cx: 80, cy: 36, rx: 47, ry: 9 },
   };
 }
@@ -104,21 +104,32 @@ function plumeria({ seed = 2 } = {}) {
   return { box: [150, 150], strokes, washes };
 }
 
+// A monstera leaf, tip up: a heart with its notch at the stem. The slits are part of the
+// outline, so the ink traces them and the wash leaves them as paper.
 function monstera() {
-  const leftEdge = [[100, 30], [70, 22], [38, 38], [20, 76], [22, 122], [44, 160], [78, 182], [100, 188]];
-  const rightEdge = mirrorX(leftEdge, 100);
-  const cuts = [[[21, 88], [58, 98]], [[27, 126], [64, 124]], [[50, 164], [76, 148]]];
+  const ctrl = [[100, 158], [70, 180], [34, 168], [14, 130], [14, 86], [34, 44], [66, 18], [100, 10]];
+  const left = [ctrl[0]];
+  for (let k = 1; k < ctrl.length; k++) {
+    const [a, b] = [ctrl[k - 1], ctrl[k]];
+    if (k >= 2 && k <= 6) {
+      const m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy);
+      const g = [dx / l * 4, dy / l * 4], depth = k === 6 ? 0.45 : 0.62;
+      const inner = [m[0] + (100 - m[0]) * depth, m[1] + (Math.min(150, Math.max(24, m[1] - 8)) - m[1]) * depth];
+      left.push([m[0] - g[0], m[1] - g[1]], inner, [m[0] + g[0], m[1] + g[1]]);
+    }
+    left.push(b);
+  }
+  const right = mirrorX(left, 100);
   return {
     box: [200, 200],
     strokes: [
-      { pts: leftEdge, tier: 1 }, { pts: rightEdge, tier: 1 },
-      { pts: [[100, 30], [99, 80], [100, 130], [100, 186]], tier: 2 },
-      ...cuts.map(c => ({ pts: c, tier: 1 })), ...cuts.map(c => ({ pts: mirrorX(c, 100), tier: 1 })),
-      { pts: ell(80, 70, 5, 9, 0, TAU, 14), tier: 2 }, { pts: ell(122, 104, 5, 8, 0, TAU, 14), tier: 2 },
-      { pts: [[99, 60], [62, 58]], tier: 3 }, { pts: [[100, 110], [140, 108]], tier: 3 }, { pts: [[100, 150], [128, 162]], tier: 3 },
-      { pts: [[100, 30], [112, 14], [130, 4]], tier: 1 },
+      { pts: left, tier: 1 }, { pts: right, tier: 1 },
+      { pts: [[100, 158], [99, 110], [100, 60], [100, 16]], tier: 2 },
+      { pts: [[100, 158], [103, 180], [112, 198]], tier: 1 },
+      { pts: ell(84, 118, 3.5, 7, 0, TAU, 12, 0.5), tier: 2 }, { pts: ell(117, 80, 3.5, 6, 0, TAU, 12, -0.5), tier: 2 },
     ],
-    washes: [{ pts: [...leftEdge, ...rightEdge.slice().reverse()], color: PALETTE.frond, alpha: 0.05 }],
+    // The wash follows the whole leaf, slits and all; watercolor that ignores a cut reads as life.
+    washes: [{ pts: [...ctrl, ...mirrorX(ctrl, 100).reverse().slice(1)], color: PALETTE.frond, alpha: 0.05, soft: 0.7 }],
   };
 }
 
@@ -255,7 +266,9 @@ function sparkle() {
 }
 
 // ---------------------------------------------------------------- glassware
-// Profiles in a 300 × 400 box: [y, half-width] from rim to bottom (shared with the liquid).
+// Profiles in a 300 × 400 box: [y, half-width] from rim to bottom (shared with liquid and ice).
+// `tiki` is the Moai mug from above, scaled up into the same box; it is opaque, so only the
+// surface at the rim and whatever is piled above it show.
 export const GLASS_PROFILES = {
   rocks: { pts: [[196, 72], [338, 62]], foot: 'slab', rimTilt: 0.16 },
   highball: { pts: [[96, 48], [346, 42]], foot: 'slab', rimTilt: 0.14 },
@@ -264,8 +277,10 @@ export const GLASS_PROFILES = {
   coupe: { pts: [[170, 88], [188, 80], [210, 56], [228, 14]], foot: 'stem', stemH: 104, footW: 58, rimTilt: 0.2 },
   snifter: { pts: [[152, 50], [192, 70], [238, 80], [280, 68], [312, 34]], foot: 'stem', stemH: 22, footW: 52, rimTilt: 0.18 },
   bowl: { pts: [[214, 124], [252, 114], [292, 82], [316, 48]], foot: 'stem', stemH: 14, footW: 72, rimTilt: 0.16 },
-  mug: { pts: [[150, 68], [346, 68]], foot: 'slab', rimTilt: 0.18 },
+  mug: { pts: [[170, 62], [346, 62]], foot: 'slab', rimTilt: 0.18, opaque: true },
+  tiki: { pts: [[104, 70], [384, 62]], foot: 'none', rimTilt: 0.19, opaque: true },
 };
+const TIKI_FIT = { s: 1.5, x: 30, y: 50 };
 
 export function halfAt(G, y) {
   const p = G.pts;
@@ -276,8 +291,21 @@ export function halfAt(G, y) {
   }
   return p[p.length - 1][1];
 }
+export const rimOf = kind => { const G = GLASS_PROFILES[kind]; return { cx: 150, y: G.pts[0][0], hw: G.pts[0][1], bottom: G.pts[G.pts.length - 1][0], tilt: G.rimTilt }; };
+export const levelOf = (kind, fill) => { const r = rimOf(kind); return r.bottom - (r.bottom - r.y) * fill; };
 
-function glass({ kind = 'highball' } = {}) {
+const fitPart = (part, { s, x, y }) => ({
+  ...part,
+  strokes: part.strokes.map(st => ({ ...st, pts: st.pts.map(([px, py]) => [x + px * s, y + py * s]) })),
+  washes: (part.washes || []).map(w => ({ ...w, pts: w.pts.map(([px, py]) => [x + px * s, y + py * s]) })),
+  dots: (part.dots || []).map(d => ({ ...d, x: x + d.x * s, y: y + d.y * s, r: d.r * s })),
+});
+
+function glass({ kind = 'highball', glaze } = {}) {
+  if (kind === 'tiki') {
+    const m = fitPart(moaiMug({ glaze }), TIKI_FIT);
+    return { box: [300, 400], strokes: m.strokes, washes: m.washes.map(w => ({ ...w, alpha: 0.028 })) };
+  }
   const G = GLASS_PROFILES[kind];
   const cx = 150, rimY = G.pts[0][0], bottom = G.pts[G.pts.length - 1];
   const side = s => G.pts.map(([y, w]) => [cx + s * w, y]);
@@ -287,6 +315,7 @@ function glass({ kind = 'highball' } = {}) {
     { pts: ell(cx, rimY, rw, rw * G.rimTilt, 0.04, Math.PI - 0.04, 24), tier: 1 },
     { pts: ell(cx, rimY, rw, rw * G.rimTilt, Math.PI + 0.04, TAU - 0.04, 24), tier: 3 },
   ];
+  const washes = [];
   if (G.foot === 'slab') {
     strokes.push({ pts: ell(cx, bottom[0], bottom[1], bottom[1] * 0.14, 0.05, Math.PI - 0.05, 20), tier: 1 });
     strokes.push({ pts: ell(cx, bottom[0] - 10, bottom[1] * 0.96, bottom[1] * 0.12, 0.2, Math.PI - 0.2, 16), tier: 3 });
@@ -294,9 +323,148 @@ function glass({ kind = 'highball' } = {}) {
     strokes.push({ pts: [[cx - 4, bottom[0]], [cx - 3, bottom[0] + G.stemH]], tier: 2 }, { pts: [[cx + 4, bottom[0]], [cx + 3, bottom[0] + G.stemH]], tier: 2 });
     strokes.push({ pts: ell(cx, bottom[0] + G.stemH + 4, G.footW, 6, 0, TAU, 26), tier: 1 });
   }
-  // A single highlight flick, like a pen lifting off.
-  strokes.push({ pts: [[cx - halfAt(G, rimY + 26) * 0.7, rimY + 26], [cx - halfAt(G, rimY + 70) * 0.72, rimY + 70]], tier: 3 });
+  if (kind === 'mug') {
+    // A glazed ceramic mug with a handle: the only opaque-ish glass, washed in a pale glaze.
+    strokes.push({ pts: [[cx + rw - 2, 206], [cx + rw + 30, 210], [cx + rw + 40, 252], [cx + rw + 30, 296], [cx + rw - 2, 304]], tier: 1 });
+    strokes.push({ pts: [[cx + rw, 222], [cx + rw + 20, 228], [cx + rw + 25, 256], [cx + rw + 18, 284], [cx + rw, 290]], tier: 2 });
+    washes.push({ pts: [...side(-1), ...side(1).reverse()], color: glaze || PALETTE.lagoon, alpha: 0.04 });
+  } else {
+    // A single highlight flick, like a pen lifting off.
+    strokes.push({ pts: [[cx - halfAt(G, rimY + 26) * 0.7, rimY + 26], [cx - halfAt(G, rimY + 70) * 0.72, rimY + 70]], tier: 3 });
+  }
+  return { box: [300, 400], strokes, washes };
+}
+
+// The drink itself: a wash inside the glass up to the fill line, a glaze of depth near the
+// bottom, an optional crown (float or bitters) and the surface line. Opaque mugs show only
+// the surface at the rim. `frozen` heaps a soft dome above the rim.
+function liquid({ kind = 'highball', fill = 0.84, color = PALETTE.butter, crown = null, frozen = false } = {}) {
+  const G = GLASS_PROFILES[kind], R = rimOf(kind);
+  const strokes = [], washes = [];
+  if (G.opaque) {
+    washes.push({ pts: ell(R.cx, R.y + 1, R.hw - 8, (R.hw - 8) * R.tilt, 0, TAU, 18), color, alpha: 0.08, soft: 0.5 });
+  } else {
+    const top = frozen ? R.y + 2 : levelOf(kind, fill);
+    const ys = [];
+    for (let y = top; y < R.bottom; y += 14) ys.push(y);
+    ys.push(R.bottom - 2);
+    const inset = y => halfAt(G, y) - 4;
+    const body = [...ys.map(y => [R.cx - inset(y), y]), ...ys.slice().reverse().map(y => [R.cx + inset(y), y])];
+    washes.push({ pts: body, color, alpha: 0.06 });
+    const deep = ys.filter(y => y > top + (R.bottom - top) * 0.5);
+    if (deep.length > 1) washes.push({ pts: [...deep.map(y => [R.cx - inset(y) + 4, y]), ...deep.slice().reverse().map(y => [R.cx + inset(y) - 4, y])], color, alpha: 0.04, soft: 0.7 });
+    if (crown) {
+      const band = [top, top + 12, top + 24];
+      washes.push({ pts: [...band.map(y => [R.cx - inset(y), y]), ...band.slice().reverse().map(y => [R.cx + inset(y), y])], color: crown, alpha: 0.09, soft: 0.6 });
+    }
+    if (!frozen) strokes.push({ pts: ell(R.cx, top, inset(top), inset(top) * G.rimTilt, 0.15, Math.PI - 0.15, 20), tier: 3 });
+  }
+  if (frozen) {
+    const dome = [];
+    for (let i = 0; i <= 12; i++) {
+      const u = i / 12, x = R.cx - R.hw * 0.96 + u * R.hw * 1.92;
+      dome.push([x, R.y - Math.sin(Math.PI * u) * 34 - (i % 2 ? 4 : 0)]);
+    }
+    strokes.push({ pts: dome, tier: 2 });
+    washes.push({ pts: [...dome, [R.cx + R.hw * 0.9, R.y + 6], [R.cx - R.hw * 0.9, R.y + 6]], color, alpha: 0.05, soft: 0.6 });
+  }
+  return { box: [300, 400], strokes, washes };
+}
+
+function pebble(x, y, s, r) {
+  const n = 5 + Math.floor(r() * 2), a0 = r() * TAU, pts = [];
+  for (let i = 0; i <= n; i++) {
+    const a = a0 + (i / n) * TAU, k = i === n ? 1 : 0.75 + r() * 0.45;
+    pts.push(i === n ? pts[0].slice() : [x + Math.cos(a) * s * k, y + Math.sin(a) * s * k * 0.85]);
+  }
+  return pts;
+}
+
+// Ice, drawn sparingly: a few outlines suggest the whole glassful.
+function ice({ kind = 'highball', style = 'cubed', fill = 0.84, seed = 5 } = {}) {
+  const G = GLASS_PROFILES[kind], R = rimOf(kind), r = rng(seed);
+  const strokes = [], washes = [];
+  const top = levelOf(kind, fill);
+  const heap = ['crushed', 'pebble', 'shaved', 'ice-cone'].includes(style);
+  if (heap) {
+    const lift = kind === 'coupe' ? 0 : 22;
+    if (lift) {
+      const mound = [];
+      for (let i = 0; i <= 10; i++) {
+        const u = i / 10;
+        mound.push([R.cx - R.hw * 0.92 + u * R.hw * 1.84, R.y + 2 - Math.sin(Math.PI * u) * lift * (0.8 + r() * 0.4)]);
+      }
+      strokes.push({ pts: mound, tier: 2 });
+      washes.push({ pts: [...mound, [R.cx + R.hw * 0.9, R.y + 8], [R.cx - R.hw * 0.9, R.y + 8]], color: PALETTE.ice, alpha: 0.032, soft: 0.6 });
+      for (let i = 0; i < 5; i++) {
+        const u = 0.15 + r() * 0.7;
+        strokes.push({ pts: pebble(R.cx - R.hw * 0.9 + u * R.hw * 1.8, R.y - Math.sin(Math.PI * u) * lift * 0.5, 5 + r() * 3, r), tier: 3 });
+      }
+    }
+    if (!G.opaque) {
+      const n = kind === 'bowl' ? 12 : 9;
+      for (let i = 0; i < n; i++) {
+        const y = top + 8 + r() * (R.bottom - top - 22), hw = halfAt(G, y) - 12;
+        strokes.push({ pts: pebble(R.cx + (r() * 2 - 1) * hw, y, 5 + r() * 4, r), tier: 3 });
+      }
+    }
+    if (style === 'ice-cone' && !G.opaque) {
+      const w0 = Math.min(26, R.hw * 0.5);
+      strokes.push({ pts: [[R.cx - w0, R.y - 30], [R.cx - w0 * 0.8, R.bottom - 12]], tier: 2 }, { pts: [[R.cx + w0, R.y - 30], [R.cx + w0 * 0.8, R.bottom - 12]], tier: 2 });
+      strokes.push({ pts: ell(R.cx, R.y - 30, w0, w0 * 0.25, 0, TAU, 16), tier: 2 });
+      washes.push({ pts: [[R.cx - w0, R.y - 30], [R.cx + w0, R.y - 30], [R.cx + w0 * 0.8, R.bottom - 12], [R.cx - w0 * 0.8, R.bottom - 12]], color: PALETTE.ice, alpha: 0.05, soft: 0.4 });
+    }
+  } else if ((style === 'cubed' || style === 'block') && !G.opaque) {
+    const cubes = style === 'block' ? 1 : kind === 'rocks' ? 2 : 3;
+    for (let i = 0; i < cubes; i++) {
+      const size = style === 'block' ? Math.min(R.hw * 1.3, 96) : Math.min(R.hw * 0.95, 44);
+      const y = top + 6 + size / 2 + i * size * 0.95;
+      if (y + size / 2 > R.bottom - 4) break;
+      const x = R.cx + (i % 2 ? 1 : -1) * R.hw * 0.18 * (cubes > 1 ? 1 : 0), a = (r() - 0.5) * 0.5, h = size / 2;
+      const c = [[-h, -h], [h, -h], [h, h], [-h, h], [-h, -h]].map(([px, py]) => [x + px * Math.cos(a) - py * Math.sin(a), y + px * Math.sin(a) + py * Math.cos(a)]);
+      strokes.push({ pts: c, tier: 2 });
+      strokes.push({ pts: [[c[0][0] + (c[1][0] - c[0][0]) * 0.2 + 5, c[0][1] + (c[3][1] - c[0][1]) * 0.2 + 5], [c[0][0] + (c[1][0] - c[0][0]) * 0.2 + 5, c[0][1] + (c[3][1] - c[0][1]) * 0.45 + 5]], tier: 3 });
+      washes.push({ pts: c.slice(0, 4), color: PALETTE.ice, alpha: 0.04, soft: 0.3 });
+    }
+  }
+  return { box: [300, 400], strokes, washes };
+}
+
+function fizz({ kind = 'highball', fill = 0.84, seed = 9 } = {}) {
+  const G = GLASS_PROFILES[kind], R = rimOf(kind), r = rng(seed), top = levelOf(kind, fill), strokes = [];
+  if (G.opaque) return { box: [300, 400], strokes };
+  for (let i = 0; i < 11; i++) {
+    const y = top + 10 + r() * (R.bottom - top - 26), hw = halfAt(G, y) - 14, s = 1.6 + r() * 2.2;
+    strokes.push({ pts: ell(R.cx + (r() * 2 - 1) * hw, y, s, s, 0, TAU * 1.05, 8), tier: 3 });
+  }
   return { box: [300, 400], strokes };
+}
+
+function steam({ kind = 'mug' } = {}) {
+  const R = rimOf(kind), strokes = [];
+  for (let i = 0; i < 3; i++) {
+    const x = R.cx + (i - 1) * 22, pts = [];
+    for (let k = 0; k <= 6; k++) pts.push([x + Math.sin(k * 1.1 + i) * 6, R.y - 14 - k * 11]);
+    strokes.push({ pts, tier: 3 });
+  }
+  return { box: [300, 400], strokes };
+}
+
+function nutmeg({ rx = 40, ry = 6, seed = 11 } = {}) {
+  const r = rng(seed), dots = [];
+  for (let i = 0; i < 16; i++) {
+    const a = r() * TAU, k = Math.sqrt(r());
+    dots.push({ x: rx + Math.cos(a) * rx * 0.8 * k, y: ry + Math.sin(a) * ry * 0.8 * k, r: 0.7 + r() * 0.9, color: PALETTE.wood });
+  }
+  return { box: [rx * 2, ry * 2], strokes: [], dots };
+}
+
+// A hand-drawn rounded box, two strokes that overlap at the corners like a pen going round.
+function frame({ w = 400, h = 56, r = 16 } = {}) {
+  const o = 3;
+  const topRight = [[r, 0], [w * 0.5, -1], [w - r, 0], [w - r * 0.3, r * 0.3], [w, r], [w + 1, h * 0.5], [w, h - r], [w - r * 0.3, h - r * 0.3], [w - r + 4, h]];
+  const bottomLeft = [[w - r, h + 1], [w * 0.5, h], [r, h + 1], [r * 0.3, h - r * 0.3], [0, h - r], [-1, h * 0.5], [0, r], [r * 0.3, r * 0.3], [r + o * 4, -1]];
+  return { box: [w, h], strokes: [{ pts: topRight, tier: 1 }, { pts: bottomLeft, tier: 1 }] };
 }
 
 export const CATALOG = {
@@ -304,5 +472,5 @@ export const CATALOG = {
   'fruit.pineapple': pineapple, glass, 'garnish.mint': mint, 'garnish.lime-wheel': p => citrusWheel({ color: PALETTE.lime, ...p }),
   'garnish.orange-wheel': p => citrusWheel({ color: PALETTE.orange, ...p }), 'garnish.lime-shell': limeShell, 'garnish.cherry': cherry,
   'garnish.orchid': orchid, 'garnish.umbrella': umbrella, 'garnish.pineapple-wedge': pineappleWedge, 'garnish.cinnamon': cinnamon,
-  'garnish.beans': beans, 'garnish.peel': peel, straw, sparkle,
+  'garnish.beans': beans, 'garnish.peel': peel, 'garnish.nutmeg': nutmeg, straw, sparkle, liquid, ice, fizz, steam, frame,
 };

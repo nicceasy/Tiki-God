@@ -50,7 +50,7 @@ const toJson = d => JSON.stringify(d).replace(/<\//g, '<\\/').split(LS).join('\\
 
 const PAGES = [
   { html: 'web/index.html', css: 'web/styles.css', cssLink: './styles.css', modules: [...LIB, 'web/lib/markdown.js', 'web/app.js'], data: full, out: 'index' },
-  { html: 'web/shrine.html', css: 'web/shrine.css', cssLink: './shrine.css', modules: [...LIB, 'web/lib/scene.js', 'web/lib/drinkart.js', 'web/shrine.js'], data: core, out: 'shrine' },
+  { html: 'web/shrine.html', css: 'web/shrine.css', cssLink: './shrine.css', modules: [...LIB, 'web/lib/ink.js', 'web/lib/artcatalog.js', 'web/lib/artspec.js', 'web/lib/artrender.js', 'web/shrine.js'], data: core, out: 'shrine' },
 ];
 
 mkdirSync(join(root, 'dist'), { recursive: true });

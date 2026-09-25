@@ -9,6 +9,8 @@ A catalogue of tiki and tropical drinks, a statistical model of what makes them 
 - **Model**: the numbers the generator balances toward: family formulas, the tiki pantry, recurring pairings, rum blends, and famous-versus-obscure comparisons.
 - **History**: a timeline plus the full history and concepts write-ups.
 
+**Or open `dist/shrine.html`**, the playful front door. Say a prayer ("mezcal and passion fruit") and the same generator answers, while the drink draws itself in brush-pen ink and blooms with watercolor on an off-white sheet. Tiki mugs, a Ku idol and tropical flowers frame the prayer. The art style is researched in [docs/art-direction.md](docs/art-direction.md): Tyler Hobbs' layered-polygon watercolor, Curtis et al.'s edge darkening and granulation, perfect-freehand-style pressure ribbons, and a closed catalog of drawable parts in the spirit of json-render.
+
 ## What's in the repo
 
 ```
@@ -24,11 +26,14 @@ docs/
   concepts.md          the drink-making ideas behind tiki: rum blending, layered modifiers, dilution, the pantry
   methodology.md       what the data says makes a good tiki drink, and how the generator uses it
   analysis.md          auto-generated statistics report (per family, per era, pairings, rum blends)
+  art-direction.md     the Shrine's ink and watercolor style: research, references and rules
   timeline.json        key events, machine-readable
 web/                   the app (vanilla JS, no framework): lib/engine.js is the generator
+                       shrine.* plus lib/ink.js, artcatalog.js, artspec.js, artrender.js draw the Shrine
 scripts/               validate → merge → analyze → build-site, plus importers under scripts/import/
 tests/                 node:test suite for the chemistry, parser and generator
 dist/index.html        the built single-file app
+dist/shrine.html       the built single-file Shrine
 ```
 
 ## Rebuild

@@ -4,6 +4,8 @@ This is the model behind the generator: what the catalogue says about proven tik
 
 ## 1. How the data is measured
 
+The catalogue holds **1,070 drinks**. About 300 are hand-researched records (Donn Beach, Trader Vic, the golden-age venues, the punch and sour ancestors, resort drinks, the 1990s revival, craft-era originals and deep cuts). 362 come from structured transcriptions of tiki and cocktail books, and 414 are the tropical subset of Difford's Guide, selected by explicit rules (`scripts/import/`). Where two sources describe the same spec, the better-documented one wins. Genuinely different specs of one drink are all kept: 58 drinks appear in more than one version, such as the Navy Grog from Donn Beach, Smuggler's Cove and the Tropical Standard.
+
 Every drink is stored as an original spec: ingredient ids from `data/ingredients.json`, amounts, method, ice, glass, garnish and servings. Historical products that no longer exist are mapped to their closest modern bottle, with the original kept in `orig`. For analysis each drink is converted to one serving and run through a simple chemistry model:
 
 - **Ingredients carry ABV, sugar and acid** in grams per 100 ml. Citrus, syrup and liqueur values follow Dave Arnold's *Liquid Intelligence* tables where they exist and label figures otherwise. Lime is 6% acid, a 1:1 simple syrup is 61.5 g sugar per 100 ml, and Cointreau is 40% ABV with 25 g sugar.
@@ -14,14 +16,14 @@ Every drink is stored as an original spec: ingredient ids from `data/ingredients
 
 ### 2.1 There is a balance window, and it's wider and sweeter than a classic sour's
 
-Across the catalogue, the weighted median drink lands at about **12.8% ABV, 7.5 g sugar and 0.67 g acid per 100 ml**, a sugar-to-acid ratio of about **11 : 1** by weight. The middle half runs from about 7.6 : 1 to 15 : 1. A classic Daiquiri sits near 8 : 1, at the tart end. Tiki drinks run sweeter because pineapple, orange and passion fruit add sugar without much acid, and because liqueurs sweeten while they flavor.
+Across the catalogue, the weighted median drink lands at about **14% ABV, 7.3 g sugar and 0.67 g acid per 100 ml**, a sugar-to-acid ratio of about **11 : 1** by weight. The middle half runs from about 8.4 : 1 to 15 : 1. A classic Daiquiri sits near 8 : 1, at the tart end. Tiki drinks run sweeter because pineapple, orange and passion fruit add sugar without much acid, and because liqueurs sweeten while they flavor.
 
 The window is family-specific, and the generator balances to the family's own range, not the global one:
 
-- **Zombies and Beachcomber spice sours** are the tartest and strongest: sugar:acid near 7–10, about 14–17% ABV.
-- **Mai Tais** sit at about 17% ABV with a ratio near 10.
-- **Colada-family** drinks are barely acidic (ratios of 25–50) and weak (about 6–7% ABV). The coconut fat does the balancing work that acid does elsewhere.
-- **Resort punches** run about 11% ABV at a ratio near 12.
+- **Zombies and Beachcomber spice sours** are the tartest and strongest: sugar:acid near 9–10, about 14–17% ABV. The Zombie family is the extreme at about 8.7 : 1 and 17%.
+- **Mai Tais** sit at about 16% ABV with a ratio near 10.5.
+- **Colada-family** drinks are barely acidic (ratios of 14–46, median about 25) and gentle (about 9% ABV). The coconut fat does the balancing work that acid does elsewhere.
+- **Resort punches** run about 11% ABV at a ratio near 11.
 
 ### 2.2 The skeleton is still punch
 
@@ -30,12 +32,12 @@ Strip away the modifiers and nearly every family keeps the 17th-century punch sk
 | family | formula |
 |---|---|
 | Mai Tai | 2 spirit : 1 sour : ¾ sweet : ½ liqueur |
-| Zombie & heavyweights | 3¼ spirit : 1 sour : 1½ juice : ½ sweet : ½ liqueur |
-| Beachcomber spice sours | 2 spirit : ¾ sour : ¾ juice : ½ sweet : ½ liqueur |
-| Grog | 2 spirit : 1¼ sour : 1 juice : ½ sweet : ¾ soda |
-| Scorpion / Fog Cutter | 2¼ spirit : 1 sour : 1½ juice : ½ sweet |
-| Colada | 1½ spirit : 3½ juice : 1 cream : 1 liqueur |
-| Resort punch | 2 spirit : ¾ sour : 3 juice : ⅝ sweet : ¾ liqueur |
+| Zombie & heavyweights | 3 spirit : 1 sour : 1 juice : ½ sweet : ½ liqueur |
+| Beachcomber spice sours | 2 spirit : ¾ sour : ¾ juice : ⅔ sweet : ½ liqueur |
+| Grog | 2¼ spirit : 1¼ sour : ¾ juice : ½ sweet |
+| Scorpion / Fog Cutter | 2 spirit : ¾ sour : 1 juice : ½ sweet : ½ liqueur |
+| Colada | 1½ spirit : 2 juice : 1 cream : 1 liqueur (half add ½ sour) |
+| Resort punch | 2 spirit : ¾ sour : 3 juice : ½ sweet : ¾ liqueur |
 
 The Mai Tai row reproduces Trader Vic's own template (2 : 1 : ½ curaçao : ½ orgeat + ¼ rock candy). Vic reused it with bourbon in the Honi Honi, tequila in the Pinky Gonzales and light rum in the Menehune Juice. Base spirits sit at **2 oz** across the catalogue (middle half 1½–2 oz), and the Zombie is the famous exception.
 
@@ -81,24 +83,29 @@ Comparing drinks rated famous (4–5) with obscure ones (1–2), unweighted:
 
 | | famous | obscure |
 |---|---|---|
-| ABV after dilution | ~10.8% | ~13.3% |
-| volume before ice | ~6 oz | ~4¼ oz |
-| sugar : acid | ~11.3 | ~10.5 |
-| ingredients | 5 | 6 |
+| drinks | 56 | 907 |
+| ABV after dilution | ~11.9% | ~14.2% |
+| volume before ice | ~5¼ oz | ~4 oz |
+| sugar : acid | ~11.0 | ~10.8 |
+| ingredients | 5 | 5 |
 
-The drinks that became famous are longer, gentler, a touch sweeter and simpler than the deep cuts. Complexity doesn't make a classic; balance and drinkability do. The generator therefore defaults to the family median and adds complexity only when asked ("complex", "layered", "show-stopper").
+The drinks that became famous are longer, gentler and a touch sweeter than the deep cuts, with no more ingredients. Complexity doesn't make a classic; balance and drinkability do. The generator therefore defaults to the family median and adds complexity only when asked ("complex", "layered", "show-stopper").
 
 ### 2.8 Eras move the balance
 
-| era | ABV | sugar : acid | juice share of volume | non-rum base |
-|---|---|---|---|---|
-| pre-tiki (Cuba, swizzles) | ~16% | ~8 | 0% | 8% |
-| golden age (1934–59) | ~14% | ~9 | 9% | 23% |
-| late classic (1960–79) | ~11% | ~10 | 20% | 22% |
-| decline (1980–97) | ~7% | ~12 | 38% | 10% |
-| craft (2010–) | ~13% | ~13 | 11% | 40% |
+Dated drinks only; medians, unweighted.
 
-The decline-era drinks were juice-heavy and weak. The craft revival restored strength and fresh acid but kept the sweeter balance, and it moved tiki onto gin, agave, whiskey and aquavit bases. Those bases slot into the Mai Tai, spice-sour and colada skeletons with the other ingredients unchanged.
+| era | drinks | ABV | sugar : acid | juice share of volume | two or more rums | non-rum base |
+|---|---|---|---|---|---|---|
+| colonial punch | 24 | ~14% | ~14 | 0% | 0% | 29% |
+| pre-tiki (Cuba, swizzles) | 56 | ~16% | ~10 | 0% | 5% | 20% |
+| golden age (1934–59) | 93 | ~15% | ~10 | 0% | 33% | 24% |
+| late classic (1960–79) | 35 | ~12% | ~10 | 13% | 34% | 37% |
+| decline (1980–97) | 9 | ~12% | ~14.5 | 38% | 22% | 22% |
+| revival (1998–2009) | 102 | ~15% | ~10 | 0% | 9% | 19% |
+| craft (2010–) | 99 | ~14% | ~11 | 0% | 5% | 15% |
+
+The golden age invented the rum blend: a third of its drinks stack two or more rums, against 5–9% before and after. The few dated decline-era drinks are juice-heavy and sweet. The revival and craft eras restored strength and fresh acid, ran a touch sweeter, and kept using gin, agave, whiskey and aquavit bases in the Mai Tai, spice-sour and colada skeletons with the other ingredients unchanged.
 
 ## 3. How the generator uses this
 

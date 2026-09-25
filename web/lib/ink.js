@@ -61,19 +61,20 @@ export function makePaper(size = 192, seed = 7) {
   return { size, height, canvas };
 }
 
-// Faint visible tooth for the page background, as a data URL.
+// Faint visible tooth for the page background, as a data URL: fine grain, a few fibres, no blotches.
 export function paperTexture(size = 256, seed = 3) {
   const r = rng(seed);
-  const a = valueNoise(size, 16, r), b = valueNoise(size, 48, r);
+  const a = valueNoise(size, 32, r), b = valueNoise(size, 96, r);
   const cv = document.createElement('canvas'); cv.width = cv.height = size;
   const ctx = cv.getContext('2d');
   const img = ctx.createImageData(size, size);
   for (let i = 0; i < size * size; i++) {
-    const h = 0.6 * a[i] + 0.4 * b[i];
+    const h = 0.55 * a[i] + 0.45 * b[i] + (r() - 0.5) * 0.3;
     const shadeV = (h - 0.5) * 2;
-    const fleck = r() < 0.0025 ? 1 : 0;
-    img.data[i * 4] = shadeV > 0 ? 255 : 90; img.data[i * 4 + 1] = shadeV > 0 ? 255 : 80; img.data[i * 4 + 2] = shadeV > 0 ? 255 : 70;
-    img.data[i * 4 + 3] = Math.round(Math.min(255, Math.abs(shadeV) * 26 + fleck * 40));
+    const fleck = r() < 0.0015 ? 1 : 0;
+    const v = shadeV > 0 ? 255 : 70;
+    img.data[i * 4] = v; img.data[i * 4 + 1] = v - (shadeV > 0 ? 0 : 6); img.data[i * 4 + 2] = v - (shadeV > 0 ? 0 : 10);
+    img.data[i * 4 + 3] = Math.round(Math.min(255, Math.abs(shadeV) * 10 + fleck * 34));
   }
   ctx.putImageData(img, 0, 0);
   return cv.toDataURL('image/png');
@@ -185,11 +186,11 @@ function deform(verts, depth, r) {
 }
 
 // Precompute the layered wash for a polygon. `soft` controls how far edges wander.
-export function makeWash(poly, { seed = 1, layers = 22, soft = 1, verts = 12, off = 3 } = {}) {
+export function makeWash(poly, { seed = 1, layers = 22, soft = 1, verts = 12, off = 3, depth = 3 } = {}) {
   const r = rng(seed);
   const dx = (r() - 0.5) * 2 * off, dy = (r() - 0.5) * 2 * off;
   const base0 = resample(poly, verts).map(([x, y]) => ({ x: x + dx, y: y + dy, v: (0.35 + r() * 0.9) * soft }));
-  const base = deform(base0, 4, r);
+  const base = deform(base0, depth, r);
   const paths = [];
   for (let k = 0; k < layers; k++) paths.push(deform(base.map(p => ({ ...p })), 2, r));
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -197,15 +198,14 @@ export function makeWash(poly, { seed = 1, layers = 22, soft = 1, verts = 12, of
   return { base, paths, box: [minX - 4, minY - 4, maxX - minX + 8, maxY - minY + 8] };
 }
 
-// Draw the first `progress` share of the layers (the bloom), then the rim and granulation.
-export function drawWash(ctx, wash, progress, color, { alpha = 0.055, paper = null, rim = 0.16, grain = 0.28 } = {}) {
-  if (progress <= 0) return;
-  const k = Math.max(1, Math.round(wash.paths.length * Math.min(1, progress)));
-  const fade = Math.min(1, progress * 1.4);
+// Wash layers accumulate independently, so a renderer can add them a few at a time onto a
+// committed canvas (the bloom) and finish with the rim and granulation once.
+export function drawWashLayers(ctx, wash, from, to, color, alpha = 0.055) {
   ctx.save();
   ctx.fillStyle = color;
-  ctx.globalAlpha = alpha * fade;
-  for (let i = 0; i < k; i++) {
+  ctx.globalAlpha = alpha;
+  ctx.globalCompositeOperation = 'multiply';
+  for (let i = from; i < Math.min(to, wash.paths.length); i++) {
     const L = wash.paths[i];
     ctx.beginPath();
     ctx.moveTo(L[0].x, L[0].y);
@@ -213,22 +213,31 @@ export function drawWash(ctx, wash, progress, color, { alpha = 0.055, paper = nu
     ctx.closePath();
     ctx.fill();
   }
-  if (progress >= 0.7) {
-    const e = (progress - 0.7) / 0.3;
-    const B = wash.base;
-    ctx.beginPath(); ctx.moveTo(B[0].x, B[0].y); for (let j = 1; j < B.length; j++) ctx.lineTo(B[j].x, B[j].y); ctx.closePath();
-    ctx.globalAlpha = rim * e; ctx.strokeStyle = color; ctx.lineWidth = 1.4; ctx.stroke();
-    if (paper && grain > 0) {
-      // Granulation: pigment settles into the paper's valleys, only where there is pigment.
-      ctx.clip();
-      ctx.globalAlpha = grain * e;
-      ctx.globalCompositeOperation = 'multiply';
-      ctx.fillStyle = paper.pattern || (paper.pattern = ctx.createPattern(paper.canvas, 'repeat'));
-      const [x, y, w, h] = wash.box;
-      ctx.fillRect(x, y, w, h);
-    }
+  ctx.restore();
+}
+
+export function finishWash(ctx, wash, color, { paper = null, rim = 0.16, grain = 0.28 } = {}) {
+  const B = wash.base;
+  ctx.save();
+  ctx.globalCompositeOperation = 'multiply';
+  ctx.beginPath(); ctx.moveTo(B[0].x, B[0].y); for (let j = 1; j < B.length; j++) ctx.lineTo(B[j].x, B[j].y); ctx.closePath();
+  // Edge darkening: pigment collects where the wash dried.
+  ctx.globalAlpha = rim; ctx.strokeStyle = color; ctx.lineWidth = 1.3; ctx.stroke();
+  if (paper && grain > 0) {
+    // Granulation: pigment settles into the paper's valleys, only where there is pigment.
+    ctx.clip();
+    ctx.globalAlpha = grain;
+    ctx.fillStyle = paper.pattern || (paper.pattern = ctx.createPattern(paper.canvas, 'repeat'));
+    const [x, y, w, h] = wash.box;
+    ctx.fillRect(x, y, w, h);
   }
   ctx.restore();
+}
+
+export function drawWash(ctx, wash, progress, color, { alpha = 0.055, paper = null, rim = 0.16, grain = 0.28 } = {}) {
+  if (progress <= 0) return;
+  drawWashLayers(ctx, wash, 0, Math.max(1, Math.round(wash.paths.length * Math.min(1, progress))), color, alpha);
+  if (progress >= 1) finishWash(ctx, wash, color, { paper, rim, grain });
 }
 
 // ---------------------------------------------------------------- small helpers for authoring shapes

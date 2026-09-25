@@ -7,41 +7,42 @@
 <title>Tiki God Shrine</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Titan+One&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Nanum+Brush+Script&display=swap">
 <link rel="stylesheet" href="./shrine.css">
 <!--/BUILD:HEAD-->
 </head>
 <body>
 <!--BUILD:BODY-->
-<canvas id="scene" aria-hidden="true"></canvas>
-
-<main class="shrine">
-  <header class="sign">
-    <h1 class="sign-title">Tiki God</h1>
-    <p class="sign-sub">a shrine for new tiki drinks</p>
-  </header>
-
-  <section class="altar" aria-label="Pray for a drink">
-    <form id="prayer-form" class="altar-frame" autocomplete="off">
-      <label for="prayer" class="altar-label">Say a prayer for a new tiki drink, and the tiki gods will abide.</label>
-      <div class="altar-row">
-        <input id="prayer" name="prayer" type="text" value="something smoky and spicy for a cold night" placeholder="O mighty ones, grant me something with passion fruit…">
-        <button type="submit" class="pray-btn">Pray</button>
-      </div>
-      <div class="offerings" id="offerings" aria-label="Example prayers"></div>
-    </form>
-  </section>
-
-  <section class="revelation" id="revelation" aria-live="polite">
-    <div class="vessel">
-      <canvas id="drink" width="300" height="400" role="img" aria-label="Illustration of the drink"></canvas>
-      <p class="vessel-caption" id="vessel-caption"></p>
+<main class="sheet">
+  <section class="hero" id="hero" aria-label="Pray for a drink">
+    <div class="art hero-art" id="hero-art" aria-hidden="true"></div>
+    <div class="prayer" id="prayer-col">
+      <p class="kicker">a shrine for new tiki drinks</p>
+      <h1 class="title">Tiki God</h1>
+      <form id="prayer-form" class="prayer-form" autocomplete="off">
+        <label for="prayer" class="label">Say a prayer for a new tiki drink, and the tiki gods will abide.</label>
+        <div class="field" id="field">
+          <div class="art field-art" id="field-art" aria-hidden="true"></div>
+          <div class="art idol-art" id="idol-art" aria-hidden="true"></div>
+          <input id="prayer" name="prayer" type="text" value="something smoky and spicy for a cold night" placeholder="mezcal and passion fruit, not too sweet…">
+          <button type="submit" class="pray">pray</button>
+        </div>
+        <p class="tries">or try <span id="tries"></span></p>
+      </form>
     </div>
-    <article class="tablet" id="tablet"></article>
   </section>
 
-  <footer class="shrine-foot">
-    <p>Every recipe comes from the Tiki God engine: balanced against hundreds of catalogued classics and built only from bottles you can actually buy. <a href="https://github.com/nicceasy/Tiki-God" target="_blank" rel="noopener">The full catalogue and model</a></p>
+  <section class="answer" id="answer" aria-live="polite">
+    <figure class="vessel">
+      <div class="art drink-art" id="drink-art" role="img" aria-label="Ink and watercolor drawing of the drink"></div>
+      <figcaption class="caption" id="caption"></figcaption>
+    </figure>
+    <article class="recipe" id="recipe"></article>
+  </section>
+
+  <footer class="foot">
+    <p id="foot-note">Every recipe is balanced against the catalogued classics and built only from bottles you can buy today.</p>
+    <p><a href="https://github.com/nicceasy/Tiki-God" target="_blank" rel="noopener">The catalogue, the model and the methodology</a></p>
   </footer>
 </main>
 <!--/BUILD:BODY-->
