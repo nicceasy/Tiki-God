@@ -1,7 +1,7 @@
 import { createEngine } from './lib/engine.js';
 import { amountString } from './lib/format.js';
 import { paperTexture } from './lib/ink.js';
-import { drinkSpec, sceneSpec, idolSpec, frameSpec, pickVessel, VESSEL_WORDS } from './lib/artspec.js';
+import { drinkSpec, sceneSpec, idolSpec, frameSpec } from './lib/artspec.js';
 import { createArtist } from './lib/artrender.js';
 
 const PRAYERS = [
@@ -19,14 +19,15 @@ const ORACLES = ['Your prayer was heard', 'The gods abide', 'Poured from the smo
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const withArticle = n => `${/^[aeiou]/i.test(n) ? 'an' : 'a'} ${n}`;
 
 async function loadData() {
   if (window.__TIKI_DATA__) return window.__TIKI_DATA__;
   const get = p => fetch(p).then(r => { if (!r.ok) throw new Error(p); return r.json(); });
-  const [vocab, families, drinks, model] = await Promise.all([
-    get('../data/ingredients.json'), get('../data/families.json'), get('../data/drinks.json'), get('../data/model.json'),
+  const [vocab, families, drinks, model, vessels] = await Promise.all([
+    get('../data/ingredients.json'), get('../data/families.json'), get('../data/drinks.json'), get('../data/model.json'), get('../data/vessels.json'),
   ]);
-  return { vocab, families, drinks, model };
+  return { vocab, families, drinks, model, vessels };
 }
 
 let engine, art, idolFrames = null, last = { prayer: '', seed: 0, recipe: null };
@@ -89,7 +90,7 @@ function pray(prayer, seed = 0, { announce = true } = {}) {
   render(recipe, seed);
   const spec = drinkSpec({ ...recipe, seed }, engine.ingMap);
   art.drink.play(spec);
-  const vessel = VESSEL_WORDS[pickVessel(recipe)] || 'a glass';
+  const vessel = withArticle(recipe.vessel ? recipe.vessel.name : recipe.method.glass);
   $('#caption').textContent = `${recipe.name}, in ${vessel}`;
   $('#drink-art').setAttribute('aria-label', `Ink and watercolor drawing of the ${recipe.name} in ${vessel}`);
 }
@@ -123,6 +124,7 @@ function render(r, seed) {
     <ul class="lines">${lines}</ul>
     <h3 class="bleed" ${at()}>The ritual</h3>
     <ol class="steps">${r.method.steps.map(s => `<li class="bleed" ${at(55)}>${esc(s)}</li>`).join('')}</ol>
+    ${r.vessel && r.vessel.story ? `<h3 class="bleed" ${at()}>The vessel</h3><p class="vessel-note bleed" ${at()}><b>${esc(withArticle(r.vessel.name).replace(/^./, c => c.toUpperCase()))}.</b> ${esc(r.vessel.story)}</p>` : ''}
     <p class="stats bleed" ${at()}><span>${r.stats.abv}% abv</span><span>sugar ${r.stats.sugarConc} g/100 ml</span><span>acid ${r.stats.acidConc} g/100 ml</span></p>
     <h3 class="bleed" ${at()}>How it tastes</h3>
     <p class="tasting bleed" ${at()}>${esc(r.explanation.tasting)}</p>

@@ -227,6 +227,7 @@ for (const fam of families) {
     methods: countTable(fs, f => f.d.method),
     ice: countTable(fs, f => f.d.ice),
     glasses: topStrings(fs.map(f => f.d.glass)),
+    vessels: countTable(fs, f => f.d.vessel),
     garnishes: topStrings(fs.flatMap(f => f.d.garnish || []), 12),
     flavor: Object.fromEntries(Object.entries(centroid).sort((a, b) => b[1] - a[1]).slice(0, 20)),
     exemplars: fs.slice().sort((a, b) => b.d.popularity - a.d.popularity || b.w - a.w).slice(0, 8).map(f => f.d.id),
@@ -282,6 +283,22 @@ const drinkFacts = Object.fromEntries(facts.map(f => [f.d.id, {
   top: topTags(f.flavor, 5),
 }]));
 
+// ---------- vessels ----------
+const vesselNames = Object.fromEntries(JSON.parse(readFileSync(join(root, 'data/vessels.json'), 'utf8')).vessels.map(v => [v.id, v.name]));
+const vesselsOut = {};
+for (const id of Object.keys(vesselNames)) {
+  const fs = facts.filter(f => f.d.vessel === id);
+  if (!fs.length) { vesselsOut[id] = { n: 0, share: 0 }; continue; }
+  const q = wQuantiles(fs.map(f => [f.chem.finalOz, f.w]));
+  vesselsOut[id] = {
+    n: fs.length,
+    share: round(fs.reduce((s, f) => s + f.w, 0) / totalW, 3),
+    finalOz: q ? q.median : null,
+    families: countTable(fs, f => f.d.family),
+    ex: fs.slice().sort((a, b) => b.d.popularity - a.d.popularity || b.w - a.w).slice(0, 4).map(f => f.d.id),
+  };
+}
+
 const model = {
   version: 1,
   generated: new Date().toISOString().slice(0, 10),
@@ -296,6 +313,7 @@ const model = {
   popularVsObscure,
   eras,
   formulas,
+  vessels: vesselsOut,
   drinks: drinkFacts,
 };
 writeFileSync(join(root, 'data/model.json'), JSON.stringify(model) + '\n');
@@ -341,5 +359,10 @@ pairList.sort((x, y) => y[2].pmi * Math.log(1 + y[2].n) - x[2].pmi * Math.log(1 
 for (const [a, b, p] of pairList.slice(0, 60)) md += `| ${nameOf(a)} + ${nameOf(b)} | ${p.pmi} | ${p.n} | ${p.ex.map(drinkName).slice(0, 2).join('; ')} |\n`;
 md += `\n## Rum blends\n\n| rums | drinks | e.g. |\n|---|---|---|\n`;
 for (const c of rumCombos.slice(0, 25)) md += `| ${c.rums.map(nameOf).join(' + ')} | ${c.n} | ${c.ex.map(drinkName).slice(0, 2).join('; ')} |\n`;
+md += `\n## Vessels\n\nEvery drink is mapped to one specific vessel (web/lib/vessels.js; histories in docs/vessels.md). Share is popularity-weighted; volume is the median finished drink before ice.\n\n| vessel | drinks | weighted share | median volume (oz) | main families | e.g. |\n|---|---|---|---|---|---|\n`;
+for (const [id, v] of Object.entries(vesselsOut).sort((a, b) => b[1].share - a[1].share)) {
+  if (!v.n) { md += `| ${vesselNames[id]} | 0 | – | – | – | – |\n`; continue; }
+  md += `| ${vesselNames[id]} | ${v.n} | ${(v.share * 100).toFixed(1)}% | ${v.finalOz} | ${Object.entries(v.families).slice(0, 3).map(([f, x]) => `${f} ${Math.round(x * 100)}%`).join(', ')} | ${v.ex.map(drinkName).join('; ')} |\n`;
+}
 writeFileSync(join(root, 'docs/analysis.md'), md);
 console.log(`analyzed ${drinks.length} drinks → data/model.json, docs/analysis.md`);

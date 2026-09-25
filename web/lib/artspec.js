@@ -5,6 +5,7 @@
 // (x, y) is where the part's anchor lands; the part is scaled by s and turned by rot about it.
 import { CATALOG, PALETTE, rimOf, levelOf, GLASS_PROFILES } from './artcatalog.js';
 import { rng, seedOf, mixHex } from './ink.js';
+import { vesselForDrink } from './vessels.js';
 
 // [r, g, b, tint]: tint is how strongly an ingredient colors the drink per ounce.
 const COLOR = {
@@ -67,25 +68,13 @@ export function liquidColor(lines, ingMap) {
   return color;
 }
 
+// The recipe's own vessel (every generated drink has one); older recipes fall back to their glass text.
 export function pickVessel(recipe) {
-  const t = (recipe.method.glass || '').toLowerCase(), m = recipe.method.method;
-  if (m === 'hot') return 'mug';
-  if ((recipe.style && recipe.style.bowl) || /^punch bowl|bowl for|scorpion bowl/.test(t)) return 'bowl';
-  if (/tiki|skull|moai/.test(t)) return 'tiki';
-  if (/bowl/.test(t)) return 'bowl';
-  if (/coupe|cocktail glass|nick|martini|flute/.test(t)) return 'coupe';
-  if (/snifter|goblet/.test(t)) return 'snifter';
-  if (/hurricane/.test(t)) return 'hurricane';
-  if (/pilsner|footed/.test(t)) return 'pilsner';
-  if (/chimney|zombie|collins|highball|tall|sling/.test(t)) return 'highball';
-  if (/old.fashioned|rocks|double|dof|lowball|tumbler/.test(t)) return 'rocks';
-  if (/mug|tin/.test(t)) return 'mug';
-  if (m === 'blend') return 'hurricane';
-  if (m === 'stir') return 'rocks';
-  return 'highball';
+  const id = recipe.vessel && recipe.vessel.id;
+  if (id && GLASS_PROFILES[id]) return id;
+  const v = vesselForDrink({ name: recipe.name, glass: recipe.method.glass, method: recipe.method.method, ice: recipe.method.ice, ingredients: [] });
+  return GLASS_PROFILES[v] ? v : 'collins';
 }
-
-export const VESSEL_WORDS = { rocks: 'a double old fashioned', highball: 'a tall glass', pilsner: 'a footed pilsner', hurricane: 'a hurricane glass', coupe: 'a chilled coupe', snifter: 'a snifter', tiki: 'a tiki mug', mug: 'a warm mug', bowl: 'a punch bowl' };
 
 // Anchor of each garnish part in its own box: the point that touches the drink.
 const ANCHOR = {
@@ -103,8 +92,10 @@ export function drinkSpec(recipe, ingMap) {
   const hot = method === 'hot';
   const frozen = method === 'blend' || recipe.method.ice === 'blended';
   const iceStyle = hot ? 'none' : frozen ? 'blended' : recipe.method.ice;
-  const heaped = ['crushed', 'pebble', 'shaved', 'ice-cone'].includes(iceStyle) && kind !== 'coupe';
-  const fill = kind === 'coupe' ? 0.86 : kind === 'bowl' ? 0.72 : kind === 'mug' ? 0.8 : 0.84;
+  const UP = ['coupe', 'nick-nora', 'cocktail-glass', 'flute'];
+  const BOWL = ['scorpion-bowl', 'volcano-bowl', 'punch-bowl'].includes(kind);
+  const heaped = ['crushed', 'pebble', 'shaved', 'ice-cone'].includes(iceStyle) && !UP.includes(kind);
+  const fill = UP.includes(kind) ? 0.86 : BOWL ? 0.72 : kind === 'irish-coffee' ? 0.8 : 0.84;
   const level = levelOf(kind, fill);
   const color = liquidColor(recipe.lines, ingMap);
   const floats = recipe.lines.filter(l => l.float && !l.garnish);
@@ -116,17 +107,17 @@ export function drinkSpec(recipe, ingMap) {
 
   const els = [];
   const add = (part, params, x, y, s = 1, rot = 0) => els.push({ part, params, x, y, s, rot, anchor: ANCHOR[part] });
-  els.push({ part: 'glass', params: { kind, glaze }, x: 0, y: 0 });
+  els.push({ part: 'glass', params: { kind, glaze, flaming }, x: 0, y: 0 });
   els.push({ part: 'liquid', params: { kind, fill, color, crown, frozen }, x: 0, y: 0 });
-  if (iceStyle !== 'none' && iceStyle !== 'blended') els.push({ part: 'ice', params: { kind, style: iceStyle, fill, seed: seed % 997 }, x: 0, y: 0 });
+  if (iceStyle !== 'none' && iceStyle !== 'blended' && !(UP.includes(kind) && !heaped)) els.push({ part: 'ice', params: { kind, style: iceStyle, fill, seed: seed % 997 }, x: 0, y: 0 });
   if (recipe.lines.some(l => FIZZ.has(l.id))) els.push({ part: 'fizz', params: { kind, fill, seed: seed % 991 }, x: 0, y: 0 });
 
   // Where things rest: on the ice heap, the frozen dome, or the surface.
   const top = heaped ? R.y - 14 : frozen ? R.y - 24 : G.opaque ? R.y : level;
   const hw = R.hw;
-  const tall = !['coupe', 'mug', 'snifter'].includes(kind) && method !== 'stir';
+  const tall = ![...UP, 'hot-mug', 'irish-coffee', 'rocks', 'clay-cup', 'punch-bowl'].includes(kind) && !hot && method !== 'stir';
   const garnishes = [];
-  if (/mint/.test(g)) garnishes.push(() => add('garnish.mint', { big: /bouquet|big/.test(g) }, R.cx - hw * 0.34, top + 6, kind === 'bowl' ? 1.25 : 1.05, -0.12));
+  if (/mint/.test(g)) garnishes.push(() => add('garnish.mint', { big: /bouquet|big/.test(g) }, R.cx - hw * 0.34, top + 6, BOWL ? 1.25 : 1.05, -0.12));
   if (/pineapple/.test(g)) garnishes.push(() => add('garnish.pineapple-wedge', {}, R.cx + hw * 0.96, R.y - 4, 0.9, 0.55));
   if (/lime (wheel|wedge|slice)/.test(g)) garnishes.push(() => add('garnish.lime-wheel', {}, R.cx - hw * 0.96, R.y + 2, 0.72, -0.3));
   else if (/orange (wheel|slice|half)|^orange$/.test(g)) garnishes.push(() => add('garnish.orange-wheel', {}, R.cx - hw * 0.96, R.y + 2, 0.72, -0.3));
@@ -140,7 +131,7 @@ export function drinkSpec(recipe, ingMap) {
   const umbrella = /umbrella/.test(g) || ['colada', 'resort-punch'].includes(recipe.family.id);
 
   if (tall) {
-    const straws = kind === 'bowl' ? Math.min(3, Math.max(2, recipe.servings || 2)) : 1;
+    const straws = BOWL ? Math.min(3, Math.max(2, recipe.servings || 2)) : 1;
     for (let i = 0; i < straws; i++) {
       // Through a clear glass the straw shows all the way down; a mug hides all but the top.
       const foot = G.opaque ? R.y + 4 : R.bottom - 14;
@@ -150,9 +141,9 @@ export function drinkSpec(recipe, ingMap) {
     }
   }
   garnishes.slice(0, 4).forEach(f => f());
-  if (umbrella && kind !== 'coupe') add('garnish.umbrella', {}, R.cx - hw * 0.12, top + 4, 0.95, -0.22);
+  if (umbrella && !UP.includes(kind)) add('garnish.umbrella', {}, R.cx - hw * 0.12, top + 4, 0.95, -0.22);
   if (hot) els.push({ part: 'steam', params: { kind }, x: 0, y: 0 });
-  return { v: 1, box: [300, 400], fit: 'content-y', seed, kind, elements: els };
+  return { v: 1, box: [300, 460], fit: 'content-y', seed, kind, elements: els };
 }
 
 // The decorative drawings around the prayer. `text` is the prayer column's box in hero pixels;

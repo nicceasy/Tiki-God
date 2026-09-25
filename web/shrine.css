@@ -199,6 +199,8 @@ body {
 
 .stats { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 22px 0 0; font: 400 13px/1.5 var(--mono); color: var(--ink-2); }
 .tasting { margin: 0; font-size: 17px; }
+.vessel-note { margin: 0; color: var(--ink-2); }
+.vessel-note b { color: var(--ink); font-weight: 600; }
 .lineage, .why { margin: 0; padding-left: 1.1em; }
 .lineage li, .why li { padding: 3px 0; }
 .lineage li::marker, .why li::marker { color: var(--hibiscus); }

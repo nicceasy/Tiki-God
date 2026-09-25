@@ -22,6 +22,7 @@ const ICE = ['crushed', 'cubed', 'pebble', 'shaved', 'block', 'none', 'blended',
 const CONF = ['high', 'medium', 'low'];
 const UNITS = Object.keys(vocab.units);
 const familyIds = new Set(families.families.map(f => f.id));
+const vesselIds = new Set(JSON.parse(readFileSync(join(root, 'data/vessels.json'), 'utf8')).vessels.map(v => v.id));
 
 export function validateDrinks(drinks, extraIngredientIds = []) {
   const ingIds = new Set([...vocab.ingredients.map(i => i.id), ...extraIngredientIds]);
@@ -45,6 +46,7 @@ export function validateDrinks(drinks, extraIngredientIds = []) {
     if (!Number.isInteger(d.popularity) || d.popularity < 1 || d.popularity > 5) err('popularity must be 1..5');
     if (!METHODS.includes(d.method)) err(`bad method "${d.method}"`);
     if (!ICE.includes(d.ice)) err(`bad ice "${d.ice}"`);
+    if (d.vessel !== undefined && !vesselIds.has(d.vessel)) err(`unknown vessel "${d.vessel}"`);
     if (!CONF.includes(d.confidence)) err(`bad confidence "${d.confidence}"`);
     if (!d.source) warn('no source');
     if (d.servings !== undefined && !(d.servings >= 1)) err('servings must be >= 1');

@@ -16,7 +16,8 @@ const families = read('data/families.json');
 const drinks = read('data/drinks.json');
 const model = read('data/model.json');
 const canon = read('tests/fixtures/canon.json');
-const engine = createEngine({ vocab, families, drinks, model });
+const vessels = read('data/vessels.json');
+const engine = createEngine({ vocab, families, drinks, model, vessels });
 const ingMap = indexIngredients(vocab);
 
 const USABLE = new Set(['common', 'specialty', 'homemade']);
@@ -121,4 +122,41 @@ test('bar amounts snap to measurable quantities', () => {
   assert.equal(snap(0.05, ingMap.get('angostura'), 'accent').unit, 'dash');
   assert.equal(snap(0.018, ingMap.get('pastis'), 'accent').unit, 'drop');
   assert.equal(fracString(1.75), '1¾');
+});
+
+test('every catalogued drink has a known, drawable vessel', async () => {
+  const { GLASS_PROFILES } = await import('../web/lib/artcatalog.js');
+  const ids = new Set(vessels.vessels.map(v => v.id));
+  for (const v of vessels.vessels) assert.ok(GLASS_PROFILES[v.id], `no drawing for vessel ${v.id}`);
+  for (const d of drinks) assert.ok(ids.has(d.vessel), `${d.id}: vessel ${d.vessel}`);
+  const byName = n => drinks.filter(d => d.name === n).map(d => d.vessel);
+  assert.ok(byName('Painkiller').every(v => v === 'enamel-tin'), 'Painkiller comes in the Pusser\'s tin');
+  assert.ok(byName('Pearl Diver').every(v => v === 'pearl-diver'), 'the Pearl Diver has its own glass');
+  assert.ok(byName('Shrunken Skull').every(v => v === 'skull-mug'));
+  assert.ok(byName('Jungle Bird').includes('bird-mug'), 'the 1973 original was served in a bird');
+});
+
+test('every generated drink gets a vessel that takes its service and holds it', () => {
+  const byId = Object.fromEntries(vessels.vessels.map(v => [v.id, v]));
+  for (const p of PROMPTS) for (const seed of [0, 1, 2]) {
+    const r = engine.generate(p, { seed });
+    assert.ok(r.vessel && byId[r.vessel.id], `${p}: no vessel`);
+    const v = byId[r.vessel.id];
+    assert.equal(r.method.glass, v.name, `${p}: steps name the vessel`);
+    if (r.vessel.why === 'asked') continue;
+    const bowl = r.servings >= 3 || r.style.bowl;
+    assert.equal(v.serve.includes('bowl'), !!bowl, `${p}: ${v.id} for ${r.servings} servings`);
+    if (!bowl) assert.ok(r.stats.finalOz <= v.capacity * 1.12, `${p}: ${r.stats.finalOz} oz in a ${v.capacity} oz ${v.id}`);
+    if (r.method.method === 'hot') assert.ok(v.serve.includes('hot'), `${p}: hot drink in ${v.id}`);
+    if (r.method.method === 'blend') assert.ok(v.serve.includes('frozen'), `${p}: frozen drink in ${v.id}`);
+  }
+});
+
+test('asking for a vessel gets you that vessel, served the way it holds a drink', () => {
+  const cases = { 'mezcal in a coconut': 'coconut', 'a skull mug of something dark': 'skull-mug', 'volcano bowl for 4': 'volcano-bowl', 'daiquiri in a tiki mug': 'ku-mug', 'something bitter in a coupe': 'coupe', 'zombie glass of dark rum': 'chimney' };
+  for (const [p, id] of Object.entries(cases)) {
+    const r = engine.generate(p);
+    assert.equal(r.vessel.id, id, p);
+  }
+  assert.equal(engine.generate('mezcal in a coconut').method.ice, 'crushed', 'a coconut is packed with crushed ice');
 });

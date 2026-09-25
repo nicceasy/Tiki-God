@@ -36,11 +36,11 @@ async function loadData() {
   if (window.__TIKI_DATA__) return window.__TIKI_DATA__;
   const get = p => fetch(p).then(r => { if (!r.ok) throw new Error(p); return r.json(); });
   const text = p => fetch(p).then(r => (r.ok ? r.text() : '')).catch(() => '');
-  const [vocab, families, drinks, model, timeline, history, concepts, methodology] = await Promise.all([
-    get('../data/ingredients.json'), get('../data/families.json'), get('../data/drinks.json'), get('../data/model.json'),
+  const [vocab, families, drinks, model, vessels, timeline, history, concepts, methodology] = await Promise.all([
+    get('../data/ingredients.json'), get('../data/families.json'), get('../data/drinks.json'), get('../data/model.json'), get('../data/vessels.json'),
     get('../docs/timeline.json').catch(() => []), text('../docs/history.md'), text('../docs/concepts.md'), text('../docs/methodology.md'),
   ]);
-  return { vocab, families, drinks, model, timeline, docs: { history: markdownToHtml(history), concepts: markdownToHtml(concepts), methodology: markdownToHtml(methodology) } };
+  return { vocab, families, drinks, model, vessels, timeline, docs: { history: markdownToHtml(history), concepts: markdownToHtml(concepts), methodology: markdownToHtml(methodology) } };
 }
 
 const state = { units: store.get('units', 'oz'), seed: 0, prompt: '', current: null, canonSel: null };

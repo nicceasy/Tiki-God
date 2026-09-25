@@ -13,7 +13,7 @@ const readJson = p => JSON.parse(read(p));
 const maybe = (p, fallback) => (existsSync(join(root, p)) ? read(p) : fallback);
 
 // Tiny module bundler for our own ES modules (named imports/exports only).
-const LIB = ['web/lib/chem.js', 'web/lib/flavor.js', 'web/lib/prompt.js', 'web/lib/format.js', 'web/lib/names.js', 'web/lib/engine.js'];
+const LIB = ['web/lib/chem.js', 'web/lib/flavor.js', 'web/lib/prompt.js', 'web/lib/format.js', 'web/lib/names.js', 'web/lib/vessels.js', 'web/lib/engine.js'];
 function bundle(modules) {
   const parts = ['const __m = {};'];
   for (const file of modules) {
@@ -35,6 +35,7 @@ const core = {
   families: readJson('data/families.json'),
   drinks: readJson('data/drinks.json'),
   model: readJson('data/model.json'),
+  vessels: readJson('data/vessels.json'),
 };
 const full = {
   ...core,

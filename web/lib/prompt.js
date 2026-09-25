@@ -272,6 +272,44 @@ export const DIETS = [
 
 const NUMBER_WORDS = { two: 2, three: 3, four: 4, five: 5, six: 6, eight: 8, ten: 10, twelve: 12, couple: 2, pair: 2, dozen: 12 };
 
+// Vessels you can ask for by name ("in a coconut", "skull mug", "volcano bowl"). Matched before
+// drink names, so "zombie glass" picks the glass rather than starting a Zombie riff.
+export const VESSEL_WORDS = [
+  { v: 'coupe', k: ['coupe', 'champagne saucer', 'served up'] },
+  { v: 'nick-nora', k: ['nick and nora', 'nick & nora', 'nick nora'] },
+  { v: 'cocktail-glass', k: ['martini glass', 'cocktail glass', 'v glass'] },
+  { v: 'rocks', k: ['rocks glass', 'on the rocks', 'lowball', 'old fashioned glass', 'old-fashioned glass'] },
+  { v: 'dof', k: ['double old fashioned', 'double old-fashioned', 'mai tai glass', 'dof'] },
+  { v: 'highball', k: ['highball glass'] },
+  { v: 'collins', k: ['collins glass', 'tall glass'] },
+  { v: 'chimney', k: ['zombie glass', 'chimney glass', 'chimney'] },
+  { v: 'hurricane', k: ['hurricane glass', 'hurricane lamp'] },
+  { v: 'poco-grande', k: ['poco grande', 'pina colada glass', 'piña colada glass'] },
+  { v: 'footed-pilsner', k: ['footed pilsner', 'pilsner'] },
+  { v: 'pearl-diver', k: ['pearl diver glass'] },
+  { v: 'snifter', k: ['tiki snifter', 'snifter'] },
+  { v: 'tulip', k: ['tulip glass', 'sling glass'] },
+  { v: 'goblet', k: ['goblet', 'chalice'] },
+  { v: 'flute', k: ['champagne flute', 'flute'] },
+  { v: 'irish-coffee', k: ['irish coffee glass'] },
+  { v: 'julep-cup', k: ['julep cup', 'julep tin', 'swizzle cup', 'silver cup', 'metal cup'] },
+  { v: 'copper-mug', k: ['copper mug', 'mule mug'] },
+  { v: 'enamel-tin', k: ['enamel tin', 'enamel mug', 'tin mug', 'camp mug'] },
+  { v: 'ku-mug', k: ['tiki mug', 'ku mug'] },
+  { v: 'moai-mug', k: ['moai mug', 'moai', 'easter island head', 'easter island'] },
+  { v: 'skull-mug', k: ['skull mug', 'skull cup', 'in a skull'] },
+  { v: 'barrel-mug', k: ['barrel mug', 'rum barrel mug', 'in a barrel', 'rum keg'] },
+  { v: 'fog-cutter-mug', k: ['fog cutter mug'] },
+  { v: 'bird-mug', k: ['bird mug', 'parrot mug', 'bird shaped', 'bird-shaped', 'in a bird'] },
+  { v: 'coconut', k: ['in a coconut', 'coconut shell', 'coconut cup', 'coconut mug'], tags: { coconut: 1 } },
+  { v: 'pineapple', k: ['in a pineapple', 'pineapple shell', 'hollowed pineapple', 'hollowed-out pineapple', 'pineapple cup'], tags: { pineapple: 1 } },
+  { v: 'clay-cup', k: ['clay cup', 'terracotta cup', 'clay pot'] },
+  { v: 'hot-mug', k: ['toddy mug', 'coffee mug'], style: { hot: true } },
+  { v: 'scorpion-bowl', k: ['scorpion bowl', 'tiki bowl', 'kava bowl'], style: { bowl: true } },
+  { v: 'volcano-bowl', k: ['volcano bowl'], style: { bowl: true, flaming: true } },
+  { v: 'punch-bowl', k: ['punch bowl'], style: { bowl: true } },
+];
+
 export function normalizeText(s) {
   return ' ' + (s || '')
     .toLowerCase()
@@ -346,10 +384,23 @@ export function parsePrompt(raw, { nameIndex = [], familyIds = [] } = {}) {
     raw,
     tags: {}, avoidTags: {}, ings: {}, avoidIngs: new Set(), spirits: [], avoidSpirits: new Set(),
     fam: {}, strength: 0, sweetness: 0, tartness: 0, complexity: 0,
-    style: {}, color: null, servings: 1, riffOf: null, riffName: null,
+    style: {}, color: null, servings: 1, riffOf: null, riffName: null, vessel: null,
     matched: [], diets: [],
   };
   const add = (obj, k, v) => { obj[k] = (obj[k] || 0) + v; };
+
+  // A named vessel, longest phrase first.
+  const vesselPhrases = VESSEL_WORDS.flatMap(e => e.k.map(k => [normalizeText(k).trim(), e])).sort((a, b) => b[0].length - a[0].length);
+  for (const [phrase, e] of vesselPhrases) {
+    if (!findPhrase(text, phrase).length) continue;
+    if (!intent.vessel) {
+      intent.vessel = e.v;
+      if (e.tags) for (const [t, w] of Object.entries(e.tags)) add(intent.tags, t, w);
+      if (e.style) Object.assign(intent.style, e.style);
+      intent.matched.push({ phrase, label: `served in: ${phrase.replace(/^in an? /, '')}` });
+    }
+    text = text.split(' ' + phrase + ' ').join(' ');
+  }
 
   // Drink names first (longest match wins, and consume the text so "zombie" isn't also a mood).
   for (const n of nameIndex) {

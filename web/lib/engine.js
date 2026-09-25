@@ -6,6 +6,7 @@ import { flavorVector, normalize, cosine, lineImpact, tagWeights } from './flavo
 import { parsePrompt, buildNameIndex } from './prompt.js';
 import { snap, amountString } from './format.js';
 import { makeName } from './names.js';
+import { serviceOf, SERVICE_FITS } from './vessels.js';
 
 const ROLE_ORDER = ['base', 'sour', 'juice', 'sweet', 'modifier', 'rich', 'accent', 'lengthener'];
 const USABLE = new Set(['common', 'specialty', 'homemade']);
@@ -92,7 +93,9 @@ function interpQ(q, s) {
   return q.median;
 }
 
-export function createEngine({ vocab, families, drinks, model }) {
+export function createEngine({ vocab, families, drinks, model, vessels = { vessels: [] } }) {
+  const vesselList = vessels.vessels || [];
+  const vesselById = Object.fromEntries(vesselList.map(v => [v.id, v]));
   const ingMap = indexIngredients(vocab);
   const units = vocab.units;
   const famList = families.families;
@@ -683,6 +686,54 @@ export function createEngine({ vocab, families, drinks, model }) {
     return { method, ice, glass };
   }
 
+  // ---------- vessel ----------
+  // Every drink gets one specific vessel. Asked-for beats riff source beats the family's habits;
+  // the vessel must take the drink's service (up, rocks, crushed, frozen, hot, bowl) and hold it.
+  const CONF = { high: 3, medium: 2, low: 1 };
+  function chooseVessel(famId, intent, svc, chem, src, rng, greedy) {
+    if (!vesselList.length) return null;
+    const service = serviceOf(svc.method, svc.ice);
+    const servings = intent.servings || 1;
+    const bowl = !!intent.style.bowl || servings >= 3;
+    const takes = v => v.serve.includes('bowl') ? bowl : !bowl && SERVICE_FITS[service].some(x => v.serve.includes(x));
+    const needFor = v => {
+      const base = chem.finalOz * (bowl ? servings : 1);
+      if (service === 'crushed') return base * 1.5;
+      if (service === 'frozen') return base * 1.1;
+      return v.serve.includes('up') && service === 'shaken' ? base : service === 'hot' ? base : base * 1.35;
+    };
+    const fitOf = v => {
+      const r = needFor(v) / v.capacity;
+      if (r > 1.12) return 0;
+      return r >= 0.5 ? 1 : Math.pow(r / 0.5, 1.5);
+    };
+    const asked = intent.vessel && vesselById[intent.vessel];
+    if (asked) return { v: asked, why: 'asked' };
+    // A riff keeps its source's vessel, or failing that the vessel of another spec of the same
+    // drink that suits this serving (a single Scorpion rather than the bowl).
+    if (src && famId === src.family) {
+      const sameName = drinks.filter(d => d.name === src.name && d.vessel).sort((a, b) => (b.popularity - a.popularity) || ((CONF[b.confidence] || 0) - (CONF[a.confidence] || 0)));
+      for (const d of [src, ...sameName]) {
+        const v = vesselById[d.vessel];
+        if (v && takes(v)) return { v, why: 'riff' };
+      }
+    }
+    const F = (model.families[famId] || {}).vessels || {};
+    const scored = [];
+    for (const v of vesselList) {
+      if (!takes(v)) continue;
+      const fit = bowl ? 1 : fitOf(v);
+      if (!fit) continue;
+      let w = (F[v.id] || 0) + 0.3 * ((v.families || {})[famId] || 0) + 0.004;
+      if (bowl && v.id === 'volcano-bowl' && intent.style.flaming) w += 2;
+      if (bowl && v.id === 'punch-bowl' && ['punch', 'stirred', 'buck'].includes(famId)) w += 0.5;
+      if (service === 'frozen' && ['hurricane', 'poco-grande', 'coconut', 'pineapple'].includes(v.id)) w += 0.15;
+      scored.push({ item: v, s: Math.log(w * fit) });
+    }
+    if (!scored.length) return { v: vesselById[bowl ? 'punch-bowl' : 'collins'] || vesselList[0], why: 'fallback' };
+    return { v: softPick(rng, scored, 0.7, greedy), why: 'family' };
+  }
+
   function garnishFor(famId, intent, lines, flavorTop) {
     const g = [];
     const ids = lines.map(l => l.id);
@@ -715,6 +766,7 @@ export function createEngine({ vocab, families, drinks, model }) {
 
   function steps(svc, lines, intent) {
     const g = svc.glass;
+    const aG = `${/^[aeiou]/i.test(g) && !/^(u|one)/i.test(g) ? 'an' : 'a'} ${g}`;
     const floats = lines.filter(l => l.float);
     const lengthener = lines.find(l => l.role === 'lengthener');
     const bitters = lines.filter(l => ingMap.get(l.id).cat === 'bitters');
@@ -726,37 +778,37 @@ export function createEngine({ vocab, families, drinks, model }) {
       case 'flash-blend':
         out.push(`Add everything${lengthener ? ` except the ${displayName(lengthener.id)}` : ''} to a blender cup with 12 oz (1½ cups) of crushed ice${mul}.`);
         out.push('Flash-blend for 3–5 seconds — or shake very hard with crushed ice if you have no spindle mixer.');
-        out.push(`Open-pour everything, ice and all, into a ${g}; top with more crushed ice.`);
+        out.push(`Open-pour everything, ice and all, into ${aG}; top with more crushed ice.`);
         break;
       case 'blend':
         out.push(`Add everything to a blender with 1 cup (8 oz) of crushed ice${mul}.`);
-        out.push(`Blend until smooth and thick, then pour into a ${g}.`);
+        out.push(`Blend until smooth and thick, then pour into ${aG}.`);
         break;
       case 'swizzle':
-        if (mint) out.push(`Lightly muddle the mint in the bottom of a ${g}.`);
+        if (mint) out.push(`Lightly muddle the mint in the bottom of ${aG}.`);
         out.push(`Add the remaining ingredients${bitters.length ? ` except the ${bitters.map(b => displayName(b.id)).join(' and ')}` : ''}${mul}.`);
         out.push('Fill two-thirds with crushed ice and swizzle until the glass frosts over; pack with more ice.');
         if (bitters.length) out.push(`Dash the ${bitters.map(b => displayName(b.id)).join(' and ')} over the top to form a red crown.`);
         break;
       case 'stir':
         out.push(`Stir everything with ice for 20–30 seconds${mul}.`);
-        out.push(`Strain into a ${g} over one large cube.`);
+        out.push(svc.up ? `Strain into a chilled ${g}.` : `Strain into ${aG} over one large cube.`);
         break;
       case 'build':
       case 'muddle-build':
-        out.push(`Build in a ${g} over ice${mul}.`);
+        out.push(`Build in ${aG} over ice${mul}.`);
         break;
       case 'hot':
-        out.push(`Preheat a ${g} with boiling water, then empty it.`);
+        out.push(`Preheat ${aG} with boiling water, then empty it.`);
         out.push(`Add everything${lengthener ? ` except the ${displayName(lengthener.id)}` : ''} and stir to dissolve${mul}.`);
         break;
       default:
         if (svc.ice === 'cubed') {
           out.push(`Shake everything${lengthener ? ` except the ${displayName(lengthener.id)}` : ''} hard with cubed ice for 10–12 seconds${mul}.`);
-          out.push(`Strain into a chilled ${g}${/coupe|cocktail/.test(g) ? '' : ' over fresh ice'}.`);
+          out.push(`Strain into a chilled ${g}${svc.up ?? /coupe|cocktail/.test(g) ? '' : ' over fresh ice'}.`);
         } else {
           out.push(`Shake everything${lengthener ? ` except the ${displayName(lengthener.id)}` : ''} with 12 oz of crushed ice for 8–10 seconds${mul}.`);
-          out.push(`Open-pour, ice and all, into a ${g}; top with crushed ice to fill.`);
+          out.push(`Open-pour, ice and all, into ${aG}; top with crushed ice to fill.`);
         }
     }
     if (lengthener) out.push(svc.method === 'hot' ? `Top with ${lengthener.amount} oz of steaming ${displayName(lengthener.id).toLowerCase()}.` : `Top with ${displayName(lengthener.id).toLowerCase()} and give one gentle stir.`);
@@ -973,6 +1025,14 @@ export function createEngine({ vocab, families, drinks, model }) {
     }
     ensureStructure(lines, famId, intent);
     const svc = service(famId, intent, lines, riffSrc && famId === riffSrc.family ? riffSrc : null);
+    // Asked for a coconut or a coupe? Serve the drink the way that vessel holds it.
+    const askedV = intent.vessel && vesselById[intent.vessel];
+    if (askedV && !askedV.serve.includes('bowl') && !SERVICE_FITS[serviceOf(svc.method, svc.ice)].some(x => askedV.serve.includes(x))) {
+      if (askedV.serve.includes('crushed')) { if (svc.method === 'blend' || svc.method === 'stir') svc.method = 'shake'; svc.ice = 'crushed'; }
+      else if (askedV.serve.includes('frozen')) { svc.method = 'blend'; svc.ice = 'blended'; }
+      else if (askedV.serve.includes('up')) { if (!['shake', 'stir'].includes(svc.method)) svc.method = 'shake'; svc.ice = 'cubed'; }
+      else if (askedV.serve.includes('rocks')) { if (!['shake', 'stir', 'build'].includes(svc.method)) svc.method = 'shake'; svc.ice = 'cubed'; }
+    }
     initialDoses(lines, famId, intent);
     const T = riffSrc && famId === riffSrc.family ? riffTargets(riffSrc, famId, intent, svc) : targetsFor(famId, intent, svc.method, svc.ice);
     balance(lines, T);
@@ -984,6 +1044,8 @@ export function createEngine({ vocab, families, drinks, model }) {
     const profile = profileOf(lines.map(l => ({ id: l.id, amount: l.oz, unit: 'oz', garnish: l.role === 'aromatic' })), 1, svc.method, svc.ice);
     const flavorTop = Object.entries(profile.flavor).sort((a, b) => b[1] - a[1]).map(([t]) => t).filter(t => !['light', 'crisp', 'dry', 'sweet', 'citrus', 'tart'].includes(t)).slice(0, 5);
     const garnish = garnishFor(famId, intent, lines, flavorTop);
+    const pick = chooseVessel(famId, intent, svc, chem, riffSrc, rngFrom(`${prompt}::${seed}::vessel`), greedy);
+    if (pick) { svc.glass = pick.v.name; svc.vessel = pick.v.id; svc.up = pick.v.serve.includes('up') && serviceOf(svc.method, svc.ice) === 'shaken'; }
     const name = makeName(rng, {
       family: famId, flavorTags: [...Object.entries(intent.tags).sort((a, b) => b[1] - a[1]).map(([t]) => t), ...flavorTop], color: intent.color,
       baseIds: lines.filter(l => l.role === 'base').map(l => l.id), mood: intent.matched.some(m => m.label === 'spooky') ? 'spooky' : null, taken: takenNames,
@@ -1001,6 +1063,7 @@ export function createEngine({ vocab, families, drinks, model }) {
         garnish: l.role === 'aromatic', examples: ingMap.get(l.id).examples || [], avail: ingMap.get(l.id).avail,
       })),
       method: { ...svc, steps: steps(svc, lines, intent) },
+      vessel: pick ? { id: pick.v.id, name: pick.v.name, kind: pick.v.kind, story: pick.v.story || '', why: pick.why } : null,
       garnish,
       flavor: flavorTop,
       stats: {

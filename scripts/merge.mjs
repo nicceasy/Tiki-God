@@ -3,10 +3,12 @@
 // - dedupes records that describe the same drink/spec across slices
 // - resolves free-text `parents` names to drink ids (`parent_ids`)
 // - reports ingredient proposals that still need to be added to data/ingredients.json
+// - gives every drink a specific serving `vessel` (web/lib/vessels.js, data/vessels.json)
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateDrinks } from './validate.mjs';
+import { vesselForDrink } from '../web/lib/vessels.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dir = join(root, 'data/drinks');
@@ -122,6 +124,12 @@ for (const d of merged) {
   }
   d.parent_ids = [...new Set(ids)];
 }
+
+// 3b. Serving vessel: identity-defining classics by name, otherwise from the glass text,
+// falling back to the family's own glass.
+const families = JSON.parse(readFileSync(join(root, 'data/families.json'), 'utf8')).families;
+const famVessel = Object.fromEntries(families.map(f => [f.id, vesselForDrink({ glass: f.glass, method: f.method, ice: f.ice })]));
+for (const d of merged) d.vessel = vesselForDrink(d, famVessel[d.family]);
 
 merged.sort((a, b) => (a.year ?? 9999) - (b.year ?? 9999) || a.name.localeCompare(b.name));
 
