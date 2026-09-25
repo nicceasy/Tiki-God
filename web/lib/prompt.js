@@ -305,7 +305,8 @@ export const VESSEL_WORDS = [
   { v: 'pineapple', k: ['in a pineapple', 'pineapple shell', 'hollowed pineapple', 'hollowed-out pineapple', 'pineapple cup'], tags: { pineapple: 1 } },
   { v: 'clay-cup', k: ['clay cup', 'terracotta cup', 'clay pot'] },
   { v: 'hot-mug', k: ['toddy mug', 'coffee mug'], style: { hot: true } },
-  { v: 'scorpion-bowl', k: ['scorpion bowl', 'tiki bowl', 'kava bowl'], style: { bowl: true } },
+  { v: 'scorpion-bowl', k: ['scorpion bowl'], style: { bowl: true } },
+  { v: 'tiki-bowl', k: ['tiki bowl', 'kava bowl', 'mystery bowl'], style: { bowl: true } },
   { v: 'volcano-bowl', k: ['volcano bowl'], style: { bowl: true, flaming: true } },
   { v: 'punch-bowl', k: ['punch bowl'], style: { bowl: true } },
 ];

@@ -15,17 +15,31 @@ export const SERVICE_FITS = {
   hot: ['hot'], frozen: ['frozen'], crushed: ['crushed'], rocks: ['rocks'], shaken: ['up', 'rocks'],
 };
 
-// Classics whose vessel is part of their identity: the glass or mug is named for the drink,
-// or the drink was created for it. Checked before the glass text.
+// Classics whose vessel is part of their identity: the glass or mug is named for the drink, or
+// the drink was created for it (sources in docs/vessels.md). Checked before the glass text, so
+// every spec of the drink shares it.
 export const BY_NAME = {
+  'zombie': 'chimney', // the chimney is nicknamed the Zombie glass (Don the Beachcomber, 1934)
+  'tortuga': 'chimney', // Trader Vic: "14 oz chimney glass"
+  'mai tai': 'dof', // Trader Vic's guide: "mai tai (double old-fashioned) glass"
+  'navy grog': 'dof', // around a shaved-ice cone
+  'fog cutter': 'fog-cutter-mug',
+  'samoan fog cutter': 'fog-cutter-mug',
+  'singapore sling': 'tulip', // Raffles' own sling glass
+  'three dots and a dash': 'footed-pilsner', // Don the Beachcomber
   'pearl diver': 'pearl-diver',
   'painkiller': 'enamel-tin',
+  "sidewinder's fang": 'snifter',
   'shrunken skull': 'skull-mug',
   "barrel o' rum": 'barrel-mug',
   'rum barrel': 'barrel-mug',
+  'pi yi': 'pineapple',
+  'coconaut': 'coconut',
   'scorpion bowl': 'scorpion-bowl',
+  'tiki bowl': 'tiki-bowl',
+  'kava bowl': 'tiki-bowl',
+  'mystery drink': 'tiki-bowl',
   'volcano bowl': 'volcano-bowl',
-  'samoan fog cutter': 'fog-cutter-mug',
   'hurricane': 'hurricane',
 };
 
@@ -33,7 +47,8 @@ export const BY_NAME = {
 // point. Ceramics and novelties, then named specialty glasses, then generic glassware.
 export const GLASS_RULES = [
   [/volcano/, 'volcano-bowl'],
-  [/scorpion bowl|tiki bowl|kava bowl|lovers|mystery bowl|bowl for two/, 'scorpion-bowl'],
+  [/tiki bowl|kava bowl|mystery bowl|bowl for two/, 'tiki-bowl'],
+  [/scorpion bowl|lovers/, 'scorpion-bowl'],
   [/punch bowl/, 'punch-bowl'],
   [/skull/, 'skull-mug'],
   [/barrel|rum keg/, 'barrel-mug'],

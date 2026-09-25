@@ -272,40 +272,43 @@ function sparkle() {
 // ice. Opaque vessels (ceramics, metal, fruit) show the drink only at the rim.
 const BASE = 440;
 export const GLASS_PROFILES = {
-  coupe: { pts: [[262, 80], [276, 76], [296, 60], [314, 16]], foot: 'stem', footW: 56, rimTilt: 0.2 },
-  'nick-nora': { pts: [[252, 52], [272, 51], [302, 46], [330, 34], [350, 12]], foot: 'stem', footW: 46, rimTilt: 0.2 },
-  'cocktail-glass': { pts: [[272, 86], [352, 5]], foot: 'stem', footW: 54, rimTilt: 0.18 },
-  rocks: { pts: [[322, 58], [436, 52]], foot: 'slab', rimTilt: 0.18 },
-  dof: { pts: [[296, 68], [436, 60]], foot: 'slab', rimTilt: 0.17 },
-  highball: { pts: [[212, 48], [436, 44]], foot: 'slab', rimTilt: 0.15 },
-  collins: { pts: [[180, 44], [436, 42]], foot: 'slab', rimTilt: 0.15 },
-  chimney: { pts: [[150, 40], [418, 40]], foot: 'heavy', rimTilt: 0.15 },
-  hurricane: { pts: [[128, 52], [170, 47], [220, 36], [270, 47], [320, 58], [360, 46], [392, 22]], foot: 'stem', footW: 50, rimTilt: 0.15 },
-  'poco-grande': { pts: [[176, 64], [206, 58], [246, 44], [292, 36], [332, 32], [360, 22], [372, 10]], foot: 'stem', footW: 46, rimTilt: 0.16 },
-  'footed-pilsner': { pts: [[172, 56], [262, 44], [384, 26]], foot: 'stem', footW: 42, rimTilt: 0.15 },
-  'pearl-diver': { pts: [[214, 50], [246, 47], [282, 38], [318, 32], [352, 36], [380, 26], [392, 14]], foot: 'stem', footW: 42, rimTilt: 0.16, flutes: [300, 390] },
-  snifter: { pts: [[214, 52], [252, 74], [300, 88], [348, 78], [388, 40]], foot: 'stem', footW: 56, rimTilt: 0.18 },
-  tulip: { pts: [[170, 44], [206, 43], [250, 50], [298, 48], [338, 34], [360, 14]], foot: 'stem', footW: 44, rimTilt: 0.16 },
+  // Proportions from docs/vessels.md (Libbey catalogue sizes where known).
+  coupe: { pts: [[222, 80], [236, 76], [256, 58], [274, 14]], foot: 'stem', footW: 56, rimTilt: 0.2 },
+  'nick-nora': { pts: [[193, 55], [213, 54], [243, 50], [271, 40], [293, 24], [304, 8]], foot: 'stem', footW: 48, rimTilt: 0.2 },
+  'cocktail-glass': { pts: [[193, 81], [298, 5]], foot: 'stem', footW: 54, rimTilt: 0.18 },
+  rocks: { pts: [[307, 62], [436, 58]], foot: 'slab', rimTilt: 0.18 },
+  dof: { pts: [[288, 68], [436, 62]], foot: 'slab', rimTilt: 0.17 },
+  highball: { pts: [[222, 55], [436, 52]], foot: 'slab', rimTilt: 0.16 },
+  collins: { pts: [[202, 50], [436, 48]], foot: 'slab', rimTilt: 0.15 },
+  chimney: { pts: [[174, 46], [418, 42]], foot: 'heavy', rimTilt: 0.15 },
+  hurricane: { pts: [[128, 54], [170, 48], [220, 36], [270, 48], [320, 60], [360, 47], [392, 22]], foot: 'stem', footW: 50, rimTilt: 0.15 },
+  'poco-grande': { pts: [[180, 62], [202, 54], [230, 44], [262, 46], [296, 54], [326, 48], [350, 28], [362, 10]], foot: 'stem', footW: 48, rimTilt: 0.16 },
+  'footed-pilsner': { pts: [[193, 57], [280, 46], [392, 28]], foot: 'stem', footW: 52, rimTilt: 0.15 },
+  // A stemless footed tumbler: ribbed column below, flaring into a coupe-like bowl.
+  'pearl-diver': { pts: [[288, 66], [300, 64], [318, 57], [340, 42], [362, 31], [396, 29], [426, 31]], foot: 'slab', rimTilt: 0.18, flutes: [364, 428] },
+  snifter: { pts: [[214, 56], [252, 76], [300, 88], [348, 78], [388, 40]], foot: 'stem', footW: 56, rimTilt: 0.18 },
+  tulip: { pts: [[145, 47], [190, 45], [245, 51], [300, 49], [345, 36], [380, 16]], foot: 'stem', footW: 50, rimTilt: 0.16 },
   goblet: { pts: [[232, 60], [270, 64], [310, 58], [340, 40], [356, 12]], foot: 'stem', footW: 50, rimTilt: 0.18 },
-  flute: { pts: [[176, 30], [236, 33], [292, 30], [330, 20], [348, 8]], foot: 'stem', footW: 40, rimTilt: 0.2 },
-  'irish-coffee': { pts: [[258, 46], [380, 38]], foot: 'stem', footW: 44, rimTilt: 0.18, handle: [276, 364] },
+  flute: { pts: [[120, 34], [190, 37], [260, 33], [300, 22], [318, 8]], foot: 'stem', footW: 42, rimTilt: 0.2 },
+  'irish-coffee': { pts: [[222, 54], [362, 50]], foot: 'stem', footW: 50, rimTilt: 0.18, handle: [240, 336] },
   'punch-bowl': { pts: [[300, 132], [330, 128], [366, 108], [394, 74], [410, 36]], foot: 'stem', footW: 70, rimTilt: 0.14 },
   // opaque
-  'julep-cup': { pts: [[300, 50], [426, 40]], opaque: true, rimTilt: 0.2 },
+  'julep-cup': { pts: [[297, 62], [428, 52]], opaque: true, rimTilt: 0.2 },
   'copper-mug': { pts: [[290, 54], [436, 54]], opaque: true, rimTilt: 0.18 },
-  'enamel-tin': { pts: [[316, 58], [436, 58]], opaque: true, rimTilt: 0.2 },
-  'ku-mug': { pts: [[160, 58], [436, 54]], opaque: true, rimTilt: 0.18 },
+  'enamel-tin': { pts: [[307, 64], [436, 64]], opaque: true, rimTilt: 0.2 },
+  'ku-mug': { pts: [[180, 60], [436, 56]], opaque: true, rimTilt: 0.18 },
   'moai-mug': { pts: [[155.5, 70.5], [436, 62]], opaque: true, rimTilt: 0.19 },
   'skull-mug': { pts: [[262, 52], [436, 50]], opaque: true, rimTilt: 0.2 },
   'barrel-mug': { pts: [[250, 58], [436, 58]], opaque: true, rimTilt: 0.2 },
-  'fog-cutter-mug': { pts: [[150, 48], [436, 60]], opaque: true, rimTilt: 0.18 },
+  'fog-cutter-mug': { pts: [[117, 57], [436, 57]], opaque: true, rimTilt: 0.18 },
   'bird-mug': { pts: [[304, 40], [430, 40]], opaque: true, rimTilt: 0.24, cx: 164 },
   coconut: { pts: [[296, 60], [436, 40]], opaque: true, rimTilt: 0.26 },
   pineapple: { pts: [[262, 51], [436, 30]], opaque: true, rimTilt: 0.24 },
   'clay-cup': { pts: [[356, 50], [436, 38]], opaque: true, rimTilt: 0.2 },
   'hot-mug': { pts: [[290, 60], [436, 60]], opaque: true, rimTilt: 0.18 },
-  'scorpion-bowl': { pts: [[300, 132], [404, 64]], opaque: true, rimTilt: 0.15 },
-  'volcano-bowl': { pts: [[336, 128], [412, 70]], opaque: true, rimTilt: 0.15 },
+  'scorpion-bowl': { pts: [[282, 132], [390, 64]], opaque: true, rimTilt: 0.15 },
+  'tiki-bowl': { pts: [[300, 104], [388, 60]], opaque: true, rimTilt: 0.16 },
+  'volcano-bowl': { pts: [[330, 128], [412, 70]], opaque: true, rimTilt: 0.15 },
 };
 const MOAI_FIT = { s: 1.5, x: 30, y: 101.5 };
 
@@ -380,23 +383,25 @@ function clearGlass(kind) {
 
 // ---- opaque vessels, each authored by hand
 function kuMugVessel({ glaze = PALETTE.wood } = {}) {
-  const left = [[92, 160], [94, 300], [96, 436]];
+  const left = [[90, 180], [92, 310], [94, 436]];
   return {
     strokes: [
-      { pts: left, tier: 1 }, { pts: mir(left), tier: 1 }, frontArc(150, 436, 54, 7), ...rimStrokes(150, 160, 58, 0.18),
-      { pts: [[96, 196], [204, 196]], tier: 2 }, { pts: [[98, 206], [202, 206]], tier: 3 },
-      { pts: ell(124, 238, 17, 17, -1.2, -1.2 + TAU * 1.04, 24), tier: 1 }, { pts: ell(176, 238, 17, 17, -1.2, -1.2 + TAU * 1.04, 24), tier: 1 },
-      { pts: [[142, 254], [134, 284], [166, 284], [158, 254]], tier: 2 },
-      { pts: [[106, 310], [194, 310]], tier: 1 }, { pts: [[106, 310], [120, 336], [150, 346], [180, 336], [194, 310]], tier: 1 },
-      ...[122, 136, 150, 164, 178].map(x => ({ pts: [[x, 311], [x, 322]], tier: 2 })),
-      { pts: [[92, 230], [80, 238], [80, 278], [93, 288]], tier: 1 }, { pts: [[208, 230], [220, 238], [220, 278], [207, 288]], tier: 1 },
-      { pts: [[112, 386], [150, 394], [188, 386]], tier: 3 },
+      { pts: left, tier: 1 }, { pts: mir(left), tier: 1 }, frontArc(150, 436, 56, 7), ...rimStrokes(150, 180, 60, 0.18),
+      { pts: [[94, 212], [206, 212]], tier: 2 }, { pts: [[96, 222], [204, 222]], tier: 3 },
+      { pts: ell(124, 250, 17, 17, -1.2, -1.2 + TAU * 1.04, 24), tier: 1 }, { pts: ell(176, 250, 17, 17, -1.2, -1.2 + TAU * 1.04, 24), tier: 1 },
+      { pts: [[142, 266], [134, 292], [166, 292], [158, 266]], tier: 2 },
+      { pts: [[106, 314], [194, 314]], tier: 1 }, { pts: [[106, 314], [120, 338], [150, 348], [180, 338], [194, 314]], tier: 1 },
+      ...[122, 136, 150, 164, 178].map(x => ({ pts: [[x, 315], [x, 325]], tier: 2 })),
+      { pts: [[90, 244], [78, 252], [78, 288], [91, 298]], tier: 1 }, { pts: [[210, 244], [222, 252], [222, 288], [209, 298]], tier: 1 },
+      // stubby arms bent at the elbow, hands meeting on the belly; squatting legs at the base
+      { pts: [[94, 364], [112, 384], [140, 380]], tier: 2 }, { pts: [[206, 364], [188, 384], [160, 380]], tier: 2 },
+      { pts: [[104, 432], [110, 410], [134, 406], [140, 432]], tier: 2 }, { pts: [[196, 432], [190, 410], [166, 406], [160, 432]], tier: 2 },
     ],
     washes: [
       { pts: bodyPoly(left), color: glaze, alpha: 0.034 },
-      { pts: [[108, 312], [192, 312], [180, 334], [150, 344], [120, 334]], color: PALETTE.hibiscusDeep, alpha: 0.06, soft: 0.4 },
+      { pts: [[108, 316], [192, 316], [180, 336], [150, 346], [120, 336]], color: PALETTE.hibiscusDeep, alpha: 0.06, soft: 0.4 },
     ],
-    dots: [{ x: 124, y: 240, r: 6 }, { x: 176, y: 240, r: 6 }, { x: 122, y: 237, r: 1.8, color: PALETTE.paper }, { x: 174, y: 237, r: 1.8, color: PALETTE.paper }],
+    dots: [{ x: 124, y: 252, r: 6 }, { x: 176, y: 252, r: 6 }, { x: 122, y: 249, r: 1.8, color: PALETTE.paper }, { x: 174, y: 249, r: 1.8, color: PALETTE.paper }],
   };
 }
 
@@ -412,9 +417,14 @@ function skullMugVessel() {
       ...[128, 139, 150, 161, 172].map(x => ({ pts: [[x, 398], [x, 416]], tier: 2 })),
       { pts: [[112, 286], [121, 298], [116, 312]], tier: 3 }, { pts: [[188, 292], [182, 304]], tier: 3 },
       { pts: [[84, 364], [96, 372]], tier: 3 }, { pts: [[216, 364], [204, 372]], tier: 3 },
+      // bone handle: a shaft with knuckled ends, standing off the back of the skull
+      { pts: [[222, 292], [244, 294], [258, 316], [261, 346], [253, 372], [236, 388], [214, 392]], tier: 1 },
+      { pts: [[226, 304], [242, 308], [248, 330], [248, 356], [238, 374], [222, 380]], tier: 2 },
+      { pts: ell(244, 292, 7, 6, 0, TAU, 12), tier: 2 }, { pts: ell(236, 390, 7, 6, 0, TAU, 12), tier: 2 },
     ],
     washes: [
       { pts: bodyPoly(left), color: bone, alpha: 0.05 },
+      { pts: [[222, 292], [258, 316], [261, 346], [236, 388], [214, 392], [238, 374], [248, 330]], color: bone, alpha: 0.05, soft: 0.4 },
       { pts: ell(126, 334, 17, 13, 0, TAU, 14), color: PALETTE.wood, alpha: 0.09, soft: 0.4 },
       { pts: ell(174, 334, 17, 13, 0, TAU, 14), color: PALETTE.wood, alpha: 0.09, soft: 0.4 },
       { pts: [[150, 356], [142, 374], [158, 374]], color: PALETTE.wood, alpha: 0.08, soft: 0.3 },
@@ -440,25 +450,37 @@ function barrelMugVessel() {
   };
 }
 
-// Trader Vic's Samoan Fog Cutter mug: a tall tapering tube, heavy at the foot, with a carved
-// figure in relief running up the front.
-function fogCutterVessel({ glaze = PALETTE.wood } = {}) {
-  const left = [[102, 150], [98, 250], [94, 350], [90, 436]];
+// Trader Vic's Fog Cutter mug: tall, handleless, slightly waisted, sand glaze, with island scenes
+// in low relief. The front shows the hula girl under a palm; the ukulele player and the beach
+// bum wrap round the back.
+function fogCutterVessel() {
+  const left = [[93, 117], [99, 200], [101, 280], [98, 360], [93, 436]];
+  const sand = '#D8C29B';
   return {
     strokes: [
-      { pts: left, tier: 1 }, { pts: mir(left), tier: 1 }, frontArc(150, 436, 60, 9), ...rimStrokes(150, 150, 48, 0.18),
-      { pts: [[100, 176], [200, 176]], tier: 3 }, { pts: [[92, 404], [208, 404]], tier: 3 },
-      // the carved figure: head, eyes, mouth, arms folded, legs
-      { pts: ell(150, 218, 22, 24, 0, TAU * 1.03, 22), tier: 2 },
-      { pts: [[138, 214], [146, 214]], tier: 2 }, { pts: [[154, 214], [162, 214]], tier: 2 },
-      { pts: [[140, 230], [150, 236], [160, 230]], tier: 2 },
-      { pts: [[128, 244], [124, 300], [132, 346]], tier: 2 }, { pts: [[172, 244], [176, 300], [168, 346]], tier: 2 },
-      { pts: [[128, 284], [150, 296], [172, 284]], tier: 2 }, { pts: [[130, 298], [150, 310], [170, 298]], tier: 3 },
-      { pts: [[132, 346], [136, 384]], tier: 2 }, { pts: [[168, 346], [164, 384]], tier: 2 }, { pts: [[150, 330], [150, 384]], tier: 3 },
+      { pts: left, tier: 1 }, { pts: mir(left), tier: 1 }, frontArc(150, 436, 57, 9), ...rimStrokes(150, 117, 57, 0.18),
+      frontArc(150, 134, 56, 10, 3), frontArc(150, 412, 56, 10, 3),
+      // palm leaning over her
+      { pts: [[190, 408], [186, 330], [176, 250], [168, 196]], tier: 2 },
+      ...[-2.8, -2.1, -1.2, -0.4].map(a => ({ pts: [[168, 196], [168 + Math.cos(a) * 20, 196 + Math.sin(a) * 11 - 2], [168 + Math.cos(a) * 36, 196 + Math.sin(a) * 4 + 12]], tier: 2 })),
+      // hula girl: head, hair, raised arms, lei, grass skirt, legs
+      { pts: ell(136, 250, 12, 13, 0, TAU * 1.04, 18), tier: 1 },
+      { pts: [[124, 244], [117, 270], [122, 290]], tier: 2 },
+      { pts: [[128, 272], [104, 256], [96, 232]], tier: 1 }, { pts: [[144, 272], [166, 262], [176, 240]], tier: 1 },
+      { pts: [[128, 268], [136, 276], [144, 268]], tier: 2 },
+      { pts: [[130, 270], [127, 318], [137, 328], [146, 318], [143, 270]], tier: 1 },
+      { pts: [[116, 326], [158, 326]], tier: 2 },
+      ...[118, 125, 132, 139, 146, 153].map((x, i) => ({ pts: [[x, 327], [x - 6 + i * 2.2, 370]], tier: 2 })),
+      { pts: [[130, 370], [126, 398], [118, 408]], tier: 1 }, { pts: [[144, 370], [148, 398], [158, 408]], tier: 1 },
+      // the ukulele player's shoulder at the left edge
+      { pts: [[100, 292], [112, 286], [116, 324], [104, 346]], tier: 3 }, { pts: ell(110, 316, 6, 9, 0, TAU, 12), tier: 3 },
     ],
     washes: [
-      { pts: bodyPoly(left), color: glaze, alpha: 0.034 },
-      { pts: ell(150, 290, 34, 104, 0, TAU, 16), color: PALETTE.woodPale, alpha: 0.04, soft: 0.5 },
+      { pts: bodyPoly(left), color: sand, alpha: 0.05 },
+      { pts: [[116, 326], [158, 326], [162, 370], [112, 370]], color: PALETTE.frond, alpha: 0.07, soft: 0.4 },
+      { pts: [[128, 268], [144, 268], [142, 320], [130, 320]], color: PALETTE.wood, alpha: 0.05, soft: 0.4 },
+      { pts: [[128, 268], [136, 278], [144, 268]], color: PALETTE.hibiscus, alpha: 0.1, soft: 0.3 },
+      { pts: [...ell(150, 117, 58, 10, 0, Math.PI, 12), ...ell(150, 131, 58, 10, Math.PI, 0, 12)], color: PALETTE.wood, alpha: 0.06, soft: 0.3 },
     ],
   };
 }
@@ -541,11 +563,11 @@ function hotMugVessel({ glaze = PALETTE.lagoon } = {}) {
 }
 
 function julepVessel() {
-  const left = [[100, 300], [106, 380], [110, 426], [108, 436]];
+  const left = [[88, 297], [94, 380], [98, 426], [96, 436]];
   const r = rng(17), dots = [];
-  for (let i = 0; i < 26; i++) dots.push({ x: 110 + r() * 80, y: 318 + r() * 100, r: 0.8 + r() * 1.1, tier: 3 });
+  for (let i = 0; i < 30; i++) dots.push({ x: 102 + r() * 96, y: 316 + r() * 104, r: 0.8 + r() * 1.1, tier: 3 });
   return {
-    strokes: [{ pts: left, tier: 1 }, { pts: mir(left), tier: 1 }, frontArc(150, 436, 42, 7), frontArc(150, 426, 40, 6, 2), ...rimStrokes(150, 300, 50, 0.2), frontArc(150, 308, 49, 10, 2), { pts: [[124, 330], [123, 356]], tier: 3 }, { pts: [[174, 340], [175, 372]], tier: 3 }],
+    strokes: [{ pts: left, tier: 1 }, { pts: mir(left), tier: 1 }, frontArc(150, 436, 54, 7), frontArc(150, 426, 52, 6, 2), ...rimStrokes(150, 297, 62, 0.2), frontArc(150, 305, 61, 12, 2), { pts: [[118, 330], [117, 358]], tier: 3 }, { pts: [[178, 340], [179, 374]], tier: 3 }],
     washes: [{ pts: bodyPoly(left), color: '#A7B0B6', alpha: 0.035 }],
     dots,
   };
@@ -559,50 +581,90 @@ function copperVessel() {
   return { strokes, washes: [{ pts: bodyPoly(left), color: '#C8733A', alpha: 0.05 }], dots: [{ x: 214, y: 318, r: 2 }, { x: 214, y: 398, r: 2 }] };
 }
 
-// Pusser's white enamel mug: rolled rim, blue lip, a chip or two.
+// Pusser's white enamel mug: rolled rim, navy lip, a chip or two.
 function enamelVessel() {
-  const left = [[92, 316], [92, 436]];
+  const left = [[86, 307], [86, 436]];
   return {
-    strokes: [{ pts: left, tier: 1 }, { pts: mir(left), tier: 1 }, frontArc(150, 436, 58, 9), ...rimStrokes(150, 316, 58, 0.2), frontArc(150, 321, 58, 12, 2), ...handle(208, 330, 400, 32)],
-    washes: [{ pts: [...ell(150, 316, 60, 12, 0, Math.PI, 16), ...ell(150, 324, 60, 12, Math.PI, 0, 16)], color: '#3B5AA3', alpha: 0.1, soft: 0.25 }],
-    dots: [{ x: 118, y: 372, r: 1.8 }, { x: 180, y: 408, r: 1.4 }, { x: 132, y: 420, r: 1 }],
+    strokes: [{ pts: left, tier: 1 }, { pts: mir(left), tier: 1 }, frontArc(150, 436, 64, 10), ...rimStrokes(150, 307, 64, 0.2), frontArc(150, 312, 64, 13, 2), ...handle(214, 324, 400, 34)],
+    washes: [{ pts: [...ell(150, 307, 66, 13, 0, Math.PI, 16), ...ell(150, 316, 66, 13, Math.PI, 0, 16)], color: '#23346B', alpha: 0.1, soft: 0.25 }],
+    dots: [{ x: 112, y: 366, r: 1.8 }, { x: 186, y: 404, r: 1.4 }, { x: 128, y: 420, r: 1 }],
   };
 }
 
-function scorpionBowlVessel({ glaze = PALETTE.frond } = {}) {
-  const left = [[18, 300], [24, 334], [48, 370], [84, 396], [112, 404], [108, 420], [96, 436]];
-  // Relief palms: a leaning trunk and five drooping fronds.
+// The Scorpion bowl on three kneeling hula girls, island scenes in relief round the body.
+function scorpionBowlVessel({ glaze = PALETTE.wood } = {}) {
+  const left = [[18, 282], [24, 314], [48, 350], [84, 378], [120, 390]];
   const palm = (x, y, lean) => {
     const top = [x + lean, y];
     return [
-      { pts: [[x - lean * 0.2, y + 54], [x + lean * 0.4, y + 26], top], tier: 2 },
-      ...[-2.9, -2.3, -1.6, -0.9, -0.3].map(a => ({ pts: [top, [top[0] + Math.cos(a) * 16, top[1] + Math.sin(a) * 10 - 3], [top[0] + Math.cos(a) * 28, top[1] + Math.sin(a) * 4 + 8]], tier: 2 })),
+      { pts: [[x - lean * 0.2, y + 44], [x + lean * 0.4, y + 22], top], tier: 2 },
+      ...[-2.9, -2.3, -1.6, -0.9, -0.3].map(a => ({ pts: [top, [top[0] + Math.cos(a) * 14, top[1] + Math.sin(a) * 9 - 3], [top[0] + Math.cos(a) * 24, top[1] + Math.sin(a) * 4 + 7]], tier: 2 })),
     ];
   };
+  // a kneeling girl holding the bowl up: head, raised arms, body, folded knees
+  const kneeler = x => [
+    { pts: ell(x, 402, 6, 6.5, 0, TAU * 1.04, 12), tier: 2 },
+    { pts: [[x - 6, 398], [x - 12, 390]], tier: 2 }, { pts: [[x + 6, 398], [x + 12, 390]], tier: 2 },
+    { pts: [[x - 6, 409], [x - 9, 426], [x + 9, 426], [x + 6, 409]], tier: 2 },
+    { pts: [[x - 12, 436], [x - 10, 426], [x + 10, 426], [x + 14, 436]], tier: 2 },
+  ];
   const band = [];
-  for (let x = 36; x <= 264; x += 6) band.push([x, 330 + Math.pow((x - 150) / 114, 2) * 10]);
+  for (let x = 34; x <= 266; x += 6) band.push([x, 312 + Math.pow((x - 150) / 116, 2) * 10]);
   return {
-    strokes: [{ pts: left, tier: 1 }, { pts: mir(left), tier: 1 }, frontArc(150, 436, 54, 7), ...rimStrokes(150, 300, 132, 0.15), { pts: band, tier: 3 }, ...palm(96, 336, 8), ...palm(204, 336, -8), { pts: [[118, 404], [182, 404]], tier: 3 }],
-    washes: [{ pts: bodyPoly(left), color: glaze, alpha: 0.036 }],
+    strokes: [
+      { pts: left, tier: 1 }, { pts: mir(left), tier: 1 }, frontArc(150, 390, 30, 5, 2), ...rimStrokes(150, 282, 132, 0.15),
+      { pts: band, tier: 3 }, ...palm(92, 318, 8), ...palm(208, 318, -8),
+      ...kneeler(110), ...kneeler(150), ...kneeler(190),
+    ],
+    washes: [
+      { pts: bodyPoly(left), color: glaze, alpha: 0.036 },
+      ...[110, 150, 190].map(x => ({ pts: [[x - 10, 396], [x + 10, 396], [x + 14, 436], [x - 12, 436]], color: PALETTE.woodPale, alpha: 0.05, soft: 0.4 })),
+      ...[110, 150, 190].map(x => ({ pts: [[x - 10, 416], [x + 10, 416], [x + 12, 430], [x - 11, 430]], color: PALETTE.frond, alpha: 0.06, soft: 0.3 })),
+    ],
   };
 }
 
+// Trader Vic's Tiki Bowl: an earthen bowl held up by three standing tikis.
+function tikiBowlVessel({ glaze = PALETTE.wood } = {}) {
+  const left = [[46, 300], [52, 328], [72, 360], [104, 382], [126, 388]];
+  const tiki = x => [
+    { pts: [[x - 11, 388], [x - 12, 436], [x + 12, 436], [x + 11, 388]], tier: 1 },
+    { pts: [[x - 10, 398], [x + 10, 398]], tier: 3 },
+    { pts: ell(x - 5, 406, 3.5, 3.5, 0, TAU, 10), tier: 2 }, { pts: ell(x + 5, 406, 3.5, 3.5, 0, TAU, 10), tier: 2 },
+    { pts: [[x - 6, 418], [x + 6, 418]], tier: 2 }, { pts: [[x - 6, 418], [x, 424], [x + 6, 418]], tier: 3 },
+  ];
+  return {
+    strokes: [
+      { pts: left, tier: 1 }, { pts: mir(left), tier: 1 }, ...rimStrokes(150, 300, 104, 0.16),
+      frontArc(150, 316, 102, 16, 3), ...tiki(104), ...tiki(150), ...tiki(196),
+    ],
+    washes: [
+      { pts: bodyPoly(left), color: glaze, alpha: 0.04 },
+      ...[104, 150, 196].map(x => ({ pts: [[x - 11, 388], [x + 11, 388], [x + 12, 436], [x - 12, 436]], color: PALETTE.wood, alpha: 0.05, soft: 0.3 })),
+    ],
+  };
+}
+
+// Volcano bowl: dark glaze with red-orange drips, a cone rising from the middle to just above
+// the rim, rum burning in its crater.
 function volcanoBowlVessel({ flaming = false } = {}) {
-  const left = [[22, 336], [30, 366], [58, 394], [92, 410], [96, 424], [92, 436]];
+  const left = [[22, 330], [30, 360], [58, 388], [92, 404], [96, 420], [92, 436]];
+  const lava = '#4A3B35';
   const strokes = [
-    { pts: left, tier: 1 }, { pts: mir(left), tier: 1 }, frontArc(150, 436, 58, 7), ...rimStrokes(150, 336, 128, 0.15),
-    { pts: [[108, 342], [124, 300], [138, 266]], tier: 1 }, { pts: [[162, 266], [176, 300], [192, 342]], tier: 1 },
-    { pts: ell(150, 266, 12, 4, 0, TAU, 14), tier: 2 },
-    { pts: [[46, 380], [90, 396], [150, 402], [210, 396], [254, 380]], tier: 3 },
+    { pts: left, tier: 1 }, { pts: mir(left), tier: 1 }, frontArc(150, 436, 58, 7), ...rimStrokes(150, 330, 128, 0.15),
+    { pts: [[110, 336], [126, 306], [140, 284]], tier: 1 }, { pts: [[160, 284], [174, 306], [190, 336]], tier: 1 },
+    { pts: ell(150, 284, 11, 4, 0, TAU, 14), tier: 2 },
+    { pts: [[60, 352], [62, 370]], tier: 3 }, { pts: [[98, 362], [99, 384]], tier: 3 }, { pts: [[206, 360], [205, 380]], tier: 3 }, { pts: [[242, 350], [240, 366]], tier: 3 },
   ];
   const washes = [
-    { pts: bodyPoly(left), color: PALETTE.wood, alpha: 0.04 },
-    { pts: [[108, 342], [138, 266], [162, 266], [192, 342]], color: PALETTE.wood, alpha: 0.05, soft: 0.5 },
-    { pts: [[140, 266], [146, 290], [152, 280], [160, 266]], color: PALETTE.hibiscus, alpha: 0.1, soft: 0.3 },
+    { pts: bodyPoly(left), color: lava, alpha: 0.04 },
+    { pts: [[110, 336], [140, 284], [160, 284], [190, 336]], color: lava, alpha: 0.05, soft: 0.5 },
+    { pts: [[140, 284], [146, 306], [152, 296], [160, 284]], color: PALETTE.hibiscus, alpha: 0.1, soft: 0.3 },
+    ...[[60, 346, 372], [98, 356, 386], [206, 354, 382], [240, 344, 368]].map(([x, y0, y1]) => ({ pts: [[x - 4, y0], [x + 4, y0], [x + 3, y1], [x - 2, y1]], color: PALETTE.orange, alpha: 0.12, soft: 0.2 })),
   ];
   if (flaming) {
-    strokes.push({ pts: [[140, 262], [134, 240], [146, 222], [150, 204], [156, 224], [166, 240], [160, 262]], tier: 1 });
-    washes.push({ pts: [[140, 262], [134, 240], [150, 204], [166, 240], [160, 262]], color: PALETTE.orange, alpha: 0.1, soft: 0.4 }, { pts: [[144, 260], [142, 244], [150, 230], [158, 244], [156, 260]], color: PALETTE.butter, alpha: 0.12, soft: 0.3 });
+    strokes.push({ pts: [[141, 280], [135, 258], [147, 240], [150, 222], [156, 242], [166, 258], [159, 280]], tier: 1 });
+    washes.push({ pts: [[141, 280], [135, 258], [150, 222], [166, 258], [159, 280]], color: PALETTE.orange, alpha: 0.1, soft: 0.4 }, { pts: [[145, 278], [143, 262], [150, 248], [157, 262], [155, 278]], color: PALETTE.butter, alpha: 0.12, soft: 0.3 });
   }
   return { strokes, washes };
 }
@@ -610,7 +672,7 @@ function volcanoBowlVessel({ flaming = false } = {}) {
 const OPAQUE_ART = {
   'ku-mug': kuMugVessel, 'skull-mug': skullMugVessel, 'barrel-mug': barrelMugVessel, 'fog-cutter-mug': fogCutterVessel,
   'bird-mug': birdVessel, coconut: coconutVessel, pineapple: pineappleVessel, 'clay-cup': clayCupVessel, 'hot-mug': hotMugVessel,
-  'julep-cup': julepVessel, 'copper-mug': copperVessel, 'enamel-tin': enamelVessel, 'scorpion-bowl': scorpionBowlVessel, 'volcano-bowl': volcanoBowlVessel,
+  'julep-cup': julepVessel, 'copper-mug': copperVessel, 'enamel-tin': enamelVessel, 'scorpion-bowl': scorpionBowlVessel, 'tiki-bowl': tikiBowlVessel, 'volcano-bowl': volcanoBowlVessel,
   'moai-mug': ({ glaze }) => { const m = fitPart(moaiMug({ glaze }), MOAI_FIT); return { strokes: m.strokes, washes: m.washes.map(w => ({ ...w, alpha: 0.028 })) }; },
 };
 

@@ -727,6 +727,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       let w = (F[v.id] || 0) + 0.3 * ((v.families || {})[famId] || 0) + 0.004;
       if (bowl && v.id === 'volcano-bowl' && intent.style.flaming) w += 2;
       if (bowl && v.id === 'punch-bowl' && ['punch', 'stirred', 'buck'].includes(famId)) w += 0.5;
+      if (bowl && v.id === 'tiki-bowl' && servings <= 3) w += 0.4;
       if (service === 'frozen' && ['hurricane', 'poco-grande', 'coconut', 'pineapple'].includes(v.id)) w += 0.15;
       scored.push({ item: v, s: Math.log(w * fit) });
     }

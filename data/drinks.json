@@ -2158,7 +2158,7 @@
   "notes": "Baker's account of the Raffles sling is equal parts gin, cherry brandy and Bénédictine lengthened with soda — no citrus or pineapple. It shows the colonial Far-East sling before the fruit-juice punch version took over; soda volume is 'to taste'.",
   "slice": "ancestors",
   "parent_ids": [],
-  "vessel": "highball"
+  "vessel": "tulip"
  },
  {
   "id": "singapore-sling-raffles",
@@ -2248,7 +2248,7 @@
   "notes": "Today's Raffles/IBA sling is a long pineapple punch seasoned with cherry, orange and herbal liqueurs, grenadine and bitters — structurally a resort tropical. The pineapple-heavy formula almost certainly postdates Baker's 1920s equal-parts sling; year reflects the drink's origin.",
   "slice": "ancestors",
   "parent_ids": [],
-  "vessel": "hurricane"
+  "vessel": "tulip"
  },
  {
   "id": "singapore-sling-smugglers-cove",
@@ -2324,7 +2324,7 @@
   "notes": "Smuggler's Cove spec of a pre-tiki Raffles Hotel classic: gin with lemon, Cherry Heering and Bénédictine, lengthened with soda water.",
   "slice": "books",
   "parent_ids": [],
-  "vessel": "collins"
+  "vessel": "tulip"
  },
  {
   "id": "doctor-cocktail",
@@ -5402,7 +5402,7 @@
   "notes": "Smuggler's Cove spec of a golden-era Don the Beachcomber classic: a 3-spirit blend led by aged Barbados-style rum with grapefruit, lime, velvet falernum, cinnamon syrup and grenadine; flash-blended.",
   "slice": "books",
   "parent_ids": [],
-  "vessel": "collins"
+  "vessel": "chimney"
  },
  {
   "id": "zombie-easy-tiki",
@@ -5463,7 +5463,7 @@
   "notes": "Easy Tiki spec of a golden-era Don the Beachcomber classic: an aged Jamaican/white 151 rum split with lime, grapefruit and cinnamon syrup.",
   "slice": "books",
   "parent_ids": [],
-  "vessel": "collins"
+  "vessel": "chimney"
  },
  {
   "id": "zombie-1934",
@@ -7683,7 +7683,7 @@
   "parent_ids": [
    "planters-punch-1908"
   ],
-  "vessel": "scorpion-bowl"
+  "vessel": "tiki-bowl"
  },
  {
   "id": "suffering-bastard-smugglers-cove",
@@ -7894,7 +7894,7 @@
   "notes": "A wartime drink named for Morse code 'V' for Victory, which the garnish spells out with three cherries and a pineapple spear. Aged Martinique rhum leads, with a little Demerara, and falernum plus allspice dram give it a baking-spice finish over lime, orange and honey.",
   "slice": "don",
   "parent_ids": [],
-  "vessel": "tulip"
+  "vessel": "footed-pilsner"
  },
  {
   "id": "mai-tai-death-and-co",
@@ -7967,7 +7967,7 @@
   "notes": "Death & Co spec of a golden-era Trader Vic's classic: a 3-spirit blend led by Demerara rum with lime, orgeat and orange curaçao.",
   "slice": "books",
   "parent_ids": [],
-  "vessel": "snifter"
+  "vessel": "dof"
  },
  {
   "id": "mai-tai-1944",
@@ -8383,7 +8383,7 @@
   "notes": "Smuggler's Cove spec of a golden-era Trader Vic's classic: a 3-spirit blend led by lightly aged blended rum with lemon, orange juice, orgeat and amontillado sherry; flash-blended.",
   "slice": "books",
   "parent_ids": [],
-  "vessel": "collins"
+  "vessel": "fog-cutter-mug"
  },
  {
   "id": "fog-cutter-1946",
@@ -8461,7 +8461,7 @@
   "parent_ids": [
    "scorpion-smugglers-cove"
   ],
-  "vessel": "collins"
+  "vessel": "fog-cutter-mug"
  },
  {
   "id": "planters-punch-trader-vic-1946",
@@ -11149,7 +11149,7 @@
   "parent_ids": [
    "zombie-smugglers-cove"
   ],
-  "vessel": "collins"
+  "vessel": "chimney"
  },
  {
   "id": "blue-hawaii",
@@ -11914,7 +11914,7 @@
   "notes": "Smuggler's Cove spec of a 1960s–70s Kon-Tiki (Stephen Crane's Sheraton hotel chain) classic: a 3-spirit blend led by black blended rum with lime, orange juice and honey syrup; flash-blended.",
   "slice": "books",
   "parent_ids": [],
-  "vessel": "punch-bowl"
+  "vessel": "tiki-bowl"
  },
  {
   "id": "tiki-bowl-kon-tiki",
@@ -11997,7 +11997,7 @@
   "notes": "A Kon-Tiki original that copies Donn Beach's signature honey, Pernod and Angostura combination across three rums with orange and lime. The Kon-Tiki chain came from Stephen Crane's 1958 deal with Sheraton to compete with Hilton's Trader Vic's.",
   "slice": "deep-cuts",
   "parent_ids": [],
-  "vessel": "scorpion-bowl"
+  "vessel": "tiki-bowl"
  },
  {
   "id": "chimp-in-orbit",
@@ -41926,7 +41926,7 @@
   "notes": "Difford's Guide spec for a light rum and brandy orgeat punch with cherry liqueur.",
   "slice": "difford",
   "parent_ids": [],
-  "vessel": "dof"
+  "vessel": "fog-cutter-mug"
  },
  {
   "id": "for-petes-sake",
@@ -51469,7 +51469,7 @@
    "mai-tai-death-and-co",
    "royal-hawaiian-mai-tai-tropical-standard"
   ],
-  "vessel": "ku-mug"
+  "vessel": "dof"
  },
  {
   "id": "maiden-voyage",
@@ -55395,7 +55395,7 @@
   "parent_ids": [
    "hurricane-pat-obriens-1940s"
   ],
-  "vessel": "scorpion-bowl"
+  "vessel": "tiki-bowl"
  },
  {
   "id": "palm-springs",
@@ -62406,7 +62406,7 @@
   "parent_ids": [
    "scorpion-smugglers-cove"
   ],
-  "vessel": "scorpion-bowl"
+  "vessel": "tiki-bowl"
  },
  {
   "id": "scorpion-bowl-new-england",
@@ -68468,7 +68468,7 @@
   "notes": "Original by Tiki Lindy, featured in Minimalist Tiki: aged rhum agricole with lime, orange juice and cinnamon syrup, lengthened with ginger beer.",
   "slice": "books",
   "parent_ids": [],
-  "vessel": "dof"
+  "vessel": "chimney"
  },
  {
   "id": "toucan-dance",
@@ -71036,6 +71036,6 @@
   "parent_ids": [
    "zombie-smugglers-cove"
   ],
-  "vessel": "collins"
+  "vessel": "chimney"
  }
 ]
