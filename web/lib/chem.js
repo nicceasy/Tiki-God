@@ -23,13 +23,15 @@ export function lineOz(line, ing, units) {
 // Dilution fraction (water added / pre-dilution volume) from pre-dilution ABV (0..1).
 // Shaken/stirred curves are Dave Arnold's (Liquid Intelligence); crushed-ice methods
 // are scaled up because tiki drinks are shaken with and served over crushed ice.
-export function dilutionFactor(method, ice, abvFrac) {
+export function dilutionFactor(method, ice, abvFrac, { lean = false } = {}) {
   const a = Math.max(0, Math.min(abvFrac, 0.6));
   const shaken = -1.567 * a * a + 1.742 * a + 0.203;
   const stirred = -1.21 * a * a + 1.246 * a + 0.145;
   switch (method) {
     case 'hot': return 0;
-    case 'blend': return 0.9;          // frozen: ice becomes part of the drink
+    // frozen: ice becomes part of the drink. A less-sweet frozen drink is blended with about a
+    // quarter less ice, so it reaches the frozen sugar floor with less dilution, not more sugar.
+    case 'blend': return lean ? 0.65 : 0.9;
     case 'stir': return stirred;
     // Built over a punch bowl's block, the batch gets cold water standing in for the dilution a
     // shake would give (about a fifth of the mix: engine steps()), and the block melts on top.
@@ -43,7 +45,7 @@ export function dilutionFactor(method, ice, abvFrac) {
 }
 
 // Full chemistry for a list of lines. Returns per-serving values.
-export function analyzeLines(lines, ingMap, units, { method = 'shake', ice = 'crushed', servings = 1 } = {}) {
+export function analyzeLines(lines, ingMap, units, { method = 'shake', ice = 'crushed', servings = 1, lean = false } = {}) {
   let vol = 0, alc = 0, sugar = 0, acid = 0;
   const byRole = {};
   const byId = {};
@@ -62,7 +64,7 @@ export function analyzeLines(lines, ingMap, units, { method = 'shake', ice = 'cr
   }
   const volMl = vol * ML_PER_OZ;
   const abvPre = volMl > 0 ? alc / volMl : 0;
-  let dil = dilutionFactor(method, ice, abvPre);
+  let dil = dilutionFactor(method, ice, abvPre, { lean });
   // Over a punch bowl's block, a water line already is (part of) the batch's cold water.
   if (method === 'build' && ice === 'block' && vol > 0) dil -= Math.min(0.2, (byId.water || 0) / vol);
   const finalMl = volMl * (1 + dil);

@@ -145,7 +145,10 @@ export function createComposer({ archetypes, ingMap, model }) {
   const subsOf = id => { const i = ingMap.get(id); return i && i.role !== 'base' ? (i.subs || []) : []; };
   const accepts = (c, id) => c.anyOf.includes(id) || subsOf(id).some(x => c.anyOf.includes(x))
     // A plain-sugar component (rock candy syrup) is satisfied by any syrup doing that job.
+    // (A frame's sugar slot, any slot that takes a plain syrup, is the sugar job: a flavored syrup
+    // that replaced the plain one at its sugar, or a sweet liqueur carrying it, does that job.)
     || (c.anyOf.length > 0 && c.anyOf.every(x => PLAIN_SYRUPS.has(x)) && (ingMap.get(id) || {}).role === 'sweet' && (ingMap.get(id) || {}).cat === 'syrup')
+    || (c.anyOf.some(x => PLAIN_SYRUPS.has(x)) && (((ingMap.get(id) || {}).role === 'sweet' && (ingMap.get(id) || {}).cat === 'syrup' && ((ingMap.get(id) || {}).sugar || 0) >= 45) || ((ingMap.get(id) || {}).cat === 'liqueur' && ((ingMap.get(id) || {}).sugar || 0) >= 20)))
     || ((ingMap.get(id) || {}).cat === 'spirit' && c.anyOf.length > 0 && c.anyOf.every(x => (ingMap.get(x) || {}).cat === 'spirit'));
   const slotFor = (a, id) => [...a.signature, ...(a.optional || [])].find(c => c.anyOf.includes(id)) || [...a.signature, ...(a.optional || [])].find(c => accepts(c, id));
 
@@ -966,7 +969,7 @@ export function createComposer({ archetypes, ingMap, model }) {
     const waivedC = isForbidden ? absent.filter(c => c.anyOf.every(id => isForbidden(id))) : [];
     const missing = absent.filter(c => !waivedC.includes(c)).map(c => c.component);
     const banned = [...ids].filter(id => archForbids(a, id) && !((asked[id] || 0) >= 1.5));
-    const underdosed = doses ? coreMinimums(a, lines).filter(m => (m.line.oz || 0) < m.min - 0.02).map(m => `${m.line.id} under ${m.min} oz (${m.why})`) : [];
+    const underdosed = doses ? coreMinimums(a, lines).filter(m => m.min !== undefined && (m.line.oz || 0) < (m.line.min !== undefined ? Math.min(m.min, m.line.min) : m.min) - 0.02).map(m => `${m.line.id} under ${m.min} oz (${m.why})`) : [];
     return { ok: !missing.length && !banned.length && !underdosed.length, missing, banned, underdosed, waived: waivedC.map(c => c.component) };
   }
 
@@ -981,13 +984,30 @@ export function createComposer({ archetypes, ingMap, model }) {
     const orgeat = has('orgeat');
     if (orgeat && (a.family === 'mai-tai' || a.id === 'hawaiian-mai-tai')) out.push({ line: orgeat, min: 0.5, why: "a Mai Tai's orgeat" });
     const batter = has('hot-buttered-rum-batter');
-    if (batter) out.push({ line: batter, min: 0.75, why: 'the butter batter is the drink' });
+    // (Half an ounce, Smuggler's Cove's three teaspoons: a minimum never past a reference's own dose.)
+    if (batter) out.push({ line: batter, min: 0.5, why: 'the butter batter is the drink' });
+    // A frozen Foster is a milkshake for grown-ups: two scoops of ice cream (the spec's 3 oz).
+    const cream = has('vanilla-ice-cream');
+    if (cream && a.id === 'bananas-foster') out.push({ line: cream, min: 3, why: "a frozen Foster's two scoops of ice cream" });
     const apricot = has('apricot-liqueur');
     if (apricot && has('pineapple-juice') && has('lime') && ['daiquiri', 'punch', 'beachcomber-sour'].includes(a.family)) out.push({ line: apricot, min: 0.5, why: "a Hotel Nacional's apricot" });
     const ango = live.find(l => l.id === 'angostura' && !l.float && !l.sink);
     if (ango && a.family === 'swizzle' && (ango.oz || 0) < 0.3) out.push({ line: ango, min: 0.12, why: 'a swizzle crown is four dashes or more' });
     const gf = has('grapefruit'), cin = has('cinnamon-syrup');
     if (gf && cin && a.family === 'zombie') out.push({ line: gf, min: Math.round(2 * (cin.oz || 0) * 12) / 12, why: "Don's Mix is two of grapefruit to one of cinnamon" });
+    // A Jungle Bird is its three-quarters of Campari against the pineapple (half an ounce is a
+    // pineapple sour with a blush).
+    const campari = has('campari');
+    if (campari && a.id === 'bitter-tiki-sour' && has('pineapple-juice')) out.push({ line: campari, min: 0.75, why: "a Jungle Bird's Campari" });
+    // A Trinidad Sour's ounce and a half of Angostura needs its full ounce of orgeat, or it is harsh.
+    const ab = live.find(l => l.id === 'angostura' && (l.oz || 0) >= 0.9), og = has('orgeat');
+    if (ab && og && a.family === 'bitter-tiki') out.push({ line: og, min: 1, why: "a Trinidad Sour's orgeat against its Angostura" });
+    // A Bermuda swizzle keeps its orange liqueur: it is half the sweetener.
+    const ts = has('triple-sec') || has('orange-curacao');
+    if (ts && a.id === 'bermuda-rum-swizzle') out.push({ line: ts, min: 0.5, why: "a Bermuda swizzle's orange liqueur" });
+    // A Daiquiri No. 4 is the Floridita's frappé: a teaspoon to a third of an ounce of sugar.
+    const rich = has('rich-simple') || has('simple-syrup');
+    if (rich && a.id === 'frozen-daiquiri' && has('maraschino') && !live.some(l => ['strawberry', 'banana', 'mango', 'pineapple-juice'].includes(l.id))) out.push({ line: rich, max: 1 / 3, why: "a Daiquiri No. 4's teaspoon of sugar" });
     return out;
   }
 

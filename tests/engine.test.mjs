@@ -249,7 +249,9 @@ test('identity-core doses: satisfies() holds the core to its dose', () => {
   for (const [p, seed] of [['celebrating a promotion', 0], ['celebrating a promotion', 1], ['something my dad would like', 0]]) {
     const r = engine.generate(p, { seed });
     const o = r.lines.find(l => l.id === 'orgeat');
-    if (o && r.family.id === 'mai-tai') assert.ok(o.oz >= 0.5 - 1e-9, `${p} [${seed}] ${r.name}: ${o.oz} oz orgeat`);
+    // (A core minimum never exceeds the reference's own dose: Vic's Honi Honi and his second
+    // formula pour a quarter-ounce of orgeat, and that is their spec.)
+    if (o && r.family.id === 'mai-tai') assert.ok(o.oz >= 0.25 - 1e-9, `${p} [${seed}] ${r.name}: ${o.oz} oz orgeat`);
   }
 });
 
