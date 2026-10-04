@@ -45,13 +45,17 @@ function build(el, i, seed) {
   });
   const washes = (part.washes || []).map((w, j) => {
     const pts = w.pts.map(T);
-    return { pts, color: w.color, alpha: w.alpha ?? 0.055, soft: w.soft ?? 1, grain: w.grain ?? 0.28, layers: w.layers ?? 22, seed: seedOf(`${seed}:${i}:w${j}`), verts: Math.max(6, Math.min(14, Math.round(perimeter(pts) / 30))), off: 1.5 + 2 * Math.min(1, s), wash: null, drawn: 0, done: false };
+    const clip = (w.clip || []).filter(c => c.length > 2).map(c => c.map(T));
+    return { pts, color: w.color, alpha: w.alpha ?? 0.055, soft: w.soft ?? 1, grain: w.grain ?? 0.28, layers: w.layers ?? 22, seed: seedOf(`${seed}:${i}:w${j}`), verts: Math.max(6, Math.min(14, Math.round(perimeter(pts) / 30))), off: 1.5 + 2 * Math.min(1, s), clip, wash: null, drawn: 0, done: false };
   });
   const all = (part.dots || []).map(d => { const [x, y] = T([d.x, d.y]); return { x, y, r: d.r * Math.pow(s, 0.85), color: d.color || INK, alpha: d.color ? 1 : (TIER[d.tier || 1] || TIER[1]).a, top: !!d.top }; });
   // Highlights and flecks marked `top` (a glint on a cherry, frost) go on after every wash.
   const dots = all.filter(d => !d.top), topDots = all.filter(d => d.top);
   const covers = (part.cover || []).filter(c => c.length > 2).map(c => c.map(T));
-  return { strokes, washes, dots, topDots, covers, glazed: !!part.glazed && washes.length > 0, layer: null };
+  // `clip`: the area the part's washes may stain (the inside of the glass), so a wash wandering
+  // past it stops at the wall like paint at a masking line instead of bleeding onto the page.
+  const clip = (part.clip || []).filter(c => c.length > 2).map(c => c.map(T));
+  return { strokes, washes, dots, topDots, covers, clip, glazed: !!part.glazed && washes.length > 0, layer: null };
 }
 
 // A glazed part (the drink, a glazed mug) is painted as graded glazes that each multiply exactly
@@ -72,7 +76,7 @@ function glazeLayer(e, ctx) {
   const g = c.getContext('2d', { willReadFrequently: true });
   g.fillStyle = '#fff'; g.fillRect(0, 0, W0, H0);
   g.setTransform(M);
-  for (const w of e.washes) finishWash(g, ensureWash(w), w.color, { paper: paper(), grain: w.grain });
+  for (const w of e.washes) within(g, w.clip, () => finishWash(g, ensureWash(w), w.color, { paper: paper(), grain: w.grain }));
   // How many of a wash's layers cover each pixel: each layer adds `inc` to the alpha of a
   // scratch sheet ('lighter'), so antialiased edges count as part of a layer.
   const dens = new Float32Array(W0 * H0 * 3);
@@ -88,11 +92,13 @@ function glazeLayer(e, ctx) {
     if (bwPx <= 0 || bhPx <= 0) continue;
     sg.setTransform(1, 0, 0, 1, 0, 0); sg.clearRect(x0, y0, bwPx, bhPx);
     sg.setTransform(M); sg.globalCompositeOperation = 'lighter'; sg.globalAlpha = inc / 255; sg.fillStyle = '#fff';
-    for (const L of W.paths) {
-      sg.beginPath(); sg.moveTo(L[0].x, L[0].y);
-      for (let j = 1; j < L.length; j++) sg.lineTo(L[j].x, L[j].y);
-      sg.closePath(); sg.fill();
-    }
+    within(sg, w.clip, () => {
+      for (const L of W.paths) {
+        sg.beginPath(); sg.moveTo(L[0].x, L[0].y);
+        for (let j = 1; j < L.length; j++) sg.lineTo(L[j].x, L[j].y);
+        sg.closePath(); sg.fill();
+      }
+    });
     const cov = sg.getImageData(x0, y0, bwPx, bhPx).data, n = parseInt(w.color.slice(1), 16);
     const lf = [n >> 16 & 255, n >> 8 & 255, n & 255].map(v => -Math.log(Math.max(1e-6, 1 - w.alpha * (1 - v / 255))) / inc);
     for (let yy = 0; yy < bhPx; yy++) {
@@ -114,9 +120,21 @@ function glazeLayer(e, ctx) {
   g.putImageData(img, 0, 0);
   return (e.layer = c);
 }
-function drawLayer(ctx, layer, alpha = 1) {
-  ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'multiply'; ctx.globalAlpha = alpha;
+function drawLayer(ctx, layer, alpha = 1, clip = null) {
+  ctx.save(); clipTo(ctx, clip); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'multiply'; ctx.globalAlpha = alpha;
   ctx.drawImage(layer, 0, 0); ctx.restore();
+}
+// Clip to the given polygons (spec space, even-odd: a second ring cuts a hole, such as the
+// window of an ice cube in a dark drink). Nothing to clip to leaves the context as it was.
+function clipTo(ctx, polys) {
+  if (!polys || !polys.length) return;
+  ctx.beginPath();
+  for (const P of polys) { ctx.moveTo(P[0][0], P[0][1]); for (let i = 1; i < P.length; i++) ctx.lineTo(P[i][0], P[i][1]); ctx.closePath(); }
+  ctx.clip('evenodd');
+}
+function within(ctx, polys, fn) {
+  if (!polys || !polys.length) { fn(); return; }
+  ctx.save(); clipTo(ctx, polys); fn(); ctx.restore();
 }
 
 // Clip out each later element's covers (successive clips intersect: outside all of them).
@@ -173,12 +191,14 @@ function paintAll(ctx, items) {
   for (const e of items) occluded(ctx, e, () => {
     for (const s of e.strokes) drawRibbon(ctx, s.rib, 1, INK, s.alpha);
     drawDots(ctx, e.dots);
-    if (e.glazed) { drawLayer(ctx, glazeLayer(e, ctx)); return; }
-    for (const w of e.washes) {
-      const W = ensureWash(w);
-      drawWashLayers(ctx, W, 0, W.paths.length, w.color, w.alpha);
-      finishWash(ctx, W, w.color, { paper: paper(), grain: w.grain });
-    }
+    if (e.glazed) { drawLayer(ctx, glazeLayer(e, ctx), 1, e.clip); return; }
+    within(ctx, e.clip, () => {
+      for (const w of e.washes) within(ctx, w.clip, () => {
+        const W = ensureWash(w);
+        drawWashLayers(ctx, W, 0, W.paths.length, w.color, w.alpha);
+        finishWash(ctx, W, w.color, { paper: paper(), grain: w.grain });
+      });
+    });
   });
   for (const e of items) if (e.topDots.length) occluded(ctx, e, () => drawDots(ctx, e.topDots));
 }
@@ -263,15 +283,15 @@ export function createArtist(wrap, { reducedMotion = false } = {}) {
           if (e.glazed && t >= e.washStart && !e.layerDone) {
             // the drink blooms in as one layer: on the live sheet while it comes up, then laid down
             const k = Math.min(1, (t - e.washStart) / BLOOM), L = glazeLayer(e, bctx);
-            if (k < 1) occluded(lctx, e, () => drawLayer(lctx, L, 1 - Math.pow(1 - k, 2)));
-            else { occluded(bctx, e, () => drawLayer(bctx, L)); e.layerDone = true; }
+            if (k < 1) occluded(lctx, e, () => drawLayer(lctx, L, 1 - Math.pow(1 - k, 2), e.clip));
+            else { occluded(bctx, e, () => drawLayer(bctx, L, 1, e.clip)); e.layerDone = true; }
           }
           if (t >= e.washStart && !e.glazed) for (const w of e.washes) {
             if (w.done) continue;
             const W = ensureWash(w);
             const n = Math.min(W.paths.length, Math.ceil(W.paths.length * Math.min(1, (t - e.washStart) / BLOOM)));
-            if (n > w.drawn) { occluded(bctx, e, () => drawWashLayers(bctx, W, w.drawn, n, w.color, w.alpha)); w.drawn = n; }
-            if (n >= W.paths.length) { occluded(bctx, e, () => finishWash(bctx, W, w.color, { paper: paper(), grain: w.grain })); w.done = true; }
+            if (n > w.drawn) { occluded(bctx, e, () => within(bctx, e.clip, () => within(bctx, w.clip, () => drawWashLayers(bctx, W, w.drawn, n, w.color, w.alpha)))); w.drawn = n; }
+            if (n >= W.paths.length) { occluded(bctx, e, () => within(bctx, e.clip, () => within(bctx, w.clip, () => finishWash(bctx, W, w.color, { paper: paper(), grain: w.grain })))); w.done = true; }
           }
         }
         if (!topDone && t >= total) { for (const e of items) if (e.topDots.length) occluded(bctx, e, () => drawDots(bctx, e.topDots)); topDone = true; }

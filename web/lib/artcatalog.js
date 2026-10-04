@@ -1607,13 +1607,42 @@ export function drinkPaint({ color = PALETTE.butter, body = null, layers = [], f
 // toward it (never a dark syrup multiplied through a body of another hue, which is mud). Opaque
 // mugs show only the surface. A bitters crown sits on the ice, so it is painted by its own part
 // (garnish.bitters-crown) when there is a heap.
-function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, body = null, layers = [], frozen = false, frost = false, shell = 0, crushed = false, crownOnIce = false, froth = false, seed = 7, neon = false, word = '', creamy = null, cafe = null, tilt = null } = {}) {
+// A glaze step whose load sits far round the hue circle from its target (turning a scarlet into
+// a garnet takes a blue load: the red channel must fall faster than the others) is exact only
+// over the tone it was mixed for; where its edge wanders onto a lighter tone it stains violet or
+// grey. Such a step is laid in the target's own hue instead, as strong as it takes to reach the
+// target's lightness over the tone under it: a little more saturated than the exact glaze, never
+// off-hue.
+const lumOf = c => 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+function safeGlaze(target, under, alpha) {
+  const g = glaze(target, under, alpha), [gh, gs] = hexHsl(g.color), [th, ts, tl] = hexHsl(target);
+  const off = Math.abs(((gh - th + 540) % 360) - 180);
+  if (!(gs > 0.25 && ts > 0.25 && off > 75 && lum(under) > lum(target))) return g;
+  const load = hslHex(th, Math.min(0.92, ts + 0.05), Math.min(0.75, tl + (1 - tl) * 0.3)), u = rgbOf(under), want = lumOf(rgbOf(target));
+  let lo = 0.004, hi = 0.5;
+  for (let k = 0; k < 24; k++) { const a = (lo + hi) / 2, f = washFactor(load, a); if (lumOf(u.map((c, i) => c * f[i])) > want) lo = a; else hi = a; }
+  return { color: load, alpha: (lo + hi) / 2 };
+}
+
+// The inside of a clear glass from just above the surface down to its floor: all the drink may
+// stain. (The walls are the ink line's inner edge; the floor dips a little at the front.)
+function interior(kind, y0, inward = 1.6, wob = null) {
+  const G = GLASS_PROFILES[kind] || GLASS_PROFILES.collins, R = rimOf(kind), ys = [];
+  for (let y = y0; y < R.bottom; y += 6) ys.push(y);
+  ys.push(R.bottom);
+  const w = y => Math.max(1, halfAt(G, y) - inward - (wob ? wob(y) : 0)), wb = w(R.bottom);
+  return [...ys.map(y => [R.cx - w(y), y]), ...ell(R.cx, R.bottom, wb, wb * 0.12, Math.PI, 0, 12).reverse().slice(1, -1).map(([x, y]) => [x, Math.max(R.bottom, y)]), ...ys.slice().reverse().map(y => [R.cx + w(y), y])];
+}
+
+function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, body = null, layers = [], frozen = false, frost = false, shell = 0, crushed = false, crownOnIce = false, froth = false, seed = 7, neon = false, word = '', creamy = null, cafe = null, tilt = null, block = false } = {}) {
   const G = GLASS_PROFILES[kind] || GLASS_PROFILES.collins, R = rimOf(kind), r = rng(((seed >>> 0) % 9973) * 13 + 5);
   const strokes = [], washes = [], cover = [];
+  let clip = [];
   const { P, bodyOp, vc, shown } = drinkPaint({ color, body, layers, frost, crownOnIce, seed, neon, word, creamy, cafe, tilt });
   const [surf, mid, deep, foot, bloomA, bloomB] = [P.surf, P.body, P.deep, P.foot, ...P.blooms].map(vc);
-  // one glaze wash: from the tone under it to this tone (see glaze())
-  const glazed = (pts, target, under, alpha, soft = 1) => { if (pts) { const g = glaze(target, under, alpha); washes.push({ pts, color: g.color, alpha: g.alpha, soft, grain, layers: GLAZE_LAYERS }); } };
+  // one glaze wash: from the tone under it to this tone (see glaze(), safeGlaze()), optionally
+  // held inside its own clip
+  const glazed = (pts, target, under, alpha, soft = 1, wclip = null) => { if (pts) { const g = safeGlaze(target, under, alpha); washes.push({ pts, color: g.color, alpha: g.alpha, soft, grain, layers: GLAZE_LAYERS, ...(wclip ? { clip: wclip } : {}) }); } };
   const clearish = P.kind === 'clear' || (body && bodyOp < 0.15 && body.clarity > 0.85);
   const depth = DEPTH[kind] || 1;
   const alphaFor = op => clearish ? 0.034 : (0.05 + 0.03 * Math.min(1, op)) * depth;
@@ -1622,6 +1651,7 @@ function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, body = 
   if (G.opaque) {
     // Looking down into a mug: the surface lit at the front, shadowed under the back of the rim.
     const rx = R.hw - 8, ry = rx * R.tilt;
+    clip = [ell(R.cx, R.y + 1, R.hw - 3, (R.hw - 3) * R.tilt, 0, TAU, 28)];
     const surface = topLayer ? topLayer.paint : surf;
     if (topLayer) washes.push({ pts: ell(R.cx, R.y + 1, rx, ry, 0, TAU, 18), color: topLayer.paint, alpha: 0.085, soft: 0.5, grain, layers: GLAZE_LAYERS });
     else {
@@ -1848,6 +1878,17 @@ function soakWashes(kind, M, hex, r, { cap = 0.07, reach = 0.18, tendrils = 5, o
 // Ice, drawn sparingly: a few outlines suggest the whole glassful. Crushed ice packs the glass
 // as white chips with the drink tinting the spaces between them, and heaps above the rim;
 // pebble ice is rounder; shaved ice is a smooth snowy dome; an ice cone stands in the middle.
+// The one big stirred block in a clear glass: where it stands, its size and its angle, by seed
+// (shared with the liquid, which lets the drink show through it as a lighter window). Two pours
+// of one prayer get a different block: one squarer and smaller, the next larger and turned.
+export function blockCube(kind, fill, seed) {
+  const R = rimOf(kind), r = rng(seed), top = levelOf(kind, fill);
+  const a = (r() - 0.5) * 0.7, grow = 0.88 + r() * 0.2, dx = (r() - 0.5) * R.hw * 0.16;
+  const size = Math.min(R.hw * 1.3, 86) * grow, h = size / 2, x = R.cx + dx, y = top + 6 + h;
+  if (y + h > R.bottom - 4) return null;
+  const c = [[-h, -h], [h, -h], [h, h], [-h, h], [-h, -h]].map(([px, py]) => [x + px * Math.cos(a) - py * Math.sin(a), y + px * Math.sin(a) + py * Math.cos(a)]);
+  return { x, y, size, a, c };
+}
 function ice({ kind = 'collins', style = 'cubed', fill = 0.84, seed = 5, soak = null, tint = null, sunk = false } = {}) {
   const G = GLASS_PROFILES[kind] || GLASS_PROFILES.collins, R = rimOf(kind), r = rng(seed);
   const strokes = [], washes = [], cover = [], dots = [];
@@ -1928,7 +1969,9 @@ function ice({ kind = 'collins', style = 'cubed', fill = 0.84, seed = 5, soak = 
       const y = top + 6 + size / 2 + i * size * 0.95;
       if (y + size / 2 > R.bottom - 4) break;
       const x = R.cx + (i % 2 ? 1 : -1) * R.hw * 0.18 * (cubes > 1 ? 1 : 0), a = (r() - 0.5) * 0.5, h = size / 2;
-      const c = [[-h, -h], [h, -h], [h, h], [-h, h], [-h, -h]].map(([px, py]) => [x + px * Math.cos(a) - py * Math.sin(a), y + px * Math.sin(a) + py * Math.cos(a)]);
+      const B = style === 'block' ? blockCube(kind, fill, seed) : null;
+      if (style === 'block' && !B) break;
+      const c = B ? B.c : [[-h, -h], [h, -h], [h, h], [-h, h], [-h, -h]].map(([px, py]) => [x + px * Math.cos(a) - py * Math.sin(a), y + px * Math.sin(a) + py * Math.cos(a)]);
       strokes.push({ pts: c, tier: 2 });
       strokes.push({ pts: [[c[0][0] + (c[1][0] - c[0][0]) * 0.2 + 5, c[0][1] + (c[3][1] - c[0][1]) * 0.2 + 5], [c[0][0] + (c[1][0] - c[0][0]) * 0.2 + 5, c[0][1] + (c[3][1] - c[0][1]) * (style === 'block' ? 0.7 : 0.45) + 5]], tier: 3 });
       // The cube is clear ice in front of the drink: it keeps the paper and only glows with the
