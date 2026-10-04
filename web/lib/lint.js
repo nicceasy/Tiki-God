@@ -215,7 +215,7 @@ const GARNISH_AROMA = new Set(['mint', 'nutmeg', 'cinnamon', 'clove']);
 const BITTERS_TAGS = new Set(['cinnamon', 'clove', 'allspice', 'nutmeg', 'ginger', 'baking-spice', 'anise', 'chocolate', 'orange']);
 
 // What a riff or a borrowed classic name must keep (research §5.1, classic-riff-loses-signature).
-const PASSION = ['passion-fruit-syrup', 'passion-fruit-juice', 'passion-fruit-nectar', 'passion-fruit-liqueur'];
+const PASSION = ['passion-fruit-syrup', 'passion-fruit-juice', 'passion-fruit-nectar', 'passion-fruit-liqueur', 'fassionola'];
 const SIGNATURE = {
   'jungle bird': { need: [['campari'], ['pineapple-juice']], what: 'Campari and pineapple' },
   hurricane: { need: [PASSION], what: 'passion fruit' },

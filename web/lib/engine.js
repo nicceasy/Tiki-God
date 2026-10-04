@@ -1078,6 +1078,14 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       const cap = asked(l) ? 2 : body().length > 1 ? 1 : 1.5;
       if (l.oz > cap + 0.01) { const other = body().filter(x => x !== l && !OVER(x.id)).sort((x, y) => y.oz - x.oz)[0]; if (other) other.oz += Math.min(l.oz - cap, 0.5); l.oz = cap; }
     }
+    // A buck is lengthened: two ounces of its fizz at least.
+    if (A.family === 'buck') for (const l of live().filter(l => FIZZ.has(l.id) && l.oz < 2)) l.oz = 2;
+    // Sweet liqueurs past an ounce and a half cloy (outside the resort punches built on them).
+    if (A.family !== 'resort-punch') {
+      const liq = live().filter(l => l.role === 'modifier' && (ingMap.get(l.id).sugar || 0) >= 20 && !asked(l));
+      const t = liq.reduce((s, l) => s + l.oz, 0);
+      if (t > 1.5) for (const l of liq) l.oz *= 1.5 / t;
+    }
     // A stirred drink takes its syrup by the barspoon: half an ounce at most.
     if (A.family === 'stirred' || svc.method === 'stir') for (const l of live().filter(l => l.role === 'sweet' && l.oz > 0.5 && !asked(l))) l.oz = 0.5;
     // Hot drinks take citrus as a whisper: half an ounce at most (more splits the butter).
@@ -1176,8 +1184,11 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       const noIce = service === 'hot' || (v.serve.includes('up') && service === 'shaken');
       if (noIce && r > 0.95) return 0;
       // The research's fill ranges (liquid before ice) are the measure where we have them: a
-      // Zombie's six ounces belong in a chimney, whatever crushed ice does to the arithmetic.
+      // Zombie's six ounces belong in a chimney. The finished drink still has to fit: a blended
+      // drink is its ice, and on crushed ice the liquid sits between the chips.
       const range = fillRange(v.id);
+      const fin = chem.finalOz * (bowl ? servings : 1);
+      if (!v.serve.includes('bowl') && fin * (service === 'frozen' ? 1.05 : service === 'crushed' ? 0.9 : 1.2) > v.capacity * (service === 'crushed' ? 1 : 1.05)) return 0;
       if (range) {
         const vol = chem.volOz * (bowl ? servings : 1);
         if (vol > range[1] * 1.12) return 0;
