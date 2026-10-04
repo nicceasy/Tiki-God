@@ -163,11 +163,11 @@ function pineapple() {
 // carved figure would make a mascot of something sacred (presentation.md §6.2).
 function glassFloat() {
   const cx = 90, cy = 110, r = 72, strokes = [{ pts: ell(cx, cy, r, r, -1.2, -1.2 + TAU * 1.03, 40), tier: 1 }];
-  for (const s of [0.4, 0.8]) strokes.push({ pts: ell(cx, cy, r * s, r * 0.98, -Math.PI / 2, Math.PI / 2, 22), tier: 2 }, { pts: ell(cx, cy, r * s, r * 0.98, Math.PI / 2, Math.PI * 1.5, 22), tier: 2 });
-  for (const y of [-0.55, 0, 0.55]) strokes.push({ pts: ell(cx, cy + y * r, r * Math.sqrt(1 - y * y), r * 0.12, 0.05, Math.PI - 0.05, 18), tier: 2 });
+  for (const s of [0.4, 0.8]) strokes.push({ pts: ell(cx, cy, r * s, r * 0.98, -Math.PI / 2, Math.PI / 2, 22), tier: 3 }, { pts: ell(cx, cy, r * s, r * 0.98, Math.PI / 2, Math.PI * 1.5, 22), tier: 3 });
+  for (const y of [-0.55, 0, 0.55]) strokes.push({ pts: ell(cx, cy + y * r, r * Math.sqrt(1 - y * y), r * 0.12, 0.05, Math.PI - 0.05, 18), tier: 3 });
   strokes.push({ pts: ell(cx - 28, cy - 34, 22, 26, Math.PI + 0.3, Math.PI + 1.2, 10), tier: 3 });
   strokes.push({ pts: ell(cx, cy - r - 8, 10, 7, 0, TAU, 14), tier: 1 }, { pts: [[cx + 8, cy - r - 12], [cx + 34, cy - r - 30], [cx + 52, cy - r - 26]], tier: 2 });
-  return { box: [180, 200], strokes, washes: [{ pts: ell(cx, cy, r - 2, r - 2, 0, TAU, 24), color: PALETTE.lagoon, alpha: 0.05 }, { pts: ell(cx + 18, cy + 22, r * 0.55, r * 0.5, 0, TAU, 16), color: PALETTE.lagoon, alpha: 0.04, soft: 0.6 }] };
+  return { box: [180, 200], strokes, washes: [{ pts: ell(cx, cy, r - 2, r - 2, 0, TAU, 24), color: PALETTE.lagoon, alpha: 0.03 }, { pts: ell(cx + 18, cy + 22, r * 0.55, r * 0.5, 0, TAU, 16), color: PALETTE.lagoon, alpha: 0.025, soft: 0.6 }] };
 }
 
 // ---------------------------------------------------------------- garnishes
@@ -205,7 +205,7 @@ function leaf(len, wid, { teeth = false, n = 14, round = 0.72 } = {}) {
   for (let i = 0; i <= n; i++) {
     const u = i / n;
     let w = wid * Math.pow(Math.max(0, Math.sin(Math.PI * Math.pow(u, round))), 0.85);
-    if (teeth && i > 1 && i < n - 1 && i % 2) w *= 1.16;
+    if (teeth && i > 1 && i < n - 1 && i % 2) w *= 1.11;
     up.push([u * len, -w]); dn.push([u * len, w]);
   }
   return [...up, ...dn.reverse().slice(1)];
@@ -501,10 +501,11 @@ const morsePick = () => fruitPick({ items: ['cherry', 'cherry', 'cherry', 'chunk
 function saturnRing(cx, cy) {
   const tilt = -0.35, ring = (rx, ry, a0, a1) => turn(ell(0, 0, rx, ry, a0, a1, 18), tilt, cx, cy);
   const c = cherryBody(cx, cy + 14, 15, false);
+  const band = (a0, a1) => [...ring(34, 11, a0, a1), ...ring(26, 6.5, a1, a0)];
   return merge(
-    { strokes: [{ pts: ring(31, 9, Math.PI + 0.25, TAU - 0.25), tier: 3 }, { pts: ring(26, 6.5, Math.PI + 0.3, TAU - 0.3), tier: 3 }] },
+    { strokes: [{ pts: ring(34, 11, Math.PI + 0.2, TAU - 0.2), tier: 2 }, { pts: ring(26, 6.5, Math.PI + 0.3, TAU - 0.3), tier: 3 }], washes: [{ pts: band(Math.PI + 0.2, TAU - 0.2), color: PALETTE.butter, alpha: 0.1, soft: 0.3 }] },
     moved(c, 0, -14),
-    { strokes: [{ pts: ring(31, 9, -0.2, Math.PI + 0.2), tier: 1 }, { pts: ring(26, 6.5, -0.15, Math.PI + 0.15), tier: 2 }], washes: [{ pts: [...ring(31, 9, -0.2, Math.PI + 0.2), ...ring(26, 6.5, Math.PI + 0.15, -0.15)], color: PALETTE.butter, alpha: 0.14, soft: 0.3 }] },
+    { strokes: [{ pts: ring(34, 11, -0.2, Math.PI + 0.2), tier: 1 }, { pts: ring(26, 6.5, -0.15, Math.PI + 0.15), tier: 2 }], washes: [{ pts: band(-0.2, Math.PI / 2), color: PALETTE.butter, alpha: 0.18, soft: 0.3 }, { pts: band(Math.PI / 2, Math.PI + 0.2), color: PALETTE.butter, alpha: 0.18, soft: 0.3 }], cover: [band(-0.2, Math.PI / 2), band(Math.PI / 2, Math.PI + 0.2)] },
   );
 }
 const peelRing = () => fruitPick({ items: ['ring'] });
@@ -1357,9 +1358,9 @@ function ice({ kind = 'collins', style = 'cubed', fill = 0.84, seed = 5, soak = 
     strokes.push({ pts: L, tier: 2 }, { pts: Rt, tier: 2 }, { pts: ell(R.cx, coneTop, wt, wt * 0.24, 0, TAU, 20), tier: 2 });
     if (!G.opaque) strokes.push({ pts: ell(R.cx, foot, wb, wb * G.rimTilt, 0.2, Math.PI - 0.2, 14), tier: 3 });
     const body = [...ell(R.cx, coneTop, wt, wt * 0.24, Math.PI, TAU, 10), [R.cx + wb, foot], [R.cx - wb, foot]];
-    // molded snow: a few faint grain marks down its length
-    for (const k of [-0.55, -0.15, 0.3, 0.62]) strokes.push({ pts: [[R.cx + k * wt, coneTop + 8 + Math.abs(k) * 10], [R.cx + k * (wt + (wb - wt) * 0.5), coneTop + 8 + (foot - coneTop) * 0.45]], tier: 3 });
-    for (let i = 0; i < 22; i++) { const u = r(), y = coneTop + 6 + u * (foot - coneTop - 10), w = wt + (wb - wt) * u - 4; dots.push({ x: R.cx + (r() * 2 - 1) * w, y, r: 0.5 + r() * 0.4, tier: 3 }); }
+    // packed snow: shade down the far side, a few soft grain marks, no ice-cube edges
+    washes.push({ pts: [[R.cx + wt * 0.45, coneTop + 4], [R.cx + wt, coneTop], [R.cx + wb, foot], [R.cx + wb * 0.5, foot]], color: PALETTE.ice, alpha: 0.01, soft: 0.8 });
+    for (let i = 0; i < 16; i++) { const u = r(), y = coneTop + 10 + u * (foot - coneTop - 16), w = wt + (wb - wt) * u - 6, x = R.cx + (r() * 2 - 1) * w; strokes.push({ pts: ell(x, y, 2.6, 1.1, 0.2, Math.PI - 0.2, 5), tier: 3 }); }
     cover.push(body);
     return { box: [300, 460], strokes, washes, cover, dots };
   }
@@ -1370,7 +1371,7 @@ function ice({ kind = 'collins', style = 'cubed', fill = 0.84, seed = 5, soak = 
       if (soak) washes.push(...soakWashes(kind, M, soak.hex, r, { cap: soak.alpha || 0.05, reach: soak.reach || 0.12, tendrils: 3 }));
       else washes.push({ pts: M.poly, color: PALETTE.ice, alpha: 0.026, soft: 0.6 });
       cover.push(M.poly);
-      if (style === 'shaved') for (let i = 0; i < 18; i++) { const x = R.cx + (r() * 2 - 1) * R.hw * 0.8; dots.push({ x, y: capYAt(M.top, x) + 3 + r() * (R.y - capYAt(M.top, x)), r: 0.6, tier: 3 }); }
+      if (style === 'shaved') for (let i = 0; i < 10; i++) { const x = R.cx + (r() * 2 - 1) * R.hw * 0.75; strokes.push({ pts: ell(x, capYAt(M.top, x) + 5 + r() * Math.max(2, R.y - capYAt(M.top, x) - 4), 2.2, 1, 0, Math.PI, 5), tier: 3 }); }
       else for (let i = 0; i < 6; i++) { const x = R.cx + (r() * 2 - 1) * R.hw * 0.7, y0 = capYAt(M.top, x); strokes.push({ pts: pebble(x, y0 + 6 + r() * Math.max(2, R.y - y0 - 8), 5 + r() * 3, r, style === 'pebble'), tier: 3 }); }
     }
     if (!G.opaque && style !== 'shaved') {
@@ -1379,12 +1380,15 @@ function ice({ kind = 'collins', style = 'cubed', fill = 0.84, seed = 5, soak = 
       for (let i = 0; i < n; i++) {
         const y = top + 8 + Math.pow(r(), 1.3) * (R.bottom - top - 22), hw = halfAt(G, y) - 13;
         if (hw < 6) continue;
-        const P = pebble(R.cx + (r() * 2 - 1) * hw, y, style === 'pebble' ? 6.5 : 5 + r() * 5, r, style === 'pebble');
-        strokes.push({ pts: P, tier: 3 });
+        const P = pebble(R.cx + (r() * 2 - 1) * hw, y, style === 'pebble' ? 6 : 3.5 + r() * 4.5, r, style === 'pebble');
+        // the pen catches only the lit edge of most chips
+        const k = r();
+        strokes.push({ pts: k < 0.35 ? P : P.slice(0, Math.max(3, Math.ceil(P.length * (0.45 + k * 0.3)))), tier: 3 });
         cover.push(P);
       }
     } else if (!G.opaque) {
-      for (let i = 0; i < 30; i++) { const y = top + 6 + r() * (R.bottom - top - 12); dots.push({ x: R.cx + (r() * 2 - 1) * (halfAt(G, y) - 8), y, r: 0.6, tier: 3 }); }
+      // shaved ice: a fine snowy matte with no pieces, a few white flecks in the drink
+      for (let i = 0; i < 40; i++) { const y = top + 6 + r() * (R.bottom - top - 12); dots.push({ x: R.cx + (r() * 2 - 1) * (halfAt(G, y) - 8), y, r: 0.7 + r() * 0.9, color: PALETTE.paper, top: true }); }
     }
   } else if ((style === 'cubed' || style === 'block') && G.opaque) {
     // In a mug, a couple of cube corners break the surface.
@@ -1416,7 +1420,7 @@ function ice({ kind = 'collins', style = 'cubed', fill = 0.84, seed = 5, soak = 
 function bittersCrown({ kind = 'collins', hex = '#8c2814', fill = 0.9, seed = 5, style = 'crushed' } = {}) {
   const r = rng(seed * 3 + 1), R = rimOf(kind);
   const M = HEAP.includes(style) ? capMound(kind, seed, style) : { lift: 0, top: [], poly: [] };
-  if (M.lift) return { box: [300, 460], strokes: [], washes: soakWashes(kind, M, hex, r, { cap: 0.045, reach: 0.2, tendrils: 6 }) };
+  if (M.lift) return { box: [300, 460], strokes: [], washes: soakWashes(kind, M, hex, r, { cap: 0.036, reach: 0.2, tendrils: 6 }) };
   const G = GLASS_PROFILES[kind] || GLASS_PROFILES.collins, level = G.opaque ? R.y : levelOf(kind, fill), w = (G.opaque ? R.hw - 8 : halfAt(G, level) - 5);
   return { box: [300, 460], strokes: [], washes: [{ pts: ell(R.cx, level, w, w * R.tilt + 6, 0, TAU, 18), color: hex, alpha: 0.08, soft: 0.6 }] };
 }
@@ -1427,10 +1431,10 @@ function mintLeaves({ kind = 'collins', fill = 0.9, seed = 13, n = 7, zone = 0.2
   const strokes = [], washes = [];
   const y0 = R.bottom - zone * (R.bottom - top), y1 = R.bottom - 7;
   for (let i = 0; i < n; i++) {
-    const y = y0 + 6 + r() * (y1 - y0 - 6), hw = Math.max(4, halfAt(G, y) - 16), x = R.cx + (r() * 2 - 1) * hw;
-    const L = turn(leaf(20 + r() * 10, 8 + r() * 3, { teeth: true }), r() * TAU, x - 12, y);
+    const y = y0 + 6 + r() * (y1 - y0 - 6), hw = Math.max(4, halfAt(G, y) - 18), x = R.cx + ((i + 0.5) / n * 2 - 1) * hw + (r() - 0.5) * 8;
+    const a = r() * TAU, len = 18 + r() * 9, L = turn(leaf(len, 7 + r() * 3, { teeth: true }), a, x - Math.cos(a) * len / 2, y - Math.sin(a) * len / 2);
     strokes.push({ pts: L, tier: 2 });
-    washes.push({ pts: L, color: PALETTE.mint, alpha: 0.07, soft: 0.4 });
+    washes.push({ pts: L, color: PALETTE.mint, alpha: 0.06, soft: 0.4 });
   }
   const band = [[R.cx - halfAt(G, y0) + 5, y0], [R.cx + halfAt(G, y0) - 5, y0], [R.cx + halfAt(G, y1) - 5, y1], [R.cx - halfAt(G, y1) + 5, y1]];
   washes.push({ pts: band, color: PALETTE.mint, alpha: 0.025, soft: 0.6 });
@@ -1472,7 +1476,6 @@ function frost({ kind = 'collins', seed = 17, amount = 1 } = {}) {
     const y = y0 + Math.pow(r(), 1.4) * (y1 - y0), w = (G.opaque ? R.hw : halfAt(G, y)) - 3;
     dots.push({ x: R.cx + (r() * 2 - 1) * w, y, r: 0.45 + r() * 0.6, color: PALETTE.paper, top: true });
   }
-  for (let i = 0; i < 24 * amount; i++) { const y = y0 + r() * (y1 - y0), w = (G.opaque ? R.hw : halfAt(G, y)) - 4; dots.push({ x: R.cx + (r() * 2 - 1) * w, y, r: 0.45, tier: 3 }); }
   // a finger mark wiped through the frost
   if (amount >= 1) { const x = R.cx - R.hw * 0.45, y = y0 + (y1 - y0) * 0.35; strokes.push({ pts: [[x, y], [x + 2, y + 26]], tier: 3 }, { pts: [[x + 7, y - 2], [x + 9, y + 24]], tier: 3 }); }
   return { box: [300, 460], strokes, washes: [], dots };

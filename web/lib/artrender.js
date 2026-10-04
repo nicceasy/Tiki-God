@@ -13,6 +13,11 @@ const TIER = { 1: { w: 2.3, a: 1 }, 2: { w: 1.35, a: 0.86 }, 3: { w: 0.95, a: 0.
 const SPEED = 950;    // spec units per second
 const LIFT = 0.035;   // pen lift between strokes, seconds
 const BLOOM = 0.62;   // wash bloom, seconds
+// The longest any one element takes to draw on: the vessel and drink get the most, garnish less,
+// and finishing touches (the front of the rim, frost, a dusting of nutmeg) go on quickly.
+const QUICK = new Set(['glass.front', 'glass.frost', 'glass.condensation', 'fizz', 'steam', 'sparkle', 'garnish.bitters-crown', 'garnish.nutmeg', 'garnish.dust']);
+const QUICK_DRAW = 0.3;
+const drawTime = part => QUICK.has(part) ? QUICK_DRAW : part === 'ice' ? 0.7 : part === 'straw' ? 0.45 : part.startsWith('garnish.') ? 0.8 : 1.15;
 
 let PAPER = null;
 const paper = () => PAPER || (PAPER = makePaper(192, 7));
@@ -153,7 +158,7 @@ export function createArtist(wrap, { reducedMotion = false } = {}) {
   function prepare(spec) {
     const { elements, errors } = validateSpec(spec);
     if (errors.length && typeof console !== 'undefined') console.warn('art spec:', errors.join('; '));
-    const items = elements.map((el, i) => ({ ...build(el, i, spec.seed ?? 1), maxDraw: el.part === 'ice' || el.part === 'fizz' ? 0.7 : 1.15 }));
+    const items = elements.map((el, i) => ({ ...build(el, i, spec.seed ?? 1), maxDraw: drawTime(el.part) }));
     let later = [];
     for (let i = items.length - 1; i >= 0; i--) { items[i].occ = later; later = later.concat(items[i].covers); }
     return items;

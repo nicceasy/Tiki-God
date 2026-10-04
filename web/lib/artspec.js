@@ -64,7 +64,7 @@ export const GARNISH_RULES = [
   { id: 'stirrer', re: /stir stick|stirrer/, parts: ['garnish.swizzle-stick'], role: 'tall' },
   { id: 'cane', re: /sugar[- ]?cane/, parts: ['garnish.sugarcane'], role: 'tall' },
   { id: 'ginger-pick', re: /candied ginger/, parts: ['garnish.pick'], role: 'pick' },
-  { id: 'named-fruit', re: /the named fruit/, parts: ['garnish.fruit-slice'], role: 'rim' },
+  { id: 'fruit', re: /the named fruit/, parts: ['garnish.fruit-slice'], role: 'rim', named: true },
   { id: 'fruit', re: /banana|strawberr|passion[- ]fruit|mango|apple|apricot|grapefruit wedge|cucumber|ginger coin/, parts: ['garnish.fruit-slice'], role: 'rim' },
   { id: 'herb', re: /basil|rosemary|geranium/, parts: ['garnish.herb-sprig'], role: 'aroma' },
   { id: 'whipped', re: /whipped cream/, parts: ['garnish.whipped-cream'], role: 'float' },
@@ -159,7 +159,9 @@ export function drinkSpec(recipe, ingMap) {
   // Ice as served: flash-blended drinks are crushed ice, not a frozen dome; hot drinks have none.
   let iceStyle = hot ? 'none' : frozen ? 'blended' : recipe.method.ice === 'blended' ? 'crushed' : recipe.method.ice || 'none';
   if (UP && HEAP.includes(iceStyle)) iceStyle = 'none';
-  if (plan.service.some(x => x.rule.id === 'ice-shell') && UP && kind !== 'flute') iceStyle = 'ice-shell';
+  // A shaved-ice shell the card names lines the glass (Beachcomber's Gold), whatever else the
+  // method says about the ice.
+  if (plan.service.some(x => x.rule.id === 'ice-shell') && !G.opaque && kind !== 'flute' && !hot && !frozen) iceStyle = 'ice-shell';
   const heaped = HEAP.includes(iceStyle) && !UP;
   const cone = iceStyle === 'ice-cone';
   const iceSeed = seed % 997;
@@ -208,7 +210,7 @@ export function drinkSpec(recipe, ingMap) {
   // drink is served up, hot or stirred; otherwise a straw goes where the service takes one.
   const named = plan.service.some(x => x.rule.id === 'straws' || x.rule.id === 'ice-cone');
   const takesStraw = !UP && !hot && !NO_STRAW_ARCHETYPES.includes(archetype) && method !== 'stir'
-    && (named || (!NO_STRAW_VESSELS.includes(kind) && (BOWL || cone || iceStyle !== 'none') && !['rocks', 'clay-cup'].includes(kind)));
+    && (named || (!NO_STRAW_VESSELS.includes(kind) && (BOWL || cone || !['none', 'ice-shell'].includes(iceStyle)) && !['rocks', 'clay-cup'].includes(kind)));
   const shortStraw = !!strawPhrase && /short/.test(lc(strawPhrase.phrase));
   const flip = !!flag; // a flag takes the front right, so the straw moves to the left
   const sgn = flip ? -1 : 1;
@@ -265,7 +267,7 @@ export function drinkSpec(recipe, ingMap) {
   const rimX = () => { const x = R.cx + rimSide * hw * 0.96; rimSide = -rimSide; return x; };
   // Fruit that sits on the rim, and a loose cherry (tucked against it), go first so the cap's
   // floaters and flowers find the room that is left.
-  const RIM = ['pineapple-wedge', 'lime-wedge', 'lime-wheel', 'lemon-wheel', 'orange-wheel', 'peel', 'fruit', 'named-fruit', 'flag', 'cherry'];
+  const RIM = ['pineapple-wedge', 'lime-wedge', 'lime-wheel', 'lemon-wheel', 'orange-wheel', 'peel', 'fruit', 'flag', 'cherry'];
   const rimFruit = plan.items.filter(it => RIM.includes(it.rule.id) || (it.rule.id === 'spiral' && !(clear && !UP)));
 
   // Rim fruit, front-left first; a loose cherry is tucked against the first wheel or wedge.
@@ -298,11 +300,12 @@ export function drinkSpec(recipe, ingMap) {
       const citrus = (g.match(/orange|lemon|lime|grapefruit/) || [/clove/.test(g) ? 'orange' : 'lemon'])[0];
       const px = R.cx + hw - 32, py = hot || UP || G.opaque ? R.y + 2 : R.y + 6;
       put('garnish.peel', { citrus: /citrus/.test(g) && !/orange|lemon|lime|grapefruit/.test(g) ? 'orange' : citrus, cloves: /clove/.test(g) }, px, py, { rot: -0.1, from, z: 72 });
-    } else if (id === 'fruit' || id === 'named-fruit') {
+    } else if (id === 'fruit') {
+      // the fruit the card names, or for "the named fruit" the one in the drink's lines
       let fruit = (FRUIT_LINES.find(([, re]) => re.test(g)) || [])[0];
       if (/cucumber/.test(g)) fruit = 'cucumber';
       if (/ginger/.test(g)) fruit = 'ginger';
-      if (id === 'named-fruit') fruit = (FRUIT_LINES.find(([, re]) => (recipe.lines || []).some(l => re.test(l.id))) || [])[0];
+      if (!fruit && /named fruit/.test(g)) fruit = (FRUIT_LINES.find(([, re]) => (recipe.lines || []).some(l => re.test(l.id))) || [])[0];
       if (!fruit) continue;
       put('garnish.fruit-slice', { fruit }, x, R.y + 2, { rot: side * 0.3, from, z: 72 });
       lastRim = { x, y: R.y - 20, r: 24 };
@@ -350,8 +353,8 @@ export function drinkSpec(recipe, ingMap) {
         put('garnish.flame', { h: inCrater ? 46 : 54 }, x, y - (inCrater ? 6 : 9), { from, z: 90 });
         put('sparkle', {}, x, y - (inCrater ? 54 : 62), { anchor: [30, 40], s: 0.9, from, z: 91 });
       } else if (cone) {
-        // floating on the drink at the cone's foot, seen through the glass
-        put('garnish.lime-shell', { orientation: 'dome-up', seed: iceSeed }, R.cx - hw * 0.52, (clear ? level : R.y) + 9, { s: 0.8, rot: 0.08, from, z: clear ? 10 : 60 });
+        // floating on the drink at the cone's foot, in front of it, seen through the glass
+        put('garnish.lime-shell', { orientation: 'dome-up', seed: iceSeed }, R.cx - hw * 0.18, (clear ? level : R.y) + 12, { s: 0.75, rot: 0.06, from, z: clear ? 10 : 60 });
       } else {
         const x = island ? claim(islandX, 80) : slot([-0.28, -0.05, 0.25], 80);
         put('garnish.lime-shell', { orientation: 'dome-up', seed: iceSeed }, x, capAt(x) + 8, { rot: (r() - 0.5) * 0.12, from, z: 60 });
@@ -386,21 +389,32 @@ export function drinkSpec(recipe, ingMap) {
         put(part, items ? { items } : {}, R.cx + hw * 0.06, R.y - (UP ? 4 : 2), { rot: -0.26 * sgn, from, z: 70 });
       }
     } else if (['scratcher', 'spear', 'umbrella', 'cinnamon-stick', 'swizzle', 'stirrer', 'cane'].includes(id)) {
+      // Tall things stand in the ice. In a clear glass the part below the cap shows through;
+      // in a mug it is hidden, so the drawing starts just inside the rim.
       if (id === 'umbrella' && !allowUmbrella) continue;
       const x = slot(id === 'umbrella' ? [-0.18, -0.4, 0.05] : id === 'scratcher' ? [-0.22, -0.02] : [-0.3, -0.08, 0.15], 16);
       const lean = id === 'umbrella' ? -0.24 * sgn : id === 'scratcher' ? -0.06 * sgn : (x < R.cx ? -0.12 : 0.12);
-      const sunk = clear && !hot ? Math.min(R.bottom - 12, capAt(x) + 60) : capAt(x) + (hot ? 22 : 16);
+      const inMug = y => (G.opaque ? Math.min(y, R.y + 5) : y);
       if (id === 'scratcher') {
         // the one garnish allowed to run long: about the vessel's height above the rim, its hand in the box
-        const foot = clear ? R.bottom - 12 : R.y + 12, topY = Math.max(52, R.y - 1.1 * H);
+        const foot = clear ? R.bottom - 12 : R.y + 5, topY = Math.max(52, R.y - 1.1 * H);
         put('garnish.back-scratcher', { len: foot - topY }, x, foot, { rot: lean, from, z: 30 });
       } else if (id === 'swizzle' || id === 'stirrer') {
-        const foot = clear && !hot ? R.bottom - 8 : capAt(x) + 14, topY = Math.max(id === 'stirrer' ? 30 : 8, capAt(x) - (id === 'stirrer' ? 70 : 95));
+        const foot = clear && !hot ? R.bottom - 8 : inMug(capAt(x) + 14), topY = Math.max(id === 'stirrer' ? 30 : 8, capAt(x) - (id === 'stirrer' ? 70 : 95));
         put('garnish.swizzle-stick', { len: foot - topY, plain: id === 'stirrer' }, x, foot, { rot: lean * 0.6, from, z: 31 });
-      } else if (id === 'spear') put('garnish.pineapple-spear', { len: Math.min(150, capAt(x) + 34) }, x, capAt(x) + 44, { rot: lean, from, z: 32 });
-      else if (id === 'umbrella') put('garnish.umbrella', {}, x, capAt(x) + 22, { rot: lean, s: fitUp(capAt(x) + 22, 152), from, z: 33 });
-      else if (id === 'cane') put('garnish.sugarcane', { len: 200 }, x, sunk, { rot: lean, from, z: 31 });
-      else { const foot = hot && clear ? level + 24 : capAt(x) + 34; put('garnish.cinnamon', { len: Math.min(132, foot - 10) }, x, foot, { rot: lean + 0.1, from, z: 34 }); }
+      } else if (id === 'spear') {
+        const foot = inMug(capAt(x) + 44);
+        put('garnish.pineapple-spear', { len: Math.min(150 - (capAt(x) + 44 - foot), foot - 10) }, x, foot, { rot: lean, from, z: 32 });
+      } else if (id === 'umbrella') {
+        const foot = inMug(capAt(x) + 22);
+        put('garnish.umbrella', {}, x, foot, { rot: lean, s: fitUp(foot, 152), from, z: 33 });
+      } else if (id === 'cane') {
+        const foot = clear && !hot ? Math.min(R.bottom - 12, capAt(x) + 60) : inMug(capAt(x) + 16);
+        put('garnish.sugarcane', { len: Math.min(200, foot - 10) }, x, foot, { rot: lean, from, z: 31 });
+      } else {
+        const foot = hot && clear ? level + 24 : inMug(capAt(x) + 34);
+        put('garnish.cinnamon', { len: Math.min(132 - (capAt(x) + 34 - foot), foot - 10) }, x, foot, { rot: lean + 0.1, from, z: 34 });
+      }
     } else if (id === 'spiral') {
       if (clear && !UP) full('garnish.peel-spiral', { kind, citrus: (g.match(/orange|lemon|lime|grapefruit/) || ['orange'])[0] }, from, 7);
     } else if (id === 'lime-coin') {
