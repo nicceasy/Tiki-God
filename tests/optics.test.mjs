@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { indexIngredients, analyzeLines, lineOz } from '../web/lib/chem.js';
-import { drinkLook, hexToRgb, showsColor } from '../web/lib/optics.js';
+import { drinkLook, hexToRgb, showsColor, hsl } from '../web/lib/optics.js';
 
 const j = p => JSON.parse(readFileSync(new URL(`../${p}`, import.meta.url), 'utf8'));
 const vocab = j('data/ingredients.json');
@@ -48,4 +48,61 @@ test('a colada is creamy, a Blue Hawaii is not navy, a grenadine sink is red', (
   assert.ok(colada.body.opacity > 0.8, `colada opacity ${colada.body.opacity}`);
   const sunrise = drinks.find(d => d.ingredients.some(l => l.id === 'grenadine' && l.sink));
   if (sunrise) assert.ok(lookOf(sunrise).layers.some(x => x.kind === 'sink' && showsColor({ body: { hex: x.hex, opacity: 0 } }, 'red')), `${sunrise.name}: sink not red`);
+});
+
+test('warm drinks get warm words: milky browns only for creamy drinks, dark browns only for dark ones', () => {
+  const CREAMERS = ['coconut-cream', 'coconut-milk', 'heavy-cream', 'half-and-half', 'vanilla-ice-cream', 'irish-cream', 'egg-white', 'banana', 'whole-milk', 'hot-buttered-rum-batter', 'tom-and-jerry-batter'];
+  const milky = /^(creamy |opaque |cloudy )?(café au lait|tan|mocha|cream|ivory)\b/i;
+  const darkWord = /^(creamy |opaque |cloudy )?(mahogany|dark brown|molasses|near-black)\b/i;
+  const words = new Set();
+  for (const d of drinks) {
+    const look = lookOf(d);
+    const body = look.description.split(' with ')[0].split(' under ')[0];
+    words.add(body.toLowerCase().replace(/^(creamy|opaque|cloudy|hazy) /, ''));
+    if (milky.test(body)) assert.ok(d.ingredients.some(l => CREAMERS.includes(l.id)), `${d.name}: "${body}" but nothing creamy in it`);
+    if (darkWord.test(body)) assert.ok(hsl(look.body.hex).l < 0.4, `${d.name}: "${body}" for ${look.body.hex}`);
+  }
+  // The catalogue reads in more than a handful of browns.
+  for (const w of ['honeyed amber', 'copper', 'coral', 'ruby', 'garnet', 'rose gold']) assert.ok(words.has(w), `no catalogued drink reads "${w}"`);
+});
+
+test('color words sit on the right hue', () => {
+  const near = (hex, lo, hi) => { const h = hsl(hex).h; return h !== null && (lo < hi ? h >= lo && h < hi : h >= lo || h < hi); };
+  const cases = { tangerine: [18, 40], 'sunset orange': [10, 30], 'mango gold': [30, 46], 'passion-fruit gold': [34, 50], 'hibiscus pink': [315, 2], 'rose gold': [0, 30], copper: [5, 36], ruby: [330, 12] };
+  for (const d of drinks) {
+    const look = lookOf(d);
+    const w = look.description.split(' with ')[0].split(' under ')[0].toLowerCase().replace(/^(creamy|opaque|cloudy|hazy) /, '');
+    if (cases[w]) assert.ok(near(look.body.hex, ...cases[w]), `${d.name}: "${w}" for ${look.body.hex} (hue ${hsl(look.body.hex).h})`);
+  }
+});
+
+test('the words say what the glass is: café-au-lait Painkiller, ivory coconut, mocha Bushwacker, a faintly lime daiquiri', () => {
+  const word = id => { const d = drinks.find(x => x.id === id); return lookOf(d).description.split(' with ')[0].toLowerCase(); };
+  // A Painkiller is a creamy orange-tan colada, never a fruit it doesn't have.
+  assert.match(word('painkiller-pussers'), /^creamy (café au lait|orange-tan|tan)$/);
+  // Cream of coconut over lime (the engine's Coconut Daiquiri) is ivory, not an empty clear body.
+  const coco = drinkLook([['rum-white-column', 2], ['lime', 1], ['coconut-cream', 1]].map(([id, oz]) => ({ id, oz, role: ingMap.get(id).role })), ingMap, { method: 'shake', dilutionOz: 1.2 });
+  assert.match(coco.description.toLowerCase(), /^creamy ivory$/);
+  assert.ok(hsl(coco.body.hex).h !== null, `coconut daiquiri ${coco.body.hex} has no hue`);
+  assert.match(word('bushwacker'), /^creamy (mocha|café au lait)$/);
+  // Fresh lime leaves a daiquiri faintly green-gold, not an empty clear body.
+  const dq = lookOf(drinks.find(x => x.id === 'daiquiri'));
+  const h = hsl(dq.body.hex);
+  assert.ok(h.h !== null && h.h >= 55 && h.h <= 80 && h.s >= 0.3, `daiquiri body ${dq.body.hex}`);
+  assert.match(dq.description.toLowerCase(), /lime|straw/);
+  for (const d of drinks) {
+    const look = lookOf(d), w = look.description.toLowerCase(), c = hsl(look.body.hex);
+    if (/^(creamy |opaque |cloudy )?seafoam/.test(w)) assert.ok(c.s >= 0.35 && c.l >= 0.7, `${d.name}: seafoam for ${look.body.hex}`);
+    if (/apricot/.test(w.split(' with ')[0])) assert.ok(!/^creamy/.test(w), `${d.name}: "${w}"`);
+  }
+});
+
+test('butterfly pea turns violet with citrus and pink in a sour; a Blue Lagoon stays sky blue', () => {
+  const look = spec => drinkLook(spec.map(([id, oz]) => ({ id, oz, role: ingMap.get(id).role })), ingMap, { method: 'shake', dilutionOz: 1 });
+  const sour = hsl(look([['gin', 2], ['lemon', 0.75], ['simple-syrup', 0.5], ['butterfly-pea-tea', 1]]).body.hex);
+  assert.ok(sour.h >= 290 && sour.h < 345, `butterfly pea sour at hue ${sour.h}`);
+  const neat = hsl(look([['gin', 2], ['butterfly-pea-tea', 1], ['soda-water', 3]]).body.hex);
+  assert.ok(neat.h >= 200 && neat.h < 250, `butterfly pea and soda at hue ${neat.h}`);
+  const lagoon = hsl(look([['vodka', 1.5], ['blue-curacao', 1], ['lemon', 0.5], ['lemon-lime-soda', 4]]).body.hex);
+  assert.ok(lagoon.h >= 195 && lagoon.h <= 215 && lagoon.s >= 0.6, `Blue Lagoon at hue ${lagoon.h}`);
 });

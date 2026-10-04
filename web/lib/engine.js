@@ -958,117 +958,233 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
   // The hue, saturation and lightness each leaning aims at.
   const LEAN_AIM = { gold: [50, 0.85, 0.6], orange: [28, 0.85, 0.58], red: [356, 0.72, 0.45], pink: [340, 0.65, 0.68], purple: [285, 0.45, 0.5], green: [100, 0.5, 0.55], blue: [200, 0.6, 0.55] };
   const LEAN_WHY = { gold: 'for a golden glow', orange: 'for a sunset-orange glow', red: 'for a ruby blush', pink: 'for a pink blush', purple: 'for a violet tint', green: 'for a green glint', blue: 'for a blue glint' };
-  // A leaning from the prayer's own flavors when no concept gave one: a floral prayer leans pink,
-  // berries and cherries red, passion fruit and mango gold, orange orange.
-  function hueLean(intent) {
+  // A leaning from the prayer's own moods when no concept gave one: a floral prayer leans pink,
+  // a berry one red, a tropical one gold.
+  function hueLean(intent, open = null) {
     if (intent.colorLean) return LEAN_AIM[intent.colorLean] ? intent.colorLean : null;
+    // "Surprise me" is an invitation: the gods pick a color too.
+    if (open) { const pal = ['pink', 'gold', 'red', 'orange']; return pal[Math.floor(open() * pal.length)]; }
     const t = intent.tags || {};
     const w = (...ks) => Math.max(0, ...ks.map(k => t[k] || 0));
-    const cands = [['pink', w('floral', 'rose', 'hibiscus', 'guava', 'watermelon') * 0.9], ['red', w('berry', 'cherry', 'pomegranate', 'strawberry', 'raspberry')], ['gold', w('passion-fruit', 'mango', 'tropical', 'banana') * 0.85], ['orange', w('orange', 'apricot', 'papaya') * 0.8]].filter(x => x[1] >= 0.9).sort((a, b) => b[1] - a[1]);
+    // Only moods lean: a fruit the guest named (passion fruit, cherry) is poured anyway and brings its own color.
+    const cands = [['pink', w('floral') * 0.9], ['red', w('berry')], ['gold', w('tropical') * 0.85]].filter(x => x[1] >= 0.75).sort((a, b) => b[1] - a[1]);
     return cands.length ? cands[0][0] : null;
   }
+  function ownLean(lines, A) {
+    let best = null, bw = 0;
+    for (const l of lines) {
+      if (l.garnish || l.float || l.sink || l.crown) continue;
+      for (const lean of ['gold', 'orange', 'red', 'pink']) {
+        if (!LEAN_CARRIERS[lean].includes(l.id) || (['red', 'pink'].includes(lean) && ['zombie', 'mai-tai'].includes(A.family))) continue;
+        const w = (l.oz || 0) * opticsOf(ingMap.get(l.id)).tint;
+        if (w > bw) { bw = w; best = lean; }
+        break;
+      }
+    }
+    return bw >= 0.3 ? best : null;
+  }
   function leanScore(look, lean) {
-    const [th, ts] = LEAN_AIM[lean];
+    const [th, ts, tl] = LEAN_AIM[lean];
     const d = x => {
       const c = hsl(x.hex);
       const dh = c.h === null ? 180 : Math.min(Math.abs(c.h - th), 360 - Math.abs(c.h - th));
-      return dh / 90 + Math.max(0, ts - c.s) * 1.2;
+      // Darker than the leaning's color is mud, not ruby (pomegranate under black rum is mahogany).
+      return dh / 90 + Math.max(0, ts - c.s) * 1.2 + Math.max(0, tl - 0.12 - c.l) * 2;
     };
     // The body is what the eye reads; a sink or float band counts for a little less.
     const bands = (look.layers || []).filter(x => x.kind !== 'foam' && x.kind !== 'crown' && (x.frac || 0) >= 0.12);
     return Math.min(d(look.body), ...bands.map(x => d(x) + 0.2));
   }
-  function leanPass(lines, A, intent, svc, notes, target, lean) {
+  function leanPass(lines, A, intent, svc, notes, target, lean, own = false) {
     if (!lean || !LEAN_AIM[lean]) return;
     const lookOf = L => { const c = chemOf(L, svc.method, svc.ice); return drinkLook(L, ingMap, { method: svc.method, ice: svc.ice, dilutionOz: c.finalOz - c.volOz }); };
     const carrierSet = new Set(LEAN_CARRIERS[lean] || []);
-    const ok = id => ingMap.has(id) && !forbidden(id, intent) && !(A.forbidden || []).includes(id) && !((intent.softAvoid || {})[id] >= 1);
+    const ok = id => ingMap.has(id) && !forbidden(id, intent) && !(A.forbidden || []).includes(id) && !(A.forbidden || []).includes(`cat:${ingMap.get(id).cat}`) && !((intent.softAvoid || {})[id] >= 1);
     const fits = (id, L, except) => !L.some(x => x.id === id) && !conflicts(id, L.filter(x => x !== except && !x.garnish).map(x => x.id));
     const slots = [...(A.signature || []), ...(A.optional || [])];
     const why = LEAN_WHY[lean];
     const tries = [];
+    // What the prayer was promised (the pirate's Demerara, dad's bourbon) or leans on stays put.
+    const promised = new Set((intent.promises || []).flatMap(pr => pr.ids || []));
+    const kept = l => l.req || promised.has(l.id) || ((intent.prefer || {})[l.id] || 0) >= 0.8;
     // More of the color's carrier already in the glass, up to its slot's ceiling (a quarter-ounce
     // of grenadine in a Port au Prince becomes a half).
     for (const l of lines) {
       if (l.garnish || l.float || l.sink || l.crown || !carrierSet.has(l.id)) continue;
       const slot = slots.find(c => (c.component || c.slot) === l.slot);
-      const cap = Math.min(doseCap(l.id, A.family), slot && slot.ozRange ? slot.ozRange[1] : 0.75, l.range ? l.range[1] : Infinity);
-      if (cap >= l.oz + 0.2) tries.push({ cost: 0.02, why: `more ${prose(l.id)}, ${why}`, edit: L => { const x = L[lines.indexOf(l)]; if (x) { x.oz = cap; x.oz0 = Math.max(x.oz0 || 0, cap); } } });
+      // A bottle that exists for this very color (blue curaçao for a blue leaning) may go a
+      // quarter-ounce past its slot, as the resort Blue Hawaii's full ounce does.
+      const own = ingMap.get(l.id).color === lean ? 0.25 : 0;
+      const cap = Math.min(doseCap(l.id, A.family, !!own), (slot && slot.ozRange ? slot.ozRange[1] : 0.75) + own, l.range ? l.range[1] + own : Infinity, own ? 1 : Infinity);
+      if (cap >= l.oz + 0.2) tries.push({ on: l, id: l.id, cost: 0.02, why: `more ${prose(l.id)}, ${why}`, edit: L => { const x = L[lines.indexOf(l)]; if (x) { x.oz = cap; x.oz0 = Math.max(x.oz0 || 0, cap); } } });
     }
-    // Refill a slot with a bottle of that color (passion fruit syrup in place of simple syrup).
-    for (const l of lines) {
-      if (l.req || l.garnish || !l.slot || l.float || l.sink || l.crown) continue;
-      const slot = slots.find(c => (c.component || c.slot) === l.slot);
-      if (!slot) continue;
-      const from = ingMap.get(l.id);
-      for (const id of slot.anyOf) {
-        if (id === l.id || !carrierSet.has(id) || !ok(id) || !fits(id, lines, l)) continue;
-        // Same job only: a sweetener for a sweetener, a juice for a juice, never a spirit for a syrup.
-        const to = ingMap.get(id);
-        if ((from.abv || 0) >= 30 && !((to.abv || 0) >= 30)) continue;
-        if ((from.acid || 0) >= 2 && !((to.acid || 0) >= 2)) continue;
-        tries.push({ cost: 0, why: `${prose(id)} in place of ${prose(l.id)}, ${why}`, edit: L => { const x = L[lines.indexOf(l)]; if (!x) return; x.id = id; x.role = to.role; x.oz = Math.min(x.oz, doseCap(id, A.family), slot.ozRange ? slot.ozRange[1] : Infinity); x.oz0 = x.oz; x.fromSpec = false; } });
+    // A drink with no leaning of its own only gets more of the color it already carries.
+    if (!own) {
+      // Refill a slot with a bottle of that color (passion fruit syrup in place of simple syrup),
+      // never trading away a color the drink already has (the strawberries in a fruit colada).
+      const colored = id => Object.entries(LEAN_CARRIERS).some(([k, ids]) => k !== lean && ids.includes(id));
+      for (const l of lines) {
+        if (kept(l) || l.garnish || !l.slot || l.float || l.sink || l.crown || colored(l.id)) continue;
+        const slot = slots.find(c => (c.component || c.slot) === l.slot);
+        if (!slot) continue;
+        const from = ingMap.get(l.id);
+        for (const id of slot.anyOf) {
+          if (id === l.id || !carrierSet.has(id) || !ok(id) || !fits(id, lines, l)) continue;
+          // Same job only: a sweetener for a sweetener, a juice for a juice, never a spirit for a syrup.
+          const to = ingMap.get(id);
+          if (to.role !== from.role || (from.abv || 0) >= 30 && !((to.abv || 0) >= 30)) continue;
+          if ((from.acid || 0) >= 2 && !((to.acid || 0) >= 2)) continue;
+          // …and never at the cost of something the prayer asked for (allspice for a spiced prayer).
+          if (intentMatch(id, intent) < intentMatch(l.id, intent) - 0.3) continue;
+          tries.push({ on: l, id, cost: 0, why: `${prose(id)} in place of ${prose(l.id)}, ${why}`, edit: L => { const x = L[lines.indexOf(l)]; if (!x) return; x.id = id; x.role = to.role; x.oz = Math.min(x.oz, doseCap(id, A.family), slot.ozRange ? slot.ozRange[1] : Infinity); x.oz0 = x.oz; x.fromSpec = false; } });
+        }
+      }
+      // Open an optional slot for one (a half-ounce of passion fruit, a hibiscus sink).
+      for (const o of A.optional || []) {
+        if (lines.filter(l => l.slot === o.slot).length >= (o.maxCount || 1)) continue;
+        for (const id of o.anyOf) if (carrierSet.has(id) && ok(id) && fits(id, lines)) {
+          const r = o.ozRange || [0.5, 0.75];
+          const fl = !!o.float || /\bfloat\b/.test(o.slot), sk = !!o.sink || /\bsink\b/.test(o.slot);
+          tries.push({ on: o, id, cost: 0.02, why: sk ? `${prose(id)} sunk to the bottom, ${why}` : `${prose(id)} ${why}`, edit: L => { L.push({ id, role: ingMap.get(id).role, oz: (r[0] + r[1]) / 2, oz0: (r[0] + r[1]) / 2, slot: o.slot, range: r, float: fl, sink: sk }); } });
+        }
+      }
+      // The ways a bartender works a colored bottle in without a slot for it: a colored syrup takes
+      // the plain syrup's job (passion fruit for simple), a colored juice trades part of the main
+      // juice (mango for some of the pineapple), or a modest pour of a colored liqueur.
+      const stirredish = svc.method === 'stir' || A.family === 'stirred' || svc.method === 'hot';
+      const plain = lines.find(l => PLAIN.has(l.id) && !kept(l) && !l.sink && !l.float);
+      const mainJuice = lines.filter(l => l.role === 'juice' && !kept(l) && !l.sink && !l.float && l.oz >= 1.5).sort((x, y) => y.oz - x.oz)[0];
+      for (const id of carrierSet) {
+        if (!ok(id) || lines.some(x => x.id === id)) continue;
+        const role = ingMap.get(id).role;
+        if (role === 'sweet' && plain && fits(id, lines, plain) && !tries.some(t => t.id === id)) {
+          tries.push({ on: plain, id, cost: 0.02, why: `${prose(id)} in place of ${prose(plain.id)}, ${why}`, edit: L => { const x = L[lines.indexOf(plain)]; if (!x) return; x.id = id; x.role = role; x.oz = Math.min(Math.max(x.oz, 0.5), doseCap(id, A.family)); x.oz0 = x.oz; x.range = null; x.fromSpec = false; } });
+        } else if (role === 'juice' && mainJuice && !stirredish && fits(id, lines)) {
+          const oz = Math.min(1, Math.max(0.5, Math.round(mainJuice.oz / 3 * 4) / 4));
+          tries.push({ on: mainJuice, id, cost: 0.03, why: `${oz} oz of the ${prose(mainJuice.id)} traded for ${prose(id)}, ${why}`, edit: L => { const x = L[lines.indexOf(mainJuice)]; if (!x) return; x.oz -= oz; if (x.range) x.range = [Math.min(x.range[0], x.oz), x.range[1]]; L.push({ id, role, oz, oz0: oz, slot: 'color', range: null }); } });
+        } else if (role === 'modifier' && fits(id, lines) && !(ingMap.get(id).color === 'blue' || ingMap.get(id).color === 'green') && !stirredish
+          // A liqueur joins only a drink it belongs in (no Galliano in a Mai Tai).
+          && compat(id, lines.filter(l => !l.garnish).map(l => l.id)) >= 0.15 && intentMatch(id, intent) >= 0) {
+          tries.push({ on: 'modifier', id, cost: 0.06, why: `½ oz of ${prose(id)} ${why}`, edit: L => { L.push({ id, role, oz: 0.5, oz0: 0.5, slot: 'color', range: null }); } });
+        }
+      }
+      // A bright leaning wants a bright spirit: a dark rum that isn't the guest's (or the frame's
+      // only) rum gives way to a golder one that does the same job.
+      const fizzy = lines.some(l => FIZZ.has(l.id));
+      const sameJob = (from, to) => ingMap.get(to).role === ingMap.get(from).role && OVER(to) === OVER(from) && !(FIZZ.has(to) && fizzy && !FIZZ.has(from));
+      // (A red leaning counts: an aged rum turns hibiscus to brick.)
+      const warm = ['gold', 'orange', 'pink', 'red'].includes(lean);
+      // A cool leaning is clouded by a yellow-green bottle too (lime cordial under blue curaçao).
+      const cool = ['blue', 'purple'].includes(lean), yellowish = hx => { const c = hsl(hx); return c.h !== null && c.h >= 30 && c.h < 100 && c.s > 0.3; };
+      // Muddy means a brown bottle (a dark rum, an amaro), never another color's carrier (Campari).
+      const muddy = lines.filter(l => { const o = opticsOf(ingMap.get(l.id)); return !kept(l) && l.slot && !l.float && !l.sink && !carrierSet.has(l.id) && !(colored(l.id) && !(cool && yellowish(o.hex))) && (o.tint >= 1.8 && hsl(o.hex).l < 0.35 || warm && o.tint >= 1.5 && hsl(o.hex).l < 0.5 || cool && o.tint >= 0.8 && o.scatter < 0.5 && yellowish(o.hex)); });
+      for (const l of muddy) {
+        const slot = slots.find(c => (c.component || c.slot) === l.slot);
+        const tl = opticsOf(ingMap.get(l.id)).tint;
+        const clear = slot ? slot.anyOf.filter(id => ok(id) && sameJob(l.id, id) && fits(id, lines, l) && !lines.some(x => x !== l && x.role === 'base' && !x.float && originOf(x.id) === originOf(id)) && intentMatch(id, intent) >= intentMatch(l.id, intent) - 0.15 && opticsOf(ingMap.get(id)).tint < tl * 0.8 && hsl(opticsOf(ingMap.get(id)).hex).l >= 0.4 && !(cool && yellowish(opticsOf(ingMap.get(id)).hex) && opticsOf(ingMap.get(id)).tint >= 0.5)) : [];
+        for (const alt of clear.sort((x, y) => opticsOf(ingMap.get(y)).tint - opticsOf(ingMap.get(x)).tint).slice(0, 2)) tries.push({ cost: 0.04, muddy: true, why: `${prose(alt)} in place of ${prose(l.id)}, so it glows`, edit: L => { const x = L[lines.indexOf(l)]; if (!x) return; x.id = alt; x.role = ingMap.get(alt).role; } });
+        // A colored sweetener beside a plain syrup folds into it (the lime cordial's half-ounce
+        // becomes simple syrup), so the cool color isn't greened.
+        const plainNow = lines.find(x => x !== l && PLAIN.has(x.id) && !x.sink && !x.float);
+        if (cool && l.role === 'sweet' && plainNow && !clear.length) tries.push({ cost: 0.04, muddy: true, why: `${prose(plainNow.id)} in place of ${prose(l.id)}, so the ${lean} stays clean`, edit: L => { const x = L[lines.indexOf(l)], p = L[lines.indexOf(plainNow)]; if (!x || !p) return; p.oz += x.oz; p.oz0 = p.oz; x.drop = true; } });
+      }
+      // A cool leaning drowned by a cloudy yellow juice: less of the juice, inside its range
+      // (a Blue Hawaii goes turquoise when the pineapple is cut to twice the curaçao; at six
+      // times it is sea-green).
+      if (['blue', 'green', 'purple'].includes(lean)) {
+        const dye = lines.filter(l => carrierSet.has(l.id) && !l.float && !l.sink && !l.garnish).reduce((t, l) => t + l.oz, 0);
+        for (const l of lines) {
+          const o = opticsOf(ingMap.get(l.id)), h = hsl(o.hex).h;
+          // A juice the prayer asked for (Hawaii's pineapple) is trimmed, never taken out.
+          if (!dye || l.float || l.sink || l.garnish || l.role !== 'juice' || (o.scatter || 0) < 0.5 || h === null || h < 25 || h > 65) continue;
+          const slot = slots.find(c => (c.component || c.slot) === l.slot);
+          const lo = Math.max(slot && slot.ozRange ? slot.ozRange[0] : 1, l.range ? l.range[0] : 0, 1, Math.round(dye * 2 * 4) / 4);
+          if (l.oz >= lo + 0.5) tries.push({ on: l, cost: 0.03, why: `less ${prose(l.id)}, so the ${lean} isn't clouded`, edit: L => { const x = L[lines.indexOf(l)]; if (x) { x.oz = lo; x.oz0 = Math.min(x.oz0 || lo, lo); x.held = true; } } });
+        }
+      }
+      // Red and pink in a clear glass: a grenadine or hibiscus sink, the sunrise move.
+      if (['red', 'pink'].includes(lean) && !['hot', 'blend'].includes(svc.method) && !lines.some(l => l.sink)) {
+        for (const id of ['grenadine', 'hibiscus-syrup']) if (ok(id) && fits(id, lines)) {
+          tries.push({ on: 'sink', id, cost: 0.06, why: `${prose(id)} sunk to the bottom, ${why}`, edit: L => { L.push({ id, role: ingMap.get(id).role, oz: 0.5, oz0: 0.5, sink: true, slot: 'color', req: true }); } });
+          break;
+        }
       }
     }
-    // Open an optional slot for one (a half-ounce of passion fruit, a hibiscus sink).
-    for (const o of A.optional || []) {
-      if (lines.filter(l => l.slot === o.slot).length >= (o.maxCount || 1)) continue;
-      for (const id of o.anyOf) if (carrierSet.has(id) && ok(id) && fits(id, lines)) {
-        const r = o.ozRange || [0.5, 0.75];
-        const fl = !!o.float || /\bfloat\b/.test(o.slot), sk = !!o.sink || /\bsink\b/.test(o.slot);
-        tries.push({ cost: 0.02, why: sk ? `${prose(id)} sunk to the bottom, ${why}` : `${prose(id)} ${why}`, edit: L => { L.push({ id, role: ingMap.get(id).role, oz: (r[0] + r[1]) / 2, oz0: (r[0] + r[1]) / 2, slot: o.slot, range: r, float: fl, sink: sk }); } });
-      }
-    }
-    // A bright leaning wants a bright spirit: a dark rum that isn't the guest's (or the frame's
-    // only) rum gives way to a golder one that does the same job.
-    const fizzy = lines.some(l => FIZZ.has(l.id));
-    const sameJob = (from, to) => ingMap.get(to).role === ingMap.get(from).role && OVER(to) === OVER(from) && !(FIZZ.has(to) && fizzy && !FIZZ.has(from));
-    const warm = ['gold', 'orange', 'pink'].includes(lean);
-    const muddy = lines.filter(l => { const o = opticsOf(ingMap.get(l.id)); return !l.req && l.slot && !l.float && !l.sink && !carrierSet.has(l.id) && (o.tint >= 1.8 && hsl(o.hex).l < 0.35 || warm && o.tint >= 1.5 && hsl(o.hex).l < 0.5); });
-    for (const l of muddy) {
-      const slot = slots.find(c => (c.component || c.slot) === l.slot);
-      const tl = opticsOf(ingMap.get(l.id)).tint;
-      const clear = slot ? slot.anyOf.filter(id => ok(id) && sameJob(l.id, id) && fits(id, lines, l) && opticsOf(ingMap.get(id)).tint < tl * 0.8 && hsl(opticsOf(ingMap.get(id)).hex).l >= 0.4) : [];
-      for (const alt of clear.sort((x, y) => opticsOf(ingMap.get(y)).tint - opticsOf(ingMap.get(x)).tint).slice(0, 2)) tries.push({ cost: 0.04, muddy: true, why: `${prose(alt)} in place of ${prose(l.id)}, so it glows`, edit: L => { const x = L[lines.indexOf(l)]; if (!x) return; x.id = alt; x.role = ingMap.get(alt).role; } });
-    }
-    // Red and pink in a clear glass: a grenadine or hibiscus sink, the sunrise move.
-    if (['red', 'pink'].includes(lean) && !['hot', 'blend'].includes(svc.method) && !lines.some(l => l.sink)) {
-      for (const id of ['grenadine', 'hibiscus-syrup']) if (ok(id) && fits(id, lines)) {
-        tries.push({ cost: 0.06, why: `${prose(id)} sunk to the bottom, ${why}`, edit: L => { L.push({ id, role: ingMap.get(id).role, oz: 0.5, oz0: 0.5, sink: true, slot: 'color', req: true }); } });
-        break;
-      }
-    }
+    const DBG = typeof process !== 'undefined' && process.env && process.env.DEBUG_LEAN;
     if (!tries.length) return;
     const ratio = L => { const c = chemOf(L.filter(l => !l.sink && !l.float), svc.method, svc.ice); return c.acidG > 0.05 ? c.sugarG / c.acidG : null; };
-    const c0 = chemOf(lines, svc.method, svc.ice), r0 = ratio(lines), s0 = leanScore(lookOf(lines), lean);
+    const look0 = lookOf(lines), c0 = chemOf(lines, svc.method, svc.ice), r0 = ratio(lines), s0 = leanScore(look0, lean);
+    // A leaning read from the prayer's mood (a tropical prayer leans gold) never dims a drink that
+    // already has a color of its own (a strawberry colada's blush).
+    const b0 = hsl(look0.body.hex);
+    if (!intent.colorLean && !own && b0.h !== null && b0.s >= 0.4 && (b0.h < 15 || b0.h >= 70) && leanScore(look0, lean) > 0.5) return;
     const T = target || r0;
     const err = r => (T && r ? Math.abs(Math.log(r / T)) : 0);
     const e0 = err(r0);
+    // The family's sugar-to-acid window and component ceiling, as the critic reads them.
+    const W = famWin(A.family).sugarToAcid, maxN = Math.min(famWin(A.family).maxComponents || 11, 11);
+    const count = L => L.filter(l => !l.garnish && !(l.role === 'aromatic' && !l.muddled)).length;
+    const out0 = c0.sweetSour && W ? Math.max(0, Math.log(W[0] * 0.97 / c0.sweetSour), Math.log(c0.sweetSour / (W[1] * 1.03))) : 0;
     const clone = () => lines.map(l => ({ ...l }));
-    const plans = [...tries.filter(t => !t.muddy).map(t => [t]), ...tries.filter(t => t.muddy).flatMap(m => [[m], ...tries.filter(t => !t.muddy).map(t => [m, t])])];
+    // Single moves first; then the most promising moves in pairs (a hibiscus syrup for the plain
+    // syrup and pomegranate for some of the pineapple), each with a muddy-rum fix.
+    const moves = tries.filter(t => !t.muddy), muds = tries.filter(t => t.muddy);
+    const apart = (a, b) => a.on !== b.on && (!a.id || a.id !== b.id);
+    const singles = [...moves.map(t => [t]), ...muds.map(m => [m]), ...muds.flatMap(m => moves.filter(t => apart(m, t)).map(t => [m, t]))];
+    const tried = new Map();
     let best = null;
-    for (const plan of plans) {
+    const runPlans = plans => { for (const plan of plans) {
       let L = clone();
       plan.forEach(t => t.edit(L));
+      L = L.filter(x => !x.drop);
       finalizeAmounts(L);
       // A sweet carrier added on top pays for itself out of the plain syrup.
-      if (T) for (let i = 0; i < 8 && ratio(L) && Math.log(ratio(L) / T) > 0.06; i++) {
+      const whole = X => chemOf(X, svc.method, svc.ice).sweetSour;
+      if (T || W) for (let i = 0; i < 8 && (T && ratio(L) && Math.log(ratio(L) / T) > 0.06 || W && whole(L) > W[1] * 1.02 && whole(L) > (c0.sweetSour || 0)); i++) {
         const plain = L.filter(l => PLAIN.has(l.id) && !l.req && !l.sink && !l.float && l.oz > 0.1).sort((a, b) => b.oz - a.oz)[0];
         if (!plain) break;
         plain.oz = Math.max(0, plain.oz - (plain.oz > 0.3 ? 0.25 : 1 / 12));
         if (plain.oz < 0.08) L.splice(L.indexOf(plain), 1);
         finalizeAmounts(L);
       }
+      // …and a tart one (passion fruit purée) out of the lime, never below the sour's floor.
+      if (T) for (let i = 0; i < 6 && ratio(L) && Math.log(ratio(L) / T) < -0.06; i++) {
+        const sour = L.filter(l => l.role === 'sour' && !l.req && !l.sink && !l.float && l.oz > Math.max(0.5, l.range ? l.range[0] : 0) + 0.06).sort((a, b) => b.oz - a.oz)[0];
+        if (!sour) break;
+        sour.oz = Math.max(0.5, sour.range ? sour.range[0] : 0, sour.oz - 0.125);
+        finalizeAmounts(L);
+      }
       settle(L, T, A, intent, svc);
-      const c = chemOf(L, svc.method, svc.ice);
-      const DBG = typeof process !== 'undefined' && process.env && process.env.DEBUG_LEAN;
-      const rej = err(ratio(L)) > Math.max(0.12, e0 + 0.04) ? 'balance' : !intent.style.zeroProof && c.abv < c0.abv * 0.85 ? 'abv' : c.volOz > c0.volOz * 1.15 + 0.25 ? 'vol' : !composer.satisfies(A, L, intent.ings, id => forbidden(id, intent)).ok ? 'frame' : null;
-      if (DBG) console.log('  lean', lean, plan.map(t => t.why).join(' + '), rej || '', (leanScore(lookOf(L), lean)).toFixed(2), 'vs', s0.toFixed(2), lookOf(L).body.hex);
+      const c = chemOf(L, svc.method, svc.ice), look = lookOf(L), body = hsl(look.body.hex);
+      const out = c.sweetSour && W ? Math.max(0, Math.log(W[0] * 0.97 / c.sweetSour), Math.log(c.sweetSour / (W[1] * 1.03))) : 0;
+      // Off the spec's ratio is fine when the move brings a drink that sat outside its family's
+      // window back toward it (and the guest asked for no particular sweetness).
+      const mended = Math.abs(intent.sweetness || 0) < 0.5 && Math.abs(intent.tartness || 0) < 0.5 && out0 > 0.1 && out < out0 - 0.08;
+      const rej = err(ratio(L)) > Math.max(0.12, e0 + 0.04) && !mended || out > out0 + 0.01 ? 'balance'
+        : count(L) > Math.max(maxN, count(lines)) ? 'too many bottles'
+        // A Zombie or a Mai Tai that reads red is grenadine abuse.
+        : ['zombie', 'mai-tai'].includes(A.family) && (COLOR_TEST.red(body) || COLOR_TEST.pink(body)) ? 'red zombie'
+        : !intent.style.zeroProof && c.abv < c0.abv * 0.85 ? 'abv' : c.volOz > c0.volOz * 1.15 + 0.25 ? 'volume'
+        : !composer.satisfies(A, L, intent.ings, id => forbidden(id, intent)).ok ? 'frame' : null;
+      const s = leanScore(look, lean) + plan.reduce((a, t) => a + t.cost, 0) + (plan.length - 1) * 0.05;
+      if (DBG) console.log(`  lean ${lean} ${A.id}: ${plan.map(t => t.why).join(' + ')} ${rej || ''} ${s.toFixed(2)} vs ${s0.toFixed(2)} ${look.body.hex}`);
+      if (plan.length === 1) tried.set(plan[0], { s, rej });
       if (rej) continue;
-      const s = leanScore(lookOf(L), lean) + plan.reduce((a, t) => a + t.cost, 0) + (plan.length - 1) * 0.03;
-      if (s < s0 - 0.07 && (!best || s < best.s)) best = { s, L, plan };
+      if (s < s0 - 0.045 && (!best || s < best.s)) best = { s, L, plan };
+    } };
+    runPlans(singles);
+    // A soft leaning stays soft: pairs only for a prayer that leans, never for a drink's own carrier.
+    if (!own) {
+      const top = moves.filter(t => tried.has(t) && !['frame', 'too many bottles'].includes(tried.get(t).rej) && tried.get(t).s < s0).sort((a, b) => tried.get(a).s - tried.get(b).s).slice(0, 5);
+      const pairs = [];
+      for (let i = 0; i < top.length; i++) for (let k = i + 1; k < top.length; k++) if (apart(top[i], top[k])) pairs.push([top[i], top[k]]);
+      runPlans(pairs);
     }
-    if (!best) return;
+    // A cool color keeps its proportion when a bigger glass is filled: the yellow juice that
+    // would green it doesn't grow.
+    const hold = L => { if (['blue', 'green', 'purple'].includes(lean)) for (const l of L) { const o = opticsOf(ingMap.get(l.id)), h = hsl(o.hex).h; if (l.role === 'juice' && (o.scatter || 0) >= 0.5 && h !== null && h >= 25 && h <= 65) l.held = true; } };
+    if (!best) { hold(lines); return; }
+    hold(best.L);
     lines.splice(0, lines.length, ...best.L);
     best.plan.forEach(t => notes.push(t.why));
   }
@@ -1907,7 +2023,8 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     // and the accents keep their pours, the juices and sweeteners grow.
     const spirit = lines.filter(l => l.role === 'base' && !l.float && !l.sink).reduce((t, l) => t + (l.oz || 0), 0);
     if (needOf(c, v, service) <= room && range && c.volOz < range[0] * 0.95 && A.family !== 'zombie' && spirit <= 2.25) {
-      const grow = lines.filter(l => !l.garnish && !l.muddled && ['juice', 'sour', 'sweet', 'rich', 'lengthener'].includes(l.role) && !POTENT.has(l.id) && !['dash', 'drop'].includes(l.unit));
+      // A juice cut for the color (the Blue Hawaii's pineapple) stays cut.
+      const grow = lines.filter(l => !l.garnish && !l.muddled && !l.held && ['juice', 'sour', 'sweet', 'rich', 'lengthener'].includes(l.role) && !POTENT.has(l.id) && !['dash', 'drop'].includes(l.unit));
       const growOz = grow.reduce((t, l) => t + l.oz, 0);
       const k = growOz > 0 ? Math.min(1.5, 1 + (range[0] - c.volOz) / growOz) : 1;
       for (const l of grow) l.oz *= k;
@@ -1972,6 +2089,8 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
   function generateOnce(prompt, { seed = 0, avoid = null, prior = null } = {}) {
     swappedOut.clear();
     const intent = parsePrompt(prompt, { nameIndex, concepts: conceptIndex });
+    // The color the prayer leans toward (never a demand), for the lean pass.
+    if (!intent.color) intent.hueLean = hueLean(intent, /\bsurprise\b/i.test(prompt) && !intent.riffOf ? rngFrom(`${prompt}::${seed}::hue`) : null);
     if (!intent.riffOf) {
       const text = ` ${prompt.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9' -]+/g, ' ').replace(/\s+/g, ' ')} `;
       const hit = classicIndex.find(c => text.includes(` ${c.key} `));
@@ -2197,7 +2316,12 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       finalizeAmounts(lines);
       if (!classic) settle(lines, target, A, intent, svc);
       const colorOk = intent.color ? colorPass(lines, A, intent, svc, notes) : true;
-      if (!intent.color && !classic) leanPass(lines, A, intent, svc, notes, target, hueLean(intent));
+      if (!intent.color && !classic && !(riffSrc && !intent.colorLean && !hueLean(intent))) {
+        if (intent.hueLean) leanPass(lines, A, intent, svc, notes, target, intent.hueLean);
+        // No leaning at all: the drink's own color carrier (its passion fruit, its grenadine) may
+        // sing a little louder, inside its range and its balance.
+        else if (!riffSrc) { const own = ownLean(lines, A); if (own) leanPass(lines, A, intent, svc, notes, target, own, true); }
+      }
       const c = chemOf(lines, svc.method, svc.ice);
       const colorMiss = colorOk ? 0 : colorDistance(drinkLook(lines, ingMap, { method: svc.method, ice: svc.ice, dilutionOz: c.finalOz - c.volOz }), intent.color);
       const broken = promisesBroken(lines, svc, A);

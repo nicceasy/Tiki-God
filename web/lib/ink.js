@@ -236,8 +236,8 @@ function grainPattern(ctx, paper, color) {
     const x = c.getContext('2d');
     x.drawImage(paper.canvas, 0, 0);
     x.globalCompositeOperation = 'source-in';
-    // a deeper shade of the same pigment: multiplied over the wash it reads as the color pooling
-    x.fillStyle = mixHexInk(color, '#3a1f2a', 0.28);
+    // the same pigment: multiplied over its own wash it reads as the color pooling, deeper
+    x.fillStyle = color;
     x.fillRect(0, 0, n, n);
     pat = ctx.createPattern(c, 'repeat');
     if (tints.size > 400) tints.clear();
@@ -245,7 +245,6 @@ function grainPattern(ctx, paper, color) {
   }
   return pat;
 }
-const mixHexInk = (a, b, t) => mixHex(a, b, t);
 
 export function finishWash(ctx, wash, color, { paper = null, rim = 0.16, grain = 0.28 } = {}) {
   const B = wash.base;
@@ -254,6 +253,7 @@ export function finishWash(ctx, wash, color, { paper = null, rim = 0.16, grain =
   ctx.beginPath(); ctx.moveTo(B[0].x, B[0].y); for (let j = 1; j < B.length; j++) ctx.lineTo(B[j].x, B[j].y); ctx.closePath();
   // Edge darkening: pigment collects where the wash dried.
   ctx.globalAlpha = rim; ctx.strokeStyle = color; ctx.lineWidth = 1.3; ctx.stroke();
+  if (globalThis.__NOGRAIN) grain = 0;
   if (paper && grain > 0) {
     // Granulation: pigment settles into the paper's valleys, only where there is pigment, and
     // in its own color (a wash deepens where it pools; it never greys toward brown).

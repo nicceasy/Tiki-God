@@ -4,7 +4,7 @@
 //   { v: 1, box: [w, h], seed, elements: [{ part, params?, x, y, s?, rot?, anchor?: [ax, ay], from? }] }
 // (x, y) is where the part's anchor lands; the part is scaled by s and turned by rot about it.
 // A garnish element says which garnish phrase on the card it draws (`from`).
-import { CATALOG, PALETTE, rimOf, levelOf, GLASS_PROFILES, halfAt, capMound, capYAt, pigment } from './artcatalog.js';
+import { CATALOG, PALETTE, rimOf, levelOf, GLASS_PROFILES, halfAt, capMound, capYAt, pigment, hexHsl, TIKI_GLAZES } from './artcatalog.js';
 import { rng, seedOf } from './ink.js';
 import { vesselForDrink } from './vessels.js';
 import { drinkLook, opticsOf } from './optics.js';
@@ -118,6 +118,9 @@ export function garnishPlan(recipe) {
 
 const lc = s => String(s || '').toLowerCase();
 const has = (plan, id) => plan.items.find(x => x.rule.id === id);
+const NEON = new Set(['blue-curacao', 'melon-liqueur', 'butterfly-pea-tea']);
+const COFFEE = new Set(['coffee', 'coffee-liqueur', 'creme-de-cacao', 'white-creme-de-cacao']);
+const CREAMY = new Set(['coconut-cream', 'coconut-milk', 'heavy-cream', 'half-and-half', 'vanilla-ice-cream', 'irish-cream', 'banana', 'whole-milk', 'hot-buttered-rum-batter', 'tom-and-jerry-batter']);
 const okHex = h => typeof h === 'string' && /^#[0-9a-f]{6}$/i.test(h);
 const lum = h => { const n = parseInt(h.slice(1), 16); return (0.3 * (n >> 16 & 255) + 0.59 * (n >> 8 & 255) + 0.11 * (n & 255)) / 255; };
 
@@ -169,11 +172,25 @@ export function drinkSpec(recipe, ingMap) {
   const level = levelOf(kind, fill);
   const crowned = !!has(plan, 'crown') || /to form a crown/.test(steps);
   const { look, crown } = lookFor(recipe, ingMap, crowned);
+  // A drink that is neon may glow in the painting; everything else is pushed short of it.
+  const neon = (recipe.lines || []).some(l => NEON.has(l.id)) || /\bneon\b/i.test(recipe.prompt || '');
   const float = look.layers.find(x => x.kind === 'float' && okHex(x.hex));
   const flaming = !!(recipe.style && recipe.style.flaming) || /light it/.test(steps);
-  // Glazes are neutral and fixed (wood tones): a teal mug reads as a teal drink. Hot mugs and
-  // bowls are pale.
-  const glaze = hot || BOWL ? PALETTE.woodPale : [PALETTE.wood, PALETTE.woodPale][Math.floor(r() * 2)];
+  // A ceramic mug or bowl wears a mid-century tiki glaze (Bauer turquoise, oxblood, cobalt, jade,
+  // mustard, sea-foam), chosen by seed, but never one so near the drink's own hue that the drink
+  // at the rim is lost against it. (Natural vessels, coconut, barrel, pineapple, keep their own.)
+  const word = (look.description || '').toLowerCase();
+  // Coconut cream, dairy or banana in the body make it a creamy, opaque paint whatever its color
+  // word (a blue colada is "lagoon teal", and still a chalky pastel).
+  const creamy = /^creamy\b/.test(word) || (recipe.lines || []).some(l => CREAMY.has(l.id) && !l.float && !l.sink && !l.garnish && (l.oz || 0) >= 0.5);
+  // Coffee or chocolate in a creamy drink make it a milky cocoa or café au lait, never a peach.
+  const cafe = /café|cafe|mocha|cocoa|coffee|chocolate/.test(word.split(/ with | under /)[0]) || (creamy && (recipe.lines || []).some(l => COFFEE.has(l.id) && !l.float && !l.sink && (l.oz || 0) >= 0.25));
+  const paint = pigment(look.body.hex, { opacity: look.body.opacity, clarity: look.body.clarity, neon, word, creamy, cafe });
+  r(); // (the draw that once chose a wood tone, kept so the garnish falls where it did)
+  // (the prayer picks the glaze, and its other pour takes the glaze across the shelf from it)
+  const glazes = Object.values(TIKI_GLAZES), g0 = ((seedOf(recipe.prompt || recipe.name) >>> 3) + 3 * ((recipe.seed ?? 0) & 1)) % glazes.length;
+  const [dh, ds] = hexHsl(paint.surf), clash = c => { const [gh] = hexHsl(c), d = Math.abs(((gh - dh + 540) % 360) - 180); return ds > 0.2 && d < 22; };
+  const glaze = [0, 1, 2, 3, 4, 5].map(k => glazes[(g0 + k) % glazes.length]).find(c => !clash(c)) || glazes[g0];
   const swizzled = method === 'swizzle';
   const frosted = !hot && (swizzled || kind === 'julep-cup' || iceStyle === 'shaved');
   const frostAmount = swizzled || kind === 'julep-cup' ? 1 : 0.45;
@@ -442,15 +459,17 @@ export function drinkSpec(recipe, ingMap) {
 
   // ---- assemble, back to front: glass, drink, ice, what is inside the glass, then the garnish
   els.push({ part: 'glass', params: { kind, glaze, flaming: flaming && kind === 'volcano-bowl' && !(shell && cupUp), lid: !!get('crown-lid') && kind === 'pineapple', front: clear ? 'without' : 'with' }, x: 0, y: 0 });
-  els.push({ part: 'liquid', params: { kind, fill, body: look.body, layers: look.layers, frozen, frost: frosted, shell: iceStyle === 'ice-shell' ? 9 : 0, crushed: heaped, crownOnIce: crowned && heaped, froth: UP && !frozen && (method === 'shake' || method === 'flash-blend'), seed: iceSeed }, x: 0, y: 0 });
+  els.push({ part: 'liquid', params: { kind, fill, body: look.body, layers: look.layers, frozen, frost: frosted, shell: iceStyle === 'ice-shell' ? 9 : 0, crushed: heaped, crownOnIce: crowned && heaped, froth: UP && !frozen && (method === 'shake' || method === 'flash-blend'), seed: iceSeed, neon, word, creamy, cafe }, x: 0, y: 0 });
   // Bubbles rise only through a drink with something carbonated in it (and behind the ice).
   if (!hot && (recipe.lines || []).some(l => FIZZ.has(l.id))) els.push({ part: 'fizz', params: { kind, fill, seed: seed % 991 }, x: 0, y: 0 });
   if (iceStyle !== 'none' && iceStyle !== 'blended') {
     // A float on crushed ice soaks the cap; a crown is painted by its own part.
     const soak = heaped && float && !crowned ? { hex: float.hex, alpha: 0.022 + 0.02 * lum(float.hex), reach: 0.1 } : null;
     // A cube stands lit in the drink: paper-white, glowing faintly with the drink's lightest tone.
-    const tint = pigment(look.body.hex, { opacity: look.body.opacity, clarity: look.body.clarity }).surf;
-    els.push({ part: 'ice', params: { kind, style: iceStyle, fill, seed: iceSeed, soak, tint }, x: 0, y: 0 });
+    // In an opaque or creamy drink the cubes are sunk out of sight; at most a corner breaks the
+    // surface.
+    const sunk = creamy || look.body.opacity >= 0.85 || /^(opaque|creamy)\b/.test(word);
+    els.push({ part: 'ice', params: { kind, style: iceStyle, fill, seed: iceSeed, soak, tint: paint.surf, ...(sunk ? { sunk } : {}) }, x: 0, y: 0 });
   }
   if (crowned && crown && !has(plan, 'crown')) full('garnish.bitters-crown', { kind, hex: crown.hex, fill, seed: iceSeed, style: iceStyle }, '(steps) dash the bitters over the ice to form a crown', 12);
   if (frosted) els.push({ part: 'glass.frost', params: { kind, seed: iceSeed + 2, amount: frostAmount }, x: 0, y: 0 });

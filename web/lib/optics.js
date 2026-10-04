@@ -82,15 +82,39 @@ export function mixColor(parts, waterOz = 0, { pathCm = 7 } = {}) {
 }
 
 // Color names a bartender would use, matched perceptually (CIE Lab) rather than by raw RGB.
+// Warm drinks get the words a menu would use for them (honeyed amber, mango gold, burnished
+// copper, rose gold), not "brown". The milky colors (café au lait, tan, mocha, cream, ivory) belong to
+// drinks that coconut or dairy makes creamy; the dark browns (mahogany, molasses, dark brown,
+// near-black) to drinks that really are that dark.
 const NAMED = [
-  ['#f5f1e6', 'water-clear'], ['#f4ecd6', 'pale straw'], ['#f2e1a0', 'pale gold'], ['#f0c95a', 'golden'], ['#e9a640', 'deep gold'],
-  ['#d98a3a', 'amber'], ['#b8692c', 'burnished amber'], ['#8a4a22', 'mahogany'], ['#5a2e16', 'dark brown'], ['#2e1a10', 'near-black'],
-  ['#f6c6a0', 'peach'], ['#f29a6a', 'coral'], ['#e8743c', 'orange'], ['#e0563a', 'red-orange'], ['#c8303a', 'red'], ['#9c1e3a', 'ruby'], ['#7a1a1e', 'garnet'],
-  ['#f2a8b8', 'pink'], ['#f6d0d8', 'blush'], ['#d86a94', 'hot pink'], ['#c2185b', 'magenta'], ['#8a4ab0', 'violet'], ['#c8b4e0', 'lavender'], ['#5a3a8a', 'deep purple'],
+  ['#f5f1e6', 'water-clear'], ['#f4ecd6', 'pale straw'], ['#f2e1a0', 'pale gold'], ['#f0c95a', 'golden'], ['#f2b73a', 'passion-fruit gold'], ['#f2a32e', 'mango gold'],
+  ['#e8cc94', 'pale honey'], ['#dcb07a', 'pale amber'], ['#e5b46a', 'honeyed amber'], ['#d98a3a', 'amber'], ['#c8804e', 'copper'], ['#b05a26', 'burnished copper'], ['#8f6a32', 'dark amber'], ['#f08a34', 'tangerine'], ['#ea6a30', 'sunset orange'],
+  ['#8a4a22', 'mahogany'], ['#5a2e16', 'dark brown'], ['#3e1c0e', 'molasses'], ['#2e1a10', 'near-black'], ['#4a0c2c', 'deep plum'],
+  ['#f6c6a0', 'peach'], ['#f2b276', 'apricot'], ['#e9a38c', 'rose gold'], ['#f29a6a', 'coral'], ['#e0563a', 'red-orange'], ['#c8303a', 'red'], ['#9c1e3a', 'ruby'], ['#7a1a1e', 'garnet'],
+  ['#f2a8b8', 'pink'], ['#f6d0d8', 'blush'], ['#d65a8c', 'hibiscus pink'], ['#c2185b', 'magenta'], ['#8a4ab0', 'violet'], ['#c8b4e0', 'lavender'], ['#5a3a8a', 'deep purple'],
   ['#3a8ad8', 'blue'], ['#1a5ab8', 'deep blue'], ['#a6d8e8', 'pale aqua'], ['#7ac4dc', 'sky blue'], ['#40b0c8', 'turquoise'], ['#5ac0b0', 'lagoon teal'],
   ['#3aa88a', 'teal-green'], ['#b4e0c8', 'seafoam'], ['#9cc95a', 'green'], ['#c8d870', 'chartreuse'], ['#d9e09a', 'pale green-gold'], ['#6a9a4a', 'leaf green'],
-  ['#f3ead8', 'cream'], ['#ecd9b4', 'tan'], ['#c9a27a', 'café au lait'], ['#7a5a40', 'mocha'],
+  ['#eef2cf', 'pale lime'],
+  ['#f3ead8', 'cream'], ['#f8ecc0', 'ivory'], ['#ecd9b4', 'tan'], ['#dcac6e', 'orange-tan'], ['#c9a27a', 'café au lait'], ['#ccb294', 'mocha'], ['#7a5a40', 'mocha'],
 ];
+const CREAMY_ONLY = new Set(['cream', 'ivory', 'tan', 'orange-tan', 'café au lait', 'mocha']);
+// Cocoa words only where there is chocolate or coffee in the glass (a Bushwacker, not a Painkiller).
+const COCOA_ONLY = new Set(['mocha']);
+// A creamy drink is never a fruit's color it doesn't have (a Painkiller isn't "apricot"), nor
+// a clear spirit's (cream of coconut over lime is ivory, not pale straw).
+const NOT_CREAMY = new Set(['apricot', 'pale straw', 'water-clear', 'pale lime']);
+// Some words need more than the nearest swatch: seafoam is a pale, clearly green-blue froth.
+// The fruit and gem words name a hue, so the drink has to sit on it.
+const onHue = (lo, hi) => c => c.h !== null && (lo < hi ? c.h >= lo && c.h < hi : c.h >= lo || c.h < hi);
+const WORD_GUARD = {
+  seafoam: c => c.s >= 0.35 && c.l >= 0.7, 'pale lime': onHue(55, 95),
+  tangerine: onHue(18, 40), 'sunset orange': onHue(10, 30), 'mango gold': onHue(30, 46), 'passion-fruit gold': onHue(34, 50),
+  'hibiscus pink': onHue(315, 2), 'rose gold': onHue(0, 30), copper: onHue(5, 36), ruby: onHue(330, 12), 'deep plum': onHue(300, 350),
+  lavender: onHue(240, 320), violet: onHue(250, 320), 'deep purple': onHue(250, 320),
+};
+const DARK_ONLY = new Set(['mahogany', 'dark brown', 'molasses', 'near-black', 'deep plum']);
+// A creamy drink's warm browns are milky (café au lait, tan), not a spirit's amber or copper.
+const CLEAR_WARM = new Set(['pale honey', 'pale amber', 'honeyed amber', 'amber', 'copper', 'burnished copper']);
 const lab = hex => {
   const [r, g, b] = lin(hex);
   const X = (0.4124 * r + 0.3576 * g + 0.1805 * b) / 0.95047, Y = 0.2126 * r + 0.7152 * g + 0.0722 * b, Z = (0.0193 * r + 0.1192 * g + 0.9505 * b) / 1.08883;
@@ -98,18 +122,30 @@ const lab = hex => {
   return [116 * f(Y) - 16, 500 * (f(X) - f(Y)), 200 * (f(Y) - f(Z))];
 };
 const NAMED_LAB = NAMED.map(([h, n]) => [lab(h), n]);
-export function colorWord(hex, opacity) {
-  const c = lab(hex);
+// `creamy`: true when coconut or dairy clouds the drink (it may then be café au lait or tan);
+// false when it doesn't; left out, every word is allowed. `layer`: a float, sink or crown band.
+export function colorWord(hex, opacity, { creamy, layer = false, cocoa = false } = {}) {
+  const c = lab(hex), hc = hsl(hex);
+  const dark = c[0] < 38;
   let best = NAMED_LAB[0], bd = Infinity;
   for (const n of NAMED_LAB) {
-    const d = (n[0][0] - c[0]) ** 2 * 0.6 + (n[0][1] - c[1]) ** 2 + (n[0][2] - c[2]) ** 2;
+    if (creamy === false && CREAMY_ONLY.has(n[1])) continue;
+    if (creamy && (CLEAR_WARM.has(n[1]) || NOT_CREAMY.has(n[1]))) continue;
+    if (!cocoa && COCOA_ONLY.has(n[1])) continue;
+    if (WORD_GUARD[n[1]] && !WORD_GUARD[n[1]](hc)) continue;
+    if (!dark && DARK_ONLY.has(n[1])) continue;
+    // "A molasses float of Angostura" reads like a recipe line: bands get plain color words.
+    if (layer && n[1] === 'molasses') continue;
+    let d = (n[0][0] - c[0]) ** 2 * 1.0 + (n[0][1] - c[1]) ** 2 + (n[0][2] - c[2]) ** 2;
     if (d < bd) { bd = d; best = n; }
   }
   let word = best[1];
-  // Fresh citrus clouds a drink: anything with a little haze isn't water-clear (a daiquiri is a
-  // hazy pale straw).
-  if (word === 'water-clear' && opacity >= 0.08) word = opacity >= 0.25 ? 'cloudy pale straw' : 'hazy pale straw';
-  if (opacity >= 0.8 && /cream|tan|straw|pale|peach|gold/.test(word)) return `creamy ${word.replace(/^(creamy|cloudy|hazy) /, '')}`;
+  // "Creamy cream" says nothing: cream of coconut over lime is ivory.
+  if (creamy && word === 'cream') word = 'ivory';
+  // Fresh citrus clouds a drink: anything with a little haze isn't water-clear.
+  // Lime leaves it faintly green-gold: a daiquiri is a hazy pale lime.
+  if (word === 'water-clear' && opacity >= 0.08) word = `${opacity >= 0.25 ? 'cloudy' : 'hazy'} ${WORD_GUARD['pale lime'](hc) && hc.s >= 0.3 ? 'pale lime' : 'pale straw'}`;
+  if (opacity >= 0.8 && /cream|ivory|tan|straw|pale|peach|apricot|gold|honey|amber|lait|mocha/.test(word)) return `creamy ${word.replace(/^(creamy|cloudy|hazy) /, '')}`;
   if (/^(cloudy|hazy) /.test(word)) return word;
   if (opacity >= 0.8) return `opaque ${word}`;
   if (opacity >= 0.45) return `cloudy ${word}`;
@@ -133,7 +169,11 @@ export function drinkLook(lines, ingMap, { method, ice, dilutionOz = 0, vessel =
   const poured = lines.filter(l => !l.garnish && I(l) && l.role !== 'aromatic');
   const mixed = poured.filter(l => !l.float && !l.sink && !l.crown);
   const frozen = method === 'blend' || ice === 'blended';
-  const parts = mixed.map(l => ({ ing: I(l), oz: l.oz }));
+  // Butterfly pea is a pH indicator: blue in a neutral glass, violet once citrus goes in, and
+  // magenta-pink in a properly sour drink (the color-changing gin trick).
+  const sourOz = mixed.filter(l => (I(l).acid || 0) >= 2).reduce((t, l) => t + l.oz, 0), mixOz = mixed.reduce((t, l) => t + l.oz, 0) || 1;
+  const pea = sourOz / mixOz >= 0.15 ? '#b4428e' : sourOz / mixOz >= 0.06 ? '#7a48b0' : null;
+  const parts = mixed.map(l => ({ ing: I(l), oz: l.oz, ...(pea && l.id === 'butterfly-pea-tea' ? { optics: { ...opticsOf(I(l)), hex: pea } } : {}) }));
   for (const l of lines) if (l.muddled && frozen) parts.push({ optics: BLENDED_MINT, oz: 0.25 * (l.amount || 8) / 8 });
   const body = mixColor(parts, dilutionOz, { pathCm });
   const layers = [];
@@ -162,14 +202,15 @@ export function drinkLook(lines, ingMap, { method, ice, dilutionOz = 0, vessel =
     layers.push({ kind: 'foam', hex: rgbToHex(a.map((v, i) => v * 0.3 + b[i] * 0.7)), opacity: 0.6, frac: mixed.some(l => l.id === 'egg-white') ? 0.09 : 0.06 });
   }
   // "Creamy" only when coconut or dairy makes it so; pulp-cloudy is "opaque" or "cloudy".
-  const creamy = mixed.some(l => ['coconut-cream', 'coconut-milk', 'heavy-cream', 'half-and-half', 'vanilla-ice-cream', 'irish-cream', 'egg-white', 'banana'].includes(l.id) && l.oz >= 0.5);
-  const bodyWord = colorWord(body.hex, body.opacity).replace(/^creamy /, creamy ? 'creamy ' : 'opaque ');
+  const creamy = mixed.some(l => ['coconut-cream', 'coconut-milk', 'heavy-cream', 'half-and-half', 'vanilla-ice-cream', 'irish-cream', 'egg-white', 'banana', 'whole-milk', 'hot-buttered-rum-batter', 'tom-and-jerry-batter'].includes(l.id) && l.oz >= 0.5);
+  const cocoa = mixed.some(l => ['creme-de-cacao', 'white-creme-de-cacao', 'coffee-liqueur', 'coffee'].includes(l.id) && l.oz >= 0.5);
+  const bodyWord = colorWord(body.hex, body.opacity, { creamy, cocoa }).replace(/^creamy /, creamy ? 'creamy ' : 'opaque ');
   const words = [bodyWord];
   for (const x of layers) {
     const n = ((ingMap.get(x.id) || {}).name || '').toLowerCase().replace(/\s*\(.*\)/, '');
-    if (x.kind === 'float') words.push(`with a ${colorWord(x.hex, 0)} float of ${n} on top`);
-    if (x.kind === 'sink') words.push(`with ${n} settling ${colorWord(x.hex, 0)} at the bottom`);
-    if (x.kind === 'crown') words.push(`under a ${colorWord(x.hex, 0)} crown of bitters`);
+    if (x.kind === 'float') words.push(`with a ${colorWord(x.hex, 0, { layer: true })} float of ${n} on top`);
+    if (x.kind === 'sink') words.push(`with ${n} settling ${colorWord(x.hex, 0, { layer: true })} at the bottom`);
+    if (x.kind === 'crown') words.push(`under a ${colorWord(x.hex, 0, { layer: true })} crown of bitters`);
     if (x.kind === 'foam') words.push('with a pale froth');
   }
   return { body, layers, description: words.join(' ').replace(/^./, c => c.toUpperCase()) };

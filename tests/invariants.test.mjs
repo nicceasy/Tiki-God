@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createEngine } from '../web/lib/engine.js';
-import { showsColor } from '../web/lib/optics.js';
+import { showsColor, hsl } from '../web/lib/optics.js';
 
 const j = p => JSON.parse(readFileSync(new URL(`../${p}`, import.meta.url), 'utf8'));
 const engine = createEngine({
@@ -88,5 +88,28 @@ test('every interpretable prayer is heard, and names are never culturally carele
   for (const { p, seed, r } of all) {
     assert.ok(r.explanation.reading.heard.length >= 1, `${p}: heard nothing`);
     assert.ok(!BAD.test(r.name) && !BAD.test(r.tagline), `${p} [${seed}]: "${r.name}" / "${r.tagline}"`);
+  }
+});
+
+test('a leaning is a preference: real bottles of that color, never a loud one nobody leaned toward', () => {
+  for (const { p, seed, r } of all) {
+    const intent = engine.parse(p);
+    const leanNotes = r.notes.filter(n => /, (for a|so it glows)|(for a (golden glow|sunset-orange glow|ruby blush|pink blush|violet tint|green glint|blue glint))$/.test(n));
+    for (const n of leanNotes) {
+      if (/blue glint|blue curaçao/i.test(n)) assert.ok([intent.color, intent.colorLean].includes('blue'), `${p} [${seed}] ${r.name}: "${n}" without a blue leaning`);
+      if (/green glint|melon|chartreuse/i.test(n)) assert.ok([intent.color, intent.colorLean].includes('green'), `${p} [${seed}] ${r.name}: "${n}" without a green leaning`);
+    }
+    // A Zombie or a Mai Tai never goes red for a leaning: that's grenadine abuse.
+    if (['zombie', 'mai-tai'].includes(r.family.id) && leanNotes.length) assert.ok(!showsColor({ body: r.look.body, layers: [] }, 'red') && !showsColor({ body: r.look.body, layers: [] }, 'pink'), `${p} [${seed}] ${r.name}: a red ${r.family.name}`);
+  }
+});
+
+test('a Blue Hawaii for a blue prayer is aqua-turquoise, not pineapple-green', () => {
+  const runs = all.filter(({ p, r }) => /blue hawaii/i.test(p) && r.archetype.id === 'blue-hawaii');
+  assert.ok(runs.length, 'the battery has a Blue Hawaii prayer');
+  for (const { p, seed, r } of runs) {
+    const c = hsl(r.look.body.hex);
+    assert.ok(c.h >= 165 && c.h <= 195 && c.s >= 0.35, `${p} [${seed}] ${r.name}: ${r.look.body.hex} at hue ${c.h && c.h.toFixed(0)}`);
+    assert.ok(oz(r, 'blue-curacao') <= 1, `${p} [${seed}]: ${oz(r, 'blue-curacao')} oz of curaçao is dye, not a drink`);
   }
 });
