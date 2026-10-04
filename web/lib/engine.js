@@ -1176,6 +1176,8 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       if (A && A.vessels) { const i = A.vessels.indexOf(v.id); if (i >= 0) w += 0.6 / (1 + i); }
       w += 0.5 * ((intent.vesselAffinity || {})[v.id] || 0);
       if (svc.wantUp && v.serve.includes('up')) w += 3;
+      // Fire wants a wide ceramic vessel that can take it, never a thin glass.
+      if (intent.style.flaming) w *= (((rules || {}).garnish || {}).fire || {}).allowedVessels?.includes(v.id) ? 2.5 : 0.4;
       if (bowl && v.id === 'volcano-bowl' && intent.style.flaming) w += 2;
       if (bowl && v.id === 'punch-bowl' && ['punch', 'stirred', 'buck'].includes(famId)) w += 0.5;
       if (bowl && v.id === 'tiki-bowl' && servings <= 3) w += 0.4;
@@ -1843,7 +1845,9 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
           const ing = ingMap.get(l.id);
           return { id: l.id, role: roleOf(l, ing), oz: lineOz(l, ing, units) / (riffSrc.servings || 1), unit: l.unit, amount: l.amount, float: !!l.float, sink: !!l.sink, garnish: !!l.garnish || ing.role === 'aromatic', fromSpec: riffSrc.name };
         });
-        const bare = !Object.keys(intent.tags).length && !intent.spirits.length && !Object.keys(intent.ings).length && !Object.keys(intent.style).filter(k => k !== 'bowl').length && !intent.concepts.length && !intent.color && !intent.diets.length && !intent.strength && !intent.sweetness && !intent.tartness;
+        const bare = !Object.keys(intent.tags).length && !intent.spirits.length && !Object.keys(intent.ings).length && !Object.keys(intent.style).filter(k => k !== 'bowl').length && !intent.concepts.length && !intent.color && !intent.diets.length && !intent.strength && !intent.sweetness && !intent.tartness
+          // "no orange, a painkiller" isn't the classic as written.
+          && !(intent.avoidIngs && intent.avoidIngs.size) && !Object.values(intent.avoidTags || {}).some(w => w > 0);
         if (real && bare && seed === 0) {
           lines = srcLines.map(l => ({ ...l, slot: composer.slotOf(A, l.id), req: true }));
           classic = riffSrc;
@@ -2044,6 +2048,8 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     const flavorTop = copy.named(copy.presence(lines.filter(l => l.role !== 'aromatic' || l.muddled))).map(x => x.tag).slice(0, 5);
     const pick = chooseVessel(famId, intent, svc, chem, riffSrc, rngFrom(`${prompt}::${seed}::vessel`), greedy, A, lines.filter(l => l.float || l.sink || l.crown));
     if (pick) { svc.glass = pick.v.name; svc.vessel = pick.v.id; svc.up = pick.v.serve.includes('up') && serviceOf(svc.method, svc.ice) === 'shaken'; }
+    // A punch bowl is built over a block and ladled, whatever the single serve would be.
+    if (pick && pick.v.id === 'punch-bowl' && svc.method !== 'hot') { svc.ice = 'block'; if (['shake', 'flash-blend', 'swizzle', 'blend'].includes(svc.method)) svc.method = 'build'; chem = chemOf(lines, svc.method, svc.ice); }
     // A vessel the guest asked for (a coconut holds twelve ounces) gets a drink scaled to fit it.
     if (pick && !pick.v.serve.includes('bowl') && (!classic || pick.why === 'asked') && fitVessel(lines, svc, pick.v, notes, A)) chem = chemOf(lines, svc.method, svc.ice);
     const garnish = chooseGarnish(A, intent, lines, flavorTop, svc, pick ? pick.v : null);

@@ -287,6 +287,11 @@ export function createLinter({ rules, vocab, vessels } = {}) {
   const idsOf = spec => typeof spec === 'string' ? (SET[spec] ? [...SET[spec]] : [spec]) : Array.isArray(spec) ? spec : [];
   const W = R.familyWindows || {};
   const G = R.garnish || {};
+  // Signal keys may list alternatives ("lime wheel / lime wedge"): each matches on its own.
+  // A bare fruit word ("strawberry", "banana") still promises that fruit, whatever vocabulary
+  // the garnish came from.
+  const FRUIT_WORDS = [['pineapple', ['pineapple-juice', 'rum-pineapple', 'pineapple-syrup']], ['orange', ['orange', 'orange-curacao', 'triple-sec']], ['lime', ['lime', 'lime-cordial']], ['lemon', ['lemon']], ['grapefruit', ['grapefruit', 'dons-mix']], ['banana', ['banana', 'banana-liqueur']], ['strawberry', ['strawberry']], ['mango', ['mango-nectar']], ['passion fruit', ['passion-fruit-juice', 'passion-fruit-nectar', 'passion-fruit-syrup', 'passion-fruit-liqueur', 'fassionola']], ['cucumber', ['cucumber']], ['coffee', ['coffee', 'coffee-liqueur']]];
+  const SIGNALS = [...Object.entries((G.truth && G.truth.signals) || {}).flatMap(([k, ids]) => k.split(/\s*\/\s*/).map(x => [x, ids])), ...FRUIT_WORDS];
   const COPY = R.copy || {};
   const overproof = new Set((R.strength && R.strength.overproofIds) || [...S('overproof')]);
 
@@ -1059,7 +1064,7 @@ export function createLinter({ rules, vocab, vessels } = {}) {
     // Fire.
     const fire = C.garnish.filter(g => /\b(flaming|flame|fire|lit|burning|sparks?|crater)\b/i.test(g));
     if (fire.length) {
-      const fv = G.fireAllowedVessels || [];
+      const fv = (G.fireAllowedVessels || (G.fire || {}).allowedVessels) || [];
       if (C.vId && !fv.includes(C.vId) && !C.isBowlVessel) add('fire-unsafe', 'major', `Fire on a ${vName(C)}: flames belong on wide mugs and bowls only, never a narrow glass or a coupe.`);
       else if (C.garnish.some(g => /mint bouquet|umbrella/i.test(g))) add('fire-unsafe', 'major', `A flaming garnish next to a mint bouquet or a paper umbrella is a fire hazard; keep the flame clear.`);
     }
@@ -1170,7 +1175,7 @@ export function createLinter({ rules, vocab, vessels } = {}) {
       if (/angostura crown/i.test(item) && C.method === 'swizzle' && C.has('angostura')) return false; // dashed on top of the ice
       if (/ice cone/i.test(item) && C.ice === 'ice-cone') return false;
       // Never demand a fruit garnish for a fruit the drink doesn't contain: that would be a lie.
-      const sig = Object.entries((G.truth && G.truth.signals) || {}).find(([k, ids]) => ids.length && garnishMatches(item, k));
+      const sig = SIGNALS.find(([k, ids]) => ids.length && garnishMatches(item, k));
       if (sig && !sig[1].some(id => C.has(id))) return false;
       return true;
     });
@@ -1194,7 +1199,7 @@ export function createLinter({ rules, vocab, vessels } = {}) {
     // Truth: fruit on the glass is a promise about what's in it.
     const conventional = new Set(['punch', 'resort-punch', 'beachcomber-sour', 'zombie', 'colada', 'bitter-tiki']);
     for (const g of gs) {
-      for (const [key, ids] of Object.entries((G.truth && G.truth.signals) || {})) {
+      for (const [key, ids] of SIGNALS) {
         if (!ids.length || !garnishMatches(g, key)) continue;
         const ing = ingMap.get(ids[0]);
         const tag = ing && ing.flavors ? (ids[0] === 'strawberry' ? 'berry' : ing.flavors[0]) : null;
