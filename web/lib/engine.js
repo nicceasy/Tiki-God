@@ -743,7 +743,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       if (l.req || l.garnish || !l.slot) continue;
       const slot = slots.find(c => (c.component || c.slot) === l.slot);
       if (!slot) continue;
-      for (const id of slot.anyOf) if (id !== l.id && ok(id) && !lines.some(x => x.id === id) && isCarrier(id)) tries.push({ why: `${prose(id)} in place of ${prose(l.id)} for the color`, edit: L => { const x = L.find(y => y.id === l.id); x.id = id; x.role = ingMap.get(id).role; } });
+      for (const id of slot.anyOf) if (id !== l.id && ok(id) && !lines.some(x => x.id === id) && isCarrier(id)) tries.push({ why: `${prose(id)} in place of ${prose(l.id)} for the color`, edit: L => { const x = L[lines.indexOf(l)]; if (!x) return; x.id = id; x.role = ingMap.get(id).role; x.oz = Math.min(x.oz, doseCap(id, A.family), slot.ozRange ? slot.ozRange[1] : Infinity); x.oz0 = x.oz; } });
     }
     for (const o of A.optional || []) {
       if (lines.filter(l => l.slot === o.slot).length >= (o.maxCount || 1)) continue;
@@ -756,11 +756,11 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     for (const l of muddy) {
       const slot = slots.find(c => (c.component || c.slot) === l.slot);
       const clear = slot && slot.anyOf.filter(id => ok(id) && !lines.some(x => x.id === id) && opticsOf(ingMap.get(id)).tint < opticsOf(ingMap.get(l.id)).tint * 0.7).sort((x, y) => opticsOf(ingMap.get(x)).tint - opticsOf(ingMap.get(y)).tint);
-      for (const alt of (clear || []).slice(0, 3)) tries.push({ why: `${prose(alt)} in place of ${prose(l.id)} so the color stays true`, edit: L => { const x = L.find(y => y.id === l.id); x.id = alt; x.role = ingMap.get(alt).role; }, muddy: true });
+      for (const alt of (clear || []).slice(0, 3)) tries.push({ why: `${prose(alt)} in place of ${prose(l.id)} so the color stays true`, edit: L => { const x = L[lines.indexOf(l)]; if (!x) return; x.id = alt; x.role = ingMap.get(alt).role; }, muddy: true });
     }
     // A dark float over a light color is mud on top: drop it.
     for (const l of lines.filter(l => (l.float || l.sink) && !l.req && !isCarrier(l.id) && !['dark', 'red', 'pink'].includes(color))) {
-      tries.push({ why: `no ${prose(l.id)} ${l.float ? 'float' : 'sink'}, so the color stays true`, edit: L => { L.splice(L.findIndex(y => y.id === l.id), 1); }, muddy: true });
+      tries.push({ why: `no ${prose(l.id)} ${l.float ? 'float' : 'sink'}, so the color stays true`, edit: L => { const x = L[lines.indexOf(l)]; if (x) x.drop = true; }, muddy: true });
     }
     const lr = LAST_RESORT[color];
     if (lr && ok(lr.id) && !lines.some(x => x.id === lr.id)) {
@@ -771,8 +771,9 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     // Single moves first, then a muddy fix paired with each color move.
     const plans = [...tries.filter(t => !t.muddy).map(t => [t]), ...tries.filter(t => t.muddy).flatMap(m => [[m], ...tries.filter(t => !t.muddy).map(t => [m, t])])];
     for (const plan of plans) {
-      const L = clone();
+      let L = clone();
       plan.forEach(t => t.edit(L));
+      L = L.filter(x => !x.drop);
       finalizeAmounts(L);
       if (showsColor(lookOf(L), color)) {
         lines.splice(0, lines.length, ...L);
@@ -1200,7 +1201,8 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
   const copy = createCopywriter({ ingMap, ingVec });
   const conceptIndex = indexConcepts(concepts);
   const ctx = {
-    forbidden: (id, intent) => forbidden(id, intent) || (intent.softAvoid && intent.softAvoid[id] >= 1 && !intent.ings[id]),
+    // A concept's soft avoid never blocks the bottle that makes the color the guest asked for.
+    forbidden: (id, intent) => forbidden(id, intent) || (intent.softAvoid && intent.softAvoid[id] >= 1 && !intent.ings[id] && !(intent.color && (ingMap.get(id) || {}).color === intent.color)),
     intentMatch, compat, conflicts, softPick, ingVec, naSwap: NA_SWAP,
   };
   const linesOf = d => d.ingredients.filter(l => ingMap.has(l.id)).map(l => ({ id: l.id, role: roleOf(l, ingMap.get(l.id)), oz: lineOz(l, ingMap.get(l.id), units) / (d.servings || 1), float: !!l.float, garnish: !!l.garnish }));
@@ -1260,6 +1262,8 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       const hit = classicIndex.find(c => text.includes(` ${c.key} `));
       if (hit) { intent.archetypes[hit.a.id] = (intent.archetypes[hit.a.id] || 0) + 4; intent.matched.push({ phrase: hit.key, label: `the ${hit.name}` }); intent.namedClassic = hit; }
     }
+    // A sharing prayer (a first date, grandma's garden party) that leans toward a bowl serves two.
+    if (intent.style.bowl && (intent.servings || 1) < 2) intent.servings = 2;
     // A bowl asked for by name serves a group: two, or four for the big Scorpion bowl.
     const askedBowl = intent.vessel && vesselById[intent.vessel] && vesselById[intent.vessel].serve.includes('bowl');
     if (askedBowl && (intent.servings || 1) < 2) { intent.servings = vesselById[intent.vessel].capacity >= 60 ? 4 : 2; intent.style.bowl = true; }
@@ -1404,6 +1408,19 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       const ref = riffSrc ? linesOf(riffSrc).filter(l => !l.garnish) : spec ? spec.lines.filter(l => ingMap.has(l.id)).map(l => ({ id: l.id, oz: l.oz, role: ingMap.get(l.id).role })) : null;
       if (!classic) balanceTo(lines, ref, A, intent, svc);
       if (!classic && (intent.strength || 0) <= -1.5 && !intent.style.zeroProof) gentle(lines, A, intent, svc, notes);
+      if (!classic) {
+        // Balance and color moves never push an accent past its cap (2 oz of blue curaçao is dye, not a drink).
+        for (const l of lines) { const cap = doseCap(l.id, A.family, (intent.ings[l.id] || 0) >= 1); if (l.oz > cap && !(l.fromSpec && l.oz <= (l.oz0 || 0) + 0.01)) l.oz = cap; }
+        // A teaspoon of brandy in a bowl spec divided by twelve is no longer an ingredient.
+        for (let i = lines.length - 1; i >= 0; i--) {
+          const l = lines[i];
+          if (l.role !== 'base' || l.float || l.oz >= 0.24 || lines.filter(x => x.role === 'base').length < 2) continue;
+          // A spirit the archetype is defined by (the Scorpion's brandy) gets a real pour instead.
+          const comp = (A.signature || []).find(c => c.required && c.anyOf.includes(l.id));
+          if (comp) { l.oz = Math.max(0.5, (comp.ozRange || [0.5])[0]); continue; }
+          notes.push(`left out the sliver of ${displayName(l.id).toLowerCase()}`); lines.splice(i, 1);
+        }
+      }
       finalizeAmounts(lines);
       const colorOk = intent.color ? colorPass(lines, A, intent, svc, notes) : true;
       const c = chemOf(lines, svc.method, svc.ice);

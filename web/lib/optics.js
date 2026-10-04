@@ -81,18 +81,28 @@ export function mixColor(parts, waterOz = 0, { pathCm = 7 } = {}) {
   return { hex: hexLin(out), opacity: Math.round(S * 100) / 100, clarity: Math.round(clarity * 100) / 100 };
 }
 
+// Color names a bartender would use, matched perceptually (CIE Lab) rather than by raw RGB.
 const NAMED = [
   ['#f5f1e6', 'water-clear'], ['#f4ecd6', 'pale straw'], ['#f2e1a0', 'pale gold'], ['#f0c95a', 'golden'], ['#e9a640', 'deep gold'],
   ['#d98a3a', 'amber'], ['#b8692c', 'burnished amber'], ['#8a4a22', 'mahogany'], ['#5a2e16', 'dark brown'], ['#2e1a10', 'near-black'],
-  ['#f6c6a0', 'peach'], ['#f29a6a', 'coral'], ['#e8743c', 'orange'], ['#e0563a', 'red-orange'], ['#c8303a', 'red'], ['#9c1e3a', 'ruby'],
-  ['#f2a8b8', 'pink'], ['#d86a94', 'hot pink'], ['#8a4ab0', 'violet'], ['#3a8ad8', 'blue'], ['#5ac0c8', 'aqua'], ['#3aa88a', 'teal-green'],
-  ['#9cc95a', 'green'], ['#d9e09a', 'pale green-gold'], ['#f3ead8', 'cream'], ['#ecd9b4', 'tan'], ['#c9a27a', 'café au lait'], ['#7a5a40', 'mocha'],
+  ['#f6c6a0', 'peach'], ['#f29a6a', 'coral'], ['#e8743c', 'orange'], ['#e0563a', 'red-orange'], ['#c8303a', 'red'], ['#9c1e3a', 'ruby'], ['#7a1a1e', 'garnet'],
+  ['#f2a8b8', 'pink'], ['#f6d0d8', 'blush'], ['#d86a94', 'hot pink'], ['#c2185b', 'magenta'], ['#8a4ab0', 'violet'], ['#c8b4e0', 'lavender'], ['#5a3a8a', 'deep purple'],
+  ['#3a8ad8', 'blue'], ['#1a5ab8', 'deep blue'], ['#a6d8e8', 'pale aqua'], ['#7ac4dc', 'sky blue'], ['#40b0c8', 'turquoise'], ['#5ac0b0', 'lagoon teal'],
+  ['#3aa88a', 'teal-green'], ['#b4e0c8', 'seafoam'], ['#9cc95a', 'green'], ['#c8d870', 'chartreuse'], ['#d9e09a', 'pale green-gold'], ['#6a9a4a', 'leaf green'],
+  ['#f3ead8', 'cream'], ['#ecd9b4', 'tan'], ['#c9a27a', 'café au lait'], ['#7a5a40', 'mocha'],
 ];
+const lab = hex => {
+  const [r, g, b] = lin(hex);
+  const X = (0.4124 * r + 0.3576 * g + 0.1805 * b) / 0.95047, Y = 0.2126 * r + 0.7152 * g + 0.0722 * b, Z = (0.0193 * r + 0.1192 * g + 0.9505 * b) / 1.08883;
+  const f = t => t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116;
+  return [116 * f(Y) - 16, 500 * (f(X) - f(Y)), 200 * (f(Y) - f(Z))];
+};
+const NAMED_LAB = NAMED.map(([h, n]) => [lab(h), n]);
 export function colorWord(hex, opacity) {
-  const c = hexToRgb(hex);
-  let best = NAMED[0], bd = Infinity;
-  for (const n of NAMED) {
-    const d = hexToRgb(n[0]).reduce((s, v, i) => s + (v - c[i]) ** 2 * [0.3, 0.59, 0.11][i], 0);
+  const c = lab(hex);
+  let best = NAMED_LAB[0], bd = Infinity;
+  for (const n of NAMED_LAB) {
+    const d = (n[0][0] - c[0]) ** 2 * 0.6 + (n[0][1] - c[1]) ** 2 + (n[0][2] - c[2]) ** 2;
     if (d < bd) { bd = d; best = n; }
   }
   const word = best[1];
@@ -103,6 +113,7 @@ export function colorWord(hex, opacity) {
 }
 
 // How far light travels through each kind of vessel (cm); opaque mugs show only the surface.
+// Used for the drawing's wash depth.
 export const PATH = { coupe: 5, 'nick-nora': 5, 'cocktail-glass': 5, flute: 6, rocks: 7, dof: 7, 'clay-cup': 6, highball: 6, collins: 6, chimney: 6, 'footed-pilsner': 6, 'pearl-diver': 6, tulip: 6.5, hurricane: 7.5, 'poco-grande': 7, goblet: 7, snifter: 9.5, 'scorpion-bowl': 9.5, 'tiki-bowl': 9, 'volcano-bowl': 9, 'punch-bowl': 10 };
 // Mint blended into a drink (a Missionary's Downfall) dyes it; about 8 leaves ≈ ¼ oz of green.
 const BLENDED_MINT = { hex: '#6fa04a', tint: 0.8, scatter: 0.3 };
@@ -174,7 +185,7 @@ export const COLOR_TEST = {
   green: c => c.h !== null && c.h >= 70 && c.h < 165 && c.s > 0.2,
   red: (c, layer) => c.h !== null && (c.h >= 340 || c.h < 14) && c.s > 0.45 && c.l >= (layer ? 0.2 : 0.37) && c.l < 0.62,
   pink: c => c.h !== null && (c.h >= 315 || c.h < 22) && c.l >= 0.55,
-  orange: c => c.h !== null && c.h >= 14 && c.h < 40 && c.s > 0.45,
+  orange: c => c.h !== null && c.h >= 14 && c.h < 40 && c.s > 0.45 && c.l >= 0.38,
   gold: c => c.h !== null && c.h >= 36 && c.h < 62 && c.s > 0.35 && c.l > 0.35,
   purple: c => c.h !== null && c.h >= 255 && c.h < 315 && c.s > 0.15,
   dark: c => c.l < 0.3,

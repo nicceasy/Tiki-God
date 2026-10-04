@@ -19,7 +19,10 @@ const SOLO_GARNISH_FLAVOR = { mint: 'mint', nutmeg: 'nutmeg', cinnamon: 'cinnamo
 // Most an accent may pour in one drink (from the technique research: data/technique-rules.json
 // doseCaps), with per-family exceptions. An ounce of allspice dram is a writer who never tasted it.
 const DOSE_CAP = {"pastis":0.04,"absinthe":0.04,"angostura":0.18,"peychauds":0.12,"orange-bitters":0.12,"tiki-bitters":0.12,"mole-bitters":0.12,"saline":0.024,"almond-extract":0.012,"vanilla-extract":0.03,"orange-flower-water":0.012,"allspice-dram":0.5,"velvet-falernum":0.75,"falernum-syrup":0.75,"maraschino":0.5,"grenadine":[0.5,{"zombie":0.17,"mai-tai":0,"grog":0.17,"orgeat-punch":0.25,"resort-punch":1,"punch":0.75}],"green-chartreuse":0.75,"yellow-chartreuse":0.75,"campari":[0.75,{"bitter-tiki":1.5,"stirred":1}],"fernet":0.25,"scotch-islay":0.5,"cinnamon-syrup":0.75,"ginger-syrup":0.75,"blue-curacao":0.75,"melon-liqueur":1,"coffee-liqueur":1,"creme-de-cacao":0.75,"banana-liqueur":1,"coconut-rum":[1.5,{"colada":0.5}],"rum-jamaican-white-overproof":0.75,"coffee":[0.75,{"hot":6}],"irish-cream":1,"amontillado-sherry":0.75};
+const OVERPROOF = new Set(['rum-demerara-overproof', 'rum-black-overproof', 'rum-overproof-white']);
 export function doseCap(id, family, asked = false) {
+  // Overproof is a seasoning or, at most, a short drink's whole base (a Cobra's Fang's 1½ oz).
+  if (OVERPROOF.has(id)) return asked ? 2 : 1.5;
   const c = DOSE_CAP[id];
   if (c === undefined) return Infinity;
   const cap = Array.isArray(c) ? (c[1][family] ?? c[0]) : c;
@@ -215,8 +218,10 @@ export function createComposer({ archetypes, ingMap, model }) {
     const heroes = Object.entries(intent.prefer || {}).filter(([id, w]) => w >= 1.25 && ingMap.has(id) && !lines.some(l => l.id === id) && !ctx.forbidden(id, intent) && !archForbids(a, id))
       .sort((x, y) => y[1] - x[1]).slice(0, 2);
     for (const [id] of heroes) {
+      // A citrus hero only joins a drink that has no citrus of its own.
+      if (roleOf(id) === 'sour' && lines.some(l => l.role === 'sour')) continue;
       if (roleOf(id) === 'base') { if (!intent.spirits.includes(id)) swapInSpirits(a, lines, { ...intent, spirits: [id], avoidSpirits: new Set() }, ctx, notes); }
-      else placeIngredient(a, lines, id, intent, ctx, notes);
+      else placeIngredient(a, lines, id, intent, ctx, notes, { add: true });
     }
     // Requested flavors still uncarried: swap a slot's filling, else open an optional slot.
     for (const [tag, w] of Object.entries(intent.tags).sort((x, y) => y[1] - x[1])) {
@@ -278,7 +283,7 @@ export function createComposer({ archetypes, ingMap, model }) {
   // Accents stay accents: anything over its cap comes down to it (canonical spec doses excepted).
   function capDoses(a, lines, intent) {
     for (const l of lines) {
-      if (l.fromSpec && !l.swapped) continue;
+      if (l.fromSpec && !l.swapped && !l.grown) continue;
       const cap = doseCap(l.id, a.family, (intent.ings[l.id] || 0) >= 1);
       if ((l.oz || 0) > cap) { l.oz = cap; if (l.range) l.range = [Math.min(l.range[0], cap), Math.min(l.range[1], cap)]; }
     }
@@ -454,7 +459,7 @@ export function createComposer({ archetypes, ingMap, model }) {
     }
   }
 
-  function placeIngredient(a, lines, id, intent, ctx, notes) {
+  function placeIngredient(a, lines, id, intent, ctx, notes, { add = false } = {}) {
     const slot = slotFor(a, id);
     const others = lines.map(l => l.id);
     // One fizzy top is plenty: a new lengthener takes the old one's place.
@@ -464,9 +469,15 @@ export function createComposer({ archetypes, ingMap, model }) {
     }
     if (slot) {
       const occupant = lines.find(l => l.slot === (slot.component || slot.slot) && !l.req);
-      if (occupant && (slot.maxCount || 1) <= lines.filter(l => l.slot === occupant.slot).length) {
+      // A hero joins the drink; only a guest's own ask may push a bottle out of its slot, and a
+      // sharp citrus never takes over a soft juice's volume.
+      const sharpForSoft = occupant && (ingMap.get(id).acid || 0) >= 2 && (ingMap.get(occupant.id).acid || 0) < 2;
+      if (!add && !sharpForSoft && occupant && (slot.maxCount || 1) <= lines.filter(l => l.slot === occupant.slot).length) {
         notes.push(`${shortName(id)} in place of ${shortName(occupant.id)}`);
         occupant.id = id; occupant.role = roleOf(id); occupant.req = true;
+        const r = slot.ozRange;
+        if (r) occupant.oz = Math.max(r[0], Math.min(r[1], occupant.oz));
+        if ((ingMap.get(id).acid || 0) >= 2) occupant.oz = Math.min(occupant.oz, 1);
         return;
       }
       if (ctx.conflicts(id, others)) {
@@ -476,7 +487,8 @@ export function createComposer({ archetypes, ingMap, model }) {
         clash.id = id; clash.role = roleOf(id); clash.req = true;
         return;
       }
-      const r = slot.ozRange || [0.5, 0.75];
+      const r0 = slot.ozRange || [0.5, 0.75];
+      const r = (ingMap.get(id).acid || 0) >= 2 ? [Math.min(r0[0], 0.5), Math.min(r0[1], 1)] : r0;
       // Asked for by name, so it has to be tasted: dose toward the top of the slot's range.
       lines.push({ id, role: roleOf(id), oz: r[0] + (r[1] - r[0]) * 0.75, slot: slot.component || slot.slot, range: r, req: true });
       notes.push(`added ${shortName(id)}`);
@@ -635,7 +647,9 @@ export function createComposer({ archetypes, ingMap, model }) {
     const victim = greedy ? [...cands].sort((x, y) => order.indexOf(x.role) - order.indexOf(y.role))[0] : cands[Math.floor(rng() * cands.length)];
     const slot = slots.find(c => (c.component || c.slot) === victim.slot);
     const others = lines.filter(l => l !== victim).map(l => l.id);
-    const pool = slot.anyOf.filter(id => id !== victim.id && ingMap.has(id) && !ctx.forbidden(id, intent) && !others.includes(id) && !ctx.conflicts(id, others));
+    const hot = id => (ingMap.get(id).abv || 0) >= 60;
+    const pool = slot.anyOf.filter(id => id !== victim.id && ingMap.has(id) && !ctx.forbidden(id, intent) && !others.includes(id) && !ctx.conflicts(id, others)
+      && !(victim.role === 'base' && hot(id) && !hot(victim.id) && !((intent.strength || 0) > 0)));
     const pick = ctx.softPick(rng, pool.map(id => ({ item: id, s: 2 * ctx.intentMatch(id, intent) + ctx.compat(id, others) })), 0.6, greedy);
     if (!pick) return null;
     const was = ingMap.get(victim.id).name.toLowerCase().replace(/\s*\(.*\)/, '');
