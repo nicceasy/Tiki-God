@@ -1203,7 +1203,9 @@ function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, body = 
   const bodyOp = body && Number.isFinite(body.opacity) ? body.opacity : 0.3;
   // A nearly colorless drink (a daiquiri, a ti' punch) is painted as a cool, watery tint so it
   // still reads on white paper; a frosted glass veils the drink, a third less color showing.
-  if (lum(bodyHex) > 0.9) bodyHex = mixHex(bodyHex, PALETTE.ice, 0.4);
+  // Only a clear drink gets that tint: a pale creamy colada is cream, never mint.
+  if (lum(bodyHex) > 0.9 && bodyOp < 0.3) bodyHex = mixHex(bodyHex, PALETTE.ice, 0.4);
+  else if (lum(bodyHex) > 0.9) bodyHex = mixHex(bodyHex, '#E3CFA0', 0.3);
   if (frost) bodyHex = mixHex(bodyHex, PALETTE.paper, 0.3);
   const clearish = body && bodyOp < 0.15 && body.clarity > 0.85;
   const depth = DEPTH[kind] || 1;

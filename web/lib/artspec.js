@@ -171,7 +171,9 @@ export function drinkSpec(recipe, ingMap) {
   const { look, crown } = lookFor(recipe, ingMap, crowned);
   const float = look.layers.find(x => x.kind === 'float' && okHex(x.hex));
   const flaming = !!(recipe.style && recipe.style.flaming) || /light it/.test(steps);
-  const glaze = [PALETTE.wood, PALETTE.lagoon, PALETTE.frond, PALETTE.woodPale][Math.floor(r() * 4)];
+  // Glazes are neutral and fixed (wood tones): a teal mug reads as a teal drink. Hot mugs and
+  // bowls are pale.
+  const glaze = hot || BOWL ? PALETTE.woodPale : [PALETTE.wood, PALETTE.woodPale][Math.floor(r() * 2)];
   const swizzled = method === 'swizzle';
   const frosted = !hot && (swizzled || kind === 'julep-cup' || iceStyle === 'shaved');
   const frostAmount = swizzled || kind === 'julep-cup' ? 1 : 0.45;

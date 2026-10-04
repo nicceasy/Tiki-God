@@ -305,7 +305,10 @@ export function createComposer({ archetypes, ingMap, model }) {
       // A short or stirred drink takes a flavor as a liqueur or syrup, never as a lengthener
       // (coffee liqueur in a nightcap, not six ounces of cold coffee).
       const long = a.long || lines.some(l => l.role === 'lengthener');
+      // Stirred means no juice: a stirred drink takes the flavor as a syrup or liqueur.
+      const stirred = (a.methods || [])[0] === 'stir' || a.family === 'stirred';
       const rank = i => (i.avail === 'common' ? 1 : 0) + (i.role === 'juice' ? 0.5 : 0) + (i.role === 'sweet' ? 0.3 : 0) + (i.role === 'modifier' && !long ? 0.6 : 0) - (i.role === 'lengthener' && !long ? 3 : 0);
+      if (stirred) for (let i = pool.length - 1; i >= 0; i--) if (['juice', 'sour', 'lengthener'].includes(pool[i].role)) pool.splice(i, 1);
       pool.sort((x, y) => rank(y) - rank(x));
       // Best of all: a flavored syrup takes the plain syrup's job (passion fruit syrup for the
       // rock candy in a Mai Tai), so the balance holds and nothing is bolted on.
@@ -584,6 +587,7 @@ export function createComposer({ archetypes, ingMap, model }) {
     // No slot for it, but the guest asked: work it in the way a bartender would, trading part of
     // the drink's main juice for a juice, or adding a modest pour of a liqueur or syrup.
     const role = roleOf(id);
+    if (['juice', 'sour'].includes(role) && ((a.methods || [])[0] === 'stir' || a.family === 'stirred')) return;
     if (role === 'juice') {
       const main = lines.filter(l => l.role === 'juice' && !l.req).sort((x, y) => y.oz - x.oz)[0];
       const oz = main ? Math.min(1.5, Math.max(0.75, Math.round(main.oz / 3 * 4) / 4)) : 1;

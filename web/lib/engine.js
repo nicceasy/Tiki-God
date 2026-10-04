@@ -1960,7 +1960,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       addLayer(lines, A, intent, notes);
 
       // Mint the archetype is built on is an ingredient (blended, muddled or swizzled in), not a garnish.
-      for (const l of lines) if ((ingMap.get(l.id) || {}).role === 'aromatic' && (A.signature || []).some(c => c.required && c.anyOf.includes(l.id))) {
+      for (const l of lines) if (['mint', 'basil'].includes(l.id) && (A.signature || []).some(c => c.required && c.anyOf.includes(l.id))) {
         l.muddled = true; l.garnish = false; l.role = 'aromatic'; l.unit = 'leaves'; l.amount = l.unit === 'leaves' && l.amount >= 6 ? l.amount : 10;
       }
       // Aromatic garnishes the archetype calls for (mint on a Mai Tai, nutmeg on a Painkiller).
@@ -2041,7 +2041,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     let built = attempt(null);
     const worse = (t, b) => (t.colorOk ? 0 : 1) * 10 + t.colorMiss + t.broken * 2 >= (b.colorOk ? 0 : 1) * 10 + b.colorMiss + b.broken * 2 - 0.05;
     if ((!built.colorOk || built.broken) && !riffSrc && !classic && !intent.namedClassic) {
-      const ranked = archetypes.map(a => ({ a, s: scoreOf.get(a) })).filter(x => Number.isFinite(x.s) && x.a !== built.A && !skipped.has(x.a) && !(avoid && avoid.has(x.a.id)) && x.s >= (scoreOf.get(built.A) ?? 0) - 4).sort((x, y) => y.s - x.s);
+      const ranked = archetypes.map(a => ({ a, s: scoreOf.get(a) })).filter(x => Number.isFinite(x.s) && x.a !== built.A && !skipped.has(x.a) && !(avoid && avoid.has(x.a.id)) && x.s >= (scoreOf.get(built.A) ?? 0) - (built.colorOk ? 4 : 9)).sort((x, y) => y.s - x.s);
       for (const x of ranked.slice(0, 8)) {
         const t = attempt(x.a);
         if (!worse(t, built)) built = t;

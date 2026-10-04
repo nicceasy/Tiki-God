@@ -105,8 +105,12 @@ export function colorWord(hex, opacity) {
     const d = (n[0][0] - c[0]) ** 2 * 0.6 + (n[0][1] - c[1]) ** 2 + (n[0][2] - c[2]) ** 2;
     if (d < bd) { bd = d; best = n; }
   }
-  const word = best[1];
-  if (opacity >= 0.8 && /cream|tan|straw|pale|peach|gold/.test(word)) return `creamy ${word.replace('creamy ', '')}`;
+  let word = best[1];
+  // Fresh citrus clouds a drink: anything with a little haze isn't water-clear (a daiquiri is a
+  // hazy pale straw).
+  if (word === 'water-clear' && opacity >= 0.08) word = opacity >= 0.25 ? 'cloudy pale straw' : 'hazy pale straw';
+  if (opacity >= 0.8 && /cream|tan|straw|pale|peach|gold/.test(word)) return `creamy ${word.replace(/^(creamy|cloudy|hazy) /, '')}`;
+  if (/^(cloudy|hazy) /.test(word)) return word;
   if (opacity >= 0.8) return `opaque ${word}`;
   if (opacity >= 0.45) return `cloudy ${word}`;
   return word;
