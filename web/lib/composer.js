@@ -45,6 +45,8 @@ export function createComposer({ archetypes, ingMap, model }) {
     if (st.hot && !has('hot')) return { a, s: -Infinity, why: ['not a hot drink'] };
     if (!st.hot && (a.methods || [])[0] === 'hot') s -= 6;
     if (st.zeroProof && a.zeroProof === false) return { a, s: -Infinity, why: ['no zero-proof version'] };
+    // A frame that is alcohol-free by definition answers only a zero-proof prayer ("low ABV" isn't "no ABV").
+    if (!st.zeroProof && /zero-proof/.test(a.id)) return { a, s: -Infinity, why: ['zero-proof only'] };
     if (st.frozen) s += has('blend') ? 2 : -2.5;
     if (st.creamy === true) s += a.creamy ? 3 : -1;
     if (st.creamy === false && a.creamy) return { a, s: -Infinity, why: ['creamy'] };
