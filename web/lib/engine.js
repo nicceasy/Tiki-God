@@ -727,7 +727,8 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     const frozenNow = svc.method === 'blend', frozenRef = refMethod === 'blend';
     const tiers = sw => [sw.filter(l => PLAIN.has(l.id) && !l.req), sw.filter(l => !PLAIN.has(l.id) && !l.req), sw.filter(l => l.req)];
     const lower = l => sweet < 0 ? Math.max(0.1, l.oz0 * (l.req ? 0.6 : 0.4)) : l.req ? l.oz0 * 0.85 : Math.max(0.1, l.oz0 * 0.5);
-    const upper = l => Math.min(doseCap(l.id, A.family, (intent.ings[l.id] || 0) >= 1), Math.max(0.25, l.oz0 * (frozenNow && !frozenRef ? 2 : 1.6)));
+    // "Less sweet" never adds sugar back, whatever the ratio wants.
+    const upper = l => sweet <= -0.6 ? l.oz0 : Math.min(doseCap(l.id, A.family, (intent.ings[l.id] || 0) >= 1), Math.max(0.25, l.oz0 * (frozenNow && !frozenRef ? 2 : 1.6)));
     const move = (levers, f) => {
       for (const tier of tiers(levers)) {
         const s0 = snapOz();
@@ -748,6 +749,10 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
         const lo = band ? Math.max(band[0], W[0]) : W[0], hi = band ? Math.min(band[1], W[1]) : W[1];
         if (lo <= hi) R = Math.max(lo * 1.03, Math.min(hi * 0.97, R));
       }
+      // An ask lands in its end of the family's window, however sweet the reference was: "very
+      // tart" is in the lower third, "sweet" in the upper.
+      if (W && (sweet <= -0.6 || tart >= 0.6)) R = Math.min(R, W[0] + (W[1] - W[0]) * 0.3);
+      if (W && sweet >= 0.6 && tart <= 0) R = Math.max(R, W[0] + (W[1] - W[0]) * 0.7);
       finalR = R;
       for (let iter = 0; iter < 30; iter++) {
         const c = chemBody();
@@ -759,8 +764,28 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
         // Sugar can't move any further: the citrus does, a little.
         const before = snapOz();
         const g = Math.max(0.9, Math.min(1.1, (r / R) ** 0.8));
-        for (const l of sour) { l.oz *= g; edge(l, l.oz0 * (tart > 0 ? 1 : 0.75), Math.max(l.oz0 * (tart > 0 ? 1.5 : 1.25), tart > 0 ? 1.25 : 0)); }
+        for (const l of sour) { l.oz *= g; edge(l, l.oz0 * (tart > 0 || sweet <= -0.6 ? 1 : 0.75), Math.max(l.oz0 * (tart > 0 ? 1.5 : 1.25), tart > 0 ? 1.25 : 0)); }
         if (snapOz() === before) break;
+      }
+      // "Less sweet" is less sugar in the glass, not just more acid beside it: at least 15% under
+      // the reference for each step of the ask.
+      if (sweet <= -0.6 && refChem && refChem.sugarConc > 0) {
+        const S = refChem.sugarConc * (1 - Math.min(0.35, 0.18 * -sweet));
+        for (let iter = 0; iter < 12 && chemBody().sugarConc > S; iter++) if (!move(sweetening, 0.9)) break;
+        const c = chemBody();
+        if (c.acidG > 0.05) R = c.sugarG / c.acidG;
+      }
+      // "Tart" is more acid in the glass than the reference had, not just less sugar beside it.
+      if (tart >= 0.6 && refChem && refChem.acidConc > 0 && sour.length) {
+        const T = refChem.acidConc * (1 + Math.min(0.4, 0.15 * tart));
+        for (let iter = 0; iter < 10 && chemBody().acidConc < T; iter++) {
+          const before = snapOz();
+          for (const l of sour) l.oz = Math.min(1.25, l.oz * 1.08);
+          if (snapOz() === before) break;
+        }
+        for (const l of sour) l.oz0 = Math.max(l.oz0, l.oz);
+        const c = chemBody();
+        if (c.acidG > 0.05) R = Math.min(R, c.sugarG / c.acidG);
       }
       // A frozen drink under 8 g of sugar per 100 ml tastes like sour shaved ice.
       if (frozenNow) for (let iter = 0; iter < 12 && chemBody().sugarConc < 8.6; iter++) if (!move(sweetAll.length ? sweetAll : sweetening, 1.12)) break;
@@ -814,6 +839,9 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       if (e0 < 0.07) return;
       let best = null;
       for (const l of levers) for (const d of [1, -1]) {
+        // Never against the guest's ask: no sugar back into "less sweet", no citrus out of "tart".
+        if ((intent.sweetness || 0) <= -0.6 && d > 0 && l.role === 'sweet') continue;
+        if (((intent.tartness || 0) >= 0.6 || (intent.sweetness || 0) <= -0.6) && d < 0 && l.role === 'sour') continue;
         const keep = { oz: l.oz, amount: l.amount, unit: l.unit };
         const step = l.oz >= 0.5 || (d > 0 && l.oz >= 0.33) ? 0.25 : 1 / 12;
         const floor = l.role === 'sour' ? 0.25 : stirred ? 1 / 12 : 0.25;
