@@ -429,6 +429,8 @@ function applyConcepts(text, intent, index) {
   }
   return ' ' + words.filter((_, i) => !used[i]).join(' ') + ' ';
 }
+// Words that carry no wish of their own.
+const FILLER = new Set(['the', 'and', 'for', 'with', 'something', 'anything', 'drink', 'drinks', 'cocktail', 'cocktails', 'please', 'want', 'like', 'some', 'that', 'this', 'from', 'make', 'give', 'gimme', 'into', 'about', 'what', 'just', 'really', 'very', 'little', 'bit', 'kind', 'sort', 'one', 'can', 'you', 'your', 'our', 'their', 'are', 'was', 'have', 'has', 'had', 'but', 'not', 'too', 'tiki', 'would', 'could', 'should', 'need', 'feel', 'feeling', 'feels', 'makes', 'made', 'taste', 'tastes', 'tasting', 'flavor', 'flavors', 'flavour', 'with', 'without', 'who', 'its', "it's", 'got', 'get', 'let', 'lets', "let's", 'more', 'less', 'much', 'way', 'tonight', 'today', 'now', 'out', 'all', 'any', 'them', 'they', 'his', 'her', 'him', 'she', 'how', 'when', 'where', 'why', 'than', 'then', 'there', 'here', 'also', 'maybe', 'perhaps', 'gods', 'god', 'pray', 'prayer', 'praying', 'oh', 'mighty', 'great', 'grant', 'bring', 'bless', 'offer', 'offering']);
 const STOP = new Set(['something', 'anything', 'everything', 'please', 'little', 'really', 'without', 'drinks', 'cocktail', 'cocktails', 'tastes', 'flavors', 'flavour', 'flavours', 'should', 'would', 'could', 'make', 'gimme']);
 
 function applyConcept(intent, c, sign) {
@@ -537,6 +539,7 @@ export function parsePrompt(raw, { nameIndex = [], familyIds = [], concepts = nu
       if (findPhrase(text, k).length) {
         d.exclude.forEach(id => intent.avoidIngs.add(id));
         intent.diets.push(d.label);
+        intent.matched.push({ phrase: k, label: d.label });
         text = text.split(' ' + normalizeText(k).trim() + ' ').join(' ');
         break;
       }
@@ -605,6 +608,9 @@ export function parsePrompt(raw, { nameIndex = [], familyIds = [], concepts = nu
   }
   if (intent.style.hot) intent.style.frozen = false;
   if (intent.style.zeroProof) intent.strength = -3;
+  // Words the gods didn't catch: everything a guest wrote that no phrase, name or concept used.
+  const covered = new Set(intent.matched.flatMap(m => normalizeText(m.phrase).trim().split(' ').map(stem)));
+  intent.unheard = [...new Set(normalizeText(raw).trim().split(' ').filter(w => w.length >= 3 && !FILLER.has(w) && !covered.has(stem(w)) && !/^\d+$/.test(w)))];
   return intent;
 }
 

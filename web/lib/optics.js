@@ -154,3 +154,18 @@ export function showsColor(look, color) {
   if (color === 'white') return look.body.opacity >= 0.6 && test(hsl(look.body.hex));
   return [look.body, ...(look.layers || []).filter(x => x.kind !== 'foam' && (x.frac || 0) >= 0.08)].some(x => x && x.hex && test(hsl(x.hex)));
 }
+
+// How far a look is from a color word (0 = shows it). Used to keep the closest attempt when no
+// build can honor the color outright.
+const TARGET = { blue: [205, 0.6, 0.55], green: [120, 0.5, 0.5], red: [355, 0.7, 0.4], pink: [340, 0.6, 0.75], orange: [28, 0.75, 0.55], gold: [45, 0.7, 0.55], purple: [280, 0.4, 0.45], dark: [30, 0.4, 0.15], white: [45, 0.2, 0.92], clear: [50, 0.1, 0.95] };
+export function colorDistance(look, color) {
+  if (!look || !TARGET[color]) return 0;
+  if (showsColor(look, color)) return 0;
+  const [th, ts, tl] = TARGET[color];
+  const d = x => {
+    const c = hsl(x.hex);
+    const dh = c.h === null ? 180 : Math.min(Math.abs(c.h - th), 360 - Math.abs(c.h - th));
+    return dh / 180 + Math.abs(c.s - ts) * 0.5 + Math.abs(c.l - tl);
+  };
+  return Math.min(...[look.body, ...(look.layers || []).filter(x => x.kind !== 'foam')].filter(x => x && x.hex).map(d));
+}

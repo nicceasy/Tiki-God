@@ -9,7 +9,7 @@ import { makeName } from './names.js';
 import { serviceOf, SERVICE_FITS } from './vessels.js';
 import { createComposer } from './composer.js';
 import { createCopywriter } from './copy.js';
-import { drinkLook, showsColor, opticsOf, hsl, COLOR_TEST } from './optics.js';
+import { drinkLook, showsColor, colorDistance, opticsOf, hsl, COLOR_TEST } from './optics.js';
 
 const ROLE_ORDER = ['base', 'sour', 'juice', 'sweet', 'modifier', 'rich', 'accent', 'lengthener'];
 const USABLE = new Set(['common', 'specialty', 'homemade']);
@@ -750,6 +750,10 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       const clear = slot && slot.anyOf.filter(id => ok(id) && !lines.some(x => x.id === id) && opticsOf(ingMap.get(id)).tint < opticsOf(ingMap.get(l.id)).tint * 0.5);
       if (clear && clear.length) tries.push({ why: `${prose(clear[0])} in place of ${prose(l.id)} so the color stays true`, edit: L => { const x = L.find(y => y.id === l.id); x.id = clear[0]; x.role = ingMap.get(clear[0]).role; }, muddy: true });
     }
+    // A dark float over a light color is mud on top: drop it.
+    for (const l of lines.filter(l => (l.float || l.sink) && !l.req && !isCarrier(l.id) && !['dark', 'red', 'pink'].includes(color))) {
+      tries.push({ why: `no ${prose(l.id)} ${l.float ? 'float' : 'sink'}, so the color stays true`, edit: L => { L.splice(L.findIndex(y => y.id === l.id), 1); }, muddy: true });
+    }
     const lr = LAST_RESORT[color];
     if (lr && ok(lr.id) && !lines.some(x => x.id === lr.id)) {
       tries.push({ why: lr.sink ? `${prose(lr.id)} sunk to the bottom for the color` : lr.float ? `a ${prose(lr.id)} float for the color` : `${prose(lr.id)} for the color`, edit: L => { L.push({ id: lr.id, role: ingMap.get(lr.id).role, oz: lr.oz, sink: !!lr.sink, float: !!lr.float, req: true, slot: 'color' }); } });
@@ -1231,14 +1235,17 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       balanceTo(lines, ref, A, intent, svc);
       finalizeAmounts(lines);
       const colorOk = intent.color ? colorPass(lines, A, intent, svc, notes) : true;
-      return { A, lines, notes, svc, colorOk };
+      const c = chemOf(lines, svc.method, svc.ice);
+      const colorMiss = colorOk ? 0 : colorDistance(drinkLook(lines, ingMap, { method: svc.method, ice: svc.ice, dilutionOz: c.finalOz - c.volOz }), intent.color);
+      return { A, lines, notes, svc, colorOk, colorMiss };
     };
     let built = attempt(null);
     if (!built.colorOk && !riffSrc) {
       const ranked = archetypes.map(a => composer.scoreArchetype(a, intent, ctx)).filter(x => Number.isFinite(x.s) && x.a !== built.A).sort((x, y) => y.s - x.s);
-      for (const x of ranked.slice(0, 6)) {
+      for (const x of ranked.slice(0, 8)) {
         const t = attempt(x.a);
         if (t.colorOk) { built = t; break; }
+        if (t.colorMiss < built.colorMiss - 0.05) built = t;
       }
     }
     const { A, notes, svc } = built;
@@ -1267,7 +1274,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       archetype: { id: A.id, name: A.name, definition: A.definition || '' },
       family: { id: famId, name: famById[famId].name },
       riffOf: riffSrc ? { id: riffSrc.id, name: riffSrc.name } : null,
-      heard: intent.matched.map(m => m.label).concat(intent.diets),
+      heard: [...new Set(intent.matched.map(m => m.label))],
       servings: intent.servings,
       lines: lines.filter(l => l.role !== 'aromatic').map(l => ({
         id: l.id, name: displayName(l.id), role: l.role, oz: round(l.oz, 3), amount: l.amount, unit: l.unit, float: !!l.float, sink: !!l.sink,
@@ -1291,7 +1298,36 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     recipe.explanation.tasting = copy.tastingNote({ lines, stats: recipe.stats, archetype: A, look, method: svc.method, ice: svc.ice, rng });
     recipe.explanation.prayer = intent.readings.filter(r => !r.negated).map(r => ({ phrase: r.phrase, reading: r.reading }));
     recipe.check = composer.satisfies(A, lines, intent.ings, id => forbidden(id, intent));
+    recipe.explanation.reading = readPrayer(intent, A, notes, recipe);
     return recipe;
+  }
+
+  // How the gods heard you: what each part of the prayer meant, what the drink is built on,
+  // what was done to answer it, and anything they didn't catch.
+  function readPrayer(intent, A, notes, recipe) {
+    const heard = [];
+    const seenPhrase = new Set();
+    for (const r of intent.readings) {
+      if (seenPhrase.has(r.phrase)) continue;
+      seenPhrase.add(r.phrase);
+      heard.push({ phrase: r.phrase, meaning: r.negated ? `not ${r.concept.replace(/-/g, ' ')}` : r.reading || r.concept.replace(/-/g, ' ') });
+    }
+    for (const m of intent.matched) {
+      if (seenPhrase.has(m.phrase)) continue;
+      seenPhrase.add(m.phrase);
+      heard.push({ phrase: m.phrase, meaning: m.label });
+    }
+    const moves = notes.filter(n => !/^spec:|^split-base$/.test(n)).map(n => n.replace(/^riff:/, '').replace(/, to make it more than an? .*$/, ''));
+    const spec = (notes.find(n => n.startsWith('spec:')) || '').slice(5);
+    const base = recipe.riffOf ? `a riff on the ${recipe.riffOf.name}` : spec ? `the ${A.name} frame, starting from the ${spec}` : `the ${A.name} frame`;
+    const waived = (recipe.check && recipe.check.waived) || [];
+    return {
+      heard,
+      builtOn: { archetype: A.name, definition: A.definition || '', spec: spec || null, text: `Built on ${base}.` },
+      moves: [...new Set(moves)].slice(0, 6),
+      waived: waived.length ? `You ruled out the ${waived.join(' and ')}, so this is a cousin of the ${A.name} rather than the real thing.` : '',
+      unheard: intent.unheard || [],
+    };
   }
 
   function targetsForArchetype(A, famId, intent, svc) {

@@ -128,6 +128,8 @@ function render(r, seed) {
     <p class="stats bleed" ${at()}><span>${r.stats.abv}% abv</span><span>sugar ${r.stats.sugarConc} g/100 ml</span><span>acid ${r.stats.acidConc} g/100 ml</span></p>
     <h3 class="bleed" ${at()}>How it tastes</h3>
     <p class="tasting bleed" ${at()}>${esc(r.explanation.tasting)}</p>
+    ${r.look ? `<p class="look bleed" ${at()}><b>In the glass:</b> ${esc(r.look.description)}.</p>` : ''}
+    ${heardHtml(r.explanation.reading, at)}
     <h3 class="bleed" ${at()}>Its ancestors</h3>
     <ul class="lineage">${lineage.map(x => `<li class="bleed" ${at(55)}>${x}</li>`).join('')}</ul>
     ${why.length ? `<h3 class="bleed" ${at()}>Why the gods approve</h3><ul class="why">${why.map(w => `<li class="bleed" ${at(55)}>${esc(w)}</li>`).join('')}</ul>` : ''}
@@ -136,6 +138,20 @@ function render(r, seed) {
     </div>`;
   $('#copy').addEventListener('click', e => copy(r, e.currentTarget));
 }
+
+// How the gods heard you: each phrase and what it meant, the frame the drink is built on,
+// the moves made to answer the prayer, and anything they didn't catch.
+function heardHtml(rd, at) {
+  if (!rd) return '';
+  const heard = rd.heard.slice(0, 6).map(h => `<li class="bleed" ${at(45)}><b>“${esc(h.phrase)}”</b> ${esc(h.meaning)}</li>`).join('');
+  const moves = rd.moves.length ? `<p class="bleed" ${at()}>${esc(cap(rd.moves.slice(0, 4).join('; ')))}.</p>` : '';
+  const unheard = rd.unheard.length ? `<p class="unheard bleed" ${at()}>The gods didn't catch “${esc(rd.unheard.slice(0, 3).join('”, “'))}”. Pray again in other words and they may.</p>` : '';
+  return `<h3 class="bleed" ${at()}>How the gods heard you</h3>
+    ${heard ? `<ul class="heard">${heard}</ul>` : ''}
+    <p class="bleed" ${at()}>${esc(rd.builtOn.text)}${rd.builtOn.definition ? ` ${esc(rd.builtOn.definition)}` : ''}</p>
+    ${moves}${rd.waived ? `<p class="bleed" ${at()}>${esc(rd.waived)}</p>` : ''}${unheard}`;
+}
+const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 
 function copy(r, btn) {
   const text = [r.name, r.tagline, '', ...r.lines.map(l => `${l.garnish ? 'Garnish:' : amountString(l, 'oz')} ${l.name}`), '', ...r.method.steps.map((s, i) => `${i + 1}. ${s}`), '', `Answered by the Tiki God shrine: "${last.prayer}"`].join('\n');

@@ -202,9 +202,14 @@ body {
 .tasting { margin: 0; font-size: 17px; }
 .vessel-note { margin: 0; color: var(--ink-2); }
 .vessel-note b { color: var(--ink); font-weight: 600; }
-.lineage, .why { margin: 0; padding-left: 1.1em; }
-.lineage li, .why li { padding: 3px 0; }
-.lineage li::marker, .why li::marker { color: var(--hibiscus); }
+.look { margin: 10px 0 0; color: var(--ink-2); }
+.look b { color: var(--ink); font-weight: 600; }
+.lineage, .why, .heard { margin: 0; padding-left: 1.1em; }
+.lineage li, .why li, .heard li { padding: 3px 0; }
+.lineage li::marker, .why li::marker, .heard li::marker { color: var(--hibiscus); }
+.heard + p, .heard ~ p { margin: 10px 0 0; }
+.heard b { font-weight: 600; }
+.unheard { color: var(--ink-2); font-style: italic; }
 
 .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
 .btn {
