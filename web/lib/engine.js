@@ -784,6 +784,29 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     return false;
   }
 
+  // A low-ABV prayer means about 7% or less: trim the spirit (never below an ounce), then
+  // lengthen with the drink's own soda or a splash of sparkling wine if it has room.
+  function gentle(lines, A, intent, svc, notes) {
+    let c = chemOf(lines, svc.method, svc.ice);
+    if (c.abv <= 7.5) return;
+    const bases = lines.filter(l => l.role === 'base' && !l.float && !l.sink);
+    for (let i = 0; i < 10 && c.abv > 7.5; i++) {
+      const total = bases.reduce((t, l) => t + l.oz, 0);
+      if (total <= 1) break;
+      for (const b of bases) b.oz = Math.max(0.5, b.oz * 0.88);
+      c = chemOf(lines, svc.method, svc.ice);
+    }
+    if (c.abv > 7.5 && !['blend', 'hot', 'stir'].includes(svc.method)) {
+      // Sparkling wine is wine: held to a splash. Lengthen with something without alcohol.
+      for (const l of lines) if (l.role === 'lengthener' && (ingMap.get(l.id).abv || 0) > 0 && l.oz > 2) l.oz = 2;
+      let top = lines.find(l => l.role === 'lengthener' && !(ingMap.get(l.id).abv > 0) && !l.float && !l.sink)
+        || lines.filter(l => l.role === 'juice').sort((x, y) => y.oz - x.oz)[0];
+      if (!top && !forbidden('soda-water', intent)) { top = { id: 'soda-water', role: 'lengthener', oz: 1, slot: 'top', req: true }; lines.push(top); }
+      for (let i = 0; top && i < 8 && c.abv > 7.5; i++) { top.oz += 0.5; c = chemOf(lines, svc.method, svc.ice); }
+    }
+    notes.push(`kept gentle: about ${Math.round(c.abv)}% ABV`);
+  }
+
   function finalizeAmounts(lines) {
     for (const l of lines) {
       if (l.muddled) { l.oz = 0; continue; }
@@ -1380,6 +1403,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       const spec = specName && (A.canonicalSpecs || []).find(sp => sp.name === specName);
       const ref = riffSrc ? linesOf(riffSrc).filter(l => !l.garnish) : spec ? spec.lines.filter(l => ingMap.has(l.id)).map(l => ({ id: l.id, oz: l.oz, role: ingMap.get(l.id).role })) : null;
       if (!classic) balanceTo(lines, ref, A, intent, svc);
+      if (!classic && (intent.strength || 0) <= -1.5 && !intent.style.zeroProof) gentle(lines, A, intent, svc, notes);
       finalizeAmounts(lines);
       const colorOk = intent.color ? colorPass(lines, A, intent, svc, notes) : true;
       const c = chemOf(lines, svc.method, svc.ice);

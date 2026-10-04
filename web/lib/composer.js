@@ -292,8 +292,11 @@ export function createComposer({ archetypes, ingMap, model }) {
 
   // How many bottles a build may hold: the archetype's typical count plus room for the prayer's
   // twist, never past ten (a Zombie's nine is already a lot of bottles for a home bar).
-  const capOf = a => Math.min(10, Math.max(5, (a.typicalCount || a.signature.length) + 2));
-  const counted = lines => lines.filter(l => !l.garnish && l.role !== 'aromatic');
+  // Seven poured ingredients at most (the research's "too many cooks" line), except the
+  // Beachcomber heavyweights and bowls, whose canon runs to nine or ten.
+  const capOf = a => Math.min(['zombie', 'orgeat-punch'].includes(a.family) || a.bowl ? 10 : 7, Math.max(5, (a.typicalCount || a.signature.length) + 2));
+  // Seasonings (dashes, drops) don't count against the cap.
+  const counted = lines => lines.filter(l => !l.garnish && l.role !== 'aromatic' && !(['bitters'].includes((ingMap.get(l.id) || {}).cat) || ['absinthe', 'pastis', 'saline'].includes(l.id)));
 
   // Trim a build back under the cap: drop optional extras the prayer didn't ask for, the
   // least wanted first, never a signature component that is the only one of its kind.
