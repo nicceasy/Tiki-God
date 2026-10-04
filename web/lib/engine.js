@@ -1037,7 +1037,10 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     {
       const zombieLine = A.family === 'zombie' && (intent.strength || 0) > 0;
       const bowlCup = (intent.servings || 1) > 1;
-      const cap = bowlCup ? 2 : zombieLine ? Math.max(3, (B || [])[1] || 3) : Math.min(3, Math.max(2.5, (B || [])[1] || 2.5));
+      // A party punch is a cup you can have two of: an ounce and three-quarters of spirit.
+      const party = (intent.servings || 1) >= 6;
+      if (party) for (const l of live().filter(l => l.role === 'base' && (l.float || l.sink))) { l.float = false; l.sink = false; if (OVER(l.id)) l.oz = Math.min(l.oz, 0.5); }
+      const cap = party ? 1.75 : bowlCup ? 2 : zombieLine ? Math.max(3, (B || [])[1] || 3) : Math.min(3, Math.max(2.5, (B || [])[1] || 2.5));
       const total = body().reduce((t, l) => t + l.oz, 0);
       if (total > cap + 0.05) { const k = cap / total; for (const l of body()) l.oz *= k; }
     }
@@ -1049,6 +1052,12 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     }
     // Hot drinks take citrus as a whisper: half an ounce at most (more splits the butter).
     if (svc.method === 'hot') for (const l of live().filter(l => l.role === 'sour' && l.oz > 0.5)) l.oz = 0.5;
+    // A party cup is about a standard drink and a half, whatever the frame.
+    if ((intent.servings || 1) >= 6) for (let i = 0; i < 6; i++) {
+      const c = chemOf(lines, svc.method, svc.ice);
+      if (c.alcMl / 17.74 <= 1.6) break;
+      for (const l of body()) l.oz *= 0.9;
+    }
     // Smoke is a seasoning in a split: mezcal at three-quarters of an ounce, an ounce if asked.
     for (const l of body()) if (SMOKE.has(l.id) && body().length > 1) {
       const cap = asked(l) ? 1 : 0.75;
@@ -1076,7 +1085,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       const floor = l.role === 'juice' ? 0.5 : (l.role === 'sweet' && stirred) ? 0.08 : 0.25;
       if (l.oz >= floor - 0.01) continue;
       const kin = live().find(x => x !== l && x.role === l.role && (l.role !== 'sweet' || PLAIN.has(x.id) === PLAIN.has(l.id) || PLAIN.has(l.id)));
-      if (asked(l) || l.req || sole(l) || (l.role === 'sweet' && !kin)) { l.oz = floor; continue; }
+      if (asked(l) || l.req || l.twist || sole(l) || (l.role === 'sweet' && !kin)) { l.oz = floor; continue; }
       if (kin && PLAIN.has(l.id) && (l.role === 'sweet' || l.role === 'sour')) { kin.oz += l.oz; lines.splice(lines.indexOf(l), 1); continue; }
       lines.splice(lines.indexOf(l), 1);
       notes.push(`left out the ${prose(l.id)}: too little to taste`);
@@ -1133,18 +1142,20 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     };
     const fitOf = v => {
       const r = needFor(v) / v.capacity;
-      if (v.serve.includes('bowl')) return r > 1.12 ? 0 : 1;
       // A drink with no ice in it (up, hot) needs room at the rim; ice can mound above it.
       const noIce = service === 'hot' || (v.serve.includes('up') && service === 'shaken');
-      if (r > (noIce ? 0.95 : 1.12)) return 0;
-      let f = r >= 0.5 ? 1 : Math.pow(r / 0.5, 1.5);
+      if (noIce && r > 0.95) return 0;
+      // The research's fill ranges (liquid before ice) are the measure where we have them: a
+      // Zombie's six ounces belong in a chimney, whatever crushed ice does to the arithmetic.
       const range = fillRange(v.id);
       if (range) {
         const vol = chem.volOz * (bowl ? servings : 1);
-        if (vol < range[0]) f *= Math.pow(vol / range[0], 3);
-        else if (vol > range[1] * 1.15) f *= 0.15;
+        if (vol > range[1] * 1.12) return 0;
+        return vol >= range[0] ? 1 : Math.pow(vol / range[0], 3);
       }
-      return f;
+      if (v.serve.includes('bowl')) return r > 1.12 ? 0 : 1;
+      if (r > 1.12) return 0;
+      return r >= 0.5 ? 1 : Math.pow(r / 0.5, 1.5);
     };
     const asked = intent.vessel && vesselById[intent.vessel];
     if (asked) return { v: asked, why: 'asked' };
@@ -1177,7 +1188,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       w += 0.5 * ((intent.vesselAffinity || {})[v.id] || 0);
       if (svc.wantUp && v.serve.includes('up')) w += 3;
       // Fire wants a wide ceramic vessel that can take it, never a thin glass.
-      if (intent.style.flaming) w *= (((rules || {}).garnish || {}).fire || {}).allowedVessels?.includes(v.id) ? 2.5 : 0.4;
+      if ((intent.askedStyle || {}).flaming) w *= (((rules || {}).garnish || {}).fire || {}).allowedVessels?.includes(v.id) ? 2.5 : 0.4;
       if (bowl && v.id === 'volcano-bowl' && intent.style.flaming) w += 2;
       if (bowl && v.id === 'punch-bowl' && ['punch', 'stirred', 'buck'].includes(famId)) w += 0.5;
       if (bowl && v.id === 'tiki-bowl' && servings <= 3) w += 0.4;
@@ -1710,7 +1721,9 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     const service = serviceOf(svc.method, svc.ice);
     let c = chemOf(lines, svc.method, svc.ice);
     const noIce = service === 'hot' || (v.serve.includes('up') && service === 'shaken');
-    const room = v.capacity * (noIce ? 0.95 : 1.05);
+    const range0 = fillRange(v.id);
+    // Room is the fill range's top where the research gives one (expressed as the same need).
+    const room = noIce ? v.capacity * 0.95 : range0 ? needOf(c, v, service) * (range0[1] * 1.1 / Math.max(c.volOz, 0.1)) : v.capacity * 1.05;
     const live = lines.filter(l => !l.garnish && !l.muddled && l.role !== 'aromatic' && l.oz > 0);
     const base = live.filter(l => l.role === 'base' && !l.float && !l.sink);
     const baseTotal = base.reduce((t, l) => t + l.oz, 0);
@@ -1911,8 +1924,11 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
           const best = ranked[0].s;
           // Still on-prayer: the alternatives must be able to carry the prayer's leading flavor
           // (a bananas-foster prayer stays banana on every seed).
-          const lead = Object.entries(intent.tags).filter(([t]) => !['sweet', 'tart', 'light', 'rich', 'boozy', 'warm', 'fruity', 'tropical', 'citrus', 'creamy', 'effervescent', 'crisp', 'dry'].includes(t)).sort((a, b) => b[1] - a[1])[0];
-          const near = ranked.filter(x => x.s >= best - 3.5 && (!lead || lead[1] < 1 || composer.carries(x.a, lead[0], intent, ctx)));
+          // The lead is a flavor the guest said outright; a concept's leanings don't pin the frame.
+          const lead = Object.entries(intent.tags).map(([t, w]) => [t, w - ((intent.conceptTags || {})[t] || 0)]).filter(([t]) => !['sweet', 'tart', 'light', 'rich', 'boozy', 'warm', 'fruity', 'tropical', 'citrus', 'creamy', 'effervescent', 'crisp', 'dry'].includes(t)).sort((a, b) => b[1] - a[1])[0];
+          let near = ranked.filter(x => x.s >= best - 3.5 && (!lead || lead[1] < 1 || composer.carries(x.a, lead[0], intent, ctx)));
+          // Nothing else carries it: any frame that answers the prayer nearly as well will do.
+          if (near.length <= 1) near = ranked.filter(x => x.s >= best - 2.5);
           // The frames earlier seeds actually served (after their own retries) are set aside first.
           const served = near.filter(x => prior && prior.has(x.a.id));
           const skip = new Set(served.length ? served.slice(0, near.length - 1).map(x => x.a) : near.slice(0, Math.min(seed, near.length - 1)).map(x => x.a));

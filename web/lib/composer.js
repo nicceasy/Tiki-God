@@ -150,7 +150,14 @@ export function createComposer({ archetypes, ingMap, model }) {
   // or an open slot for its role.
   function canHold(a, id, intent, ctx) {
     if (!ingMap.has(id) || ctx.forbidden(id, intent) || archForbids(a, id)) return false;
-    return allIds(a).has(id) || !!slotFor(a, id) || roleOf(id) === 'base' || canAdd(a, id);
+    if (allIds(a).has(id) || !!slotFor(a, id) || roleOf(id) === 'base' || canAdd(a, id)) return true;
+    // The ways placeIngredient works a bottle in without a slot: a liqueur or rich accent added,
+    // a flavored syrup taking the plain syrup's job, a juice trading part of the main juice.
+    const r = roleOf(id), specs = fittingSpecs(a);
+    if (['modifier', 'accent', 'rich'].includes(r)) return true;
+    if (r === 'sweet') return specs.some(sp => sp.lines.some(l => PLAIN_SYRUPS.has(l.id)));
+    if (r === 'juice') return specs.some(sp => sp.lines.some(l => roleOf(l.id) === 'juice'));
+    return false;
   }
   function canAdd(a, id) {
     const r = roleOf(id);

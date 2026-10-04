@@ -221,7 +221,7 @@ export const LEXICON = [
   { k: ['brunch', 'breakfast', 'morning', 'hangover'], tags: { coffee: 0.7, orange: 1.5 }, strength: -0.8, label: 'brunch' },
   { k: ['dessert', 'after dinner', 'digestif', 'sweet tooth'], tags: { creamy: 1, chocolate: 0.8, rich: 1 }, sweetness: 0.4, label: 'dessert' },
   { k: ['jungle', 'rainforest', 'wild'], tags: { herbal: 1, bitter: 0.8 }, label: 'jungle' },
-  { k: ['volcano', 'lava', 'eruption', 'magma', 'inferno'], tags: { chili: 0.8, smoky: 0.8 }, style: { flaming: true }, color: 'red', label: 'volcanic' },
+  { k: ['volcano', 'lava', 'eruption', 'magma', 'inferno'], tags: { chili: 0.8, smoky: 0.8 }, style: { flaming: true }, color: 'red', arch: { 'volcano-bowl': 1.2 }, label: 'volcanic' },
   { k: ['sunset', 'dusk'], tags: { orange: 1, 'passion-fruit': 0.6 }, ings: { grenadine: 1.5 }, color: 'red', label: 'sunset' },
   { k: ['storm', 'stormy', 'thunder', 'monsoon', 'typhoon'], tags: { ginger: 0.8, molasses: 0.8 }, label: 'stormy' },
   { k: ['hawaii', 'hawaiian', 'aloha', 'waikiki', 'maui', 'honolulu', 'oahu', 'kona'], tags: { pineapple: 1.2, 'passion-fruit': 1, guava: 0.8, coconut: 0.5 }, label: 'Hawaiian' },
@@ -683,6 +683,7 @@ function applyEffect(intent, e, sign, soft, scale = 1) {
     else intent.avoidSpirits.add(s);
   }
   if (e.fam) for (const [f, w] of Object.entries(e.fam)) add(intent.fam, f, sign * w);
+  if (e.arch && sign > 0) for (const [a, w] of Object.entries(e.arch)) add(intent.archetypes, a, w);
   // Negated "sweet" means drier; negated "strong" means lighter, and so on.
   for (const key of ['strength', 'sweetness', 'tartness', 'complexity']) if (e[key]) intent[key] += sign * e[key] * scale;
   if (e.style) for (const [s, v] of Object.entries(e.style)) {
