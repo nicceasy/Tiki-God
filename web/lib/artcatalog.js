@@ -1631,7 +1631,7 @@ function interior(kind, y0, inward = 1.6, wob = null) {
   for (let y = y0; y < R.bottom; y += 6) ys.push(y);
   ys.push(R.bottom);
   const w = y => Math.max(1, halfAt(G, y) - inward - (wob ? wob(y) : 0)), wb = w(R.bottom);
-  return [...ys.map(y => [R.cx - w(y), y]), ...ell(R.cx, R.bottom, wb, wb * 0.12, Math.PI, 0, 12).reverse().slice(1, -1).map(([x, y]) => [x, Math.max(R.bottom, y)]), ...ys.slice().reverse().map(y => [R.cx + w(y), y])];
+  return [...ys.map(y => [R.cx - w(y), y]), ...ell(R.cx, R.bottom, wb, wb * 0.12, Math.PI, 0, 12).slice(1, -1).map(([x, y]) => [x, Math.max(R.bottom, y)]), ...ys.slice().reverse().map(y => [R.cx + w(y), y])];
 }
 
 function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, body = null, layers = [], frozen = false, frost = false, shell = 0, crushed = false, crownOnIce = false, froth = false, seed = 7, neon = false, word = '', creamy = null, cafe = null, tilt = null, block = false } = {}) {
