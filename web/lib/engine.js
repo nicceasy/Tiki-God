@@ -888,23 +888,20 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     return { v: softPick(rng, scored, 0.7, greedy), why: 'family' };
   }
 
+  // The last resort when nothing the archetype, family or prayer offers fits: what the glass
+  // itself suggests, in vocabulary words (chooseGarnish still checks each against the drink).
   function garnishFor(famId, intent, lines, flavorTop) {
     const g = [];
     const ids = lines.map(l => l.id);
-    if (famId === 'mai-tai') g.push('spent lime shell', 'mint sprig');
-    if (ids.includes('mint') || intent.tags.mint) g.push('big mint bouquet (spank it first)');
-    if (famId === 'swizzle') g.push('mint sprig');
+    if (ids.includes('mint') || intent.tags.mint) g.push('mint sprig');
     if (ids.includes('nutmeg')) g.push('freshly grated nutmeg');
-    if (ids.includes('cinnamon')) g.push('cinnamon stick');
-    if (famId === 'colada' || flavorTop.includes('pineapple')) g.push('pineapple wedge and fronds');
-    if (flavorTop.includes('floral') || intent.tags.floral) g.push('edible orchid');
-    if (flavorTop.includes('berry') || flavorTop.includes('cherry')) g.push('brandied cherry');
+    if (ids.includes('cinnamon') || famId === 'hot') g.push('cinnamon stick');
+    if (famId === 'colada' || famId === 'bitter-tiki' || flavorTop.includes('pineapple')) g.push('pineapple wedge');
     if (flavorTop.includes('coffee')) g.push('three coffee beans');
-    if (famId === 'bitter-tiki') g.push('pineapple wedge and fronds');
+    if (flavorTop.includes('floral') || intent.tags.floral) g.push('edible flower');
     if (famId === 'stirred') g.push('expressed orange peel');
-    if (famId === 'hot') g.push('cinnamon stick');
-    if (!g.length) g.push(flavorTop.includes('orange') ? 'orange wheel' : 'lime wheel', 'mint sprig');
-    return [...new Set(g)].slice(0, 3);
+    g.push(flavorTop.includes('orange') ? 'orange wheel' : 'lime wheel', 'lemon wheel', 'expressed orange peel', 'expressed lemon peel', 'cherry on a pick', 'mint sprig');
+    return [...new Set(g)];
   }
 
   const NICE = {
@@ -936,95 +933,246 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
   }
 
   // Method steps that match the build: what goes in the tin, what is held back to top, float,
-  // sink or crown the drink, the ice exactly as served, and the garnish last. A batch for a
-  // group gives totals and a pitcher or bowl method instead of "multiply by eight".
+  // sink or crown the drink, the ice exactly as served, and the garnish last. Only carbonation is
+  // topped (still wine goes in the tin with everything else), and on crushed ice the topper goes
+  // in before the last of the ice, so there is room for it. A blender takes about 1.1× the
+  // liquid in ice; a flash-blend about 6 oz for one drink and more for a big one. A group gets
+  // one method for its vessel instead of "multiply by eight": a crushed-ice bowl is shaken in
+  // rounds and poured over fresh crushed ice; a punch bowl is stirred with cold water over a
+  // block frozen the night before and ladled; glasses are filled from a pitcher.
   const ICE_WORD = { crushed: 'crushed ice', pebble: 'pebble ice', shaved: 'shaved ice', cubed: 'cubed ice', block: 'one large block', 'ice-cone': 'an ice cone', none: 'no ice', blended: 'ice' };
+  const FIZZY = new Set(['soda-water', 'ginger-beer', 'ginger-ale', 'cola', 'tonic', 'lemon-lime-soda', 'grapefruit-soda', 'sparkling-wine']);
+  const HOT_TOPS = ['hot-water', 'coffee', 'black-tea', 'lapsang-tea', 'whole-milk'];
+  const PASTES = ['hot-buttered-rum-batter', 'butter', 'gardenia-mix', 'tom-and-jerry-batter'];
+  const an = s => `${/^[aeiou]/i.test(s) && !/^(u|one)/i.test(s) ? 'an' : 'a'} ${s}`;
+  const pluralOf = s => (/(ss|sh|ch|x)$/.test(s) ? `${s}es` : /s$/.test(s) ? s : `${s}s`);
+  // Ice the way a host measures it: "6 oz", "1¼ cups (10 oz)".
+  const measure = oz => { if (oz < 7.5) return `${Math.max(1, Math.round(oz))} oz`; const q = Math.round(oz / 2) * 2, c = q / 8; return `${fracStr(c)} cup${c > 1 ? 's' : ''} (${q} oz)`; };
+  const ozOf = oz => `${fracStr(Math.round(oz * 4) / 4)} oz`;
+  const blendIce = oz => oz * 1.1; // frozen: ice about 1–1¼× the liquid, or it overflows or turns to soup
+  const flashIce = oz => Math.max(6, oz * 1.1); // flash-blend: about 6 oz for one drink, more for a big build
+  // The wall a sink runs down, named for what the vessel is (a tin mug is not a glass).
+  const wallOf = v => (!v || v.kind === 'glass' ? 'glass' : v.serve.includes('bowl') ? 'bowl' : v.id === 'coconut' ? 'shell' : v.id === 'pineapple' ? 'pineapple' : /cup/.test(v.name) ? 'cup' : 'mug');
+  // How each card phrase reads in a sentence.
+  const SAY = {
+    'heavy nutmeg cap': 'a heavy cap of freshly grated nutmeg', 'swizzle stick left in': 'the swizzle stick left standing in the ice',
+    'straw through the ice cone': 'a straw run down through the cone', 'stir stick': 'a stir stick for the guest',
+    'lime coin in the glass': 'the lime coin dropped into the glass', 'lime wedges in the glass': 'the lime wedges left in the glass',
+    'pineapple crown lid': "the pineapple's own crown set on as a lid", 'candied ginger on a pick': 'a piece of candied ginger on a pick',
+    'pineapple wedge and fronds': 'a pineapple wedge with its fronds', 'lime wheels floating': 'lime wheels floated on top', 'lemon wheels floating': 'lemon wheels floated on top', 'orange wheels floating': 'orange wheels floated on top',
+  };
+  const sayGarnish = (x, all) => (x === 'cherry' ? (all.some(o => /wheel/.test(o)) ? 'a cherry tucked against the wheel' : 'a cherry') : SAY[x] || (/^(a |an |the |three |freshly |grated |toasted |whipped )/.test(x) ? x : an(x)));
+  // Fire, done right (technique.md §2.19): a lime shell boat, lemon extract, a long lighter,
+  // nothing that burns within reach, and out before anyone drinks.
+  const fireStep = (must, citrus, vid) => `${must ? 'Fire, last and carefully' : 'Theater, if you like (optional, and carefully)'}: set a spent ${citrus} shell cut side up ${vid === 'volcano-bowl' ? "in the volcano's central well" : 'on the ice'}, drop in a sugar cube soaked in lemon extract (or a little 151 rum) and light it with a long lighter; a pinch of cinnamon dusted through the flame throws sparks. Keep hair, sleeves, straws and flowers clear, never pour spirit from the bottle toward a flame, and blow it out (or cover it with a saucer) before anyone drinks.`;
   function steps(svc, lines, intent, garnish = []) {
-    const g = svc.glass;
-    const aG = `${/^[aeiou]/i.test(g) && !/^(u|one)/i.test(g) ? 'an' : 'a'} ${g}`;
+    const v = vesselById[svc.vessel] || null;
+    const g = svc.glass, aG = an(g), gs = pluralOf(g);
     const n = intent.servings > 1 ? intent.servings : 1;
-    const batch = n > 1;
+    const bowl = n > 1 && !!(v && v.serve.includes('bowl'));
+    const punchBowl = bowl && svc.vessel === 'punch-bowl';
+    const each = n > 1 && !bowl; // a group served in glasses
+    const upGlass = !!svc.up || !!(v && v.serve.includes('up'));
+    const wall = wallOf(v), opaque = OPAQUE_VESSELS.has(svc.vessel) || (!!v && !['glass', 'bowl'].includes(v.kind)) || svc.vessel === 'scorpion-bowl';
     const poured = lines.filter(l => l.role !== 'aromatic' && !l.garnish);
     const floats = poured.filter(l => l.float), sinks = poured.filter(l => l.sink);
-    const crowns = poured.filter(l => l.crown || (svc.method === 'swizzle' && ingMap.get(l.id).cat === 'bitters' && !l.float));
-    const fizz = poured.filter(l => !l.float && !l.sink && (l.role === 'lengthener' || ['sparkling-wine'].includes(l.id)) && !['hot-water', 'water', 'coffee', 'black-tea'].includes(l.id));
-    const hotTop = svc.method === 'hot' ? poured.find(l => ['hot-water', 'coffee', 'black-tea', 'whole-milk'].includes(l.id)) : null;
+    const crowns = poured.filter(l => !l.float && !l.sink && (l.crown || (svc.method === 'swizzle' && ingMap.get(l.id).cat === 'bitters')));
+    const fizz = poured.filter(l => !l.float && !l.sink && FIZZY.has(l.id));
+    const hotTop = svc.method === 'hot' ? poured.find(l => HOT_TOPS.includes(l.id) && !l.float) : null;
     const held = [...floats, ...sinks, ...crowns, ...fizz, ...(hotTop ? [hotTop] : [])];
-    const except = held.length ? ` except the ${list(held.map(l => displayName(l.id).toLowerCase()))}` : '';
+    const name = l => displayName(l.id).toLowerCase();
+    const except = held.length ? ` except the ${list(held.map(name))}` : '';
+    const mixOz = poured.filter(l => !held.includes(l)).reduce((t, l) => t + (l.oz || 0), 0); // one drink's worth into the tin
     const egg = poured.some(l => EGG.has(l.id));
     const mint = lines.find(l => l.id === 'mint') && ['swizzle', 'muddle-build'].includes(svc.method);
-    const up = svc.up || svc.ice === 'none';
+    const heap = ['crushed', 'pebble', 'shaved'].includes(svc.ice) || (svc.method === 'swizzle' && svc.ice !== 'ice-cone');
+    const iceKind = ['pebble', 'shaved'].includes(svc.ice) ? svc.ice : 'crushed';
+    const room = fizz.length > 0 && heap && !upGlass; // leave room for the topper, then crown with ice
+    // Rounds a tin can hold: two drinks, or one at a time for a big drink; a blender takes two.
+    const per = svc.method === 'blend' || mixOz * 2 <= 12 ? Math.min(2, n) : 1;
+    const rounds = Math.ceil(n / per), perRound = mixOz * per, eachTime = rounds > 1 ? ' each time' : '';
+    const inRounds = rounds > 1 ? `in ${rounds} rounds of ${numberWord(per)} drink${per > 1 ? 's' : ''} (about ${ozOf(perRound)} of the mix each round)` : `all at once (about ${ozOf(perRound)} of the mix)`;
     const out = [];
-    const vessel = batch && intent.style.bowl ? aG : aG;
-    // Where the drink ends up, in the ice it is actually served on.
+    let cups = 0;
+    const paste = svc.method === 'hot' ? poured.find(l => PASTES.includes(l.id)) : null;
+    const hotSteps = (where, many) => {
+      out.push(`${many ? `For ${n}: preheat` : 'Preheat'} ${where} with boiling water, then empty ${many ? 'them' : 'it'}.`);
+      if (paste) out.push(`${many ? `Divide the ${name(paste)} between them, add a splash of hot water to each` : `Add the ${name(paste)} with a splash of ${hotTop ? `the ${name(hotTop)}` : 'hot water'}`} and stir until it melts.`);
+      out.push(`${many ? 'Divide' : 'Add'} ${paste ? 'the rest' : many ? 'the batch totals' : 'everything'}${hotTop ? ` except the ${name(hotTop)}` : ''}${many ? ` between the ${gs}` : ''} and stir.`);
+    };
+    // Where a single drink ends up, in the ice it is actually served on.
     const serveOn = () => {
-      if (svc.up) return `Double-strain into a chilled ${g}.`;
+      if (upGlass && svc.ice === 'shaved') return `Press shaved ice into ${aG} to line it like a shell (freeze it a few minutes if you can), then strain the drink into the hollow.`;
+      if (svc.up || svc.ice === 'none' || (upGlass && svc.ice === 'cubed')) return `Double-strain into a chilled ${g}.`;
       switch (svc.ice) {
-        case 'none': return `Double-strain into ${up ? `a chilled ${g}` : aG}.`;
         case 'cubed': return `Strain into ${aG} over fresh cubed ice.`;
         case 'block': return `Strain into ${aG} over one large cube or block.`;
-        case 'shaved': return `Pack ${aG} with shaved ice and strain the drink over it; mound more shaved ice on top.`;
-        case 'pebble': return `Open-pour, ice and all, into ${aG}; top with pebble ice to fill.`;
+        case 'shaved': return room ? `Pack ${aG} two-thirds full of shaved ice and strain the drink over it, leaving room at the top.` : `Pack ${aG} with shaved ice and strain the drink over it; mound more shaved ice on top.`;
         case 'ice-cone': return `Strain into ${aG} over an ice cone (shaved ice packed around a chopstick in a pilsner glass, frozen and unmolded), or over one large cube if you have no cone.`;
-        default: return `Open-pour, ice and all, into ${aG}; top with crushed ice to fill.`;
+        default: return `Open-pour, ice and all, into ${aG}${room ? ', leaving room at the top.' : `; top with ${iceKind} ice to fill.`}`;
       }
     };
-    if (batch) out.push(`For ${n}: combine the batch totals${except} in a pitcher${svc.method === 'blend' ? ' and blend in rounds' : ''}; ${['shake', 'flash-blend'].includes(svc.method) ? 'shake or flash-blend in rounds of two drinks' : 'stir well'}.`);
-    if (mint) out.push(`Lightly press the mint in the bottom of ${aG}.`);
-    switch (svc.method) {
-      case 'flash-blend':
-        if (!batch) out.push(`Add everything${except} to a blender cup with 6 oz of crushed ice.`);
-        out.push('Flash-blend for 3–5 seconds (or shake very hard with crushed ice if you have no spindle mixer).');
-        out.push(`Pour everything, ice and all, into ${vessel}; top with more crushed ice.`);
-        break;
-      case 'blend':
-        if (!batch) out.push(`Add everything${except} to a blender with about 1 cup (8 oz) of ice.`);
-        out.push(`Blend until smooth and thick, then pour into ${vessel}.`);
-        break;
-      case 'swizzle':
-        out.push(`Add everything${except} to ${vessel}.`);
-        out.push('Fill two-thirds with crushed ice and swizzle until the glass frosts over; pack with more crushed ice.');
-        break;
-      case 'stir':
-        if (!batch) out.push(`Stir everything${except} with cubed ice for 20–30 seconds.`);
-        out.push(svc.ice === 'none' || svc.up ? `Strain into a chilled ${g}.` : `Strain into ${aG} over one large cube.`);
-        break;
-      case 'build':
-      case 'muddle-build':
-        out.push(`Build everything${except} in ${vessel} over ${ICE_WORD[svc.ice] || 'ice'}${svc.ice === 'none' ? '' : ''}, and stir briefly.`);
-        break;
-      case 'hot': {
-        const paste = poured.find(l => ['hot-buttered-rum-batter', 'butter', 'gardenia-mix', 'tom-and-jerry-batter'].includes(l.id));
-        out.push(`Preheat ${aG} with boiling water, then empty it.`);
-        if (paste) out.push(`Add the ${displayName(paste.id).toLowerCase()} with a splash of ${hotTop ? `the ${displayName(hotTop.id).toLowerCase().replace(/^hot /, 'hot ')}` : 'hot water'} and stir until it melts.`);
-        out.push(`Add ${paste ? 'the rest' : 'everything'}${hotTop ? ` except the ${displayName(hotTop.id).toLowerCase()}` : ''} and stir.`);
-        break;
+    // The same for a round of drinks poured into several glasses.
+    const serveMany = () => {
+      if (upGlass && svc.ice === 'shaved') return `Line ${n} ${gs} with pressed shaved ice and strain the drink into the hollows.`;
+      if (svc.up || svc.ice === 'none' || (upGlass && svc.ice === 'cubed')) return `Double-strain into ${n} chilled ${gs}.`;
+      switch (svc.ice) {
+        case 'cubed': return `Strain into ${n} ${gs} over fresh cubed ice.`;
+        case 'block': return `Strain into ${n} ${gs}, each over one large cube.`;
+        case 'shaved': return `Pack ${n} ${gs} ${room ? 'two-thirds full ' : ''}with shaved ice and divide the drink between them${room ? ', leaving room at the top.' : '; mound more shaved ice on top.'}`;
+        case 'ice-cone': return `Strain into ${n} ${gs}, each over an ice cone (shaved ice packed around a chopstick in a pilsner glass, frozen and unmolded) or one large cube.`;
+        default: return `Open-pour the drinks, ice and all, into ${n} ${gs}${room ? ', leaving room at the top.' : `; top each with ${iceKind} ice to fill.`}`;
       }
-      default:
-        if (egg) out.push(`Dry-shake everything${except} without ice for 10 seconds to whip the egg white.`);
-        if (['cubed', 'none', 'block'].includes(svc.ice)) {
-          out.push(`${egg ? 'Add cubed ice and shake' : `Shake everything${except} with cubed ice`} hard for 10–12 seconds.`);
-          out.push(serveOn());
-        } else {
-          out.push(`${egg ? 'Add crushed ice and shake' : `Shake everything${except} with about 12 oz of crushed ice`} for 8–10 seconds.`);
-          out.push(serveOn());
+    };
+
+    if (punchBowl && svc.method === 'hot') {
+      // A hot punch: warm the bowl, no ice anywhere.
+      out.push(`For ${n}: warm the punch bowl with hot water, then empty it.`);
+      if (paste) out.push(`Whisk the ${name(paste)} in the bowl with a splash of hot water until it melts.`);
+      out.push(`Stir in ${paste ? 'the rest of the batch totals' : 'the batch totals'}${hotTop ? ` except the ${name(hotTop)}, then add ${measure(hotTop.oz * n)} of steaming ${name(hotTop)}` : ''}.`);
+      cups = Math.max(n, Math.round(poured.reduce((t, l) => t + (l.oz || 0), 0) * n / 4.5));
+    } else if (punchBowl && !egg) {
+      // Ladled punch: a block, not crushed ice (crushed drowns a bowl in twenty minutes), and cold
+      // water standing in for the dilution a shake would give.
+      const mixTotal = mixOz * n;
+      const water = poured.filter(l => l.id === 'water').reduce((t, l) => t + (l.oz || 0), 0) * n;
+      const add = Math.max(0, mixTotal * 0.2 - water);
+      out.push(`The night before, freeze a block of ice: fill a ${mixTotal + add > 40 ? 'quart' : 'pint'} container with water and freeze it.`);
+      out.push(`For ${n}: in the punch bowl, stir the batch totals${except}${add >= 1 ? ` with ${measure(add)} of cold water (the dilution a shake would give)` : ''} until the sugar dissolves.`);
+      out.push('Slide in the block just before serving.');
+      cups = Math.max(n, Math.round((poured.reduce((t, l) => t + (l.oz || 0), 0) * n + add) / 4.5));
+    } else if (bowl) {
+      // A crushed-ice bowl: mixed in rounds a tin or blender can hold, poured over fresh ice in the bowl.
+      out.push(`For ${n}: measure the batch totals${except} into a pitcher and stir.`);
+      if (mint) out.push(`Lightly press the mint in the bottom of the ${wall}.`);
+      const pour = `Pour ${rounds > 1 ? 'each round' : 'it'}, ice and all, into the ${g}${punchBowl ? ' over the block' : ' over a bed of fresh crushed ice'}${room ? ', leaving room at the top.' : punchBowl ? '.' : '; finish with a mound of crushed ice.'}`;
+      if (punchBowl) out.unshift('The night before, freeze a block of ice: fill a quart container with water and freeze it.');
+      switch (svc.method) {
+        case 'blend':
+          out.push(`Blend ${inRounds} with about ${measure(blendIce(perRound))} of ice${eachTime}, until smooth and thick; pour into the ${g}.`);
+          break;
+        case 'flash-blend':
+          out.push(`Flash-blend ${inRounds} with about ${measure(flashIce(perRound))} of crushed ice${eachTime}, for 3–5 seconds (or shake hard in a tin full of crushed ice).`);
+          out.push(pour);
+          break;
+        case 'build': case 'muddle-build': case 'swizzle': case 'stir':
+          out.push(`Fill the ${g} two-thirds with crushed ice, pour in the mix and ${svc.method === 'swizzle' ? 'swizzle' : 'stir'} until the outside of the bowl is cold${room ? ', leaving room at the top.' : '; mound more crushed ice on top.'}`);
+          break;
+        default:
+          if (egg) out.push('Dry-shake each round without ice for 10 seconds to whip the egg white.');
+          out.push(`Shake ${inRounds}, ${rounds > 1 ? 'each in a tin' : 'in a tin'} filled with about 2 cups of crushed ice, for 8–10 seconds.`);
+          out.push(pour);
+      }
+      if (punchBowl) cups = Math.max(n, Math.round(poured.reduce((t, l) => t + (l.oz || 0), 0) * n * 1.2 / 4.5));
+    } else if (each) {
+      // Glasses for a group: a pitcher of the mix, then the method in rounds.
+      if (svc.method === 'hot') hotSteps(`${n} ${gs}`, true);
+      else if (mixOz >= 0.25) out.push(`For ${n}: measure the batch totals${except} into a pitcher and stir.`);
+      if (mint) out.push(`Lightly press the mint into the bottoms of ${n} ${gs}.`);
+      switch (svc.method) {
+        case 'hot': break;
+        case 'stir':
+          out.push(`Add cubed ice to the pitcher, stir for 30 seconds and strain into ${upGlass || svc.ice === 'none' ? `${n} chilled ${gs}` : `${n} ${gs}, each over one large cube`}.`);
+          break;
+        case 'build': case 'muddle-build':
+          out.push(mixOz < 0.25 ? `For ${n}: fill ${n} ${gs} with ${svc.ice === 'block' ? 'a large cube each' : ICE_WORD[svc.ice] || 'ice'}.` : svc.ice === 'none' ? `Divide the mix between ${n} ${gs} and stir briefly.` : svc.ice === 'block' ? `Set a large cube in each of ${n} ${gs}, divide the mix between them and stir each briefly.`
+            : `Fill ${n} ${gs} with ${ICE_WORD[svc.ice] || 'ice'}, divide the mix between them${room ? ', leaving room at the top,' : ''} and stir each briefly.`);
+          break;
+        case 'swizzle':
+          out.push(`Divide the mix between ${n} ${gs}, fill each two-thirds with crushed ice and swizzle until the ${wall} frosts over${room ? ', leaving room at the top.' : '; pack with more crushed ice.'}`);
+          break;
+        case 'blend':
+          out.push(`Blend ${inRounds} with about ${measure(blendIce(perRound))} of ice${eachTime}, until smooth and thick; pour into ${n} ${gs}.`);
+          break;
+        case 'flash-blend':
+          out.push(`Flash-blend ${inRounds} with about ${measure(flashIce(perRound))} of crushed ice${eachTime}, for 3–5 seconds (or shake hard with crushed ice).`);
+          out.push(['ice-cone', 'shaved'].includes(svc.ice) || upGlass ? serveMany() : `Pour the drinks, ice and all, into ${n} ${gs}${room ? ', leaving room at the top.' : '; top each with more crushed ice.'}`);
+          break;
+        default: {
+          const cubed = ['cubed', 'none', 'block'].includes(svc.ice);
+          if (egg) out.push('Dry-shake each round without ice for 10 seconds to whip the egg white.');
+          out.push(`Shake ${inRounds} with ${cubed ? 'cubed ice, hard, for 10–12 seconds' : 'about 2 cups of crushed ice for 8–10 seconds'}.`);
+          out.push(serveMany());
         }
+      }
+    } else {
+      if (mint) out.push(`Lightly press the mint in the bottom of ${aG}.`);
+      switch (svc.method) {
+        case 'flash-blend':
+          out.push(`Add everything${except} to a blender cup with about ${measure(flashIce(mixOz))} of crushed ice.`);
+          out.push('Flash-blend for 3–5 seconds (or shake very hard with crushed ice if you have no spindle mixer).');
+          out.push(['ice-cone', 'shaved'].includes(svc.ice) || upGlass ? serveOn() : `Pour everything, ice and all, into ${aG}${room ? ', leaving room at the top.' : '; top with more crushed ice.'}`);
+          break;
+        case 'blend':
+          out.push(`Add everything${except} to a blender with about ${measure(blendIce(mixOz))} of ice.`);
+          out.push(`Blend until smooth and thick, then pour into ${aG}.`);
+          break;
+        case 'swizzle':
+          out.push(`Add everything${except} to ${aG}.`);
+          out.push(`Fill two-thirds with crushed ice and swizzle until the ${wall} frosts over${room ? ', leaving room at the top.' : '; pack with more crushed ice.'}`);
+          break;
+        case 'stir':
+          out.push(`Stir everything${except} with cubed ice for 20–30 seconds.`);
+          out.push(svc.ice === 'none' || svc.up ? `Strain into a chilled ${g}.` : `Strain into ${aG} over one large cube.`);
+          break;
+        case 'build':
+        case 'muddle-build':
+          out.push(mixOz < 0.25 ? `Fill ${aG} with ${ICE_WORD[svc.ice] || 'ice'}${room ? ', leaving room at the top' : ''}.` : svc.ice === 'none' ? `Build everything${except} in ${aG} and stir briefly.` : `Build everything${except} in ${aG} over ${ICE_WORD[svc.ice] || 'ice'}${room ? ', leaving room at the top,' : ''} and stir briefly.`);
+          break;
+        case 'hot':
+          hotSteps(aG, false);
+          break;
+        default:
+          if (egg) out.push(`Dry-shake everything${except} without ice for 10 seconds to whip the egg white.`);
+          if (['cubed', 'none', 'block'].includes(svc.ice)) out.push(`${egg ? 'Add cubed ice and shake' : `Shake everything${except} with cubed ice`} hard for 10–12 seconds.`);
+          else out.push(`${egg ? 'Add crushed ice and shake' : `Shake everything${except} with about 12 oz of crushed ice`} for 8–10 seconds.`);
+          out.push(serveOn());
+      }
     }
-    if (svc.method === 'flash-blend' && ['ice-cone', 'shaved'].includes(svc.ice)) out.splice(out.length - 1, 1, serveOn());
-    if (hotTop) out.push(`Top with ${hotTop.amount ? `${fracStr(hotTop.amount)} oz of ` : ''}steaming ${displayName(hotTop.id).toLowerCase()} and stir.`);
-    for (const f of fizz) out.push(`Top with the ${displayName(f.id).toLowerCase()} and give one gentle lift with the spoon.`);
-    for (const f of sinks) out.push(`Pour the ${displayName(f.id).toLowerCase()} slowly down the inside of the glass; it sinks and blushes upward. Don't stir: let the guest do it.`);
-    for (const f of floats) out.push(`Float the ${displayName(f.id).toLowerCase()} on top: pour it gently over the back of a bar spoon.`);
-    if (crowns.length) out.push(`Dash the ${list(crowns.map(b => displayName(b.id)))} over the top of the ice to form a crown.`);
-    if (intent.style.flaming) out.push('Theatrics (optional, carefully): set a spent lime half on the ice, add a sugar cube soaked in lemon extract or 151 rum, and light it with a long lighter. Keep hair, sleeves and straws clear, never pour spirit near a flame, and put the fire out before anyone drinks.');
-    if (garnish.length) out.push(`Garnish with ${list(garnish.map(x => x.replace(/\s*\(.*?\)/, '')))}.`);
+
+    // What was held back goes in last: the hot water, the topper (then the last of the ice), the
+    // sink down the wall, the float over a spoon, the bitters crown on the ice.
+    if (hotTop && !punchBowl) out.push(each ? `Top each with ${ozOf(hotTop.oz)} of steaming ${name(hotTop)} and stir.` : `Top with ${hotTop.amount ? `${fracStr(hotTop.amount)} oz of ` : ''}steaming ${name(hotTop)} and stir.`);
+    if (fizz.length) {
+      const what = list(fizz.map(name));
+      out.push(punchBowl ? `Top with the ${what} in the bowl at the last minute and give one gentle lift with the ladle.`
+        : bowl ? `Top with the ${what} in the bowl and give one gentle lift with a long spoon.`
+          : each ? `Top with ${list(fizz.map(f => `${ozOf(f.oz)} of the ${name(f)}`))} in each glass and give each one gentle lift with the spoon.`
+            : `Top with the ${what} and give one gentle lift with the spoon.`);
+      if (room) out.push(bowl ? 'Mound fresh crushed ice on top.' : each ? `Crown each with fresh ${iceKind} ice.` : `Crown with fresh ${iceKind} ice.`);
+    }
+    for (const f of sinks) {
+      const where = each ? `each ${wall}` : `the ${wall}`, amt = each ? `${ozOf(f.oz)} of the ` : 'the ';
+      out.push(opaque
+        ? `Pour ${amt}${name(f)} slowly down the inside of ${where} so it sinks to the bottom. In an opaque ${wall} the blush stays hidden until the guest stirs, so tell them it's there.`
+        : `Pour ${amt}${name(f)} slowly down the inside of ${where}; it sinks and blushes upward. Don't stir: let the guest do it.`);
+    }
+    for (const f of floats) out.push(`Float ${each ? `${ozOf(f.oz)} of the ${name(f)} on each drink` : `the ${name(f)} on top`}: pour it gently over the back of a bar spoon.`);
+    if (crowns.length) out.push(`Dash the ${list(crowns.map(b => displayName(b.id)))} over the top of the ice${each ? ' in each glass' : ''} to form a crown.`);
+    if (cups) out.push(`Ladle into punch cups, 4–5 oz each: about ${cups} cups.`);
+    const flame = garnish.find(x => /flaming/.test(x));
+    const straws = garnish.find(x => /long straws$/.test(x));
+    const dress = garnish.filter(x => x !== flame && x !== straws);
+    if (dress.length) out.push(`Garnish ${bowl ? 'the bowl ' : each ? 'each ' : ''}with ${list(dress.map(x => sayGarnish(x, dress)))}.`);
+    if (straws) out.push(`Serve with ${straws}, one per guest (about ${ozOf(poured.reduce((t, l) => t + (l.oz || 0), 0))} of the mix each).`);
+    // Fire: a flaming garnish always brings its lighting and safety step; a fire-safe bowl of
+    // crushed ice, or a prayer that asked for fire in a vessel that can take it, may have it as theater.
+    const citrus = poured.some(l => l.id === 'lime') || !poured.some(l => l.id === 'lemon') ? 'lime' : 'lemon';
+    if (flame || (intent.style.flaming && FIRE_VESSELS.has(svc.vessel) && (heap || svc.method === 'blend' || bowl) && svc.method !== 'hot')) out.push(fireStep(true, citrus, svc.vessel));
+    else if (svc.method === 'hot' && intent.style.flaming) out.push('Theater, if you like (optional, and carefully): warm a spoonful of the rum in a ladle, light it away from guests and anything that burns, let it flicker a few seconds, then blow it out and stir it in. Never pour spirit from the bottle toward a flame.');
+    else if (heap && bowl && FIRE_BOWLS.has(svc.vessel)) out.push(fireStep(false, citrus, svc.vessel));
     return out;
   }
-  // A batch total a host can measure: cups past 8 oz, ounces below, dashes stay dashes.
+  // A batch total a host can measure: cups past 8 oz, ounces below, teaspoons only for small
+  // accents, dashes and drops as such. Bitters, anise, saline and extracts scale at about ¾ past
+  // four servings (technique.md §2.18): they pile up in a big batch.
   function batchAmount(l, n) {
-    if (['dash', 'drop'].includes(l.unit)) return `${l.amount * n} ${l.unit === 'dash' ? 'dashes' : 'drops'}`;
+    const ing = ingMap.get(l.id) || {};
+    const k = n > 4 && (['dash', 'drop'].includes(l.unit) || ing.cat === 'bitters' || ['absinthe', 'pastis', 'saline', 'vanilla-extract'].includes(l.id)) ? 4 + (n - 4) * 0.75 : n;
+    if (l.unit === 'dash') { const d = Math.max(1, Math.round(l.amount * k)); return `${d} dash${d === 1 ? '' : 'es'}`; }
+    if (l.unit === 'drop') { const d = Math.max(1, Math.round(l.amount * k)); return d >= 24 ? `${fracStr(Math.round(d / 96 * 4) / 4)} tsp` : `${d} drops`; }
     if (l.unit === 'piece') return `${fracStr(l.amount * n)}`;
-    const oz = l.oz * n;
+    const oz = l.oz * k;
     if (oz >= 8) { const cups = Math.round(oz / 8 * 4) / 4; return `${fracStr(cups)} cup${cups > 1 ? 's' : ''} (${Math.round(oz)} oz)`; }
     if (oz < 0.375) return `${Math.max(1, Math.round(oz * 6))} tsp`;
     return `${fracStr(Math.round(oz * 4) / 4)} oz`;
@@ -1580,100 +1728,313 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     return base;
   }
 
-  // Research garnish notes read like "flaming lime shell (later mug service)" or "orchid or
-  // pineapple frond"; the menu gets one plain garnish per idea, nothing marked as later or optional.
-  function cleanGarnish(t) {
-    if (!t || /\b(later|optional|modern|sometimes|occasionally|if available|idea|when practical|nobody expects|in the shape of|for the guest|full tiki|the fruit|named fruit|garnish)\b/i.test(t.replace(/\(.*?\)/g, ''))) return null;
-    const s = t.replace(/\s*\(.*?\)\s*/g, ' ').split(/\s+or\s+|\s*\/\s*|;|:|,/)[0].replace(/\s+/g, ' ').trim().toLowerCase();
-    return s && s.length <= 48 && s.split(' ').length >= 2 || ['orchid', 'gardenia', 'cherry', 'umbrella'].includes(s) ? s : null;
-  }
-  const garnishKey = g => /peel|twist|zest/i.test(g) ? 'peel' : (g.match(/mint|pineapple|lime|orange|lemon|cherr|orchid|flower|gardenia|umbrella|cinnamon|nutmeg|coffee|banana|grapefruit|cucumber|basil|ginger|sugar cane|shell|straw/i) || [g])[0].toLowerCase();
-  // Garnish, the way the research says an aficionado wants it: aroma first, then one moment of
-  // theater, and it never lies. Candidates come from the archetype, the family's conventions and
-  // the prayer; a fruit garnish only signals a fruit that's in the drink (decorative flags excepted
-  // where convention allows), never one the guest refused; up drinks get one pick or peel, hot
-  // drinks nothing from the ice world, and the count fits the vessel.
-  const GARNISH_RULES = {
-    mai: { required: ['spent lime shell', 'mint sprig'], never: ['cherry', 'flag', 'umbrella'] },
-    family: {
-      'mai-tai': { required: ['spent lime shell', 'mint sprig'], typical: ['orchid'], never: ['cherry', 'flag', 'umbrella'] },
-      zombie: { required: ['mint sprig'], typical: ['cherry on a pick', 'pineapple frond'], never: ['sugar rim', 'salt rim', 'whipped cream'] },
-      grog: { typical: ['spent lime shell', 'mint sprig'], never: ['umbrella', 'orchid', 'flag'] },
-      'beachcomber-sour': { typical: ['mint sprig', 'cherry on a pick', 'orange-peel spiral'], never: ['umbrella'] },
-      swizzle: { required: ['mint sprig'], typical: ['swizzle stick'], never: ['umbrella', 'flag', 'cherry'] },
-      daiquiri: { typical: ['lime wheel', 'grapefruit twist'], never: ['mint bouquet', 'umbrella', 'pineapple wedge', 'sugar rim'] },
-      'orgeat-punch': { typical: ['gardenia', 'orchid', 'mint sprig'], never: ['whipped cream'] },
-      colada: { required: ['pineapple wedge'], typical: ['maraschino cherry', 'grated nutmeg', 'paper umbrella'], never: ['mint bouquet'] },
-      'resort-punch': { typical: ['paper umbrella', 'orchid', 'pineapple wedge', 'maraschino cherry', 'orange half-wheel'] },
-      punch: { typical: ['grated nutmeg', 'lime wheel', 'mint sprig', 'orange half-wheel'], never: ['sugar rim'] },
-      buck: { required: ['lime wheel'], typical: ['candied ginger', 'mint sprig'], never: ['umbrella', 'nutmeg', 'cherry'] },
-      'bitter-tiki': { typical: ['pineapple wedge', 'orchid', 'mint sprig'], never: ['whipped cream', 'nutmeg'] },
-      stirred: { required: ['expressed orange peel'], typical: ['cherry on a pick'], never: ['mint bouquet', 'umbrella'] },
-      hot: { required: ['freshly grated nutmeg'], typical: ['cinnamon stick', 'clove-studded lemon peel'], never: ['umbrella', 'mint', 'pineapple', 'lime wheel'] },
-    },
+  // ---------- garnish ----------
+  // The card's garnish comes from a controlled vocabulary: concrete things a bartender puts on a
+  // drink and the drawing can show (web/lib/artspec.js reads the same phrases). Each entry says
+  // what it competes with (one mint, one cherry, one flower, one dust...), which poured
+  // ingredient a fruit garnish needs to tell the truth (`fruit`), what refusing it sounds like
+  // (`tags`), and where it can go: `up` fits a stemmed glass (a rim wheel, a peel, a pick, a
+  // dust), `hot` fits a hot drink, `aroma` is smelled on every sip, `heap` needs a crushed-ice
+  // dome, `only` names the archetypes it belongs to. Without `fruit` it is decorative: cherries,
+  // umbrellas, mint, flowers and spice need no matching bottle.
+  const ORANGE_OIL = ['orange', 'orange-curacao', 'triple-sec', 'blue-curacao', 'orange-bitters'];
+  const LIME = ['lime', 'lime-cordial'], PINE = ['pineapple-juice', 'rum-pineapple', 'pineapple-syrup'];
+  const GV = {
+    'mint sprig': { keys: ['mint'], tags: ['mint'], aroma: 1 },
+    'mint bouquet': { keys: ['mint'], tags: ['mint'], aroma: 1, heap: 1 },
+    'basil sprig': { keys: ['herb'], fruit: ['basil'], tags: ['basil'], aroma: 1 },
+    'freshly grated nutmeg': { keys: ['dust'], tags: ['nutmeg'], aroma: 1, up: 1, hot: 1 },
+    'heavy nutmeg cap': { keys: ['dust'], tags: ['nutmeg'], aroma: 1, hot: 1, only: ['painkiller'] },
+    'a dusting of cinnamon': { keys: ['dust'], tags: ['cinnamon'], aroma: 1, up: 1, hot: 1 },
+    'grated chocolate': { keys: ['dust'], fruit: ['creme-de-cacao', 'white-creme-de-cacao'], tags: ['chocolate'], up: 1, hot: 1 },
+    'toasted coconut flakes': { keys: ['dust'], fruit: ['coconut-cream', 'coconut-milk', 'coconut-water', 'coconut-rum'], tags: ['coconut'], up: 1 },
+    'cinnamon stick': { keys: ['cinnamon'], tags: ['cinnamon'], aroma: 1, hot: 1 },
+    'expressed orange peel': { keys: ['orange'], fruit: ORANGE_OIL, tags: ['orange'], aroma: 1, up: 1, hot: 1 },
+    'expressed lemon peel': { keys: ['lemon'], fruit: ['lemon'], tags: ['lemon'], aroma: 1, up: 1, hot: 1 },
+    'expressed lime peel': { keys: ['lime'], fruit: LIME, tags: ['lime'], aroma: 1, up: 1 },
+    'grapefruit twist': { keys: ['grapefruit'], fruit: ['grapefruit', 'dons-mix', 'grapefruit-soda'], tags: ['grapefruit'], aroma: 1, up: 1 },
+    'long orange-peel spiral': { keys: ['orange'], fruit: ORANGE_OIL, tags: ['orange'], aroma: 1, clear: 1 },
+    'clove-studded lemon wheel': { keys: ['lemon'], fruit: ['lemon'], tags: ['lemon', 'clove'], aroma: 1, hot: 1, hotOnly: 1 },
+    'clove-studded orange peel': { keys: ['orange'], fruit: ORANGE_OIL, tags: ['orange', 'clove'], aroma: 1, hot: 1, hotOnly: 1 },
+    'lemon-peel ring around a cherry': { keys: ['lemon', 'cherry'], fruit: ['lemon'], tags: ['lemon', 'cherry'], aroma: 1, up: 1 },
+    'spent lime shell': { keys: ['lime'], fruit: ['lime'], tags: ['lime'], aroma: 1 },
+    'flaming lime shell': { keys: ['lime', 'fire'], fruit: ['lime'], tags: ['lime'], fire: 1 },
+    'lime wheel': { keys: ['lime'], fruit: LIME, tags: ['lime'], up: 1 },
+    'lime wedge': { keys: ['lime'], fruit: LIME, tags: ['lime'] },
+    'lime coin in the glass': { keys: ['lime'], fruit: ['lime'], tags: ['lime'], only: ['ti-punch'] },
+    'lime wedges in the glass': { keys: ['lime'], fruit: ['lime'], tags: ['lime'], only: ['caipirinha'] },
+    'lemon wheel': { keys: ['lemon'], fruit: ['lemon'], tags: ['lemon'], up: 1 },
+    'orange wheel': { keys: ['orange'], fruit: ['orange'], tags: ['orange'], up: 1 },
+    'lime wheels floating': { keys: ['lime'], fruit: LIME, tags: ['lime'] },
+    'lemon wheels floating': { keys: ['lemon'], fruit: ['lemon'], tags: ['lemon'] },
+    'orange wheels floating': { keys: ['orange'], fruit: ['orange'], tags: ['orange'] },
+    'orange slice and cherry flag': { keys: ['orange', 'cherry'], fruit: ['orange'], tags: ['orange', 'cherry'] },
+    'pineapple wedge': { keys: ['pineapple'], fruit: PINE, tags: ['pineapple'] },
+    'pineapple wedge and fronds': { keys: ['pineapple'], fruit: PINE, tags: ['pineapple'] },
+    'pineapple frond': { keys: ['pineapple'], fruit: PINE, tags: ['pineapple'] },
+    'pineapple spear': { keys: ['pineapple'], fruit: PINE, tags: ['pineapple'] },
+    'pineapple chunk and cherry on a pick': { keys: ['pineapple', 'cherry'], fruit: PINE, tags: ['pineapple', 'cherry'], up: 1 },
+    'banana coin on a pick': { keys: ['banana'], fruit: ['banana', 'banana-liqueur'], tags: ['banana'], up: 1 },
+    'strawberry on the rim': { keys: ['strawberry'], fruit: ['strawberry'], tags: ['strawberry'], up: 1 },
+    'passion fruit half': { keys: ['passion'], fruit: ['passion-fruit-juice', 'passion-fruit-syrup', 'passion-fruit-nectar', 'passion-fruit-liqueur', 'fassionola'], tags: ['passion-fruit'] },
+    'mango slice': { keys: ['mango'], fruit: ['mango-nectar'], tags: ['mango'], up: 1 },
+    'cucumber ribbon': { keys: ['cucumber'], fruit: ['cucumber'], tags: ['cucumber'] },
+    'candied ginger on a pick': { keys: ['ginger'], fruit: ['ginger-beer', 'ginger-ale', 'ginger-syrup', 'ginger-liqueur', 'ginger-fresh'], tags: ['ginger'], up: 1 },
+    'three coffee beans': { keys: ['coffee'], fruit: ['coffee', 'coffee-liqueur'], tags: ['coffee'], up: 1, hot: 1 },
+    // Decorative: no bottle needed, but never one the guest refused.
+    'cherry on a pick': { keys: ['cherry'], tags: ['cherry'], up: 1 },
+    cherry: { keys: ['cherry'], tags: ['cherry'] },
+    // The Morse pick (· · · —) is the Three Dots' identity; Don's pineapple chunk is decorative there.
+    'three cherries and a pineapple chunk on a pick': { keys: ['cherry', 'pineapple'], tags: ['cherry', 'pineapple'], up: 1, only: ['beachcomber-spice-sour'] },
+    'paper umbrella': { keys: ['umbrella'] },
+    orchid: { keys: ['flower'], flower: 1 },
+    gardenia: { keys: ['flower'], tags: ['floral'], flower: 1 },
+    'edible flower': { keys: ['flower'], tags: ['floral'], flower: 1 },
+    'swizzle stick left in': { keys: ['stick'] },
+    'stir stick': { keys: ['stick'] },
+    'sugar-cane stick': { keys: ['stick'], only: ['hawaiian-mai-tai'] },
+    'bamboo back-scratcher': { keys: ['stick'], only: ['tropical-itch'] },
+    'whipped cream': { keys: ['cream'], only: ['bushwacker'] },
+    'pineapple crown lid': { keys: ['lid'], tags: ['pineapple'] },
+    // Service the card names: the Navy Grog's cone, the Beachcomber's Gold shell, a bowl's straws.
+    'straw through the ice cone': { keys: ['cone'], service: 1 },
+    'shaved-ice shell lining the glass': { keys: ['shell-ice'], up: 1 },
   };
-  // A fruit garnish says "this fruit is in the drink".
-  const SIGNALS = [
-    [/pineapple/i, ['pineapple-juice', 'rum-pineapple']], [/orange (wheel|half|slice)|orange-peel|orange peel|orange twist/i, ['orange', 'orange-curacao', 'triple-sec', 'blue-curacao']],
-    [/lime (wheel|wedge)|spent lime|lime shell/i, ['lime', 'lime-cordial']], [/lemon/i, ['lemon']], [/grapefruit/i, ['grapefruit', 'dons-mix']],
-    [/banana/i, ['banana', 'banana-liqueur']], [/strawberr/i, ['strawberry']], [/passion/i, ['passion-fruit-juice', 'passion-fruit-syrup', 'passion-fruit-nectar', 'passion-fruit-liqueur', 'fassionola']],
-    [/coffee bean/i, ['coffee', 'coffee-liqueur']], [/cucumber/i, ['cucumber']], [/candied ginger|ginger/i, ['ginger-beer', 'ginger-syrup', 'ginger-liqueur', 'ginger-ale']],
+  // Free text (research notes, prayer ideas) read into the vocabulary, first match wins.
+  // A function resolves against the drink: "citrus twist" becomes the peel of a citrus that's in it.
+  const READ = [
+    [/three cherr|morse|three dots/, 'three cherries and a pineapple chunk on a pick'],
+    [/flaming|crater/, 'flaming lime shell'],
+    [/ice cone|cone of/, 'straw through the ice cone'],
+    [/ice shell|lined with|lining the/, 'shaved-ice shell lining the glass'],
+    [/crown lid|hollowed pineapple/, 'pineapple crown lid'],
+    [/back-?scratcher/, 'bamboo back-scratcher'],
+    [/spiral|horse'?s neck|peel snake/, 'long orange-peel spiral'],
+    [/ring around a cherry|saturn|lemon-peel ring/, 'lemon-peel ring around a cherry'],
+    [/clove/, s => (/lemon/.test(s) ? 'clove-studded lemon wheel' : 'clove-studded orange peel')],
+    [/lime (half[- ]?)?shell|spent (lime )?(half[- ]?)?shell|lime hull/, 'spent lime shell'],
+    [/\bflag\b|orange (wheel|slice|half[- ]?wheel)\b.*cherr|cherr.*orange (wheel|slice)/, 'orange slice and cherry flag'],
+    [/mint (bouquet|bunch|crown|sprigs)|bouquet|big .*mint/, 'mint bouquet'],
+    [/mint/, 'mint sprig'],
+    [/basil/, 'basil sprig'],
+    [/pineapple (stick|chunk|cube).*cherr|cherr.*pineapple (stick|chunk)/, 'pineapple chunk and cherry on a pick'],
+    [/pineapple (wedge|slice|crescent).*frond/, 'pineapple wedge and fronds'],
+    [/pineapple (wedge|slice|crescent)|^(a )?pineapple$/, 'pineapple wedge'],
+    [/pineapple (frond|leaf|leaves|crown)/, 'pineapple frond'],
+    [/pineapple (spear|stick|chunk)/, 'pineapple spear'],
+    [/nutmeg/, 'freshly grated nutmeg'],
+    [/cinnamon (stick|quill)/, 'cinnamon stick'],
+    [/cinnamon/, 'a dusting of cinnamon'],
+    [/chocolate|cocoa/, 'grated chocolate'],
+    [/coconut/, 'toasted coconut flakes'],
+    [/gardenia/, 'gardenia'],
+    [/orchid|dendrobium/, 'orchid'],
+    [/edible flower|hibiscus flower|plumeria|\bflowers?\b|petal|borage|viola/, 'edible flower'],
+    [/umbrella|parasol/, 'paper umbrella'],
+    [/swizzle stick|bois l/, 'swizzle stick left in'],
+    [/stir stick|stirrer/, 'stir stick'],
+    [/sugar[- ]?cane/, 'sugar-cane stick'],
+    [/whipped cream/, 'whipped cream'],
+    [/coffee bean/, 'three coffee beans'],
+    [/candied ginger|ginger coin/, 'candied ginger on a pick'],
+    [/banana/, 'banana coin on a pick'],
+    [/strawberr/, 'strawberry on the rim'],
+    [/passion/, 'passion fruit half'],
+    [/mango/, 'mango slice'],
+    [/cucumber/, 'cucumber ribbon'],
+    [/lime coin/, 'lime coin in the glass'],
+    [/lime wedges? (stay|in the glass|muddled)/, 'lime wedges in the glass'],
+    [/lime (wheel|slice|disc)|dehydrated lime/, 'lime wheel'],
+    [/(orange|lemon|lime|grapefruit|citrus)( zest)? (twist|peel|zest)|twist|expressed|\bpeel\b|\bzest\b/, (s, has) => {
+      const named = ['orange', 'lemon', 'lime', 'grapefruit'].filter(c => s.includes(c));
+      const PEEL = { orange: 'expressed orange peel', lemon: 'expressed lemon peel', lime: 'expressed lime peel', grapefruit: 'grapefruit twist' };
+      // "citrus twist": the peel of a citrus that is in the drink
+      const c = named.find(x => GV[PEEL[x]].fruit.some(has)) || named[0] || ['orange', 'lemon', 'lime', 'grapefruit'].find(x => GV[PEEL[x]].fruit.some(has)) || 'orange';
+      return PEEL[c];
+    }],
+    [/lime (wedge|crescent)|^(a )?lime$/, 'lime wedge'],
+    [/lemon (wheel|slice)s?/, 'lemon wheel'],
+    [/orange (wheel|slice|half[- ]?wheel|half)|^(an )?orange$/, 'orange wheel'],
+    [/grapefruit/, 'grapefruit twist'],
+    [/cherr/, 'cherry on a pick'],
   ];
-  const DECORATIVE_OK = new Set(['punch', 'resort-punch', 'beachcomber-sour', 'zombie', 'colada', 'bitter-tiki']);
-  const FIRE_VESSELS = new Set(['ku-mug', 'moai-mug', 'skull-mug', 'barrel-mug', 'fog-cutter-mug', 'tiki-bowl', 'volcano-bowl', 'scorpion-bowl', 'coconut', 'pineapple', 'snifter']);
+  // Never on a card: rims, ice blocks (the steps handle ice), novelties, "none", vague fruit.
+  const NOT_GARNISH = /\b(none|no garnish|seasonal|salt|salted rim|sugar rim|sugared|crumb|li hing|glitter|monkey|napkin|glow|gummy|lantern|envelope|skull|foil|lei)\b|cinnamon[- ](sugar )?rim|ice (block|cube)|block of ice|large .*ice/;
+  // Research notes read like "citrus twist (orange or lime), expressed", "grated nutmeg or an
+  // Angostura top" or "pineapple stick + cherry (Honi Honi)"; each becomes plain vocabulary
+  // phrases: the first alternative that reads, every part of a combination. Placeholders resolve
+  // to real things: "the named fruit" to the fruit that's poured, "full tiki garnish" to a mint
+  // bouquet, an orchid and a frond fan (each still checked against the glass).
+  function cleanGarnish(t, has = () => false) {
+    const s = String(t || '').toLowerCase().replace(/\(.*?\)/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!s || NOT_GARNISH.test(s)) return [];
+    if (/full tiki/.test(s)) return ['mint bouquet', 'orchid', 'pineapple frond'];
+    if (/the (named )?fruit|named fruit/.test(s)) {
+      const named = [[['banana', 'banana-liqueur'], 'banana coin on a pick'], [['strawberry'], 'strawberry on the rim'], [GV['passion fruit half'].fruit, 'passion fruit half'], [['mango-nectar'], 'mango slice'], [PINE, 'pineapple wedge']].find(([ids]) => ids.some(has));
+      return named ? [named[1]] : [];
+    }
+    const read = x => { const hit = READ.find(([re]) => re.test(x)); return hit ? (typeof hit[1] === 'function' ? hit[1](x, has) : hit[1]) : null; };
+    // A combination the vocabulary names whole (a flag, the Morse pick, a wedge with its fronds).
+    const whole = read(s);
+    if (whole && /(\band\b|\+)/.test(s) && /and|on a pick/.test(whole)) return [whole];
+    for (const alt of s.split(/\s+or\s+|\s*\/\s*/)) {
+      const got = alt.split(/\s*(?:,|\+|;|:|\band\b)\s*/).map(read).filter(Boolean);
+      if (got.length) return [...new Set(got)];
+    }
+    return [];
+  }
+  // The family conventions (technique.md §4.2), in vocabulary words. `never` is matched as words.
+  const GARNISH_RULES = {
+    'mai-tai': { required: ['spent lime shell', 'mint sprig'], never: ['cherry', 'flag', 'umbrella'] },
+    zombie: { required: ['mint sprig'], typical: ['cherry on a pick', 'pineapple frond'], never: ['umbrella', 'whipped cream'] },
+    grog: { typical: ['spent lime shell', 'mint sprig'], never: ['umbrella', 'orchid', 'flag'] },
+    'beachcomber-sour': { typical: ['mint sprig', 'cherry on a pick', 'gardenia'], never: ['umbrella', 'cream'] },
+    swizzle: { required: ['mint sprig'], typical: ['swizzle stick left in'], never: ['umbrella', 'flag', 'cherry'] },
+    daiquiri: { typical: ['lime wheel', 'grapefruit twist'], never: ['bouquet', 'umbrella', 'pineapple wedge'] },
+    'orgeat-punch': { typical: ['gardenia', 'orchid', 'mint sprig'], never: ['whipped cream'] },
+    colada: { required: ['pineapple wedge'], typical: ['cherry on a pick', 'paper umbrella', 'orchid'], never: ['bouquet', 'swizzle'] },
+    'resort-punch': { typical: ['paper umbrella', 'orchid', 'pineapple wedge', 'cherry on a pick', 'orange wheel'] },
+    punch: { typical: ['freshly grated nutmeg', 'lime wheel', 'mint sprig', 'orange wheel'] },
+    buck: { required: ['lime wheel'], typical: ['candied ginger on a pick', 'mint sprig'], never: ['umbrella', 'nutmeg', 'cherry'] },
+    'bitter-tiki': { typical: ['pineapple wedge and fronds', 'orchid', 'mint sprig'], never: ['whipped cream', 'nutmeg'] },
+    stirred: { required: ['expressed orange peel'], typical: ['cherry on a pick'], never: ['mint', 'umbrella'] },
+    hot: { required: ['freshly grated nutmeg'], typical: ['cinnamon stick', 'clove-studded lemon wheel'], never: ['umbrella', 'mint', 'pineapple', 'lime', 'cherry', 'orchid'] },
+  };
+  // The signature serves (presentation.md §2.1): the canonical garnish of a classic, in order.
+  // Each item is still checked against the glass (no frond on a Zombie without pineapple).
+  function canonicalGarnish(A, has) {
+    switch (A.id) {
+      case 'mai-tai': return ['spent lime shell', 'mint sprig'];
+      case 'navy-grog': return ['straw through the ice cone', 'mint sprig', 'spent lime shell'];
+      case 'painkiller': return ['heavy nutmeg cap', 'orange wheel', 'cherry'];
+      case 'trinidad-swizzle': return ['mint sprig', 'swizzle stick left in'];
+      case 'zombie': return ['mint sprig', 'pineapple frond', 'cherry on a pick'];
+      // Three Dots and a Dash spells V in cherries and pineapple; the Nui Nui gets its long spiral.
+      case 'beachcomber-spice-sour': return has('cinnamon-syrup') || has('dons-spices-2') ? ['long orange-peel spiral', 'mint sprig'] : ['three cherries and a pineapple chunk on a pick', 'mint sprig'];
+      // Vic's Scorpion is "bedecked with gardenias"; the flame is optional theater in the steps.
+      case 'scorpion': case 'scorpion-bowl': return ['gardenia', 'mint sprig'];
+      case 'volcano-bowl': return ['flaming lime shell', 'mint sprig'];
+      // The flag needs orange in the glass; Berry's lemon-and-passion Hurricane gets a lemon wheel.
+      case 'hurricane': return has('orange') ? ['orange slice and cherry flag'] : ['lemon wheel', 'paper umbrella', 'cherry on a pick'];
+      case 'hot-buttered-rum': return ['cinnamon stick', 'freshly grated nutmeg'];
+      case 'tom-and-jerry': return ['freshly grated nutmeg'];
+      case 'hot-grog': return ['clove-studded lemon wheel', 'cinnamon stick', 'freshly grated nutmeg'];
+      case 'hot-rum-punch': return ['expressed lemon peel', 'freshly grated nutmeg'];
+      default: return null;
+    }
+  }
+  // Prayers that ask for restraint get one garnish: elegance, precision, a first date.
+  const RESTRAINED = new Set(['sophisticated', 'first-date', 'boss-client', 'minimalist', 'japan-tokyo', 'robot', 'bamboo', 'cuba-havana']);
+  // Fire needs a wide, fire-safe vessel: a bowl or a wide mug, never a narrow glass or a coupe.
+  // Unasked, only the Volcano Bowl's crater burns (it is named for the flame).
+  const FIRE_VESSELS = new Set(['ku-mug', 'moai-mug', 'skull-mug', 'barrel-mug', 'fog-cutter-mug', 'tiki-bowl', 'volcano-bowl', 'scorpion-bowl', 'coconut', 'pineapple', 'snifter', 'goblet']);
+  const FIRE_BOWLS = new Set(['volcano-bowl', 'tiki-bowl', 'scorpion-bowl']);
+  const NUMBER = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+  const numberWord = k => NUMBER[k] || String(k);
+  // Garnish, the way the research says an aficionado wants it: aroma first, then one moment of
+  // theater, and it never lies. Candidates: the classic's own garnish, or the archetype's and the
+  // family's required ones; the aromatics the drink is built around; the prayer's ideas; then
+  // the typical ones. Every candidate is a vocabulary phrase checked against the glass, the
+  // guest's refusals and the service, and the count fits it: an up drink holds exactly one rim,
+  // peel, pick or dust; rocks one; crushed-ice tiki up to three with one aromatic; a shared
+  // bowl up to four including a straw per guest; hot drinks spice and peel; a restrained prayer one.
   function chooseGarnish(A, intent, lines, flavorTop, svc, vessel) {
     const g = A.garnish || {};
-    const fam = GARNISH_RULES.family[A.family] || {};
-    const ids = new Set(lines.filter(l => !l.garnish || l.muddled).map(l => l.id));
+    const fam = GARNISH_RULES[A.family] || {};
+    const poured = new Set(lines.filter(l => !l.garnish || l.muddled || l.role === 'aromatic').map(l => l.id));
+    const has = id => poured.has(id);
     const vid = vessel ? vessel.id : '';
-    const service = svc.up ? 'up' : svc.method === 'hot' ? 'hot' : vessel && vessel.serve.includes('bowl') ? 'bowl'
-      : ['coconut', 'pineapple'].includes(vid) ? 'fruit-vessel' : /mug/.test(vid) ? 'mug'
-        : vessel && vessel.capacity >= 12 ? 'tall' : ['crushed', 'pebble', 'shaved', 'ice-cone'].includes(svc.ice) ? 'short-crushed' : 'rocks';
-    const max = { up: 1, rocks: 1, 'short-crushed': 2, tall: 3, mug: 3, 'fruit-vessel': 3, bowl: 4, hot: 2 }[service];
-    const never = [...(g.never || []), ...(fam.never || [])].map(x => x.toLowerCase().replace(/\s*\(.*?\)/g, ''));
-    const avoided = id => intent.avoidIngs.has(id) || Object.entries(intent.avoidTags).some(([t, w]) => w >= 1 && ((ingMap.get(id) || {}).flavors || []).includes(t));
+    const n = intent.servings > 1 ? intent.servings : 1;
+    const bowl = !!(vessel && vessel.serve.includes('bowl'));
+    const punchBowl = vid === 'punch-bowl';
+    const upGlass = !!svc.up || !!(vessel && vessel.serve.includes('up'));
+    const heaped = ['crushed', 'pebble', 'shaved', 'ice-cone'].includes(svc.ice) || ['flash-blend', 'swizzle'].includes(svc.method);
+    const frozen = svc.method === 'blend' || svc.ice === 'blended';
+    const service = upGlass ? 'up' : svc.method === 'hot' ? 'hot' : bowl ? 'bowl' : ['coconut', 'pineapple'].includes(vid) ? 'fruit-vessel'
+      : frozen ? 'frozen' : heaped ? 'crushed' : vessel && vessel.kind !== 'glass' ? 'mug' : vessel && vessel.capacity >= 10 && !['dof', 'rocks'].includes(vid) ? 'tall' : 'rocks';
+    const restrained = (intent.concepts || []).some(c => RESTRAINED.has(c));
+    const straws = bowl && !punchBowl && n > 1 ? `${numberWord(n)} long straws` : null;
+    const max = (restrained ? 1 : { up: 1, rocks: 1, crushed: 3, frozen: 3, tall: 3, mug: 3, 'fruit-vessel': 3, bowl: 4, hot: 2 }[service]) - (straws && !restrained ? 1 : 0);
+    const never = [...(g.never || []), ...(fam.never || [])].map(x => x.toLowerCase().replace(/\s*\(.*?\)/g, '').trim());
+    // Refused: the guest said no to what it is ("no pineapple" rules out the frond too).
+    const CITRUS = ['lime', 'lemon', 'orange', 'grapefruit'];
+    const refused = E => [...(E.tags || []), ...(E.keys.some(k => CITRUS.includes(k)) ? ['citrus'] : [])].some(t => (intent.avoidTags[t] || 0) >= 1)
+      || !!(E.fruit && intent.avoidIngs.has(E.fruit[0]));
+    const rich = lines.some(l => ['coconut-cream', 'coconut-milk', 'heavy-cream', 'half-and-half', 'vanilla-ice-cream', 'egg-white', 'whole-egg', 'banana', 'irish-cream'].includes(l.id));
+    const opaque = OPAQUE_VESSELS.has(vid) || (vessel && vessel.kind !== 'glass');
+    // Fire: asked for, or the Volcano Bowl's own crater; on a crushed or frozen cap in a vessel that can take it.
+    const fireSafe = FIRE_VESSELS.has(vid) && !never.some(x => /fire|flam/.test(x)) && (heaped || frozen || bowl) && service !== 'hot';
+    const fireOk = fireSafe && (intent.style.flaming || (A.id === 'volcano-bowl' && FIRE_BOWLS.has(vid)));
+    const sink = lines.some(l => l.sink);
     const ok = x => {
-      if (!x) return false;
-      if (never.some(n => n && (x.includes(n) || (n.split(' ').length === 1 && x.split(' ').includes(n))))) return false;
-      for (const [re, sig] of SIGNALS) if (re.test(x)) {
-        if (sig.some(avoided)) return false;
-        const decorative = /frond|flag|cherry|pick/.test(x) && !/wedge|spear|chunk|slice|wheel/.test(x) && DECORATIVE_OK.has(A.family);
-        if (!sig.some(id => ids.has(id)) && !decorative) return false;
-      }
-      if (service === 'up' && /bouquet|umbrella|wedge|flaming|straw|orchid|frond|ice cone/.test(x)) return false;
-      if (service === 'hot' && /ice|mint|umbrella|pineapple|lime wheel|straw/.test(x)) return false;
-      if (svc.ice !== 'ice-cone' && /ice cone/.test(x)) return false;
-      if (/flaming/.test(x) && !(intent.style.flaming && FIRE_VESSELS.has(vid))) return false;
+      const E = GV[x];
+      if (!E || refused(E)) return false;
+      if (E.only && !E.only.includes(A.id)) return false;
+      if (never.some(w => w && (x.includes(w) || (!w.includes(' ') && x.split(/[\s-]/).includes(w))))) return false;
+      // Truth: a fruit garnish shows only fruit that is poured. An expressed orange peel on a
+      // stirred drink is the classic seasoning itself (its oil is the point), not a promise.
+      if (E.fruit && !E.fruit.some(has) && !(A.family === 'stirred' && x === 'expressed orange peel')) return false;
+      if (service === 'up') { if (!E.up || (/nutmeg|cinnamon/.test(x) && !rich)) return false; }
+      if (service === 'hot' ? !E.hot : E.hotOnly) return false;
+      if (E.heap && !['crushed', 'frozen', 'bowl', 'fruit-vessel'].includes(service)) return false;
+      if (E.clear && opaque) return false;
+      if (E.fire && !fireOk) return false;
+      if (x === 'paper umbrella' && (['rocks', 'hot', 'up'].includes(service) || svc.method === 'stir')) return false;
+      if (x === 'straw through the ice cone' && svc.ice !== 'ice-cone') return false;
+      if (x === 'shaved-ice shell lining the glass' && !(upGlass && svc.ice === 'shaved')) return false;
+      if (x === 'pineapple crown lid' && vid !== 'pineapple') return false;
+      if (x === 'swizzle stick left in' && svc.method !== 'swizzle' && A.id !== 'ti-punch') return false;
+      if (x === 'stir stick' && !sink) return false;
+      // A ladled punch bowl takes what floats or dusts: no picks, rims, sticks or straws.
+      if (punchBowl && !(/floating|nutmeg|dusting|grated|toasted|mint|orchid|gardenia|edible flower/.test(x))) return false;
       return true;
     };
-    const out = [];
-    const add = x => { const c = cleanGarnish(x); if (ok(c) && out.length < max && !out.some(o => garnishKey(o) === garnishKey(c))) out.push(c); };
-    if (svc.ice === 'ice-cone') add('straw through the ice cone');
-    for (const r of [...(g.required || []), ...(fam.required || [])]) add(r);
+    const out = [], kept = new Set();
+    const counted = () => out.filter(x => !GV[x].service).length;
+    const add = (x, keep = false) => {
+      if (punchBowl && /^(lime|lemon|orange) wheel$/.test(x)) x = `${x}s floating`;
+      if (!ok(x) || out.includes(x) || out.some(o => GV[o].keys.some(k => GV[x].keys.includes(k)))) return;
+      if (!GV[x].service && counted() >= max) return;
+      out.push(x);
+      if (keep) kept.add(x);
+    };
+    const addAll = (list, keep) => { for (const t of list) for (const x of cleanGarnish(t, has)) add(x, keep); };
+    if (svc.ice === 'ice-cone') add('straw through the ice cone', true);
+    const canon = canonicalGarnish(A, has);
+    if (canon) for (const x of canon) add(x, true);
+    else addAll([...(g.required || []), ...(fam.required || [])], true);
     // Aromatics the drink is built around (mint on a Mai Tai, nutmeg on a Painkiller).
-    const AROMA_WORD = { mint: 'mint sprig', nutmeg: 'freshly grated nutmeg', cinnamon: 'cinnamon stick', clove: 'clove-studded orange peel', basil: 'basil sprig', 'ginger-fresh': 'ginger coin' };
-    for (const l of lines) if (l.role === 'aromatic' && !l.muddled && AROMA_WORD[l.id]) add(AROMA_WORD[l.id]);
-    if (intent.style.flaming && FIRE_VESSELS.has(vid)) add('flaming lime shell');
-    for (const idea of intent.garnishIdeas || []) if (DRAWABLE_GARNISH.test(idea)) add(idea);
-    for (const t of [...(g.typical || []), ...(fam.typical || [])]) add(t);
-    if (!out.length) for (const t of garnishFor(A.family, intent, lines, flavorTop)) add(t);
-    if (!out.length && service === 'up') add(ids.has('lime') ? 'lime wheel' : ids.has('lemon') ? 'lemon twist' : 'orange twist');
+    const AROMA_WORD = { mint: 'mint sprig', nutmeg: 'freshly grated nutmeg', cinnamon: 'cinnamon stick', basil: 'basil sprig', cucumber: 'cucumber ribbon', clove: 'clove-studded lemon wheel' };
+    if (!canon) for (const l of lines) if (l.role === 'aromatic' && !l.muddled && AROMA_WORD[l.id]) add(AROMA_WORD[l.id]);
+    if (fireOk) add('flaming lime shell', true);
+    // The prayer's own ideas, except on a hot classic: its spice is the whole point.
+    if (!(canon && service === 'hot')) addAll(intent.garnishIdeas || []);
+    if (!canon) addAll([...(g.typical || []), ...(fam.typical || [])]);
+    if (!counted()) addAll(garnishFor(A.family, intent, lines, flavorTop));
+    // Crushed-ice tiki carries one aromatic, next to the straw where the nose goes.
+    if (['crushed', 'bowl'].includes(service) && !punchBowl && max > 1 && !out.some(x => GV[x].aroma)) {
+      for (const a of ['mint sprig', 'expressed orange peel', 'expressed lemon peel', 'expressed lime peel', 'grapefruit twist', 'freshly grated nutmeg']) {
+        if (!ok(a)) continue;
+        // full: make room by dropping the last thing that isn't the archetype's own
+        const drop = counted() >= max ? [...out].reverse().find(x => !GV[x].service && !kept.has(x)) || [...out].reverse().find(x => !GV[x].service) : null;
+        const at = drop ? out.indexOf(drop) : -1;
+        if (drop) out.splice(at, 1);
+        const before = out.length;
+        add(a);
+        if (out.length > before) break;
+        if (drop) out.splice(at, 0, drop);
+      }
+    }
+    // Nothing that burns near the flame: no umbrella or flower within reach, no mint bouquet.
+    if (out.includes('flaming lime shell') || (fireSafe && intent.style.flaming)) {
+      for (const x of [...out]) if (x === 'paper umbrella' || GV[x].flower) out.splice(out.indexOf(x), 1);
+      if (out.includes('mint bouquet')) out.splice(out.indexOf('mint bouquet'), 1, 'mint sprig');
+    }
+    // A stemmed glass always gets its one small thing.
+    if (service === 'up' && !counted()) for (const x of ['lime wheel', 'lemon wheel', 'orange wheel', 'expressed orange peel', 'expressed lemon peel', 'grapefruit twist', 'cherry on a pick']) add(x);
+    if (straws) out.push(straws);
     return out;
   }
-
-  function garnishForArchetype(A, intent, lines, flavorTop) {
-    const g = A.garnish || {};
-    const never = (g.never || []).map(x => x.toLowerCase());
-    const ok = x => x && !never.some(n => x.includes(n));
-    const out = [];
-    const add = x => { const c = cleanGarnish(x); if (ok(c) && out.length < 3 && !out.some(o => garnishKey(o) === garnishKey(c))) out.push(c); };
-    for (const r of g.required || []) add(r);
-    for (const idea of intent.garnishIdeas || []) if (DRAWABLE_GARNISH.test(idea)) add(idea);
-    for (const t of g.typical || []) add(t);
-    if (!out.length) for (const t of garnishFor(A.family, intent, lines, flavorTop)) add(t);
-    return out;
-  }
-  const DRAWABLE_GARNISH = /mint|pineapple|lime|orange|cherr|orchid|flower|umbrella|cinnamon|nutmeg|coffee bean|peel|twist|shell/i;
 
   function tagline(recipe, intent) {
     const fam = famById[recipe.family.id];
