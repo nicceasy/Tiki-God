@@ -247,7 +247,11 @@ export function createCopywriter({ ingMap, ingVec }) {
     const MOOD_COLOR = { red: 'red', ruby: 'red', crimson: 'red', scarlet: 'red', blue: 'blue', turquoise: 'blue', green: 'green', jade: 'green', gold: 'gold', golden: 'gold', pink: 'pink', purple: 'purple', violet: 'purple', black: 'dark', orange: 'orange' };
     const moodOk = m => !Object.entries(MOOD_COLOR).some(([w, c]) => new RegExp(`\\b${w}\\b`, 'i').test(m) && !(look && showsColor({ body: look.body, layers: [] }, c)));
     // Hawaiian and other Polynesian words are never decoration on the menu either.
-    const mood = (intent.taglineWords || []).find(m => m && moodOk(m) && !POLY.test(m));
+    // A mood that describes the build ("the sunrise sunk to the bottom") must be true of it.
+    const kinds = new Set(((look && look.layers) || []).map(x => x.kind));
+    const warmSink = ((look && look.layers) || []).some(x => x.kind === 'sink' && (showsColor({ body: { hex: x.hex }, layers: [] }, 'red') || showsColor({ body: { hex: x.hex }, layers: [] }, 'orange') || showsColor({ body: { hex: '#ffffff' }, layers: [{ kind: 'sink', hex: x.hex, frac: 0.2 }] }, 'red')));
+    const structOk = m => !(/sunrise|sunset|dawn|dusk/i.test(m) && /sunk|sink|bottom|settl|bleed/i.test(m) && !warmSink) && !(/sunk|sink|bottom of the glass|settl/i.test(m) && !kinds.has('sink')) && !(/float|on top/i.test(m) && !kinds.has('float')) && !(/layer|gradient|band|ombr/i.test(m) && !kinds.size) && !(/froth|foam/i.test(m) && !kinds.has('foam')) && !(/flame|fire|burning|ablaze/i.test(m) && !(intent.style && intent.style.flaming));
+    const mood = (intent.taglineWords || []).find(m => m && moodOk(m) && structOk(m) && !POLY.test(m));
     const riff = riffOf ? `, a riff on the ${riffOf}` : '';
     const heroWords = heroes.map(w => colorPart && w.startsWith(colorPart + ' ') ? w.slice(colorPart.length + 1) : w);
     const withPart = heroWords.length ? ` with ${list(heroWords)}` : '';

@@ -1620,7 +1620,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       if (never.some(n => n && (x.includes(n) || (n.split(' ').length === 1 && x.split(' ').includes(n))))) return false;
       for (const [re, sig] of SIGNALS) if (re.test(x)) {
         if (sig.some(avoided)) return false;
-        const decorative = /frond|flag|cherry|pick/.test(x) && DECORATIVE_OK.has(A.family);
+        const decorative = /frond|flag|cherry|pick/.test(x) && !/wedge|spear|chunk|slice|wheel/.test(x) && DECORATIVE_OK.has(A.family);
         if (!sig.some(id => ids.has(id)) && !decorative) return false;
       }
       if (service === 'up' && /bouquet|umbrella|wedge|flaming|straw|orchid|frond|ice cone/.test(x)) return false;

@@ -151,7 +151,9 @@ export function makeName(rng, { variant = 0, archetype = null, family, intent = 
   options.push(`${pick(rng, adjPool)} ${pick(rng, nounPool)}`, `${pick(rng, nounPool)} ${pick(rng, typeNoun)}`);
   if (places.length) options.push(`${pick(rng, nounPool)} of ${pick(rng, places)}`, `${pick(rng, places)} ${pick(rng, typeNoun)}`);
   // A repeat prayer gets a different name, not the same one again.
-  const ordered = variant ? [...options.slice(variant % options.length), ...options.slice(0, variant % options.length)] : options;
+  for (let i = options.length - 1; i >= 0; i--) if (options.indexOf(options[i]) < i) options.splice(i, 1);
+  // Each repeat takes the next option without wrapping back to an earlier seed's name.
+  const ordered = variant ? [...options.slice(Math.min(variant, options.length)), ...[0, 1, 2].map(() => `${pick(rng, adjPool)} ${pick(rng, nounPool)}`)] : options;
   for (const name0 of ordered) {
     let name = name0.replace(/\b(\w+)\s+\1\b/i, '$1').replace(/\s+/g, ' ').trim();
     const parts = name.split(' ');

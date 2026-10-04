@@ -180,6 +180,13 @@ export function createComposer({ archetypes, ingMap, model }) {
       // A repeat prayer on the same frame starts from a different proven spec.
       const sp = specOffset > 0 && scored.length > 1 ? [...scored].sort((x, y) => y.s - x.s)[specOffset % scored.length].item : ctx.softPick(rng, scored, 0.6, greedy);
       lines = sp.lines.filter(l => ingMap.has(l.id)).map(l => ({ id: l.id, role: roleOf(l.id), oz: l.oz, unit: l.unit, amount: l.amount, float: !!l.float, sink: !!l.sink, crown: !!l.crown, slot: slotOf(a, l.id), range: rangeOf(a, l.id), fromSpec: sp.name }));
+      // A sink has to be dense and a float light: a spec that marks rum as "sink" is describing
+      // which half of a two-part pour it goes in, not physics.
+      for (const l of lines) {
+        const sg = ((ingMap.get(l.id) || {}).optics || {}).sg;
+        if (l.sink && !(sg >= 1.08)) l.sink = false;
+        if (l.float && !(sg <= 1.0)) l.float = false;
+      }
       // Two-part specs (a Miami Vice's two halves) list a bottle twice; the card lists it once.
       for (let i = lines.length - 1; i >= 0; i--) {
         // The same spirit in both halves is one line (it isn't layered; the halves are).
