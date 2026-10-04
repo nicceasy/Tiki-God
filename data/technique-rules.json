@@ -2133,153 +2133,312 @@
   }
  },
  "garnish": {
+  "about": "The card's garnish is a controlled vocabulary of concrete, drawable things (web/lib/engine.js GV; web/lib/artspec.js draws the same phrases). Research notes and prayer ideas are read into it; placeholders resolve to real objects ('the named fruit' becomes the poured fruit, e.g. 'banana coin on a pick'; 'full tiki garnish' becomes 'mint bouquet', 'orchid', 'pineapple frond', each still checked) and non-objects are dropped ('none', 'seasonal fruit', rims, ice blocks, novelties).",
   "maxElementsByService": {
    "up": 1,
    "rocks": 1,
-   "short-crushed": 2,
+   "crushed": 3,
+   "frozen": 3,
    "tall": 3,
    "mug": 3,
    "fruit-vessel": 3,
-   "bowl": 5,
-   "hot": 2
+   "bowl": 4,
+   "hot": 2,
+   "restrainedPrayer": 1
   },
+  "countRules": [
+   "A bowl's four include its straws: one phrase '<n> long straws' (one per guest), only on a shared crushed-ice bowl with servings > 1; never on a single serve or a ladled punch bowl.",
+   "Crushed-ice tiki (crushed, pebble, shaved, ice cone, swizzled) carries one aromatic among its three.",
+   "The Navy Grog's 'straw through the ice cone' is service and not counted.",
+   "A restrained prayer (elegance, precision, a first date) gets one garnish, plus a bowl's straws."
+  ],
+  "restrainedConcepts": [
+   "sophisticated",
+   "first-date",
+   "boss-client",
+   "minimalist",
+   "japan-tokyo",
+   "robot",
+   "bamboo",
+   "cuba-havana"
+  ],
+  "upHolds": [
+   "citrus wheel on the rim",
+   "expressed peel or twist",
+   "cherry or fruit on a pick (incl. the Morse pick and the Saturn ring)",
+   "a dusting (nutmeg or cinnamon only on rich or creamy drinks)",
+   "the Beachcomber's Gold shaved-ice shell"
+  ],
   "aromaGarnishes": [
    "mint sprig",
    "mint bouquet",
-   "grated nutmeg",
+   "basil sprig",
+   "freshly grated nutmeg",
+   "heavy nutmeg cap",
+   "a dusting of cinnamon",
    "cinnamon stick",
-   "expressed citrus peel",
-   "orange-peel spiral",
-   "lemon-peel ring",
-   "Angostura crown",
-   "spent lime shell",
-   "clove-studded lemon peel",
-   "cinnamon dust over fire"
+   "expressed orange peel",
+   "expressed lemon peel",
+   "expressed lime peel",
+   "grapefruit twist",
+   "long orange-peel spiral",
+   "lemon-peel ring around a cherry",
+   "clove-studded lemon wheel",
+   "clove-studded orange peel",
+   "spent lime shell"
   ],
   "decorative": [
+   "cherry on a pick",
+   "cherry",
+   "paper umbrella",
    "orchid",
    "gardenia",
    "edible flower",
-   "paper umbrella",
-   "cherry on a pick",
-   "maraschino cherry",
-   "brandied cherry",
-   "pineapple wedge and fronds",
-   "pineapple frond",
-   "orange half-wheel",
-   "lime wheel",
-   "flag (citrus slice + cherry)",
-   "swizzle stick",
-   "long straws",
-   "ice cone",
-   "ice shell"
+   "mint sprig",
+   "mint bouquet",
+   "freshly grated nutmeg",
+   "cinnamon stick",
+   "swizzle stick left in",
+   "stir stick (only with a sink)",
+   "sugar-cane stick (hawaiian-mai-tai)",
+   "bamboo back-scratcher (tropical-itch)",
+   "whipped cream (bushwacker)",
+   "three cherries and a pineapple chunk on a pick (beachcomber-spice-sour only: the Three Dots' Morse V)"
+  ],
+  "service": [
+   "straw through the ice cone",
+   "shaved-ice shell lining the glass",
+   "<n> long straws",
+   "pineapple crown lid (hollowed-pineapple vessel only)"
   ],
   "theater": [
-   "flaming lime shell (lemon-extract crouton)",
-   "cinnamon sparks",
-   "volcano well fire"
+   "flaming lime shell (lemon-extract sugar cube)",
+   "cinnamon sparks"
   ],
   "duplicates": [
    [
     "mint sprig",
-    "mint bouquet",
-    "mint crown"
+    "mint bouquet"
    ],
    [
-    "maraschino cherry",
-    "brandied cherry",
-    "cherry on a pick"
+    "cherry on a pick",
+    "cherry",
+    "orange slice and cherry flag",
+    "pineapple chunk and cherry on a pick",
+    "lemon-peel ring around a cherry",
+    "three cherries and a pineapple chunk on a pick"
    ],
    [
     "orchid",
-    "edible flower",
-    "gardenia"
+    "gardenia",
+    "edible flower"
+   ],
+   [
+    "freshly grated nutmeg",
+    "heavy nutmeg cap",
+    "a dusting of cinnamon",
+    "grated chocolate",
+    "toasted coconut flakes"
+   ],
+   [
+    "one element per citrus fruit (wheel, wedge, peel, shell)"
+   ],
+   [
+    "one pineapple element (wedge, frond, spear, chunk)"
    ]
   ],
   "needsCrushedDome": [
-   "mint bouquet",
-   "mint sprig (tall)",
-   "paper umbrella (tall)",
-   "flaming lime shell"
+   "mint bouquet"
   ],
   "forbiddenOnUp": [
-   "mint bouquet",
+   "mint",
    "paper umbrella",
-   "pineapple wedge and fronds",
+   "cinnamon stick",
+   "any wedge",
+   "orchid",
+   "gardenia",
+   "edible flower",
+   "pineapple frond",
    "flaming lime shell",
-   "orchid + cherry together",
-   "long straws"
+   "long straws",
+   "more than one element"
   ],
   "forbiddenOnHot": [
    "ice",
+   "straws",
    "mint",
    "umbrella",
    "pineapple",
-   "lime wheel"
+   "lime wheel",
+   "cherry",
+   "flowers",
+   "fire on the cap"
   ],
-  "fireAllowedVessels": [
-   "ku-mug",
-   "moai-mug",
-   "skull-mug",
-   "barrel-mug",
-   "fog-cutter-mug",
-   "tiki-bowl",
-   "volcano-bowl",
-   "scorpion-bowl",
-   "coconut",
-   "pineapple",
-   "snifter"
-  ],
+  "fire": {
+   "allowedVessels": [
+    "ku-mug",
+    "moai-mug",
+    "skull-mug",
+    "barrel-mug",
+    "fog-cutter-mug",
+    "tiki-bowl",
+    "volcano-bowl",
+    "scorpion-bowl",
+    "coconut",
+    "pineapple",
+    "snifter",
+    "goblet"
+   ],
+   "defaultFlame": "Only the volcano-bowl archetype in a volcano, tiki or Scorpion bowl wears 'flaming lime shell' unasked; otherwise fire needs a prayer that asks for it, a vessel above, and a crushed or frozen cap.",
+   "optionalTheater": "A crushed-ice drink shared from a volcano, tiki or Scorpion bowl may offer the flame as optional theater in the steps (the Scorpion's canonical dressing is the gardenia, not fire).",
+   "rules": [
+    "Any garnish containing 'flaming' forces the lighting and safety step, last: a spent lime (or lemon) shell cut side up, a sugar cube in lemon extract, a long lighter, cinnamon sparks; keep hair, sleeves, straws and flowers clear; never pour spirit from the bottle toward a flame; blow it out or cover it before anyone drinks.",
+    "A flaming lime shell needs lime in the drink; a lemon drink lights a lemon shell in the steps only.",
+    "Never with a paper umbrella or a flower on the card; a mint bouquet becomes a sprig.",
+    "Hot drinks: only an optional flamed ladle, blown out before it is stirred in.",
+    "Never on archetypes whose 'never' list rules out fire (overproof-swizzle)."
+   ]
+  },
   "truth": {
-   "rule": "A fruit garnish may not show an ingredient the prayer excluded (fatal). A fruit garnish that is the only signal of a flavor absent from the drink is major, except the conventional decorative flag/cherry-pineapple pick in punch, resort-punch, beachcomber-sour, zombie, colada, bitter-tiki families.",
+   "rule": "A fruit garnish (wheel, wedge, twist, peel, shell, frond, chunk) requires that fruit among the poured lines, and nothing the guest refused ever appears (pineapple frond included). Exceptions: decorative items (cherries, umbrellas, mint, flowers, spice), the orange slice-and-cherry flag only with orange in, an expressed orange peel on a stirred drink (its oil is the classic seasoning), and the Three Dots' Morse pick.",
    "signals": {
-    "pineapple wedge and fronds": [
-     "pineapple-juice",
-     "rum-pineapple",
-     "pineapple-syrup"
+    "orange wheel / orange slice and cherry flag / orange wheels floating": [
+     "orange"
     ],
-    "orange half-wheel": [
+    "expressed orange peel / long orange-peel spiral / clove-studded orange peel": [
      "orange",
      "orange-curacao",
-     "triple-sec"
+     "triple-sec",
+     "blue-curacao",
+     "orange-bitters"
     ],
-    "lime wheel": [
+    "lime wheel / lime wedge / expressed lime peel / lime wheels floating": [
      "lime",
      "lime-cordial"
     ],
-    "spent lime shell": [
+    "spent lime shell / flaming lime shell / lime coin / lime wedges in the glass": [
      "lime"
     ],
-    "lemon wheel": [
-     "lemon"
-    ],
-    "lemon-peel ring": [
+    "lemon wheel / expressed lemon peel / clove-studded lemon wheel / lemon-peel ring / lemon wheels floating": [
      "lemon"
     ],
     "grapefruit twist": [
      "grapefruit",
-     "dons-mix"
+     "dons-mix",
+     "grapefruit-soda"
     ],
-    "banana slice": [
+    "pineapple wedge / pineapple frond / pineapple spear / pineapple chunk and cherry on a pick": [
+     "pineapple-juice",
+     "rum-pineapple",
+     "pineapple-syrup"
+    ],
+    "banana coin on a pick": [
      "banana",
      "banana-liqueur"
     ],
-    "strawberry": [
+    "strawberry on the rim": [
      "strawberry"
     ],
     "passion fruit half": [
      "passion-fruit-juice",
      "passion-fruit-syrup",
      "passion-fruit-nectar",
-     "passion-fruit-liqueur"
+     "passion-fruit-liqueur",
+     "fassionola"
     ],
-    "coffee beans": [
+    "mango slice": [
+     "mango-nectar"
+    ],
+    "cucumber ribbon": [
+     "cucumber"
+    ],
+    "basil sprig": [
+     "basil"
+    ],
+    "candied ginger on a pick": [
+     "ginger-beer",
+     "ginger-ale",
+     "ginger-syrup",
+     "ginger-liqueur",
+     "ginger-fresh"
+    ],
+    "three coffee beans": [
      "coffee",
      "coffee-liqueur"
     ],
-    "grated nutmeg": [],
-    "cinnamon stick": []
+    "toasted coconut flakes": [
+     "coconut-cream",
+     "coconut-milk",
+     "coconut-water",
+     "coconut-rum"
+    ],
+    "grated chocolate": [
+     "creme-de-cacao",
+     "white-creme-de-cacao"
+    ]
    }
+  },
+  "canonical": {
+   "mai-tai": [
+    "spent lime shell",
+    "mint sprig"
+   ],
+   "navy-grog": [
+    "straw through the ice cone (cone service)",
+    "mint sprig",
+    "spent lime shell"
+   ],
+   "painkiller": [
+    "heavy nutmeg cap",
+    "orange wheel",
+    "cherry"
+   ],
+   "trinidad-swizzle": [
+    "mint sprig",
+    "swizzle stick left in (the Angostura crown is a build step)"
+   ],
+   "zombie": [
+    "mint sprig",
+    "pineapple frond (with pineapple in)",
+    "cherry on a pick"
+   ],
+   "beachcomber-spice-sour": [
+    "three cherries and a pineapple chunk on a pick (Three Dots) or long orange-peel spiral (Nui Nui)",
+    "mint sprig"
+   ],
+   "scorpion": [
+    "gardenia",
+    "mint sprig"
+   ],
+   "scorpion-bowl": [
+    "gardenia",
+    "mint sprig",
+    "<n> long straws"
+   ],
+   "volcano-bowl": [
+    "flaming lime shell",
+    "mint sprig",
+    "<n> long straws"
+   ],
+   "hurricane": [
+    "orange slice and cherry flag (with orange in), else lemon wheel + paper umbrella + cherry on a pick"
+   ],
+   "hot-buttered-rum": [
+    "cinnamon stick",
+    "freshly grated nutmeg"
+   ],
+   "tom-and-jerry": [
+    "freshly grated nutmeg"
+   ],
+   "hot-grog": [
+    "clove-studded lemon wheel (with lemon in)",
+    "cinnamon stick",
+    "freshly grated nutmeg"
+   ],
+   "hot-rum-punch": [
+    "expressed lemon peel (with lemon in)",
+    "freshly grated nutmeg"
+   ]
   },
   "byFamily": {
    "mai-tai": {
@@ -2287,16 +2446,10 @@
      "spent lime shell",
      "mint sprig"
     ],
-    "typical": [
-     "orchid",
-     "pineapple spear (Hawaii)"
-    ],
     "never": [
      "cherry",
-     "flag (citrus slice + cherry)",
-     "paper umbrella (alone)",
-     "dark rum float",
-     "grenadine sink"
+     "flag",
+     "umbrella"
     ]
    },
    "zombie": {
@@ -2304,154 +2457,117 @@
      "mint sprig"
     ],
     "typical": [
-     "mint bouquet",
      "cherry on a pick",
-     "pineapple frond",
-     "flaming lime shell (mug)"
+     "pineapple frond"
     ],
     "never": [
-     "salt rim",
-     "sugar rim",
-     "whipped cream",
-     "umbrella-and-fruit-salad"
+     "umbrella",
+     "whipped cream"
     ]
    },
    "grog": {
-    "required": [],
     "typical": [
-     "ice cone",
      "spent lime shell",
-     "mint sprig",
-     "rock candy stick"
+     "mint sprig"
     ],
     "never": [
-     "paper umbrella",
+     "umbrella",
      "orchid",
-     "flag (citrus slice + cherry)",
-     "salt rim"
+     "flag"
     ]
    },
    "beachcomber-sour": {
-    "required": [],
     "typical": [
      "mint sprig",
      "cherry on a pick",
-     "orange-peel spiral",
-     "gardenia",
-     "three cherries + pineapple chunk"
+     "gardenia"
     ],
     "never": [
-     "salt rim",
-     "whipped cream",
-     "paper umbrella (alone)"
+     "umbrella",
+     "cream"
     ]
    },
    "swizzle": {
     "required": [
-     "swizzle stick",
      "mint sprig"
     ],
     "typical": [
-     "Angostura crown",
-     "grated nutmeg (Chartreuse)"
+     "swizzle stick left in"
     ],
     "never": [
-     "paper umbrella",
-     "flag (citrus slice + cherry)",
+     "umbrella",
+     "flag",
      "cherry"
     ]
    },
    "daiquiri": {
-    "required": [],
     "typical": [
      "lime wheel",
-     "grapefruit twist",
-     "none"
+     "grapefruit twist"
     ],
     "never": [
-     "mint bouquet",
-     "paper umbrella",
-     "cherry (on coupe)",
-     "sugar rim",
-     "salt rim",
-     "pineapple wedge and fronds"
+     "bouquet",
+     "umbrella",
+     "pineapple wedge"
     ]
    },
    "orgeat-punch": {
-    "required": [],
     "typical": [
      "gardenia",
      "orchid",
-     "mint sprig",
-     "long straws",
-     "volcano well fire"
+     "mint sprig"
     ],
     "never": [
-     "umbrella-and-fruit-salad",
-     "grenadine sink",
      "whipped cream"
     ]
    },
    "colada": {
     "required": [
-     "pineapple wedge and fronds"
+     "pineapple wedge"
     ],
     "typical": [
-     "maraschino cherry",
-     "grated nutmeg",
-     "orange half-wheel",
+     "cherry on a pick",
      "paper umbrella",
      "orchid"
     ],
     "never": [
-     "Angostura crown",
-     "salt rim",
-     "mint bouquet"
+     "bouquet",
+     "swizzle"
     ]
    },
    "resort-punch": {
-    "required": [],
     "typical": [
      "paper umbrella",
      "orchid",
-     "pineapple wedge and fronds",
-     "maraschino cherry",
-     "orange half-wheel",
-     "flag (citrus slice + cherry)"
-    ],
-    "never": []
+     "pineapple wedge",
+     "cherry on a pick",
+     "orange wheel"
+    ]
    },
    "punch": {
-    "required": [],
     "typical": [
-     "grated nutmeg",
-     "Angostura crown",
+     "freshly grated nutmeg",
      "lime wheel",
      "mint sprig",
-     "orange half-wheel",
-     "cherry on a pick"
+     "orange wheel"
     ],
-    "never": [
-     "sugar rim",
-     "salt rim"
-    ]
+    "punchBowl": "a ladled punch bowl takes only what floats or dusts: nutmeg, citrus wheels floating, flowers, mint"
    },
    "buck": {
     "required": [
      "lime wheel"
     ],
     "typical": [
-     "candied ginger",
+     "candied ginger on a pick",
      "mint sprig"
     ],
     "never": [
-     "paper umbrella",
-     "grated nutmeg",
+     "umbrella",
+     "nutmeg",
      "cherry"
     ]
    },
    "bitter-tiki": {
-    "required": [],
     "typical": [
      "pineapple wedge and fronds",
      "orchid",
@@ -2459,37 +2575,36 @@
     ],
     "never": [
      "whipped cream",
-     "grated nutmeg"
+     "nutmeg"
     ]
    },
    "stirred": {
     "required": [
-     "expressed citrus peel"
+     "expressed orange peel"
     ],
     "typical": [
      "cherry on a pick"
     ],
     "never": [
-     "mint bouquet",
-     "paper umbrella",
-     "fruit skewer"
+     "mint",
+     "umbrella"
     ]
    },
    "hot": {
     "required": [
-     "grated nutmeg"
+     "freshly grated nutmeg"
     ],
     "typical": [
      "cinnamon stick",
-     "clove-studded lemon peel",
-     "orange peel"
+     "clove-studded lemon wheel"
     ],
     "never": [
-     "paper umbrella",
+     "umbrella",
      "mint",
-     "pineapple wedge and fronds",
-     "lime wheel",
-     "ice"
+     "pineapple",
+     "lime",
+     "cherry",
+     "orchid"
     ]
    }
   },
@@ -2499,11 +2614,11 @@
     "mint sprig"
    ],
    "Painkiller": [
-    "grated nutmeg"
+    "heavy nutmeg cap"
    ],
    "Queen's Park Swizzle": [
-    "Angostura crown",
-    "mint sprig"
+    "mint sprig",
+    "Angostura crown (a build step in the method)"
    ],
    "Zombie": [
     "mint sprig"
@@ -2512,13 +2627,14 @@
     "ice cone"
    ],
    "Hot Buttered Rum": [
-    "grated nutmeg"
+    "cinnamon stick",
+    "freshly grated nutmeg"
    ],
    "Three Dots and a Dash": [
-    "three cherries + pineapple chunk"
+    "three cherries and a pineapple chunk on a pick"
    ],
    "Saturn": [
-    "lemon-peel ring"
+    "lemon-peel ring around a cherry"
    ]
   },
   "tackyNever": [
