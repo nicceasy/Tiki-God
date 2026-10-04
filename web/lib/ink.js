@@ -226,6 +226,27 @@ export function drawWashLayers(ctx, wash, from, to, color, alpha = 0.055) {
   ctx.restore();
 }
 
+// The paper's valley speckle tile, tinted with one pigment (cached per color).
+function grainPattern(ctx, paper, color) {
+  if (!/^#[0-9a-f]{6}$/i.test(color || '')) return paper.pattern || (paper.pattern = ctx.createPattern(paper.canvas, 'repeat'));
+  const tints = paper.tints || (paper.tints = new Map());
+  let pat = tints.get(color);
+  if (!pat) {
+    const n = paper.size, c = typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(n, n) : Object.assign(document.createElement('canvas'), { width: n, height: n });
+    const x = c.getContext('2d');
+    x.drawImage(paper.canvas, 0, 0);
+    x.globalCompositeOperation = 'source-in';
+    // a deeper shade of the same pigment: multiplied over the wash it reads as the color pooling
+    x.fillStyle = mixHexInk(color, '#3a1f2a', 0.28);
+    x.fillRect(0, 0, n, n);
+    pat = ctx.createPattern(c, 'repeat');
+    if (tints.size > 400) tints.clear();
+    tints.set(color, pat);
+  }
+  return pat;
+}
+const mixHexInk = (a, b, t) => mixHex(a, b, t);
+
 export function finishWash(ctx, wash, color, { paper = null, rim = 0.16, grain = 0.28 } = {}) {
   const B = wash.base;
   ctx.save();
@@ -234,10 +255,11 @@ export function finishWash(ctx, wash, color, { paper = null, rim = 0.16, grain =
   // Edge darkening: pigment collects where the wash dried.
   ctx.globalAlpha = rim; ctx.strokeStyle = color; ctx.lineWidth = 1.3; ctx.stroke();
   if (paper && grain > 0) {
-    // Granulation: pigment settles into the paper's valleys, only where there is pigment.
+    // Granulation: pigment settles into the paper's valleys, only where there is pigment, and
+    // in its own color (a wash deepens where it pools; it never greys toward brown).
     ctx.clip();
     ctx.globalAlpha = grain;
-    ctx.fillStyle = paper.pattern || (paper.pattern = ctx.createPattern(paper.canvas, 'repeat'));
+    ctx.fillStyle = grainPattern(ctx, paper, color);
     const [x, y, w, h] = wash.box;
     ctx.fillRect(x, y, w, h);
   }

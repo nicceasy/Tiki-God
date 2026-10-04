@@ -4,7 +4,7 @@
 //   { v: 1, box: [w, h], seed, elements: [{ part, params?, x, y, s?, rot?, anchor?: [ax, ay], from? }] }
 // (x, y) is where the part's anchor lands; the part is scaled by s and turned by rot about it.
 // A garnish element says which garnish phrase on the card it draws (`from`).
-import { CATALOG, PALETTE, rimOf, levelOf, GLASS_PROFILES, halfAt, capMound, capYAt } from './artcatalog.js';
+import { CATALOG, PALETTE, rimOf, levelOf, GLASS_PROFILES, halfAt, capMound, capYAt, pigment } from './artcatalog.js';
 import { rng, seedOf } from './ink.js';
 import { vesselForDrink } from './vessels.js';
 import { drinkLook, opticsOf } from './optics.js';
@@ -442,13 +442,15 @@ export function drinkSpec(recipe, ingMap) {
 
   // ---- assemble, back to front: glass, drink, ice, what is inside the glass, then the garnish
   els.push({ part: 'glass', params: { kind, glaze, flaming: flaming && kind === 'volcano-bowl' && !(shell && cupUp), lid: !!get('crown-lid') && kind === 'pineapple', front: clear ? 'without' : 'with' }, x: 0, y: 0 });
-  els.push({ part: 'liquid', params: { kind, fill, body: look.body, layers: look.layers, frozen, frost: frosted, shell: iceStyle === 'ice-shell' ? 9 : 0, crushed: heaped, crownOnIce: crowned && heaped, froth: UP && !frozen && (method === 'shake' || method === 'flash-blend') }, x: 0, y: 0 });
+  els.push({ part: 'liquid', params: { kind, fill, body: look.body, layers: look.layers, frozen, frost: frosted, shell: iceStyle === 'ice-shell' ? 9 : 0, crushed: heaped, crownOnIce: crowned && heaped, froth: UP && !frozen && (method === 'shake' || method === 'flash-blend'), seed: iceSeed }, x: 0, y: 0 });
   // Bubbles rise only through a drink with something carbonated in it (and behind the ice).
   if (!hot && (recipe.lines || []).some(l => FIZZ.has(l.id))) els.push({ part: 'fizz', params: { kind, fill, seed: seed % 991 }, x: 0, y: 0 });
   if (iceStyle !== 'none' && iceStyle !== 'blended') {
     // A float on crushed ice soaks the cap; a crown is painted by its own part.
     const soak = heaped && float && !crowned ? { hex: float.hex, alpha: 0.022 + 0.02 * lum(float.hex), reach: 0.1 } : null;
-    els.push({ part: 'ice', params: { kind, style: iceStyle, fill, seed: iceSeed, soak }, x: 0, y: 0 });
+    // A cube stands lit in the drink: paper-white, glowing faintly with the drink's lightest tone.
+    const tint = pigment(look.body.hex, { opacity: look.body.opacity, clarity: look.body.clarity }).surf;
+    els.push({ part: 'ice', params: { kind, style: iceStyle, fill, seed: iceSeed, soak, tint }, x: 0, y: 0 });
   }
   if (crowned && crown && !has(plan, 'crown')) full('garnish.bitters-crown', { kind, hex: crown.hex, fill, seed: iceSeed, style: iceStyle }, '(steps) dash the bitters over the ice to form a crown', 12);
   if (frosted) els.push({ part: 'glass.frost', params: { kind, seed: iceSeed + 2, amount: frostAmount }, x: 0, y: 0 });
