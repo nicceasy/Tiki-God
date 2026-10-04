@@ -4,8 +4,10 @@
 // Each concept maps phrases a guest might pray ("heartbreak", "Tokyo neon", "my grandmother's
 // garden") to what a bartender would hear: flavor tags, bottles, things to steer away from,
 // style, color, families, vessels, garnish ideas, name and tagline words, and a one-line
-// reading the Shrine can say back. Unknown ids are dropped and reported; a phrase claimed by
-// two concepts stays with the first.
+// reading the Shrine can say back (author-only notes in the research move to `guidance`, never
+// rendered). Unknown ids are dropped and reported; a phrase claimed by two concepts stays with
+// the first. The build is idempotent: `node scripts/concepts-build.mjs data/concepts.json`
+// re-applies the patches to the committed file when the research inputs aren't at hand.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -41,6 +43,49 @@ const PATCH = {
   pele: { style: { flaming: true } },
   'hurricane-new-orleans': { ings: { fassionola: 1 } },
 };
+// Guest-facing readings. The research wrote each reading for two audiences: what the Shrine
+// says back to the guest, and notes for whoever builds the drink ("Respect: …", "(… don't
+// reuse.)", the list of jokes to keep away from a deity, "isn't in the pantry"). The notes move
+// to `guidance`, which is kept for authors and never rendered.
+const GUIDANCE = [
+  /^Respect(fully)?\b|^Treat the lore\b|^Read the domain the god governs/,
+  /\bdon'?t (reuse|borrow|use|name|mimic|stereotype)\b|\bdo not (reuse|invent)\b|\bcatalogue (drink|name)s?\b/i,
+  /\bnever caricature\b|\bjokes?\b|\bclich[ée]s?\b|\bin any drink name\b|\bAvoid naming\b|\bAvoid the brand name\b|\bname the drink after\b|\bout of names\b/i,
+  /\b(isn'?t|aren'?t|is not|are not) (in the pantry|stocked)\b|\bnot in the pantry\b|\bmissing from the pantry\b|\bif they were in the pantry\b|\bIt isn'?t stocked\b|\bThe local pantry\b|\bWith this pantry\b|\bin this pantry\b/i,
+  /\buncertain\b|\bcolor model\b/i,
+  /^Avoid\b/,
+];
+const isGuidance = s => GUIDANCE.some(re => re.test(s.trim()));
+// Sentences end at . or ? before a capital (or an opening parenthesis or quote), so "1.2 times",
+// "St. Thomas", "c. 1934" and "Girls! Girls! Girls!" stay whole.
+const SENTENCE_BREAK = /(?<=[.?]["')\]]*)(?<!\b(?:St|Mt|Mr|Mrs|Dr|Jr|Sr|c|ca|vs|No|[A-Z])\.)\s+(?=[A-Z("'ʻ‘“])/;
+function splitReading(text) {
+  const keep = [], notes = [];
+  for (const sentence of String(text || '').split(SENTENCE_BREAK)) {
+    let s = sentence.trim();
+    if (!s) continue;
+    // An aside for the author inside a sentence the guest should read: "(… don't reuse.)".
+    s = s.replace(/\s*\(([^)]*)\)/g, (m, inner) => (isGuidance(inner) ? (notes.push(inner.trim()), '') : m)).replace(/\s+([.,;:!?])/g, '$1');
+    if (/^\(.*\)\.?$/.test(s) && isGuidance(s.slice(1, -1))) { notes.push(s); continue; }
+    if (isGuidance(s)) notes.push(s);
+    else if (s.replace(/[\s.()]/g, '')) keep.push(s);
+  }
+  return { reading: keep.join(' '), guidance: notes.join(' ') };
+}
+// Name and tagline words a concept should not offer: a place word from another place (Kyoto is
+// not Tokyo), "Smoke Signal" (a stereotype, not a smoke), and Hawaiian words on concepts that
+// aren't Hawaiian (a party is not a hoʻolauleʻa, a promotion is not a hoʻomaikaʻi).
+const DROP_WORDS = {
+  'japan-tokyo': ['Kyoto'],
+  campfire: ['Smoke Signal'],
+  'tiki-torch': ['Smoke Signal'],
+  party: ["Ho'olaule'a", "Ho'olaule'a: a celebration", 'Big Kahuna Bowl'],
+  promotion: ["Ho'omaika'i", "Ho'omaika'i: congratulations"],
+  heartbreak: ['Kaumaha'],
+  'self-care': ['Malama', "Ho'omaha", 'Malama: take care'],
+  karaoke: ['Mele', 'Hana Hou', 'Hana hou! (encore!)'],
+};
+const keepWord = (id, w) => !(DROP_WORDS[id] || []).includes(w);
 const num = (x, lo, hi) => typeof x === 'number' && Number.isFinite(x) ? Math.max(lo, Math.min(hi, x)) : null;
 const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9' -]+/g, ' ').replace(/\s+/g, ' ').trim();
 
@@ -123,7 +168,10 @@ for (const x of all) {
     }
     const color = c.color ? COLOR[norm(c.color).split(' ')[0]] || null : null;
     if (c.color && !color && !['pale', 'tan', 'beige', 'amber-pale'].includes(norm(c.color))) issues.push(`${where}: unknown color ${c.color}`);
-    const rec = { id, phrases, domain: c.domain || '', reading: c.reading || '' };
+    const said = splitReading(c.reading);
+    const rec = { id, phrases, domain: c.domain || '', reading: said.reading };
+    const guidance = [c.guidance, said.guidance].filter(Boolean).join(' ');
+    if (guidance) rec.guidance = guidance;
     if (Object.keys(tags).length) rec.tags = tags;
     if (Object.keys(ings).length) rec.ings = ings;
     if (avoid.length) rec.avoid = avoid;
@@ -132,8 +180,8 @@ for (const x of all) {
     if (Object.keys(families).length) rec.families = families;
     if (Object.keys(vessels).length) rec.vessels = vessels;
     if ((c.garnish || []).length) rec.garnish = c.garnish.slice(0, 4);
-    if ((c.nameWords || []).length) rec.nameWords = c.nameWords.filter(w => typeof w === 'string' && w.length <= 18).slice(0, 8);
-    if ((c.taglineWords || []).length) rec.taglineWords = c.taglineWords.filter(w => typeof w === 'string' && w.length <= 48).slice(0, 4);
+    if ((c.nameWords || []).length) rec.nameWords = c.nameWords.filter(w => typeof w === 'string' && w.length <= 18 && keepWord(c.id, w)).slice(0, 8);
+    if ((c.taglineWords || []).length) rec.taglineWords = c.taglineWords.filter(w => typeof w === 'string' && w.length <= 48 && keepWord(c.id, w)).slice(0, 4);
     concepts.push(rec);
   }
 }

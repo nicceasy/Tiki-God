@@ -5,7 +5,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createEngine } from '../../web/lib/engine.js';
+import { createEngine, amountString } from '../../web/lib/engine.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const read = p => JSON.parse(readFileSync(join(root, p), 'utf8'));
@@ -20,12 +20,12 @@ for (const p of prompts) for (const seed of seeds) {
   const r = engine.generate(p, { seed });
   recs.push({ prompt: p, seed, recipe: r });
   const rd = r.explanation.reading || {};
-  md += `\n## "${p}" (seed ${seed}): ${r.name}\n*${r.tagline}*\n\n`;
-  md += `- Built on: ${r.classic ? `the classic ${r.classic.name} (${r.classic.credit})` : `${r.archetype.name}${rd.builtOn && rd.builtOn.spec ? `, from the ${rd.builtOn.spec}` : ''}`}${r.riffOf ? `; riff on ${r.riffOf.name}` : ''} · family ${r.family.name} · archetype check: ${r.check && r.check.ok ? 'ok' : JSON.stringify(r.check)}\n`;
+  md += `\n## "${p}" (seed ${seed}): ${r.name}${r.nickname ? ` (house name: ${r.nickname})` : ''}\n*${r.tagline}*\n\n`;
+  md += `- Built on: ${rd.builtOn ? rd.builtOn.text : ''}${r.reference ? ` [reference ${r.reference.kind}: ${r.reference.name}, sameness ${r.reference.similarity}${r.reference.year ? `, ${r.reference.year}` : ''}]` : ''} · archetype ${r.archetype.id}${r.riffOf ? `; riff on ${r.riffOf.name}` : ''} · family ${r.family.name} · archetype check: ${r.check && r.check.ok ? 'ok' : JSON.stringify(r.check)}\n`;
   md += `- Vessel: ${r.vessel ? r.vessel.name : r.method.glass} · ${r.method.method}, ${r.method.ice} ice · serves ${r.servings}\n`;
-  md += `- Stats: ${r.stats.abv}% ABV (${r.stats.standardDrinks} std drinks), sugar ${r.stats.sugarConc}, acid ${r.stats.acidConc} g/100 ml, ${r.stats.volOz} oz poured, ${r.stats.finalOz} oz finished\n`;
+  md += `- Stats: ${r.stats.abv}% ABV (${r.stats.standardDrinks} std drink${r.stats.standardDrinks === 1 ? '' : 's'}), sugar ${r.stats.sugarConc}, acid ${r.stats.acidConc} g/100 ml, ${r.stats.volOz} oz poured, ${r.stats.finalOz} oz finished\n`;
   md += `- Heard: ${(rd.heard || []).map(h => `"${h.phrase}" → ${h.meaning}`).join(' | ') || '(nothing)'}${rd.unheard && rd.unheard.length ? ` · NOT HEARD: ${rd.unheard.join(', ')}` : ''}\n`;
-  md += `- Recipe:\n${r.lines.map(l => `  - ${l.garnish ? 'garnish' : `${l.amount} ${l.unit}`} ${l.name}${l.float ? ' (float)' : ''}${l.sink ? ' (sink)' : ''}${l.muddled ? ' (muddled/blended in)' : ''}`).join('\n')}\n`;
+  md += `- Recipe:\n${r.lines.map(l => `  - ${l.garnish ? 'garnish' : amountString(l, 'oz')} ${l.name}${l.float ? ' (float)' : ''}${l.sink ? ' (sink)' : ''}${l.muddled ? ' (muddled/blended in)' : ''}`).join('\n')}\n`;
   if (r.batch) md += `- Batch for ${r.servings}: ${r.batch.map(b => `${b.total} ${b.name}`).join(', ')}\n`;
   md += `- Garnish: ${r.garnish.join(', ')}\n`;
   md += `- Steps:\n${r.method.steps.map((s, i) => `  ${i + 1}. ${s}`).join('\n')}\n`;

@@ -8,7 +8,7 @@
       "tagline": "One of sour, two of sweet, three of strong, four of weak.",
       "era_origin": "17th-century East Indies → Caribbean plantations",
       "parents": [],
-      "origin": "Punch (from the Hindi 'panch', five) was carried from India by British sailors in the 1600s: spirit, citrus, sugar, water, spice. In the Caribbean it became rum punch and the Jamaican Planter's Punch, codified by the 1908 rhyme 'one of sour, two of sweet, three of strong, four of weak.' Every tiki drink descends from this template; Don the Beachcomber's first menu was essentially a Planter's Punch exploded into dozens of variations.",
+      "origin": "Punch (probably from the Hindi 'panch', five) came back from India with English sailors and East India Company men in the 1600s: spirit, citrus, sugar, water, spice. In the Caribbean it became rum punch and the Jamaican Planter's Punch, remembered in the rhyme 'one of sour, two of sweet, three of strong, four of weak' (a 1908 New York Times verse gives the same idea as 'two of sour, one and a half of sweet'). Every tiki drink descends from this template; Don the Beachcomber's first menu was essentially a Planter's Punch exploded into dozens of variations.",
       "structure": "Dark/aged rum + lime + sugar/grenadine + dilution (water, ice, or juice) + bitters and nutmeg.",
       "signature_ingredients": ["rum-jamaican-dark", "rum-jamaican-aged", "lime", "grenadine", "simple-syrup", "angostura", "nutmeg"],
       "method": "shake", "ice": "crushed", "glass": "highball or pilsner"
@@ -30,7 +30,7 @@
       "tagline": "Rum, lime, sugar — nothing to hide behind.",
       "era_origin": "c. 1898 Cuba → Floridita, Havana (1920s–30s)",
       "parents": ["punch"],
-      "origin": "The Daiquiri is punch concentrated into a sour: light rum, lime, sugar, shaken cold. Constantino Ribalaigua at Havana's El Floridita turned it into a family (Daiquiri Nos. 1–5, the Hemingway/Papa Doble with grapefruit and maraschino) and pioneered the frappé/blended version. Donn Beach spent time in the Caribbean and built many of his 'Don's Daiquiris' and flash-blended drinks on this chassis.",
+      "origin": "The Daiquiri is punch concentrated into a sour: light rum, lime, sugar, shaken cold, credited to the American engineer Jennings Cox at the Daiquirí iron mines in Cuba around 1898. Constantino Ribalaigua at Havana's El Floridita turned it into a family (Daiquiri Nos. 1–5, the Hemingway/Papa Doble with grapefruit and maraschino) and pioneered the frappé/blended version. Donn Beach spent time in the Caribbean and built many of his 'Don's Daiquiris' and flash-blended drinks on this chassis.",
       "structure": "Rum + lime + sweetener (1 : 0.75–1 : 0.5–0.75 by volume), optional fruit or liqueur accent; served up or blended.",
       "signature_ingredients": ["rum-white-column", "rum-blended-light", "lime", "simple-syrup", "maraschino", "grapefruit"],
       "method": "shake", "ice": "cubed", "glass": "coupe"
@@ -52,7 +52,7 @@
       "tagline": "Three rums, a secret spice mix, and a two-per-customer limit.",
       "era_origin": "Don the Beachcomber, Hollywood, 1934",
       "parents": ["punch", "daiquiri"],
-      "origin": "Donn Beach's Zombie (1934) is the drink that made tiki: a Planter's Punch exploded into three rums, lime, grapefruit-cinnamon 'Don's Mix', falernum, grenadine, a drop of Pernod and Angostura, flash-blended. Its recipe was a closely guarded, coded secret — decoded by Jeff 'Beachbum' Berry in 2007 from bartender Dick Santiago's notebook. Descendants include the Jet Pilot (Luau, 1958), Test Pilot and Cobra's Fang.",
+      "origin": "Donn Beach's Zombie (Don the Beachcomber, Hollywood, c. 1934) is the drink that made tiki: a Planter's Punch exploded into three rums, lime, grapefruit-cinnamon 'Don's Mix', falernum, grenadine, a drop of Pernod and Angostura, flash-blended. Its recipe was a closely guarded, coded secret — decoded by Jeff 'Beachbum' Berry (Sippin' Safari, 2007) from a 1937 notebook kept by Don's bartender Dick Santiago. Don's own Test Pilot (c. 1941) and Cobra's Fang (c. 1937) are its kin, and the Jet Pilot (The Luau, Beverly Hills, c. 1958) descends from the Test Pilot.",
       "structure": "3 rums (light + gold/Jamaican + demerara/151) + lime + grapefruit/Don's Mix + falernum + grenadine + drops of anise + Angostura.",
       "signature_ingredients": ["rum-jamaican-aged", "rum-gold-column", "rum-demerara-overproof", "lime", "dons-mix", "velvet-falernum", "grenadine", "pastis", "angostura"],
       "method": "flash-blend", "ice": "crushed", "glass": "zombie/chimney glass"
@@ -71,10 +71,10 @@
     {
       "id": "mai-tai",
       "name": "Mai Tai",
-      "tagline": "Maita'i roa ae — 'out of this world, the best.'",
+      "tagline": "Maitaʻi roa aʻe: 'out of this world, the best.'",
       "era_origin": "Trader Vic's, Oakland, 1944",
       "parents": ["daiquiri"],
-      "origin": "Victor Bergeron created the Mai Tai in 1944 to showcase a 17-year Wray & Nephew Jamaican rum: rum, lime, orange curaçao, orgeat, rock candy syrup, shaken with shaved ice and garnished with the spent lime shell and mint. When the 17-year ran out he blended Jamaican and Martinique rums. The drink became a Hawaiian resort staple (Royal Hawaiian, 1953) and was mangled by pineapple-juice versions for decades before the revival restored the original.",
+      "origin": "Victor Bergeron (Trader Vic) created the Mai Tai in Oakland in 1944, by his own account (Don the Beachcomber's camp later pointed to Don's 1933 Q.B. Cooler), to showcase a 17-year Wray & Nephew Jamaican rum: rum, lime, orange curaçao, orgeat, rock candy syrup, shaken with shaved ice and garnished with the spent lime shell and mint. When the 17-year ran out he blended Jamaican and Martinique rums. The drink became a Hawaiian resort staple (Royal Hawaiian, 1953) and was mangled by pineapple-juice versions for decades before the revival restored the original.",
       "structure": "Aged rum(s) + lime + orange curaçao + orgeat + a little rich syrup; about 2 : 1 : 0.5 : 0.25–0.5 : 0.25.",
       "signature_ingredients": ["rum-jamaican-aged", "rum-agricole-vieux", "lime", "orange-curacao", "orgeat", "rich-simple", "mint"],
       "method": "shake", "ice": "crushed", "glass": "double old fashioned"
@@ -96,7 +96,7 @@
       "tagline": "Pineapple, coconut, and a beach chair.",
       "era_origin": "Caribe Hilton, San Juan, 1954 → Soggy Dollar Bar, BVI, 1970s",
       "parents": ["punch"],
-      "origin": "The Piña Colada is credited to Ramón 'Monchito' Marrero at the Caribe Hilton (1954), made possible by Coco López cream of coconut (1948/1954). The Painkiller (Soggy Dollar Bar, Jost Van Dyke, 1970s) adds orange juice and nutmeg over Pusser's rum. The Chi Chi (vodka), Lava Flow (strawberry) and Blue Hawaiian (blue curaçao) are resort cousins.",
+      "origin": "The Piña Colada is credited to Ramón 'Monchito' Marrero at San Juan's Caribe Hilton (1954), though the Barrachina restaurant in Old San Juan claims it too (1963); it was made possible by Coco López cream of coconut, developed in Puerto Rico around 1948–54. The Painkiller (Soggy Dollar Bar, Jost Van Dyke, 1970s) adds orange juice and nutmeg over Pusser's rum. The Chi Chi (vodka), Lava Flow (strawberry) and Blue Hawaiian (blue curaçao) are resort cousins.",
       "structure": "Rum + pineapple + cream of coconut (± orange, ± lime), shaken or blended; nutmeg on top.",
       "signature_ingredients": ["rum-navy", "rum-white-column", "pineapple-juice", "coconut-cream", "orange", "nutmeg"],
       "method": "shake", "ice": "crushed", "glass": "hurricane or snifter"
@@ -129,7 +129,7 @@
       "tagline": "Campari meets pineapple: the Jungle Bird's children.",
       "era_origin": "Aviary Bar, Kuala Lumpur Hilton, 1973 → craft era",
       "parents": ["punch", "daiquiri"],
-      "origin": "The Jungle Bird (Jeffrey Ong, Kuala Lumpur Hilton, 1973; long misdated to 1978) paired dark rum, Campari, pineapple and lime — rediscovered via Jeff Berry's 'Intoxica' (2002) and reworked by Giuseppe González. It opened the craft era's fascination with amari and bitters in tropical drinks (Trinidad Sour, bitter Mai Tais, Kingston Negroni riffs).",
+      "origin": "The Jungle Bird (Aviary Bar, Kuala Lumpur Hilton, 1970s, attributed to Jeffrey Ong; dated 1973 by the hotel's opening and 1978 by its first printed recipe) paired dark rum, Campari, pineapple and lime — rediscovered via Jeff Berry's 'Intoxica' (2002) and reworked by Giuseppe González. It opened the craft era's fascination with amari and bitters in tropical drinks (Trinidad Sour, bitter Mai Tais, Kingston Negroni riffs).",
       "structure": "Dark/black rum + bitter liqueur (Campari/amaro) + pineapple + lime + demerara.",
       "signature_ingredients": ["rum-black-blended", "campari", "pineapple-juice", "lime", "demerara-syrup"],
       "method": "shake", "ice": "cubed", "glass": "double old fashioned"
@@ -151,7 +151,7 @@
       "tagline": "Buttered, spiced and steaming.",
       "era_origin": "Colonial hot punches & flips → Trader Vic's Hot Buttered Rum / Coffee Grog",
       "parents": ["punch"],
-      "origin": "Colonial America drank rum hot — flips, toddies, buttered rum. Trader Vic's and Don the Beachcomber served hot buttered rum and coffee grogs, often flamed, in the cold-weather months.",
+      "origin": "Colonial America drank rum hot (flips, toddies, buttered rum), Royal Navy grog was taken hot on a cold watch, and Jerry Thomas printed hot rum drinks in 1862. Trader Vic published a buttered-rum batter, and Don the Beachcomber served a Coffee Grog, sometimes flamed, in the cold-weather months.",
       "structure": "Rum + hot water/coffee/tea + butter/spice batter or spiced syrup, sometimes flamed.",
       "signature_ingredients": ["rum-jamaican-dark", "hot-buttered-rum-batter", "coffee", "hot-water", "cinnamon", "nutmeg"],
       "method": "hot", "ice": "none", "glass": "mug"
