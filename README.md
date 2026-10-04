@@ -28,6 +28,8 @@ docs/
   history.md           history of tiki from punch and grog to the craft revival and today's "tropical" reframing
   concepts.md          the drink-making ideas behind tiki: rum blending, layered modifiers, dilution, the pantry
   methodology.md       what the data says makes a good tiki drink, and how the generator uses it
+  expertise.md         how the generator thinks like a tiki bartender: archetypes, balance, color, truthful copy, prayer reading
+  research/            the expert research behind it: technique, color/optics, presentation, the critic's rubric
   analysis.md          auto-generated statistics report (per family, per era, pairings, rum blends)
   art-direction.md     the Shrine's ink and watercolor style: research, references and rules
   vessels.md           the 34 serving vessels: histories, sources, which classic goes in which
