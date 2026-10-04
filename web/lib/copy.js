@@ -233,7 +233,10 @@ export function createCopywriter({ ingMap, ingVec }) {
     };
     const voice = !colorPart ? voiceAdj(archetype, facts, rng) : null;
     const lead = [colorPart, texture, voice, baseAdj ? BASE_ADJ[baseAdj] : null].filter(Boolean).filter((w, i, a) => a.indexOf(w) === i && !(w === 'silky' && texture) && !(w === 'dark' && voice === 'stormy')).slice(0, 2);
-    const mood = (intent.taglineWords || []).find(Boolean);
+    // A mood line that names a color ("red all the way through") is said only if the glass shows it.
+    const MOOD_COLOR = { red: 'red', ruby: 'red', crimson: 'red', scarlet: 'red', blue: 'blue', turquoise: 'blue', green: 'green', jade: 'green', gold: 'gold', golden: 'gold', pink: 'pink', purple: 'purple', violet: 'purple', black: 'dark', orange: 'orange' };
+    const moodOk = m => !Object.entries(MOOD_COLOR).some(([w, c]) => new RegExp(`\\b${w}\\b`, 'i').test(m) && !(look && showsColor({ body: look.body, layers: [] }, c)));
+    const mood = (intent.taglineWords || []).find(m => m && moodOk(m));
     const riff = riffOf ? `, a riff on the ${riffOf}` : '';
     const heroWords = heroes.map(w => colorPart && w.startsWith(colorPart + ' ') ? w.slice(colorPart.length + 1) : w);
     const withPart = heroWords.length ? ` with ${list(heroWords)}` : '';

@@ -172,7 +172,7 @@ export function hsl(hex) {
 export const COLOR_TEST = {
   blue: c => c.h !== null && c.h >= 165 && c.h <= 255 && c.s > 0.2,
   green: c => c.h !== null && c.h >= 70 && c.h < 165 && c.s > 0.2,
-  red: c => c.h !== null && (c.h >= 340 || c.h < 14) && c.s > 0.35 && c.l < 0.62,
+  red: (c, layer) => c.h !== null && (c.h >= 340 || c.h < 14) && c.s > 0.45 && c.l >= (layer ? 0.2 : 0.37) && c.l < 0.62,
   pink: c => c.h !== null && (c.h >= 315 || c.h < 22) && c.l >= 0.55,
   orange: c => c.h !== null && c.h >= 14 && c.h < 40 && c.s > 0.45,
   gold: c => c.h !== null && c.h >= 36 && c.h < 62 && c.s > 0.35 && c.l > 0.35,
@@ -187,7 +187,9 @@ export function showsColor(look, color) {
   if (!test || !look) return true;
   if (color === 'clear') return look.body.opacity < 0.2 && test(hsl(look.body.hex));
   if (color === 'white') return look.body.opacity >= 0.6 && test(hsl(look.body.hex));
-  return [look.body, ...(look.layers || []).filter(x => x.kind !== 'foam' && (x.frac || 0) >= 0.08)].some(x => x && x.hex && test(hsl(x.hex)));
+  // A band at least a tenth of the glass counts; a deep ruby sink reads as red.
+  if (look.body && look.body.hex && test(hsl(look.body.hex), false)) return true;
+  return (look.layers || []).filter(x => x.kind !== 'foam' && (x.frac || 0) >= 0.08).some(x => x.hex && test(hsl(x.hex), true));
 }
 
 // How far a look is from a color word (0 = shows it). Used to keep the closest attempt when no

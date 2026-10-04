@@ -755,8 +755,8 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     const muddy = lines.filter(l => !l.req && l.slot && opticsOf(ingMap.get(l.id)).tint >= 1 && !isCarrier(l.id));
     for (const l of muddy) {
       const slot = slots.find(c => (c.component || c.slot) === l.slot);
-      const clear = slot && slot.anyOf.filter(id => ok(id) && !lines.some(x => x.id === id) && opticsOf(ingMap.get(id)).tint < opticsOf(ingMap.get(l.id)).tint * 0.5);
-      if (clear && clear.length) tries.push({ why: `${prose(clear[0])} in place of ${prose(l.id)} so the color stays true`, edit: L => { const x = L.find(y => y.id === l.id); x.id = clear[0]; x.role = ingMap.get(clear[0]).role; }, muddy: true });
+      const clear = slot && slot.anyOf.filter(id => ok(id) && !lines.some(x => x.id === id) && opticsOf(ingMap.get(id)).tint < opticsOf(ingMap.get(l.id)).tint * 0.7).sort((x, y) => opticsOf(ingMap.get(x)).tint - opticsOf(ingMap.get(y)).tint);
+      for (const alt of (clear || []).slice(0, 3)) tries.push({ why: `${prose(alt)} in place of ${prose(l.id)} so the color stays true`, edit: L => { const x = L.find(y => y.id === l.id); x.id = alt; x.role = ingMap.get(alt).role; }, muddy: true });
     }
     // A dark float over a light color is mud on top: drop it.
     for (const l of lines.filter(l => (l.float || l.sink) && !l.req && !isCarrier(l.id) && !['dark', 'red', 'pink'].includes(color))) {
@@ -766,6 +766,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     if (lr && ok(lr.id) && !lines.some(x => x.id === lr.id)) {
       tries.push({ why: lr.sink ? `${prose(lr.id)} sunk to the bottom for the color` : lr.float ? `a ${prose(lr.id)} float for the color` : `${prose(lr.id)} for the color`, edit: L => { L.push({ id: lr.id, role: ingMap.get(lr.id).role, oz: lr.oz, sink: !!lr.sink, float: !!lr.float, req: true, slot: 'color' }); } });
     }
+    if (typeof process !== "undefined" && process.env && process.env.DEBUG_COLOR) console.log("colorPass", color, lines.map(l => `${l.id}${l.req ? "*" : ""}:${l.slot}`).join(" "), "tries:", tries.map(t => t.why).join(" / "));
     const clone = () => lines.map(l => ({ ...l }));
     // Single moves first, then a muddy fix paired with each color move.
     const plans = [...tries.filter(t => !t.muddy).map(t => [t]), ...tries.filter(t => t.muddy).flatMap(m => [[m], ...tries.filter(t => !t.muddy).map(t => [m, t])])];
@@ -1216,9 +1217,23 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     }
   }
 
+  // Classics an archetype names that the catalogue doesn't carry ("Tom and Jerry", "Pi Yi"):
+  // naming one asks for its frame.
+  const classicIndex = [];
+  for (const a of archetypes) for (const c of a.classics || []) {
+    const key = c.toLowerCase().replace(/\s*\(.*?\)\s*/g, ' ').replace(/[^a-z0-9' &-]+/g, ' ').replace(/&/g, 'and').replace(/\s+/g, ' ').trim();
+    if (key.length >= 6 && !nameIndex.some(n => n.key === key)) classicIndex.push({ key, a, name: c.replace(/\s*\(.*?\)\s*/g, ' ').trim() });
+  }
+  classicIndex.sort((x, y) => y.key.length - x.key.length);
+
   function generate(prompt, { seed = 0 } = {}) {
     swappedOut.clear();
     const intent = parsePrompt(prompt, { nameIndex, concepts: conceptIndex });
+    if (!intent.riffOf) {
+      const text = ` ${prompt.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9' -]+/g, ' ').replace(/\s+/g, ' ')} `;
+      const hit = classicIndex.find(c => text.includes(` ${c.key} `));
+      if (hit) { intent.archetypes[hit.a.id] = (intent.archetypes[hit.a.id] || 0) + 4; intent.matched.push({ phrase: hit.key, label: `the ${hit.name}` }); }
+    }
     const rng = rngFrom(`${prompt}::${seed}`);
     const greedy = seed === 0;
     const riffSrc = intent.riffOf ? drinkById[intent.riffOf] : null;
@@ -1355,6 +1370,21 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     const famId = A.family;
     lines.sort((a, b) => ROLE_ORDER.concat(['aromatic']).indexOf(a.role) - ROLE_ORDER.concat(['aromatic']).indexOf(b.role) || b.oz - a.oz);
 
+    // A drink too big for every glass of its kind is shortened in its lengthener (a hot punch
+    // gets less boiling water), never moved into a glass that can't take its service.
+    {
+      const service = serviceOf(svc.method, svc.ice);
+      const fits = vesselList.filter(v => !v.serve.includes('bowl') && SERVICE_FITS[service].some(x => v.serve.includes(x)));
+      const cap = fits.length ? Math.max(...fits.map(v => v.capacity)) : 0;
+      const need = c => c.finalOz * (service === 'crushed' ? 1.5 : service === 'frozen' ? 1.1 : service === 'hot' ? 1 : 1.35);
+      let c0 = chemOf(lines, svc.method, svc.ice);
+      const longs = lines.filter(l => l.role === 'lengthener' && !l.float && !l.sink && l.oz > 1);
+      if (cap && (intent.servings || 1) < 3 && need(c0) > cap * 1.05 && longs.length) {
+        for (let i = 0; i < 12 && need(c0) > cap; i++) { for (const l of longs) l.oz = Math.max(1, l.oz - 0.5); c0 = chemOf(lines, svc.method, svc.ice); }
+        finalizeAmounts(lines);
+        notes.push(`less ${displayName(longs[0].id).toLowerCase()} so it fits ${/^[aeiou]/i.test(fits[0].name) ? 'an' : 'a'} ${fits.sort((a, b) => b.capacity - a.capacity)[0].name}`);
+      }
+    }
     const chem = chemOf(lines, svc.method, svc.ice);
     const profile = profileOf(lines.map(l => ({ id: l.id, amount: l.oz, unit: 'oz', garnish: l.role === 'aromatic' })), 1, svc.method, svc.ice);
     const flavorTop = copy.named(copy.presence(lines.filter(l => l.role !== 'aromatic' || l.muddled))).map(x => x.tag).slice(0, 5);

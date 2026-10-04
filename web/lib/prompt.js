@@ -453,7 +453,8 @@ function applyConcept(intent, c, sign) {
   if (sign > 0) {
     // A concept's color is a leaning (a promotion leans gold); only a color word the guest
     // said is a demand the drink must meet.
-    if (c.color && !intent.colorLean) intent.colorLean = c.color;
+    if (c.color && c.domain === 'color' && !intent.color) intent.color = c.color;
+    else if (c.color && !intent.colorLean) intent.colorLean = c.color;
     for (const [f, w] of Object.entries(c.families || {})) add(intent.fam, f, w * 0.8);
     for (const [a, w] of Object.entries(c.archetypes || {})) add(intent.archetypes, a, w);
     for (const [v, w] of Object.entries(c.vessels || {})) add(intent.vesselAffinity, v, w);

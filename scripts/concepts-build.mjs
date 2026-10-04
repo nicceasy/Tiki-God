@@ -51,13 +51,15 @@ for (const x of all) {
   if (prev) prev.dup = true;
   seenIds.set(x.c.id, x);
 }
+// Function words are never a wish ("and" is not Peru).
+const FUNCTION_WORDS = new Set(['and', 'the', 'for', 'with', 'you', 'our', 'but', 'not', 'too', 'are', 'was', 'has', 'had', 'get', 'got', 'its', 'his', 'her', 'him', 'she', 'they', 'them', 'this', 'that', 'from', 'into', 'onto', 'over', 'very', 'just', 'some', 'any', 'all', 'one', 'two', 'few', 'lot', 'out', 'off', 'way', 'who', 'why', 'how', 'what', 'when', 'where', 'can', 'may', 'will', 'like', 'make', 'made', 'more', 'less', 'much', 'drink', 'drinks', 'something']);
 const owner = new Map();
 const claimScore = (x, n) => (slug(x.c.id) === slug(n) ? 100 : slug(x.c.id).includes(slug(n)) || slug(n).includes(slug(x.c.id)) ? 50 : 0) - x.c.phrases.length * 0.1;
 for (const x of all) {
   if (x.dup || !x.c.id || !Array.isArray(x.c.phrases)) continue;
   for (const p of x.c.phrases) {
     const n = norm(p);
-    if (!n || n.length < 3) continue;
+    if (!n || n.length < 3 || FUNCTION_WORDS.has(n)) continue;
     const cur = owner.get(n);
     if (!cur || claimScore(x, n) > claimScore(cur, n)) owner.set(n, x);
   }

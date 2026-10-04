@@ -61,10 +61,51 @@ const NOUN_BY_ID = {
   'scorpion-bowl': 'scorpion bowl', 'volcano-bowl': 'volcano bowl', 'zero-proof-tiki': 'zero-proof tropical',
 };
 
+// Corrections the research asked for once the missing ingredients existed (it had to use
+// proxies): the real Tom & Jerry batter, fassionola in the Hurricane and Cobra's Fang, cane
+// syrup in a Ti' Punch, the right sherries on a Fog Cutter.
+const swapIn = (a, comp, ids) => { const c = (a.signature || []).find(x => x.component === comp); if (c) c.anyOf = [...new Set([...ids, ...c.anyOf])]; };
+const OVERRIDES = {
+  'tom-and-jerry': a => {
+    a.signature = [
+      { component: 'brandy + rum', required: true, anyOf: ['brandy', 'rum-jamaican-aged', 'rum-jamaican-dark', 'rum-aged-column'], ozRange: [1.5, 2.5] },
+      { component: 'Tom & Jerry batter', required: true, anyOf: ['tom-and-jerry-batter'], ozRange: [0.75, 1.25] },
+      { component: 'hot liquid', required: true, anyOf: ['whole-milk', 'hot-water'], ozRange: [3, 5] },
+    ];
+    a.canonicalSpecs = [
+      { name: 'Tom and Jerry (Jerry Thomas, 1862)', source: 'Jerry Thomas, How to Mix Drinks (1862)', confidence: 'medium', lines: [{ id: 'tom-and-jerry-batter', oz: 1, unit: 'oz' }, { id: 'brandy', oz: 1.5, unit: 'oz' }, { id: 'rum-jamaican-aged', oz: 0.5, unit: 'oz' }, { id: 'hot-water', oz: 4, unit: 'oz' }, { id: 'nutmeg', oz: 0, unit: 'garnish' }], method: 'hot', ice: 'none', vessel: 'hot-mug', garnish: ['freshly grated nutmeg'] },
+      { name: 'Tom and Jerry (hot milk, Midwest holiday)', source: 'Midwest holiday tradition', confidence: 'medium', lines: [{ id: 'tom-and-jerry-batter', oz: 1, unit: 'oz' }, { id: 'brandy', oz: 1, unit: 'oz' }, { id: 'rum-jamaican-aged', oz: 1, unit: 'oz' }, { id: 'whole-milk', oz: 4, unit: 'oz' }, { id: 'nutmeg', oz: 0, unit: 'garnish' }], method: 'hot', ice: 'none', vessel: 'hot-mug', garnish: ['freshly grated nutmeg'] },
+    ];
+  },
+  hurricane: a => {
+    swapIn(a, 'passion fruit', ['fassionola']);
+    const pat = a.canonicalSpecs.find(sp => /O'Brien/.test(sp.name));
+    if (pat) pat.lines = pat.lines.map(l => l.id === 'passion-fruit-syrup' ? { ...l, id: 'fassionola', orig: 'red passion fruit syrup (Fassionola)' } : l);
+  },
+  'cobras-fang': a => {
+    swapIn(a, 'fassionola / passion fruit syrup', ['fassionola']);
+    const don = a.canonicalSpecs.find(sp => sp.name === "Cobra's Fang");
+    if (don) don.lines = don.lines.map(l => l.id === 'passion-fruit-syrup' ? { ...l, id: 'fassionola' } : l);
+  },
+  'ti-punch': a => {
+    swapIn(a, 'cane syrup', ['cane-syrup']);
+    for (const sp of a.canonicalSpecs) sp.lines = sp.lines.map(l => l.id === 'rich-simple' ? { ...l, id: 'cane-syrup' } : l);
+  },
+  'fog-cutter': a => {
+    swapIn(a, 'sherry float', ['cream-sherry', 'oloroso-sherry']);
+    for (const sp of a.canonicalSpecs) {
+      if (/Samoan/.test(sp.name)) sp.lines = sp.lines.map(l => l.id === 'px-sherry' ? { ...l, id: 'cream-sherry' } : l);
+      if (/Smuggler/.test(sp.name)) sp.lines = sp.lines.map(l => l.id === 'amontillado-sherry' ? { ...l, id: 'oloroso-sherry' } : l);
+    }
+  },
+};
+
 const seen = new Map();
 for (const f of files) {
   const data = read(f);
-  for (const a of data.archetypes || []) {
+  for (const a0 of data.archetypes || []) {
+    const a = JSON.parse(JSON.stringify(a0));
+    if (OVERRIDES[a.id]) OVERRIDES[a.id](a);
     const where = `${a.id}`;
     if (!famIds.has(a.family)) { issues.push(`${where}: unknown family "${a.family}"`); continue; }
     const sig = (a.signature || []).map(c => ({ ...c, anyOf: keepIds(c.anyOf, `${where}.signature.${c.component}`) })).filter(c => c.anyOf.length || !c.required);

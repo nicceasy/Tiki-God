@@ -72,7 +72,7 @@ test('every example prompt yields a balanced, buildable recipe', () => {
       const ing = ingMap.get(l.id);
       assert.ok(ing, `${p}: unknown ingredient ${l.id}`);
       assert.ok(USABLE.has(ing.avail), `${p}: ${l.id} is ${ing.avail}`);
-      if (!l.garnish) assert.ok(l.oz > 0, `${p}: ${l.id} has no volume`);
+      if (!l.garnish && !l.muddled) assert.ok(l.oz > 0, `${p}: ${l.id} has no volume`);
     }
     assert.ok(new Set(r.lines.map(l => l.id)).size === r.lines.length, `${p}: duplicate ingredient`);
     assert.ok(r.method.steps.length >= 2, `${p}: no method`);
