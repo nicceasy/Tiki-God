@@ -273,7 +273,11 @@ export function createComposer({ archetypes, ingMap, model }) {
         } else swapInSpirits(a, lines, { ...intent, spirits: [id], avoidSpirits: new Set() }, ctx, notes);
         heroSpirit = true;
       }
-      else placeIngredient(a, lines, id, intent, ctx, notes, { add: true });
+      else {
+        const before = new Set(lines);
+        placeIngredient(a, lines, id, intent, ctx, notes, { add: true });
+        for (const l of lines) if (!before.has(l) || l.id === id) l.hero = true;
+      }
     }
     // Requested flavors still uncarried: swap a slot's filling, else open an optional slot.
     for (const [tag, w] of Object.entries(intent.tags).sort((x, y) => y[1] - x[1])) {
@@ -369,12 +373,22 @@ export function createComposer({ archetypes, ingMap, model }) {
 
   // Trim a build back under the cap: drop optional extras the prayer didn't ask for, the
   // least wanted first, never a signature component that is the only one of its kind.
-  function trim(a, lines, intent, ctx, notes, cap = capOf(a)) {
+  // The research's family ceiling too (a daiquiri is five things, a colada six), but never below
+  // what the archetype's own canonical specs pour.
+  function capFor(a, ctx) {
+    const famMax = ctx.maxComponents ? ctx.maxComponents(a.family) : null;
+    if (!famMax) return capOf(a);
+    return Math.max(Math.min(capOf(a), famMax), ...fittingSpecs(a).map(sp => counted(sp.lines.filter(l => ingMap.has(l.id)).map(l => ({ ...l, role: roleOf(l.id) }))).length));
+  }
+  function trim(a, lines, intent, ctx, notes, cap = capFor(a, ctx)) {
     const sig = a.signature.filter(c => c.required);
     // The last sweetener and the last acid are never trimmed: a drink with neither is a glass of rum.
     const needed = l => sig.some(c => c.anyOf.includes(l.id) && lines.filter(x => c.anyOf.includes(x.id)).length === 1) || lastOfJob(lines, l);
+    // What the guest asked for by name stays; a concept's hero can go before it, but after the rest.
+    const asked = l => (intent.ings[l.id] || 0) >= 1 || (intent.spirits || []).includes(l.id);
     while (counted(lines).length > cap) {
-      const cands = counted(lines).filter(l => !l.req && !needed(l) && !l.float && !l.sink && !l.crown);
+      let cands = counted(lines).filter(l => !l.req && !needed(l) && !l.float && !l.sink && !l.crown);
+      if (!cands.length) cands = counted(lines).filter(l => l.hero && !asked(l) && !needed(l) && !l.float && !l.sink && !l.crown && counted(lines).filter(x => x.hero).length > 1);
       if (!cands.length) break;
       cands.sort((x, y) => (ctx.intentMatch(x.id, intent) - ctx.intentMatch(y.id, intent)) || ((x.twist ? 1 : 0) - (y.twist ? 1 : 0)) || (x.oz - y.oz));
       const drop = cands[0];
@@ -678,7 +692,7 @@ export function createComposer({ archetypes, ingMap, model }) {
   // A twist that makes a classic-shaped build the guest's own: open the optional slot that best
   // answers the prayer (a fruit, a spice, a float), before ever swapping a core bottle.
   function twist(a, lines, intent, ctx, rng, greedy) {
-    if (counted(lines).length >= capOf(a)) return null;
+    if (counted(lines).length >= capFor(a, ctx)) return null;
     const ids = lines.map(l => l.id);
     const options = [];
     for (const o of a.optional || []) {
@@ -720,11 +734,14 @@ export function createComposer({ archetypes, ingMap, model }) {
     const others = lines.filter(l => l !== victim).map(l => l.id);
     const hot = id => (ingMap.get(id).abv || 0) >= 60;
     const keepsJob = id => !lastOfJob(lines, victim) || (sours(victim.id) ? sours(id) : sweetens(id));
-    const pool = slot.anyOf.filter(id => id !== victim.id && ingMap.has(id) && !ctx.forbidden(id, intent) && !others.includes(id) && !ctx.conflicts(id, others) && keepsJob(id)
+    // Never back to a bottle this line already gave up (simple syrup → grenadine → simple syrup).
+    const gone = new Set(victim.was || []);
+    const pool = slot.anyOf.filter(id => id !== victim.id && !gone.has(id) && ingMap.has(id) && !ctx.forbidden(id, intent) && !others.includes(id) && !ctx.conflicts(id, others) && keepsJob(id)
       && !(victim.role === 'base' && hot(id) && !hot(victim.id) && !((intent.strength || 0) > 0)));
     const pick = ctx.softPick(rng, pool.map(id => ({ item: id, s: 2 * ctx.intentMatch(id, intent) + ctx.compat(id, others) })), 0.6, greedy);
     if (!pick) return null;
     const was = ingMap.get(victim.id).name.toLowerCase().replace(/\s*\(.*\)/, '');
+    victim.was = [...(victim.was || []), victim.id];
     victim.id = pick; victim.role = roleOf(pick); victim.swapped = true;
     const cap = doseCap(pick, a.family);
     if (victim.oz > cap) victim.oz = cap;

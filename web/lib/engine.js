@@ -1654,7 +1654,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     // nightcap", though the nightcap concept steers away from coffee).
     forbidden: (id, intent) => forbidden(id, intent) || (intent.softAvoid && intent.softAvoid[id] >= 1 && !intent.ings[id] && !(intent.color && (ingMap.get(id) || {}).color === intent.color)
       && !(((ingMap.get(id) || {}).flavors || [])[0] && (intent.tags[ingMap.get(id).flavors[0]] || 0) - ((intent.conceptTags || {})[ingMap.get(id).flavors[0]] || 0) >= 1.5)),
-    intentMatch, compat, conflicts, softPick, ingVec, naSwap: NA_SWAP,
+    intentMatch, compat, conflicts, softPick, ingVec, naSwap: NA_SWAP, maxComponents: fam => famWin(fam).maxComponents || null,
   };
   const linesOf = d => d.ingredients.filter(l => ingMap.has(l.id)).map(l => ({ id: l.id, role: roleOf(l, ingMap.get(l.id)), oz: lineOz(l, ingMap.get(l.id), units) / (d.servings || 1), float: !!l.float, garnish: !!l.garnish }));
 
