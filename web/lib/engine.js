@@ -814,6 +814,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
   // Every drink gets one specific vessel. Asked-for beats riff source beats the family's habits;
   // the vessel must take the drink's service (up, rocks, crushed, frozen, hot, bowl) and hold it.
   const CONF = { high: 3, medium: 2, low: 1 };
+  const OPAQUE_VESSELS = new Set(['ku-mug', 'moai-mug', 'skull-mug', 'barrel-mug', 'fog-cutter-mug', 'bird-mug', 'coconut', 'pineapple', 'clay-cup', 'hot-mug', 'enamel-tin', 'copper-mug', 'julep-cup', 'tiki-bowl', 'volcano-bowl']);
   function chooseVessel(famId, intent, svc, chem, src, rng, greedy, A = null) {
     if (!vesselList.length) return null;
     const service = serviceOf(svc.method, svc.ice);
@@ -851,6 +852,8 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       let w = (F[v.id] || 0) + 0.3 * ((v.families || {})[famId] || 0) + 0.004;
       if (A && A.vessels) { const i = A.vessels.indexOf(v.id); if (i >= 0) w += 0.6 / (1 + i); }
       w += 0.5 * ((intent.vesselAffinity || {})[v.id] || 0);
+      // A color or a layered look has to be seen: no opaque mug, tin or shell for it.
+      if ((intent.color || intent.style.layered) && OPAQUE_VESSELS.has(v.id)) w *= 0.05;
       if (bowl && v.id === 'volcano-bowl' && intent.style.flaming) w += 2;
       if (bowl && v.id === 'punch-bowl' && ['punch', 'stirred', 'buck'].includes(famId)) w += 0.5;
       if (bowl && v.id === 'tiki-bowl' && servings <= 3) w += 0.4;

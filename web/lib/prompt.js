@@ -317,7 +317,9 @@ export function normalizeText(s) {
     .toLowerCase()
     .normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/[’`]/g, "'")
-    .replace(/[^a-z0-9' &-]+/g, ' ')
+    // A comma, semicolon or full stop ends a clause: "not too sweet, very tart" negates only "sweet".
+    .replace(/\s*[,;.!?]+\s*/g, ' | ')
+    .replace(/[^a-z0-9' &|-]+/g, ' ')
     .replace(/-/g, ' ')
     .replace(/\s+/g, ' ')
     .trim() + ' ';
@@ -336,7 +338,9 @@ function findPhrase(text, phrase) {
 }
 
 function negationBefore(text, pos) {
-  const before = text.slice(Math.max(0, pos - 40), pos).trim().split(' ').slice(-4);
+  let before = text.slice(Math.max(0, pos - 40), pos).trim().split(' ').slice(-4);
+  // A comma or full stop ends the clause.
+  if (before.includes('|')) before = before.slice(before.lastIndexOf('|') + 1);
   // Stop at a clause boundary word: "no coconut but pineapple" must not negate pineapple.
   const boundary = before.lastIndexOf('but') > before.lastIndexOf('no') ? before.lastIndexOf('but') : -1;
   const window = boundary >= 0 ? before.slice(boundary + 1) : before;
@@ -410,7 +414,7 @@ function applyConcepts(text, intent, index) {
     seen.add(e.concept.id);
     const pos = (' ' + words.slice(0, i).join(' ')).length;
     const { neg, soft } = negationBefore(' ' + words.join(' ') + ' ', pos + 1);
-    applyConcept(intent, e.concept, neg ? (soft ? -0.5 : -1) : 1);
+    applyConcept(intent, e.concept, (neg ? (soft ? -0.5 : -1) : 1) * ((intent.boost || {})[words[i]] || 1));
     intent.matched.push({ phrase: words.slice(i, i + e.stems.length).join(' '), label: (neg ? 'not ' : '') + (e.concept.label || e.concept.id.replace(/-/g, ' ')) });
     intent.readings.push({ phrase: words.slice(i, i + e.stems.length).join(' '), concept: e.concept.id, reading: e.concept.reading, negated: neg, fuzzy });
   };
@@ -610,6 +614,14 @@ export function parsePrompt(raw, { nameIndex = [], familyIds = [], concepts = nu
   }
 
   // Concepts first: a mood or a place carries more than any single word in it.
+  // Intensifiers ("very tart", "extra smoky", "lots of pineapple") turn the next wish up by half.
+  const boost = {};
+  text = text.replace(/ (very|extra|super|really|so|more|lots of|plenty of|heavy on|double|seriously|properly) ([a-z']+)/g, (m, w, nx) => {
+    if (FILLER.has(nx) || nx === '|') return m;
+    boost[nx] = 1.5;
+    return ` ${nx}`;
+  });
+  intent.boost = boost;
   text = applyConcepts(text, intent, concepts);
 
   // Lexicon, longest phrases first so "blue curacao" beats "blue" and "ginger beer" beats "ginger".
@@ -624,7 +636,7 @@ export function parsePrompt(raw, { nameIndex = [], familyIds = [], concepts = nu
     consumed.add(e);
     const { neg, soft } = negationBefore(text, hits[0]);
     const sign = neg ? -1 : 1;
-    applyEffect(intent, e, sign, soft && neg);
+    applyEffect(intent, e, sign, soft && neg, boost[phrase.split(' ')[0]] || 1);
     intent.matched.push({ phrase, label: (neg ? (soft ? 'less ' : 'no ') : '') + (e.label || phrase) });
     text = text.split(' ' + phrase + ' ').join(' ');
   }
@@ -642,8 +654,8 @@ export function parsePrompt(raw, { nameIndex = [], familyIds = [], concepts = nu
   return intent;
 }
 
-function applyEffect(intent, e, sign, soft) {
-  const add = (obj, k, v) => { obj[k] = (obj[k] || 0) + v; };
+function applyEffect(intent, e, sign, soft, scale = 1) {
+  const add = (obj, k, v) => { obj[k] = (obj[k] || 0) + v * scale; };
   if (e.tags) for (const [t, w] of Object.entries(e.tags)) {
     if (sign > 0) add(intent.tags, t, w);
     else if (soft) add(intent.tags, t, -w * 0.6);
@@ -659,7 +671,7 @@ function applyEffect(intent, e, sign, soft) {
   }
   if (e.fam) for (const [f, w] of Object.entries(e.fam)) add(intent.fam, f, sign * w);
   // Negated "sweet" means drier; negated "strong" means lighter, and so on.
-  for (const key of ['strength', 'sweetness', 'tartness', 'complexity']) if (e[key]) intent[key] += sign * e[key];
+  for (const key of ['strength', 'sweetness', 'tartness', 'complexity']) if (e[key]) intent[key] += sign * e[key] * scale;
   if (e.style) for (const [s, v] of Object.entries(e.style)) {
     if (sign > 0) intent.style[s] = v;
     else if (s === 'creamy' || s === 'long' || s === 'bitter' || s === 'frozen' || s === 'hot' || s === 'flaming') intent.style[s] = false;
