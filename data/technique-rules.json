@@ -1,0 +1,3966 @@
+{
+ "version": 1,
+ "about": "Tiki technique, balance and red-flag rules for the Tiki God generator. Ids match data/ingredients.json, data/families.json, data/vessels.json. Amounts are oz per single serving; metrics are post-dilution (web/lib/chem.js).",
+ "sets": {
+  "rums": [
+   "rum-white-column",
+   "rum-gold-column",
+   "rum-aged-column",
+   "rum-blended-light",
+   "rum-barbados",
+   "rum-jamaican-aged",
+   "rum-jamaican-dark",
+   "rum-jamaican-pot",
+   "rum-jamaican-white-overproof",
+   "rum-demerara",
+   "rum-demerara-overproof",
+   "rum-black-blended",
+   "rum-black-overproof",
+   "rum-agricole-blanc",
+   "rum-agricole-vieux",
+   "rum-haitian",
+   "rum-navy",
+   "rum-overproof-white",
+   "rum-spiced",
+   "rum-pineapple",
+   "rum-cachaca"
+  ],
+  "spirits": [
+   "rum-white-column",
+   "rum-gold-column",
+   "rum-aged-column",
+   "rum-blended-light",
+   "rum-barbados",
+   "rum-jamaican-aged",
+   "rum-jamaican-dark",
+   "rum-jamaican-pot",
+   "rum-jamaican-white-overproof",
+   "rum-demerara",
+   "rum-demerara-overproof",
+   "rum-black-blended",
+   "rum-black-overproof",
+   "rum-agricole-blanc",
+   "rum-agricole-vieux",
+   "rum-haitian",
+   "rum-navy",
+   "rum-overproof-white",
+   "rum-spiced",
+   "rum-pineapple",
+   "rum-cachaca",
+   "gin",
+   "gin-old-tom",
+   "bourbon",
+   "rye",
+   "scotch-blended",
+   "scotch-islay",
+   "irish-whiskey",
+   "brandy",
+   "applejack",
+   "pisco",
+   "tequila-blanco",
+   "tequila-reposado",
+   "mezcal",
+   "vodka",
+   "aquavit",
+   "batavia-arrack",
+   "okolehao"
+  ],
+  "overproof": [
+   "rum-demerara-overproof",
+   "rum-black-overproof",
+   "rum-overproof-white",
+   "rum-jamaican-white-overproof"
+  ],
+  "agedOrFunkyRum": [
+   "rum-aged-column",
+   "rum-barbados",
+   "rum-jamaican-aged",
+   "rum-jamaican-dark",
+   "rum-jamaican-pot",
+   "rum-demerara",
+   "rum-agricole-vieux",
+   "rum-navy",
+   "rum-black-blended"
+  ],
+  "primaryCitrus": [
+   "lime",
+   "lemon"
+  ],
+  "strongAcids": [
+   "lime",
+   "lemon",
+   "grapefruit",
+   "yuzu-juice",
+   "passion-fruit-juice",
+   "lime-cordial"
+  ],
+  "mildAcids": [
+   "pineapple-juice",
+   "cranberry-juice",
+   "pomegranate-juice",
+   "orange"
+  ],
+  "caseinDairy": [
+   "half-and-half",
+   "irish-cream",
+   "vanilla-ice-cream"
+  ],
+  "allDairy": [
+   "heavy-cream",
+   "half-and-half",
+   "irish-cream",
+   "vanilla-ice-cream",
+   "butter"
+  ],
+  "coconutSources": [
+   "coconut-cream",
+   "coconut-milk",
+   "coconut-rum",
+   "coconut-water"
+  ],
+  "coconutBody": [
+   "coconut-cream",
+   "coconut-milk"
+  ],
+  "carbonated": [
+   "soda-water",
+   "ginger-beer",
+   "ginger-ale",
+   "cola",
+   "tonic",
+   "lemon-lime-soda",
+   "sparkling-wine"
+  ],
+  "orangeLiqueurs": [
+   "orange-curacao",
+   "triple-sec",
+   "blue-curacao"
+  ],
+  "plainSyrups": [
+   "simple-syrup",
+   "rich-simple",
+   "demerara-syrup",
+   "agave-syrup",
+   "maple-syrup"
+  ],
+  "redFruit": [
+   "grenadine",
+   "raspberry-syrup",
+   "raspberry-liqueur",
+   "blackberry-liqueur",
+   "creme-de-cassis",
+   "cranberry-juice",
+   "pomegranate-juice",
+   "hibiscus-syrup",
+   "sloe-gin"
+  ],
+  "passionSources": [
+   "passion-fruit-syrup",
+   "passion-fruit-juice",
+   "passion-fruit-nectar",
+   "passion-fruit-liqueur"
+  ],
+  "aggressiveBitter": [
+   "campari",
+   "amaro",
+   "cynar",
+   "fernet",
+   "absinthe",
+   "pastis"
+  ],
+  "bitterLiqueurs": [
+   "campari",
+   "aperol",
+   "amaro",
+   "cynar",
+   "fernet"
+  ],
+  "anise": [
+   "absinthe",
+   "pastis"
+  ],
+  "spiceCarriers": [
+   "rum-spiced",
+   "allspice-dram",
+   "cinnamon-syrup",
+   "five-spice-syrup",
+   "dons-spices-2",
+   "clove",
+   "tiki-bitters"
+  ],
+  "sweetLiqueurs": [
+   "orange-curacao",
+   "triple-sec",
+   "blue-curacao",
+   "maraschino",
+   "apricot-liqueur",
+   "peach-liqueur",
+   "cherry-heering",
+   "banana-liqueur",
+   "blackberry-liqueur",
+   "raspberry-liqueur",
+   "creme-de-cassis",
+   "coffee-liqueur",
+   "creme-de-cacao",
+   "galliano",
+   "benedictine",
+   "yellow-chartreuse",
+   "drambuie",
+   "elderflower-liqueur",
+   "allspice-dram",
+   "velvet-falernum",
+   "passion-fruit-liqueur",
+   "coconut-rum",
+   "amaretto",
+   "hazelnut-liqueur",
+   "licor-43",
+   "irish-cream",
+   "ginger-liqueur",
+   "melon-liqueur",
+   "lychee-liqueur",
+   "swedish-punsch"
+  ],
+  "bulkJuices": [
+   "pineapple-juice",
+   "orange",
+   "passion-fruit-nectar",
+   "guava-nectar",
+   "mango-nectar",
+   "papaya-nectar",
+   "apricot-nectar",
+   "cranberry-juice",
+   "pomegranate-juice",
+   "apple-juice",
+   "coconut-water",
+   "watermelon-juice"
+  ],
+  "seasonings": [
+   "angostura",
+   "peychauds",
+   "orange-bitters",
+   "tiki-bitters",
+   "mole-bitters",
+   "pastis",
+   "absinthe",
+   "saline",
+   "orange-flower-water",
+   "vanilla-extract",
+   "almond-extract",
+   "clove",
+   "nutmeg",
+   "cinnamon"
+  ],
+  "accentsAllowedBelowQuarter": [
+   "angostura",
+   "peychauds",
+   "orange-bitters",
+   "tiki-bitters",
+   "mole-bitters",
+   "pastis",
+   "absinthe",
+   "saline",
+   "orange-flower-water",
+   "vanilla-extract",
+   "almond-extract",
+   "grenadine",
+   "maraschino",
+   "allspice-dram",
+   "green-chartreuse",
+   "yellow-chartreuse",
+   "velvet-falernum",
+   "falernum-syrup",
+   "cinnamon-syrup",
+   "ginger-syrup",
+   "rich-simple",
+   "demerara-syrup",
+   "simple-syrup",
+   "honey-syrup",
+   "dons-spices-2",
+   "gardenia-mix",
+   "five-spice-syrup",
+   "li-hing-mui-syrup",
+   "peach-liqueur",
+   "apricot-liqueur",
+   "cherry-heering",
+   "coconut-rum",
+   "rum-jamaican-pot",
+   "rum-demerara-overproof",
+   "rum-jamaican-white-overproof",
+   "fernet",
+   "campari",
+   "scotch-islay",
+   "mezcal",
+   "amontillado-sherry",
+   "vanilla-syrup",
+   "maple-syrup",
+   "agave-syrup"
+  ],
+  "yellowOrAmber": [
+   "pineapple-juice",
+   "orange",
+   "mango-nectar",
+   "passion-fruit-juice",
+   "passion-fruit-syrup",
+   "passion-fruit-nectar",
+   "banana-liqueur",
+   "galliano",
+   "yellow-chartreuse",
+   "licor-43",
+   "apricot-nectar",
+   "papaya-nectar",
+   "guava-nectar",
+   "rum-aged-column",
+   "rum-barbados",
+   "rum-jamaican-aged",
+   "rum-jamaican-dark",
+   "rum-jamaican-pot",
+   "rum-demerara",
+   "rum-demerara-overproof",
+   "rum-black-blended",
+   "rum-black-overproof",
+   "rum-agricole-vieux",
+   "rum-navy",
+   "rum-spiced",
+   "bourbon",
+   "rye",
+   "brandy",
+   "tequila-reposado",
+   "demerara-syrup",
+   "honey-syrup",
+   "maple-syrup",
+   "orgeat"
+  ],
+  "darkSpirits": [
+   "rum-jamaican-dark",
+   "rum-black-blended",
+   "rum-black-overproof",
+   "rum-demerara",
+   "rum-demerara-overproof",
+   "rum-navy"
+  ],
+  "clearBases": [
+   "rum-white-column",
+   "rum-blended-light",
+   "rum-agricole-blanc",
+   "vodka",
+   "gin",
+   "tequila-blanco",
+   "pisco",
+   "rum-cachaca",
+   "lime",
+   "lemon",
+   "coconut-cream",
+   "coconut-milk",
+   "soda-water",
+   "lemon-lime-soda",
+   "triple-sec",
+   "simple-syrup",
+   "rich-simple"
+  ],
+  "opaqueMakers": [
+   "pineapple-juice",
+   "orange",
+   "coconut-cream",
+   "coconut-milk",
+   "heavy-cream",
+   "half-and-half",
+   "egg-white",
+   "vanilla-ice-cream",
+   "banana",
+   "irish-cream",
+   "mango-nectar",
+   "guava-nectar",
+   "papaya-nectar",
+   "apricot-nectar",
+   "passion-fruit-juice",
+   "strawberry",
+   "orgeat"
+  ],
+  "creamyMakers": [
+   "coconut-cream",
+   "coconut-milk",
+   "heavy-cream",
+   "half-and-half",
+   "egg-white",
+   "vanilla-ice-cream",
+   "banana",
+   "irish-cream",
+   "gardenia-mix",
+   "hot-buttered-rum-batter"
+  ],
+  "heatSafeVessels": [
+   "hot-mug",
+   "irish-coffee"
+  ],
+  "upVessels": [
+   "coupe",
+   "nick-nora",
+   "cocktail-glass"
+  ],
+  "opaqueVessels": [
+   "ku-mug",
+   "moai-mug",
+   "skull-mug",
+   "barrel-mug",
+   "fog-cutter-mug",
+   "bird-mug",
+   "coconut",
+   "pineapple",
+   "clay-cup",
+   "hot-mug",
+   "enamel-tin",
+   "copper-mug",
+   "julep-cup",
+   "tiki-bowl",
+   "volcano-bowl"
+  ],
+  "bowlVessels": [
+   "scorpion-bowl",
+   "tiki-bowl",
+   "volcano-bowl",
+   "punch-bowl"
+  ],
+  "crushedIce": [
+   "crushed",
+   "pebble",
+   "shaved",
+   "ice-cone",
+   "blended"
+  ]
+ },
+ "familyWindows": {
+  "punch": {
+   "abv": [
+    11,
+    15.5
+   ],
+   "sugarToAcid": [
+    8.5,
+    14
+   ],
+   "acidConc": [
+    0.55,
+    0.85
+   ],
+   "sugarConc": [
+    6.5,
+    9.5
+   ],
+   "maxComponents": 7,
+   "typicalComponents": 5,
+   "maxSpiritOz": 3
+  },
+  "grog": {
+   "abv": [
+    12,
+    16.5
+   ],
+   "sugarToAcid": [
+    7,
+    12
+   ],
+   "acidConc": [
+    0.6,
+    0.95
+   ],
+   "sugarConc": [
+    5.5,
+    8.5
+   ],
+   "maxComponents": 8,
+   "typicalComponents": 7,
+   "maxSpiritOz": 3
+  },
+  "daiquiri": {
+   "abv": [
+    13,
+    18
+   ],
+   "sugarToAcid": [
+    7,
+    11.5
+   ],
+   "acidConc": [
+    0.65,
+    0.95
+   ],
+   "sugarConc": [
+    6,
+    9.5
+   ],
+   "maxComponents": 5,
+   "typicalComponents": 4,
+   "maxSpiritOz": 2.25
+  },
+  "swizzle": {
+   "abv": [
+    12.5,
+    17.5
+   ],
+   "sugarToAcid": [
+    8,
+    14
+   ],
+   "acidConc": [
+    0.55,
+    0.85
+   ],
+   "sugarConc": [
+    6.5,
+    10
+   ],
+   "maxComponents": 6,
+   "typicalComponents": 5,
+   "maxSpiritOz": 3
+  },
+  "zombie": {
+   "abv": [
+    15,
+    19
+   ],
+   "sugarToAcid": [
+    6.5,
+    11
+   ],
+   "acidConc": [
+    0.55,
+    0.85
+   ],
+   "sugarConc": [
+    5,
+    8
+   ],
+   "maxComponents": 11,
+   "typicalComponents": 9,
+   "maxSpiritOz": 4
+  },
+  "beachcomber-sour": {
+   "abv": [
+    12.5,
+    16
+   ],
+   "sugarToAcid": [
+    8.5,
+    13
+   ],
+   "acidConc": [
+    0.6,
+    0.85
+   ],
+   "sugarConc": [
+    6.5,
+    9
+   ],
+   "maxComponents": 9,
+   "typicalComponents": 7,
+   "maxSpiritOz": 3
+  },
+  "mai-tai": {
+   "abv": [
+    14.5,
+    17
+   ],
+   "sugarToAcid": [
+    8.5,
+    12
+   ],
+   "acidConc": [
+    0.7,
+    0.95
+   ],
+   "sugarConc": [
+    7,
+    9.5
+   ],
+   "maxComponents": 7,
+   "typicalComponents": 6,
+   "maxSpiritOz": 2.5
+  },
+  "orgeat-punch": {
+   "abv": [
+    10.5,
+    14.5
+   ],
+   "sugarToAcid": [
+    6,
+    11
+   ],
+   "acidConc": [
+    0.7,
+    1.0
+   ],
+   "sugarConc": [
+    5.5,
+    8
+   ],
+   "maxComponents": 8,
+   "typicalComponents": 6,
+   "maxSpiritOz": 3.5
+  },
+  "colada": {
+   "abv": [
+    7,
+    12
+   ],
+   "sugarToAcid": [
+    15,
+    45
+   ],
+   "acidConc": [
+    0.1,
+    0.45
+   ],
+   "sugarConc": [
+    8,
+    11
+   ],
+   "maxComponents": 6,
+   "typicalComponents": 4,
+   "maxSpiritOz": 2.5
+  },
+  "buck": {
+   "abv": [
+    8.5,
+    12.5
+   ],
+   "sugarToAcid": [
+    8,
+    16
+   ],
+   "acidConc": [
+    0.3,
+    0.65
+   ],
+   "sugarConc": [
+    4.5,
+    8
+   ],
+   "maxComponents": 6,
+   "typicalComponents": 4,
+   "maxSpiritOz": 2.5
+  },
+  "resort-punch": {
+   "abv": [
+    8.5,
+    12.5
+   ],
+   "sugarToAcid": [
+    9.5,
+    15
+   ],
+   "acidConc": [
+    0.5,
+    0.8
+   ],
+   "sugarConc": [
+    7,
+    10
+   ],
+   "maxComponents": 8,
+   "typicalComponents": 6,
+   "maxSpiritOz": 3
+  },
+  "bitter-tiki": {
+   "abv": [
+    12,
+    17
+   ],
+   "sugarToAcid": [
+    11,
+    15.5
+   ],
+   "acidConc": [
+    0.5,
+    0.75
+   ],
+   "sugarConc": [
+    7,
+    9.5
+   ],
+   "maxComponents": 7,
+   "typicalComponents": 5,
+   "maxSpiritOz": 2.25
+  },
+  "stirred": {
+   "abv": [
+    20,
+    30
+   ],
+   "sugarToAcid": null,
+   "acidConc": [
+    0,
+    0.15
+   ],
+   "sugarConc": [
+    3,
+    7
+   ],
+   "maxComponents": 5,
+   "typicalComponents": 4,
+   "maxSpiritOz": 2.75
+  },
+  "hot": {
+   "abv": [
+    7,
+    13
+   ],
+   "sugarToAcid": null,
+   "acidConc": [
+    0,
+    0.15
+   ],
+   "sugarConc": [
+    3,
+    7
+   ],
+   "maxComponents": 6,
+   "typicalComponents": 4,
+   "maxSpiritOz": 2.5
+  }
+ },
+ "styleOverrides": {
+  "frozen": {
+   "appliesWhen": {
+    "method": [
+     "blend"
+    ]
+   },
+   "sugarConc": [
+    8.5,
+    12
+   ],
+   "acidConc": [
+    0.55,
+    0.85
+   ],
+   "abv": [
+    8,
+    14
+   ],
+   "maxSpiritOz": 2.5,
+   "sugarBoostVsShaken": [
+    1.2,
+    1.5
+   ]
+  },
+  "bowl": {
+   "appliesWhen": {
+    "vessel": [
+     "scorpion-bowl",
+     "tiki-bowl",
+     "volcano-bowl",
+     "punch-bowl"
+    ]
+   },
+   "abv": [
+    9,
+    14
+   ],
+   "maxSpiritOzPerGuest": 2.5,
+   "minServings": 2
+  },
+  "lowAbv": {
+   "appliesWhen": {
+    "prayerAsks": [
+     "low abv",
+     "light",
+     "brunch",
+     "session"
+    ]
+   },
+   "abv": [
+    0.5,
+    8
+   ]
+  },
+  "strongest": {
+   "appliesWhen": {
+    "prayerAsks": [
+     "strongest",
+     "strong",
+     "dangerous",
+     "potent"
+    ]
+   },
+   "abv": [
+    15,
+    19
+   ],
+   "maxEthanolOz": 2.0
+  },
+  "zeroProof": {
+   "appliesWhen": {
+    "prayerAsks": [
+     "zero-proof",
+     "alcohol-free",
+     "mocktail",
+     "designated driver"
+    ]
+   },
+   "abv": [
+    0,
+    0.5
+   ],
+   "require": "acid >= 0.45 g/100ml; body source (tea, coconut, nectar, ginger beer) present; one spice or bitter-free aromatic accent"
+  }
+ },
+ "dilution": {
+  "formula": {
+   "shaken": "-1.567*a^2 + 1.742*a + 0.203",
+   "stirred": "-1.21*a^2 + 1.246*a + 0.145",
+   "a": "pre-dilution ABV fraction"
+  },
+  "methodFactor": {
+   "shake/cubed": 1.0,
+   "shake/crushed": 1.15,
+   "whip-shake": 0.75,
+   "flash-blend": 1.3,
+   "swizzle": 1.2,
+   "blend": "ice is part of drink: 0.9-1.2 of pre-dilution volume",
+   "stir": "stirred formula",
+   "build/block": "0.8 x stirred",
+   "build/cubes+mixer": "mixer is the dilution, +0.1-0.2",
+   "hot": 0
+  },
+  "confidence": {
+   "shake/cubed": "H",
+   "stir": "H",
+   "others": "M/U (tunable)"
+  }
+ },
+ "strength": {
+  "maxSpiritOzSingle": 4.0,
+  "maxEthanolOzSingle": 2.0,
+  "maxOverproofOz": 1.0,
+  "maxOverproofOzSoleBase": 1.5,
+  "maxDistinctOverproof": 1,
+  "overproofIds": [
+   "rum-demerara-overproof",
+   "rum-black-overproof",
+   "rum-overproof-white",
+   "rum-jamaican-white-overproof"
+  ]
+ },
+ "doseCaps": {
+  "pastis": {
+   "maxOz": 0.04,
+   "typical": "6 drops",
+   "exceptions": "rinse 0.1 oz; anise-forward request 0.25"
+  },
+  "absinthe": {
+   "maxOz": 0.04,
+   "typical": "6 drops or 2 dashes",
+   "exceptions": "rinse 0.1 oz; anise-forward request 0.25"
+  },
+  "angostura": {
+   "maxOz": 0.18,
+   "typical": "1-2 dashes",
+   "exceptions": "crown on crushed ice up to 0.25; bitters-base sour 1.5"
+  },
+  "peychauds": {
+   "maxOz": 0.12
+  },
+  "orange-bitters": {
+   "maxOz": 0.12
+  },
+  "tiki-bitters": {
+   "maxOz": 0.12
+  },
+  "mole-bitters": {
+   "maxOz": 0.12
+  },
+  "saline": {
+   "maxOz": 0.024,
+   "typical": "2-6 drops"
+  },
+  "almond-extract": {
+   "maxOz": 0.012
+  },
+  "vanilla-extract": {
+   "maxOz": 0.03
+  },
+  "orange-flower-water": {
+   "maxOz": 0.012
+  },
+  "allspice-dram": {
+   "maxOz": 0.5,
+   "typical": 0.25
+  },
+  "velvet-falernum": {
+   "maxOz": 0.75
+  },
+  "falernum-syrup": {
+   "maxOz": 0.75
+  },
+  "maraschino": {
+   "maxOz": 0.5,
+   "exceptions": "c.1950 Zombie riff 0.75"
+  },
+  "grenadine": {
+   "maxOz": 0.5,
+   "byFamily": {
+    "zombie": 0.17,
+    "mai-tai": 0,
+    "grog": 0.17,
+    "orgeat-punch": 0.25,
+    "resort-punch": 1.0,
+    "punch": 0.75
+   },
+   "exceptions": "sink 0.5; Dr. Funk-type 1.0"
+  },
+  "green-chartreuse": {
+   "maxOz": 0.75,
+   "exceptions": "Chartreuse Swizzle base 1.5"
+  },
+  "yellow-chartreuse": {
+   "maxOz": 0.75
+  },
+  "campari": {
+   "maxOz": 0.75,
+   "byFamily": {
+    "bitter-tiki": 1.5,
+    "stirred": 1.0
+   }
+  },
+  "fernet": {
+   "maxOz": 0.25,
+   "exceptions": "explicit request 0.5"
+  },
+  "scotch-islay": {
+   "maxOz": 0.5,
+   "exceptions": "explicit smoky request as base 2.0"
+  },
+  "cinnamon-syrup": {
+   "maxOz": 0.75
+  },
+  "ginger-syrup": {
+   "maxOz": 0.75
+  },
+  "blue-curacao": {
+   "maxOz": 0.75,
+   "exceptions": "Blue Hawaiian 1.0"
+  },
+  "melon-liqueur": {
+   "maxOz": 1.0
+  },
+  "coffee-liqueur": {
+   "maxOz": 1.0
+  },
+  "creme-de-cacao": {
+   "maxOz": 0.75
+  },
+  "banana-liqueur": {
+   "maxOz": 1.0
+  },
+  "coconut-rum": {
+   "maxOz": 1.5,
+   "byFamily": {
+    "colada": 0.5
+   }
+  },
+  "rum-jamaican-white-overproof": {
+   "maxOz": 0.75,
+   "exceptions": "sole base by request 1.5"
+  },
+  "coffee": {
+   "maxOz": 0.75,
+   "byFamily": {
+    "hot": 6.0
+   }
+  },
+  "irish-cream": {
+   "maxOz": 1.0
+  },
+  "amontillado-sherry": {
+   "maxOz": 0.75,
+   "exceptions": "sherry-forward low-ABV 2.0"
+  },
+  "jalapeno": {
+   "note": "1-2 slices muddled; strain seeds unless 'hot' asked"
+  }
+ },
+ "minDoseIfPresent": {
+  "pineapple-juice": 0.5,
+  "orange": 0.5,
+  "passion-fruit-nectar": 0.5,
+  "guava-nectar": 0.5,
+  "mango-nectar": 0.5,
+  "papaya-nectar": 0.5,
+  "apricot-nectar": 0.5,
+  "apple-juice": 0.5,
+  "coconut-water": 0.75,
+  "watermelon-juice": 0.75,
+  "cranberry-juice": 0.5,
+  "pomegranate-juice": 0.5,
+  "grapefruit": 0.25,
+  "lime": 0.25,
+  "lemon": 0.25,
+  "soda-water": 1.0,
+  "ginger-beer": 2.0,
+  "ginger-ale": 2.0,
+  "cola": 2.0,
+  "tonic": 2.0,
+  "lemon-lime-soda": 2.0,
+  "sparkling-wine": 2.0,
+  "_exceptions": "soda-water 0.75 inside a Beachcomber grog/punch shake (Navy Grog precedent); lime 0.08-0.25 as a Ti' Punch lime coin"
+ },
+ "componentCounting": {
+  "components": "non-garnish lines",
+  "seasoningUnits": [
+   "dash",
+   "drop",
+   "pinch",
+   "rinse"
+  ],
+  "maxNonSeasoningAtOrBelowQuarterOz": 3,
+  "maxNonSeasoningAtOrBelowQuarterOzZombie": 4,
+  "minCoreShare": {
+   "value": 0.6,
+   "core": "base spirits + primary acid + main body juice/cream/mixer, as share of pre-dilution volume",
+   "exemptFamilies": [
+    "stirred",
+    "zombie"
+   ]
+  }
+ },
+ "exclusiveGroups": [
+  {
+   "set": "orangeLiqueurs",
+   "max": 1,
+   "sev": "minor"
+  },
+  {
+   "set": "plainSyrups",
+   "max": 1,
+   "sev": "minor"
+  },
+  {
+   "set": "coconutSources",
+   "max": 2,
+   "sev": "major"
+  },
+  {
+   "set": "redFruit",
+   "max": 2,
+   "sev": "minor"
+  },
+  {
+   "set": "passionSources",
+   "max": 2,
+   "sev": "minor"
+  },
+  {
+   "set": "bitterLiqueurs",
+   "max": 1,
+   "maxByFamily": {
+    "bitter-tiki": 2,
+    "stirred": 2
+   },
+   "sev": "minor"
+  },
+  {
+   "set": "anise",
+   "max": 1,
+   "sev": "minor"
+  },
+  {
+   "set": "overproof",
+   "max": 1,
+   "sev": "fatal"
+  },
+  {
+   "set": "spiceCarriers",
+   "max": 3,
+   "sev": "minor"
+  },
+  {
+   "ids": [
+    "lemon",
+    "lime"
+   ],
+   "max": 1,
+   "allowFamilies": [
+    "zombie",
+    "punch",
+    "resort-punch"
+   ],
+   "sev": "minor"
+  },
+  {
+   "ids": [
+    "heavy-cream",
+    "half-and-half",
+    "vanilla-ice-cream",
+    "irish-cream"
+   ],
+   "max": 1,
+   "sev": "minor"
+  }
+ ],
+ "incompatibilities": [
+  {
+   "id": "casein-plus-citrus",
+   "a": "caseinDairy",
+   "b": "strongAcids",
+   "sev": "fatal",
+   "why": "curdles below ~pH 5.5"
+  },
+  {
+   "id": "casein-plus-mild-acid",
+   "a": "caseinDairy",
+   "b": [
+    "pineapple-juice",
+    "cranberry-juice",
+    "pomegranate-juice"
+   ],
+   "unless": {
+    "method": [
+     "blend"
+    ]
+   },
+   "sev": "minor",
+   "why": "slow curdle/bitterness if it sits; blend and serve at once"
+  },
+  {
+   "id": "heavy-cream-plus-heavy-citrus",
+   "a": [
+    "heavy-cream"
+   ],
+   "b": [
+    "lime",
+    "lemon",
+    "grapefruit",
+    "passion-fruit-juice"
+   ],
+   "whenOzB": ">0.75",
+   "sev": "major"
+  },
+  {
+   "id": "coffee-citrus-mud",
+   "a": [
+    "coffee",
+    "coffee-liqueur",
+    "creme-de-cacao"
+   ],
+   "b": [
+    "lime",
+    "lemon"
+   ],
+   "whenOzB": ">=0.75",
+   "sev": "minor"
+  },
+  {
+   "id": "blue-plus-red",
+   "a": [
+    "blue-curacao"
+   ],
+   "b": [
+    "grenadine",
+    "creme-de-cassis",
+    "raspberry-syrup",
+    "cranberry-juice",
+    "campari"
+   ],
+   "unless": {
+    "layered": true
+   },
+   "sev": "major",
+   "why": "purple-brown mud unless kept apart by a sink/float"
+  },
+  {
+   "id": "blue-goes-green",
+   "a": [
+    "blue-curacao"
+   ],
+   "b": "yellowOrAmber",
+   "sev": "major",
+   "why": "subtractive mixing: blue + yellow/amber = green/teal; may be described as aqua/turquoise but never 'blue'; never blue + dark rum",
+   "allowIfCopyColor": [
+    "aqua",
+    "turquoise",
+    "teal",
+    "lagoon"
+   ]
+  },
+  {
+   "id": "blue-plus-dark-rum",
+   "a": [
+    "blue-curacao"
+   ],
+   "b": "darkSpirits",
+   "sev": "fatal",
+   "why": "swamp green-brown"
+  },
+  {
+   "id": "midori-orange-mud",
+   "a": [
+    "melon-liqueur"
+   ],
+   "b": [
+    "orange",
+    "rum-jamaican-dark",
+    "rum-black-blended",
+    "rum-demerara"
+   ],
+   "sev": "minor"
+  },
+  {
+   "id": "spiced-rum-plus-spice-stack",
+   "a": [
+    "rum-spiced"
+   ],
+   "b": [
+    "allspice-dram",
+    "cinnamon-syrup",
+    "five-spice-syrup",
+    "dons-spices-2"
+   ],
+   "sev": "minor"
+  },
+  {
+   "id": "passion-plus-full-lime",
+   "a": [
+    "passion-fruit-juice"
+   ],
+   "b": [
+    "lime",
+    "lemon"
+   ],
+   "whenOzA": ">=0.75",
+   "whenOzB": ">=0.75",
+   "sev": "minor"
+  },
+  {
+   "id": "egg-with-carbonation-shaken",
+   "a": [
+    "egg-white"
+   ],
+   "b": "carbonated",
+   "unless": {
+    "carbonatedIsTop": true
+   },
+   "sev": "major"
+  }
+ ],
+ "methodRules": [
+  {
+   "id": "shaken-carbonation",
+   "ids": "carbonated",
+   "forbiddenMethods": [
+    "shake",
+    "flash-blend",
+    "blend"
+   ],
+   "unlessTop": true,
+   "smallDoseException": {
+    "ids": [
+     "soda-water"
+    ],
+    "maxOz": 1.0,
+    "families": [
+     "grog",
+     "beachcomber-sour",
+     "punch"
+    ]
+   },
+   "sev": "fatal"
+  },
+  {
+   "id": "sparkling-shaken",
+   "ids": [
+    "sparkling-wine"
+   ],
+   "forbiddenMethods": [
+    "shake",
+    "flash-blend",
+    "blend",
+    "swizzle"
+   ],
+   "unlessTop": true,
+   "sev": "fatal"
+  },
+  {
+   "id": "ice-cream-shaken",
+   "ids": [
+    "vanilla-ice-cream"
+   ],
+   "requiredMethod": [
+    "blend"
+   ],
+   "sev": "major"
+  },
+  {
+   "id": "stirred-with-juice",
+   "when": {
+    "method": [
+     "stir"
+    ]
+   },
+   "forbidIds": [
+    "lime",
+    "lemon",
+    "grapefruit",
+    "orange",
+    "pineapple-juice",
+    "passion-fruit-juice",
+    "coconut-cream",
+    "coconut-milk",
+    "heavy-cream",
+    "half-and-half",
+    "egg-white",
+    "vanilla-ice-cream",
+    "banana"
+   ],
+   "maxOzException": {
+    "lime": 0.25
+   },
+   "sev": "major"
+  },
+  {
+   "id": "hot-wrong",
+   "when": {
+    "method": [
+     "hot"
+    ]
+   },
+   "forbidIce": true,
+   "forbidIds": "carbonated",
+   "maxOz": {
+    "lime": 0.25,
+    "lemon": 0.5,
+    "grapefruit": 0,
+    "orange": 0.5,
+    "pineapple-juice": 1.0
+   },
+   "requireVessel": "heatSafeVessels",
+   "sev": "fatal"
+  },
+  {
+   "id": "swizzle-method",
+   "when": {
+    "family": [
+     "swizzle"
+    ]
+   },
+   "requireMethod": [
+    "swizzle"
+   ],
+   "requireIce": [
+    "crushed",
+    "pebble"
+   ],
+   "sev": "fatal"
+  },
+  {
+   "id": "flash-blend-up",
+   "when": {
+    "method": [
+     "flash-blend"
+    ]
+   },
+   "forbiddenVessels": "upVessels",
+   "unless": "ice shell (Beachcomber's Gold) or frozen mound",
+   "sev": "major"
+  },
+  {
+   "id": "crushed-shake-up",
+   "when": {
+    "method": [
+     "shake"
+    ],
+    "ice": [
+     "crushed",
+     "pebble",
+     "shaved"
+    ]
+   },
+   "forbiddenVessels": "upVessels",
+   "sev": "major"
+  },
+  {
+   "id": "frozen-vessel",
+   "when": {
+    "method": [
+     "blend"
+    ]
+   },
+   "allowedVessels": [
+    "poco-grande",
+    "hurricane",
+    "goblet",
+    "snifter",
+    "coupe",
+    "pineapple",
+    "coconut",
+    "ku-mug",
+    "moai-mug",
+    "tiki-bowl",
+    "footed-pilsner",
+    "collins"
+   ],
+   "sev": "minor"
+  },
+  {
+   "id": "stirred-on-crushed",
+   "when": {
+    "family": [
+     "stirred"
+    ]
+   },
+   "forbidIce": [
+    "crushed",
+    "pebble",
+    "shaved",
+    "blended"
+   ],
+   "sev": "major"
+  },
+  {
+   "id": "egg-no-dry-shake",
+   "when": {
+    "has": [
+     "egg-white"
+    ]
+   },
+   "requireStep": "dry shake (or flash-blend)",
+   "sev": "minor"
+  },
+  {
+   "id": "punchbowl-block",
+   "when": {
+    "vessel": [
+     "punch-bowl"
+    ]
+   },
+   "requireIce": [
+    "block",
+    "cubed"
+   ],
+   "sev": "minor"
+  },
+  {
+   "id": "layer-claim",
+   "when": {
+    "copyClaims": [
+     "layered",
+     "sunrise",
+     "gradient",
+     "float",
+     "sink",
+     "ombre",
+     "two-tone"
+    ]
+   },
+   "requireStep": "a final float or sink line (line.float or line.sink), not shaken in",
+   "sev": "major"
+  },
+  {
+   "id": "float-density",
+   "when": {
+    "lineFlag": "float"
+   },
+   "requireLine": "abv >= 35 and sugar <= 10 g/100ml, or amontillado-sherry on crushed ice",
+   "sev": "major"
+  },
+  {
+   "id": "sink-density",
+   "when": {
+    "lineFlag": "sink"
+   },
+   "requireLine": "sugar >= 25 g/100ml and abv <= 30",
+   "sev": "major"
+  }
+ ],
+ "vesselFit": {
+  "rule": "pre-dilution single-serving liquid oz must fall in range; bowls multiply by servings. finalOz (post-dilution) must not exceed capacity for up/no-ice service.",
+  "ranges": {
+   "coupe": [
+    2.75,
+    4
+   ],
+   "nick-nora": [
+    2,
+    3
+   ],
+   "cocktail-glass": [
+    2.5,
+    3.5
+   ],
+   "rocks": [
+    2,
+    3.5
+   ],
+   "dof": [
+    3.75,
+    7
+   ],
+   "highball": [
+    3.5,
+    6
+   ],
+   "collins": [
+    4,
+    7
+   ],
+   "chimney": [
+    5,
+    7
+   ],
+   "hurricane": [
+    6,
+    10
+   ],
+   "poco-grande": [
+    4,
+    6
+   ],
+   "footed-pilsner": [
+    3.5,
+    6
+   ],
+   "pearl-diver": [
+    3.5,
+    6
+   ],
+   "snifter": [
+    5,
+    9
+   ],
+   "tulip": [
+    3.5,
+    5.5
+   ],
+   "goblet": [
+    3.5,
+    6
+   ],
+   "flute": [
+    4,
+    6
+   ],
+   "irish-coffee": [
+    5,
+    7
+   ],
+   "julep-cup": [
+    3,
+    5
+   ],
+   "copper-mug": [
+    5,
+    8
+   ],
+   "enamel-tin": [
+    5,
+    8
+   ],
+   "ku-mug": [
+    4,
+    7
+   ],
+   "moai-mug": [
+    5,
+    8
+   ],
+   "skull-mug": [
+    3.5,
+    6
+   ],
+   "barrel-mug": [
+    5,
+    8
+   ],
+   "fog-cutter-mug": [
+    6,
+    9
+   ],
+   "bird-mug": [
+    3.5,
+    6
+   ],
+   "coconut": [
+    4,
+    7
+   ],
+   "pineapple": [
+    6,
+    10
+   ],
+   "clay-cup": [
+    2.5,
+    3.5
+   ],
+   "hot-mug": [
+    6,
+    8.5
+   ],
+   "tiki-bowl": [
+    10,
+    20
+   ],
+   "volcano-bowl": [
+    14,
+    24
+   ],
+   "scorpion-bowl": [
+    18,
+    40
+   ],
+   "punch-bowl": [
+    40,
+    90
+   ]
+  },
+  "serviceByVessel": {
+   "up": [
+    "coupe",
+    "nick-nora",
+    "cocktail-glass"
+   ],
+   "noUpService": [
+    "ku-mug",
+    "moai-mug",
+    "skull-mug",
+    "barrel-mug",
+    "fog-cutter-mug",
+    "coconut",
+    "pineapple",
+    "hurricane",
+    "chimney",
+    "tiki-bowl",
+    "volcano-bowl",
+    "scorpion-bowl"
+   ],
+   "hotOnly": [
+    "hot-mug"
+   ],
+   "sparklingOk": [
+    "flute",
+    "coupe",
+    "collins",
+    "highball"
+   ]
+  },
+  "sev": {
+   "overflow": "fatal",
+   "stingy": "major"
+  }
+ },
+ "familyRequirements": {
+  "colada": {
+   "requireAll": [
+    {
+     "anyOf": [
+      "pineapple-juice"
+     ],
+     "minOz": 1.5
+    },
+    {
+     "anyOf": [
+      "coconut-cream",
+      "coconut-milk"
+     ],
+     "minOz": 0.75
+    }
+   ],
+   "forbid": [
+    "campari",
+    "absinthe",
+    "pastis",
+    "fernet",
+    "cranberry-juice",
+    "grapefruit"
+   ],
+   "maxOz": {
+    "lime": 0.75,
+    "lemon": 0.5
+   },
+   "notes": "coconut-milk requires added sugar; coconut-rum is accent only (<=0.5 oz)"
+  },
+  "mai-tai": {
+   "requireAll": [
+    {
+     "anyOf": [
+      "lime"
+     ],
+     "minOz": 0.75
+    },
+    {
+     "anyOf": [
+      "orgeat"
+     ],
+     "minOz": 0.25
+    },
+    {
+     "anyOf": [
+      "orange-curacao",
+      "triple-sec"
+     ],
+     "minOz": 0.25
+    },
+    {
+     "anyOf": "agedOrFunkyRum",
+     "minOz": 1.0
+    }
+   ],
+   "forbid": [
+    "pineapple-juice",
+    "orange",
+    "grenadine",
+    "coconut-cream",
+    "coconut-rum",
+    "rum-spiced",
+    "blue-curacao",
+    "vodka",
+    "cranberry-juice"
+   ],
+   "exceptions": "pineapple/orange allowed only for an explicit 'Royal Hawaiian' riff, labeled as such"
+  },
+  "zombie": {
+   "requireAll": [
+    {
+     "countOf": "rums",
+     "min": 2,
+     "excluding": "overproof"
+    },
+    {
+     "anyOf": "overproof",
+     "minOz": 0.5,
+     "maxOz": 1.0
+    },
+    {
+     "anyOf": [
+      "lime"
+     ],
+     "minOz": 0.5
+    },
+    {
+     "anyOf": [
+      "dons-mix",
+      "grapefruit",
+      "cinnamon-syrup",
+      "passion-fruit-syrup"
+     ],
+     "minOz": 0.25
+    },
+    {
+     "anyOf": [
+      "velvet-falernum",
+      "falernum-syrup",
+      "maraschino"
+     ],
+     "minOz": 0.25
+    }
+   ],
+   "recommend": [
+    "angostura",
+    "pastis",
+    "grenadine (<=1 tsp)"
+   ],
+   "forbid": [
+    "coconut-cream",
+    "coconut-milk",
+    "coconut-rum",
+    "heavy-cream",
+    "half-and-half",
+    "vanilla-ice-cream",
+    "irish-cream",
+    "egg-white",
+    "blue-curacao",
+    "melon-liqueur",
+    "vodka",
+    "cola",
+    "lemon-lime-soda",
+    "rum-spiced",
+    "cranberry-juice"
+   ]
+  },
+  "grog": {
+   "requireAny": [
+    {
+     "allOf": [
+      "lime",
+      "grapefruit"
+     ],
+     "plusAnyOf": [
+      "honey-syrup",
+      "allspice-dram",
+      "demerara-syrup"
+     ]
+    },
+    {
+     "allOf": [
+      "lime"
+     ],
+     "plusAnyOf": [
+      "water",
+      "soda-water",
+      "hot-water"
+     ]
+    }
+   ],
+   "minRums": 1,
+   "forbid": [
+    "coconut-cream",
+    "heavy-cream",
+    "half-and-half",
+    "blue-curacao",
+    "melon-liqueur",
+    "cranberry-juice"
+   ]
+  },
+  "swizzle": {
+   "requireMethod": "swizzle",
+   "requireAny": [
+    {
+     "anyOf": [
+      "lime",
+      "lemon"
+     ],
+     "minOz": 0.5
+    }
+   ],
+   "forbid": [
+    "heavy-cream",
+    "half-and-half",
+    "vanilla-ice-cream",
+    "egg-white",
+    "irish-cream"
+   ]
+  },
+  "daiquiri": {
+   "requireAll": [
+    {
+     "anyOf": [
+      "lime",
+      "lemon"
+     ],
+     "minOz": 0.5
+    },
+    {
+     "anyOf": "spirits",
+     "minOz": 1.5
+    }
+   ],
+   "forbid": [
+    "heavy-cream",
+    "half-and-half",
+    "irish-cream",
+    "coconut-milk",
+    "cranberry-juice"
+   ],
+   "maxComponents": 5,
+   "notes": "non-rum base must be named in the title (e.g. 'tequila daiquiri'); fruit-named daiquiri must contain that fruit"
+  },
+  "orgeat-punch": {
+   "requireAll": [
+    {
+     "anyOf": [
+      "orgeat"
+     ],
+     "minOz": 0.25
+    },
+    {
+     "anyOf": [
+      "lemon",
+      "lime"
+     ],
+     "minOz": 0.5
+    }
+   ],
+   "recommend": [
+    "brandy",
+    "orange",
+    "gin",
+    "amontillado-sherry"
+   ],
+   "forbid": [
+    "coconut-cream",
+    "heavy-cream",
+    "half-and-half",
+    "blue-curacao",
+    "melon-liqueur",
+    "cranberry-juice"
+   ]
+  },
+  "buck": {
+   "requireAny": [
+    {
+     "anyOf": [
+      "ginger-beer",
+      "ginger-ale",
+      "soda-water",
+      "cola",
+      "tonic",
+      "lemon-lime-soda",
+      "sparkling-wine"
+     ],
+     "minOz": 2.0
+    }
+   ],
+   "carbonationIsTop": true,
+   "methodPreferred": [
+    "build"
+   ],
+   "forbid": [
+    "heavy-cream",
+    "half-and-half",
+    "vanilla-ice-cream",
+    "irish-cream"
+   ]
+  },
+  "resort-punch": {
+   "requireAll": [
+    {
+     "countOf": "bulkJuices",
+     "min": 1
+    },
+    {
+     "anyOf": [
+      "lime",
+      "lemon",
+      "grapefruit",
+      "passion-fruit-juice"
+     ],
+     "minOz": 0.5
+    }
+   ],
+   "notes": "the fun-garnish family; vodka acceptable; still needs real rum character unless prayer says otherwise"
+  },
+  "bitter-tiki": {
+   "requireAny": [
+    {
+     "anyOf": [
+      "campari",
+      "amaro",
+      "cynar",
+      "aperol",
+      "fernet",
+      "angostura"
+     ],
+     "minOz": 0.5
+    }
+   ],
+   "forbid": [
+    "heavy-cream",
+    "half-and-half",
+    "vanilla-ice-cream",
+    "irish-cream",
+    "blue-curacao"
+   ]
+  },
+  "punch": {
+   "requireAll": [
+    {
+     "anyOf": [
+      "lime",
+      "lemon"
+     ],
+     "minOz": 0.5
+    },
+    {
+     "anyOf": "spirits",
+     "minOz": 1.5
+    }
+   ],
+   "forbid": [
+    "irish-cream",
+    "vanilla-ice-cream"
+   ]
+  },
+  "beachcomber-sour": {
+   "requireAll": [
+    {
+     "anyOf": [
+      "lime",
+      "lemon",
+      "grapefruit"
+     ],
+     "minOz": 0.5
+    },
+    {
+     "anyOf": [
+      "honey-syrup",
+      "velvet-falernum",
+      "falernum-syrup",
+      "allspice-dram",
+      "cinnamon-syrup",
+      "dons-spices-2",
+      "gardenia-mix",
+      "passion-fruit-syrup",
+      "dons-mix",
+      "orgeat"
+     ],
+     "minOz": 0.25
+    }
+   ],
+   "forbid": [
+    "heavy-cream",
+    "half-and-half",
+    "vanilla-ice-cream",
+    "irish-cream",
+    "blue-curacao",
+    "melon-liqueur",
+    "cranberry-juice"
+   ]
+  },
+  "stirred": {
+   "forbid": [
+    "lime",
+    "lemon",
+    "grapefruit",
+    "orange",
+    "pineapple-juice",
+    "passion-fruit-juice",
+    "coconut-cream",
+    "coconut-milk",
+    "heavy-cream",
+    "half-and-half",
+    "egg-white",
+    "vanilla-ice-cream",
+    "banana",
+    "coffee"
+   ],
+   "exceptions": "lime <=0.25 (Corn 'n Oil wedge squeeze); coffee only as coffee-liqueur"
+  },
+  "hot": {
+   "requireAny": [
+    {
+     "anyOf": [
+      "hot-water",
+      "coffee",
+      "black-tea",
+      "half-and-half"
+     ],
+     "minOz": 3.0
+    }
+   ],
+   "forbid": "carbonated",
+   "maxOz": {
+    "lime": 0.25,
+    "lemon": 0.5
+   },
+   "notes": "butter only as hot-buttered-rum-batter or gardenia-mix"
+  }
+ },
+ "nameNouns": {
+  "Colada": {
+   "require": "pineapple-juice >= 1.5 AND (coconut-cream >= 0.75 OR coconut-milk >= 0.75 + sweetener)"
+  },
+  "Pi\u00f1a Colada": {
+   "require": "colada rule AND rum or named spirit; riff only"
+  },
+  "Painkiller": {
+   "require": "riff of Painkiller: navy/dark rum, pineapple, orange, coconut-cream, nutmeg"
+  },
+  "Mai Tai": {
+   "require": "mai-tai familyRequirements; riff only"
+  },
+  "Zombie": {
+   "require": "zombie familyRequirements; riff only"
+  },
+  "Grog": {
+   "require": "grog familyRequirements OR hot rum + water + citrus/spice"
+  },
+  "Swizzle": {
+   "require": "method swizzle on crushed ice"
+  },
+  "Daiquiri": {
+   "require": "spirit + lime/lemon + sugar, no dairy, <= 5 components; non-rum base named"
+  },
+  "Punch": {
+   "require": "spirit + citrus + sugar + a lengthener (juice/water/soda/tea) OR bowl service"
+  },
+  "Bowl": {
+   "require": "servings >= 2 AND bowl vessel"
+  },
+  "Sour": {
+   "require": "citrus >= 0.5 oz"
+  },
+  "Cooler": {
+   "require": "long (>= 5 oz pre-dilution) AND carbonated or juice lengthener, served on ice"
+  },
+  "Highball": {
+   "require": "carbonated top >= 2.5 oz, built, tall glass"
+  },
+  "Buck": {
+   "require": "ginger-beer or ginger-ale >= 2 oz"
+  },
+  "Mule": {
+   "require": "ginger-beer >= 2 oz AND lime"
+  },
+  "Fizz": {
+   "require": "citrus + sugar + soda-water/sparkling top; no crushed-ice mound"
+  },
+  "Flip": {
+   "require": "whole egg (proposed egg-whole) or egg-white + rich sweetener; nutmeg"
+  },
+  "Nog": {
+   "require": "egg and/or dairy"
+  },
+  "Toddy": {
+   "require": "method hot"
+  },
+  "Julep": {
+   "require": "mint + crushed ice + julep-cup or similar"
+  },
+  "Smash": {
+   "require": "muddled herb/fruit + crushed ice"
+  },
+  "Old Fashioned": {
+   "require": "stirred/built, no juice, bitters"
+  },
+  "Nightcap": {
+   "require": "stirred or hot, abv >= 18 or hot"
+  },
+  "Cup": {
+   "require": "any; generic serving noun"
+  },
+  "Sling": {
+   "require": "spirit + citrus + sweetener + soda or water lengthener; (cherry liqueur classic)"
+  },
+  "Swizzle Stick": {
+   "require": "never as a drink noun"
+  },
+  "Revenant": {
+   "require": "abv >= 15"
+  },
+  "Specter": {
+   "require": "abv >= 15"
+  },
+  "Bird": {
+   "require": "bitter-tiki family or bird-mug vessel"
+  }
+ },
+ "garnish": {
+  "maxElementsByService": {
+   "up": 1,
+   "rocks": 1,
+   "short-crushed": 2,
+   "tall": 3,
+   "mug": 3,
+   "fruit-vessel": 3,
+   "bowl": 5,
+   "hot": 2
+  },
+  "aromaGarnishes": [
+   "mint sprig",
+   "mint bouquet",
+   "grated nutmeg",
+   "cinnamon stick",
+   "expressed citrus peel",
+   "orange-peel spiral",
+   "lemon-peel ring",
+   "Angostura crown",
+   "spent lime shell",
+   "clove-studded lemon peel",
+   "cinnamon dust over fire"
+  ],
+  "decorative": [
+   "orchid",
+   "gardenia",
+   "edible flower",
+   "paper umbrella",
+   "cherry on a pick",
+   "maraschino cherry",
+   "brandied cherry",
+   "pineapple wedge and fronds",
+   "pineapple frond",
+   "orange half-wheel",
+   "lime wheel",
+   "flag (citrus slice + cherry)",
+   "swizzle stick",
+   "long straws",
+   "ice cone",
+   "ice shell"
+  ],
+  "theater": [
+   "flaming lime shell (lemon-extract crouton)",
+   "cinnamon sparks",
+   "volcano well fire"
+  ],
+  "duplicates": [
+   [
+    "mint sprig",
+    "mint bouquet",
+    "mint crown"
+   ],
+   [
+    "maraschino cherry",
+    "brandied cherry",
+    "cherry on a pick"
+   ],
+   [
+    "orchid",
+    "edible flower",
+    "gardenia"
+   ]
+  ],
+  "needsCrushedDome": [
+   "mint bouquet",
+   "mint sprig (tall)",
+   "paper umbrella (tall)",
+   "flaming lime shell"
+  ],
+  "forbiddenOnUp": [
+   "mint bouquet",
+   "paper umbrella",
+   "pineapple wedge and fronds",
+   "flaming lime shell",
+   "orchid + cherry together",
+   "long straws"
+  ],
+  "forbiddenOnHot": [
+   "ice",
+   "mint",
+   "umbrella",
+   "pineapple",
+   "lime wheel"
+  ],
+  "fireAllowedVessels": [
+   "ku-mug",
+   "moai-mug",
+   "skull-mug",
+   "barrel-mug",
+   "fog-cutter-mug",
+   "tiki-bowl",
+   "volcano-bowl",
+   "scorpion-bowl",
+   "coconut",
+   "pineapple",
+   "snifter"
+  ],
+  "truth": {
+   "rule": "A fruit garnish may not show an ingredient the prayer excluded (fatal). A fruit garnish that is the only signal of a flavor absent from the drink is major, except the conventional decorative flag/cherry-pineapple pick in punch, resort-punch, beachcomber-sour, zombie, colada, bitter-tiki families.",
+   "signals": {
+    "pineapple wedge and fronds": [
+     "pineapple-juice",
+     "rum-pineapple",
+     "pineapple-syrup"
+    ],
+    "orange half-wheel": [
+     "orange",
+     "orange-curacao",
+     "triple-sec"
+    ],
+    "lime wheel": [
+     "lime",
+     "lime-cordial"
+    ],
+    "spent lime shell": [
+     "lime"
+    ],
+    "lemon wheel": [
+     "lemon"
+    ],
+    "lemon-peel ring": [
+     "lemon"
+    ],
+    "grapefruit twist": [
+     "grapefruit",
+     "dons-mix"
+    ],
+    "banana slice": [
+     "banana",
+     "banana-liqueur"
+    ],
+    "strawberry": [
+     "strawberry"
+    ],
+    "passion fruit half": [
+     "passion-fruit-juice",
+     "passion-fruit-syrup",
+     "passion-fruit-nectar",
+     "passion-fruit-liqueur"
+    ],
+    "coffee beans": [
+     "coffee",
+     "coffee-liqueur"
+    ],
+    "grated nutmeg": [],
+    "cinnamon stick": []
+   }
+  },
+  "byFamily": {
+   "mai-tai": {
+    "required": [
+     "spent lime shell",
+     "mint sprig"
+    ],
+    "typical": [
+     "orchid",
+     "pineapple spear (Hawaii)"
+    ],
+    "never": [
+     "cherry",
+     "flag (citrus slice + cherry)",
+     "paper umbrella (alone)",
+     "dark rum float",
+     "grenadine sink"
+    ]
+   },
+   "zombie": {
+    "required": [
+     "mint sprig"
+    ],
+    "typical": [
+     "mint bouquet",
+     "cherry on a pick",
+     "pineapple frond",
+     "flaming lime shell (mug)"
+    ],
+    "never": [
+     "salt rim",
+     "sugar rim",
+     "whipped cream",
+     "umbrella-and-fruit-salad"
+    ]
+   },
+   "grog": {
+    "required": [],
+    "typical": [
+     "ice cone",
+     "spent lime shell",
+     "mint sprig",
+     "rock candy stick"
+    ],
+    "never": [
+     "paper umbrella",
+     "orchid",
+     "flag (citrus slice + cherry)",
+     "salt rim"
+    ]
+   },
+   "beachcomber-sour": {
+    "required": [],
+    "typical": [
+     "mint sprig",
+     "cherry on a pick",
+     "orange-peel spiral",
+     "gardenia",
+     "three cherries + pineapple chunk"
+    ],
+    "never": [
+     "salt rim",
+     "whipped cream",
+     "paper umbrella (alone)"
+    ]
+   },
+   "swizzle": {
+    "required": [
+     "swizzle stick",
+     "mint sprig"
+    ],
+    "typical": [
+     "Angostura crown",
+     "grated nutmeg (Chartreuse)"
+    ],
+    "never": [
+     "paper umbrella",
+     "flag (citrus slice + cherry)",
+     "cherry"
+    ]
+   },
+   "daiquiri": {
+    "required": [],
+    "typical": [
+     "lime wheel",
+     "grapefruit twist",
+     "none"
+    ],
+    "never": [
+     "mint bouquet",
+     "paper umbrella",
+     "cherry (on coupe)",
+     "sugar rim",
+     "salt rim",
+     "pineapple wedge and fronds"
+    ]
+   },
+   "orgeat-punch": {
+    "required": [],
+    "typical": [
+     "gardenia",
+     "orchid",
+     "mint sprig",
+     "long straws",
+     "volcano well fire"
+    ],
+    "never": [
+     "umbrella-and-fruit-salad",
+     "grenadine sink",
+     "whipped cream"
+    ]
+   },
+   "colada": {
+    "required": [
+     "pineapple wedge and fronds"
+    ],
+    "typical": [
+     "maraschino cherry",
+     "grated nutmeg",
+     "orange half-wheel",
+     "paper umbrella",
+     "orchid"
+    ],
+    "never": [
+     "Angostura crown",
+     "salt rim",
+     "mint bouquet"
+    ]
+   },
+   "resort-punch": {
+    "required": [],
+    "typical": [
+     "paper umbrella",
+     "orchid",
+     "pineapple wedge and fronds",
+     "maraschino cherry",
+     "orange half-wheel",
+     "flag (citrus slice + cherry)"
+    ],
+    "never": []
+   },
+   "punch": {
+    "required": [],
+    "typical": [
+     "grated nutmeg",
+     "Angostura crown",
+     "lime wheel",
+     "mint sprig",
+     "orange half-wheel",
+     "cherry on a pick"
+    ],
+    "never": [
+     "sugar rim",
+     "salt rim"
+    ]
+   },
+   "buck": {
+    "required": [
+     "lime wheel"
+    ],
+    "typical": [
+     "candied ginger",
+     "mint sprig"
+    ],
+    "never": [
+     "paper umbrella",
+     "grated nutmeg",
+     "cherry"
+    ]
+   },
+   "bitter-tiki": {
+    "required": [],
+    "typical": [
+     "pineapple wedge and fronds",
+     "orchid",
+     "mint sprig"
+    ],
+    "never": [
+     "whipped cream",
+     "grated nutmeg"
+    ]
+   },
+   "stirred": {
+    "required": [
+     "expressed citrus peel"
+    ],
+    "typical": [
+     "cherry on a pick"
+    ],
+    "never": [
+     "mint bouquet",
+     "paper umbrella",
+     "fruit skewer"
+    ]
+   },
+   "hot": {
+    "required": [
+     "grated nutmeg"
+    ],
+    "typical": [
+     "cinnamon stick",
+     "clove-studded lemon peel",
+     "orange peel"
+    ],
+    "never": [
+     "paper umbrella",
+     "mint",
+     "pineapple wedge and fronds",
+     "lime wheel",
+     "ice"
+    ]
+   }
+  },
+  "archetypeAromaRequired": {
+   "Mai Tai": [
+    "spent lime shell",
+    "mint sprig"
+   ],
+   "Painkiller": [
+    "grated nutmeg"
+   ],
+   "Queen's Park Swizzle": [
+    "Angostura crown",
+    "mint sprig"
+   ],
+   "Zombie": [
+    "mint sprig"
+   ],
+   "Navy Grog": [
+    "ice cone"
+   ],
+   "Hot Buttered Rum": [
+    "grated nutmeg"
+   ],
+   "Three Dots and a Dash": [
+    "three cherries + pineapple chunk"
+   ],
+   "Saturn": [
+    "lemon-peel ring"
+   ]
+  },
+  "tackyNever": [
+   "glitter",
+   "glow stick",
+   "gummy candy",
+   "whipped cream (non-dessert)",
+   "sugar rim (tiki)",
+   "salt rim (tiki, except li-hing-mui with li-hing-mui-syrup)",
+   "umbrella on up or stirred drink",
+   "cherry sunk in a Mai Tai",
+   "five-fruit skewer of absent fruits",
+   "garnish blocking straw"
+  ]
+ },
+ "copy": {
+  "headlineFlavorRule": "A flavor word may headline (tagline, first sentence of tasting) only if it is the FIRST flavor tag of an ingredient present at >= its minDose (or >= 0.25 oz for liqueurs/syrups, >= 1 dash for bitters as 'spice'), or is produced by a garnish aroma (mint, nutmeg, cinnamon). Secondary tags of base spirits (e.g. banana/pineapple/tropical on Jamaican rum; lychee on elderflower; almond/ginger on falernum) may only appear hedged ('a banana-ish funk from the Jamaican rum').",
+  "creamyWordsRequire": "creamyMakers",
+  "colorWordsRequire": "computed drink color (optics) in the named hue family",
+  "strengthWords": {
+   "easygoing|gentle|light|breezy": [
+    0,
+    11
+   ],
+   "moderate": [
+    10,
+    15
+   ],
+   "potent|strong|dangerous|two-per-customer": [
+    15,
+    20
+   ]
+  },
+  "tastingStructure": [
+   "nose: aroma garnish or float",
+   "palate: base + lead modifier + acid",
+   "finish: spice/bitter/wood",
+   "strength in human terms"
+  ],
+  "taglineWords": [
+   8,
+   20
+  ],
+  "noRepeatedWords": true,
+  "maxFlavorAdjectivesInTagline": 2,
+  "bannedPhrases": [
+   "explosion of flavor",
+   "tropical paradise in a glass",
+   "perfect for any occasion",
+   "a symphony of",
+   "tantalizing",
+   "taste buds",
+   "burst of flavor",
+   "sour mix",
+   "sweet and sour mix",
+   "margarita mix",
+   "pina colada mix",
+   "Don's original",
+   "Vic's secret recipe",
+   "authentic since"
+  ],
+  "bannedNameTerms": [
+   "Pele",
+   "Ku",
+   "Lono",
+   "Kane",
+   "Kanaloa",
+   "Savage",
+   "Cannibal",
+   "Headhunter",
+   "Witch Doctor",
+   "Native"
+  ],
+  "familyLabelMustBeTrue": {
+   "orgeat punch": [
+    "orgeat"
+   ],
+   "colada": [
+    "pineapple-juice",
+    "coconut-cream|coconut-milk"
+   ],
+   "grog": "grog familyRequirements",
+   "swizzle": "method swizzle",
+   "Mai Tai cousin": "mai-tai familyRequirements",
+   "Beachcomber-style heavyweight": "zombie familyRequirements"
+  },
+  "prayerTrace": "Every generated drink must record >= 1 ingredient decision and >= 1 presentation decision (vessel, garnish, look) caused by the prayer; two prayers with different content words must not yield identical ingredient sets at the same seed."
+ },
+ "colorQuick": {
+  "note": "Summary for copy-truth only; detailed optics live in the color workstream.",
+  "murky": [
+   {
+    "if": [
+     "blue-curacao",
+     "darkSpirits"
+    ],
+    "reads": "swamp green-brown"
+   },
+   {
+    "if": [
+     "blue-curacao",
+     "yellowOrAmber"
+    ],
+    "reads": "green to teal (call it aqua/turquoise if pale)"
+   },
+   {
+    "if": [
+     "blue-curacao",
+     "grenadine"
+    ],
+    "reads": "purple-brown unless layered"
+   },
+   {
+    "if": [
+     "melon-liqueur",
+     "orange"
+    ],
+    "reads": "olive"
+   },
+   {
+    "if": [
+     "coffee-liqueur",
+     "lime"
+    ],
+    "reads": "muddy brown"
+   },
+   {
+    "if": [
+     "angostura>3 dashes mixed",
+     "coconut-cream"
+    ],
+    "reads": "beige-pink"
+   }
+  ],
+  "layers": {
+   "sink": "dense syrup/liqueur last, down the side: red base (grenadine/cassis/blackberry) under orange/yellow body",
+   "float": "dark rum / overproof / sherry on top: dark cap fading down through crushed ice",
+   "crown": "Angostura on crushed-ice dome: red-brown cap; QPS = green base (mint), gold body, red crown",
+   "stormCloud": "black rum poured last over ginger beer"
+  }
+ },
+ "redFlags": [
+  {
+   "id": "colada-no-coconut-or-pineapple",
+   "sev": "fatal",
+   "when": {
+    "anyOf": [
+     {
+      "family": [
+       "colada"
+      ]
+     },
+     {
+      "nameNoun": "Colada"
+     },
+     {
+      "copyWord": "colada"
+     }
+    ]
+   },
+   "kind": "requireAll",
+   "ids": [
+    {
+     "anyOf": [
+      "pineapple-juice"
+     ],
+     "minOz": 1.5
+    },
+    {
+     "anyOf": [
+      "coconut-cream",
+      "coconut-milk"
+     ],
+     "minOz": 0.75
+    }
+   ],
+   "fix": "pineapple-juice 2-4 oz + coconut-cream 0.75-1.5 oz, or relabel"
+  },
+  {
+   "id": "colada-coconut-from-liqueur-only",
+   "sev": "major",
+   "when": {
+    "family": [
+     "colada"
+    ]
+   },
+   "kind": "custom",
+   "check": "coconut sources present but none of coconut-cream/coconut-milk",
+   "fix": "use coconut-cream; coconut-rum <= 0.5"
+  },
+  {
+   "id": "colada-sour",
+   "sev": "major",
+   "when": {
+    "family": [
+     "colada"
+    ]
+   },
+   "kind": "maxOz",
+   "ids": {
+    "lime": 0.75,
+    "lemon": 0.5
+   },
+   "metric": {
+    "acidConc": [
+     0,
+     0.5
+    ]
+   },
+   "fix": "<= 0.5 oz lime"
+  },
+  {
+   "id": "mai-tai-juice",
+   "sev": "fatal",
+   "when": {
+    "anyOf": [
+     {
+      "family": [
+       "mai-tai"
+      ]
+     },
+     {
+      "nameNoun": "Mai Tai"
+     }
+    ]
+   },
+   "kind": "forbid",
+   "ids": [
+    "pineapple-juice",
+    "orange"
+   ],
+   "unless": "explicit Royal Hawaiian request",
+   "fix": "remove juice"
+  },
+  {
+   "id": "mai-tai-incomplete",
+   "sev": "fatal",
+   "when": {
+    "nameNoun": "Mai Tai"
+   },
+   "kind": "requireAll",
+   "ids": [
+    {
+     "anyOf": [
+      "lime"
+     ]
+    },
+    {
+     "anyOf": [
+      "orgeat"
+     ]
+    },
+    {
+     "anyOf": [
+      "orange-curacao",
+      "triple-sec"
+     ]
+    },
+    {
+     "anyOf": "agedOrFunkyRum"
+    }
+   ],
+   "fix": "2 : 1 : 1/2 : 1/2 : 1/4"
+  },
+  {
+   "id": "mai-tai-float-or-sink",
+   "sev": "major",
+   "when": {
+    "family": [
+     "mai-tai"
+    ]
+   },
+   "kind": "custom",
+   "check": "no line.float of dark rum, no line.sink of grenadine",
+   "fix": "remove"
+  },
+  {
+   "id": "zombie-weak-structure",
+   "sev": "fatal",
+   "when": {
+    "anyOf": [
+     {
+      "family": [
+       "zombie"
+      ]
+     },
+     {
+      "nameNoun": "Zombie"
+     }
+    ]
+   },
+   "kind": "custom",
+   "check": "familyRequirements.zombie",
+   "fix": "gold column + Jamaican + 0.75-1 oz 151 Demerara; Don's Mix; falernum"
+  },
+  {
+   "id": "zombie-red-or-creamy",
+   "sev": "fatal",
+   "when": {
+    "family": [
+     "zombie"
+    ]
+   },
+   "kind": "custom",
+   "check": "grenadine <= 0.17 oz; no coconutSources, allDairy, blue-curacao",
+   "fix": "1 tsp grenadine"
+  },
+  {
+   "id": "grog-wrong",
+   "sev": "major",
+   "when": {
+    "anyOf": [
+     {
+      "family": [
+       "grog"
+      ]
+     },
+     {
+      "nameNoun": "Grog"
+     }
+    ]
+   },
+   "kind": "custom",
+   "check": "familyRequirements.grog",
+   "fix": "lime + white grapefruit + honey or allspice"
+  },
+  {
+   "id": "swizzle-not-swizzled",
+   "sev": "fatal",
+   "when": {
+    "anyOf": [
+     {
+      "family": [
+       "swizzle"
+      ]
+     },
+     {
+      "nameNoun": "Swizzle"
+     }
+    ]
+   },
+   "kind": "custom",
+   "check": "method == swizzle && ice in [crushed,pebble]",
+   "fix": "swizzle over crushed"
+  },
+  {
+   "id": "daiquiri-impostor",
+   "sev": "major",
+   "when": {
+    "nameNoun": "Daiquiri"
+   },
+   "kind": "custom",
+   "check": "familyRequirements.daiquiri",
+   "fix": "strip to spirit, citrus, sugar (+ named fruit)"
+  },
+  {
+   "id": "orgeat-punch-without-orgeat",
+   "sev": "fatal",
+   "when": {
+    "anyOf": [
+     {
+      "family": [
+       "orgeat-punch"
+      ]
+     },
+     {
+      "copyWord": "orgeat"
+     }
+    ]
+   },
+   "kind": "requireAny",
+   "ids": [
+    "orgeat"
+   ],
+   "minOz": 0.25,
+   "fix": "add orgeat or relabel"
+  },
+  {
+   "id": "scorpion-without-brandy",
+   "sev": "major",
+   "when": {
+    "anyOf": [
+     {
+      "nameNoun": "Scorpion"
+     },
+     {
+      "family": [
+       "orgeat-punch"
+      ],
+      "vessel": [
+       "scorpion-bowl"
+      ]
+     }
+    ]
+   },
+   "kind": "requireAny",
+   "ids": [
+    "brandy"
+   ],
+   "minOz": 0.5,
+   "fix": "brandy 0.5-1 oz per serving"
+  },
+  {
+   "id": "fog-cutter-incomplete",
+   "sev": "major",
+   "when": {
+    "nameNoun": "Fog Cutter"
+   },
+   "kind": "requireAll",
+   "ids": [
+    {
+     "anyOf": [
+      "gin"
+     ]
+    },
+    {
+     "anyOf": [
+      "brandy",
+      "pisco"
+     ]
+    },
+    {
+     "anyOf": [
+      "amontillado-sherry"
+     ]
+    }
+   ],
+   "fix": "gin + brandy + rum + sherry float"
+  },
+  {
+   "id": "buck-without-ginger",
+   "sev": "major",
+   "when": {
+    "anyOf": [
+     {
+      "nameNoun": "Buck"
+     },
+     {
+      "nameNoun": "Mule"
+     }
+    ]
+   },
+   "kind": "requireAny",
+   "ids": [
+    "ginger-beer",
+    "ginger-ale",
+    "ginger-syrup",
+    "ginger-fresh"
+   ],
+   "fix": "ginger beer top"
+  },
+  {
+   "id": "highball-served-up",
+   "sev": "major",
+   "when": {
+    "anyOf": [
+     {
+      "nameNoun": "Highball"
+     },
+     {
+      "nameNoun": "Cooler"
+     }
+    ]
+   },
+   "kind": "custom",
+   "check": "vessel not in upVessels and ice != none",
+   "fix": "highball/collins on cubes"
+  },
+  {
+   "id": "hot-wrong",
+   "sev": "fatal",
+   "when": {
+    "method": [
+     "hot"
+    ]
+   },
+   "kind": "custom",
+   "check": "methodRules.hot-wrong",
+   "fix": "no ice, no fizz, peel not juice"
+  },
+  {
+   "id": "stirred-with-juice",
+   "sev": "major",
+   "when": {
+    "method": [
+     "stir"
+    ]
+   },
+   "kind": "custom",
+   "check": "methodRules.stirred-with-juice",
+   "fix": "shake, or remove juice"
+  },
+  {
+   "id": "bitter-tiki-not-bitter",
+   "sev": "major",
+   "when": {
+    "family": [
+     "bitter-tiki"
+    ]
+   },
+   "kind": "custom",
+   "check": "familyRequirements.bitter-tiki",
+   "fix": "Campari or amaro >= 0.5 oz"
+  },
+  {
+   "id": "classic-riff-loses-signature",
+   "sev": "major",
+   "when": {
+    "riff": true
+   },
+   "kind": "custom",
+   "check": "the riff keeps its source archetype's required signature components and archetypeAromaRequired garnish",
+   "fix": "restore signature; vary the rest"
+  },
+  {
+   "id": "bowl-single",
+   "sev": "major",
+   "when": {
+    "anyOf": [
+     {
+      "vessel": "bowlVessels"
+     },
+     {
+      "nameNoun": "Bowl"
+     }
+    ]
+   },
+   "kind": "custom",
+   "check": "servings >= 2; and servings >= 4 => bowl or batch",
+   "fix": "scale"
+  },
+  {
+   "id": "named-reference-ignored",
+   "sev": "major",
+   "when": {
+    "prayerNamesDrink": true
+   },
+   "kind": "custom",
+   "check": "prayer naming a classic or pop drink (e.g. 'Blue Hawaii', 'Elvis in Blue Hawaii') yields a riff that keeps that classic's signature (blue-curacao + pineapple for Blue Hawaii)",
+   "fix": "honor the reference"
+  },
+  {
+   "id": "sour-mix",
+   "sev": "fatal",
+   "kind": "copyBan",
+   "phrases": [
+    "sour mix",
+    "sweet and sour",
+    "sweet-and-sour",
+    "margarita mix",
+    "pina colada mix",
+    "bottled lime"
+   ],
+   "fix": "fresh citrus + syrup"
+  },
+  {
+   "id": "cranberry-in-tiki",
+   "sev": "major",
+   "when": {
+    "notPrayerAsks": [
+     "cranberry"
+    ]
+   },
+   "kind": "forbid",
+   "ids": [
+    "cranberry-juice"
+   ],
+   "fix": "hibiscus-syrup, grenadine, pomegranate-juice, passion, guava"
+  },
+  {
+   "id": "lime-cordial-as-citrus",
+   "sev": "major",
+   "when": {
+    "familyNot": [
+     "buck"
+    ]
+   },
+   "kind": "custom",
+   "check": "lime-cordial present and no lime/lemon/grapefruit",
+   "fix": "fresh lime"
+  },
+  {
+   "id": "spiced-rum-classic",
+   "sev": "major",
+   "when": {
+    "family": [
+     "mai-tai",
+     "zombie",
+     "grog",
+     "swizzle",
+     "daiquiri",
+     "beachcomber-sour"
+    ]
+   },
+   "kind": "forbid",
+   "ids": [
+    "rum-spiced"
+   ],
+   "fix": "aged rum + allspice/cinnamon/falernum"
+  },
+  {
+   "id": "coconut-pileup",
+   "sev": "major",
+   "kind": "custom",
+   "check": "count(coconutSources) > 2 OR (coconut-rum AND coconut-cream AND any allDairy)",
+   "fix": "one cream of coconut (+ <=0.5 coconut rum)"
+  },
+  {
+   "id": "casein-plus-citrus",
+   "sev": "fatal",
+   "kind": "pairForbidden",
+   "a": "caseinDairy",
+   "b": "strongAcids",
+   "fix": "drop citrus or use coconut"
+  },
+  {
+   "id": "heavy-cream-plus-heavy-citrus",
+   "sev": "major",
+   "kind": "custom",
+   "check": "heavy-cream present and sum(lime,lemon,grapefruit,passion-fruit-juice) > 0.75",
+   "fix": "<= 0.5 citrus or coconut"
+  },
+  {
+   "id": "ice-cream-shaken",
+   "sev": "major",
+   "kind": "custom",
+   "check": "vanilla-ice-cream present and method != blend",
+   "fix": "blend"
+  },
+  {
+   "id": "blue-or-melon-unrequested",
+   "sev": "major",
+   "when": {
+    "notPrayerAsks": [
+     "blue",
+     "green",
+     "neon",
+     "color",
+     "Blue Hawaii",
+     "Midori",
+     "pool",
+     "ocean",
+     "lagoon"
+    ]
+   },
+   "kind": "forbid",
+   "ids": [
+    "blue-curacao",
+    "melon-liqueur"
+   ],
+   "fix": "remove"
+  },
+  {
+   "id": "two-orange-liqueurs",
+   "sev": "minor",
+   "kind": "maxCountOf",
+   "set": "orangeLiqueurs",
+   "n": 1
+  },
+  {
+   "id": "two-plain-syrups",
+   "sev": "minor",
+   "kind": "maxCountOf",
+   "set": "plainSyrups",
+   "n": 1
+  },
+  {
+   "id": "lemon-and-lime",
+   "sev": "minor",
+   "when": {
+    "familyNot": [
+     "zombie",
+     "punch",
+     "resort-punch"
+    ]
+   },
+   "kind": "maxCountOf",
+   "ids": [
+    "lemon",
+    "lime"
+   ],
+   "n": 1
+  },
+  {
+   "id": "grenadine-for-color",
+   "sev": "major",
+   "kind": "custom",
+   "check": "grenadine > doseCaps.grenadine.byFamily[family] (default 0.5) unless line.sink",
+   "fix": "1 tsp seasoning or a deliberate sink"
+  },
+  {
+   "id": "anise-overdose",
+   "sev": "fatal",
+   "kind": "maxOz",
+   "ids": {
+    "absinthe": 0.04,
+    "pastis": 0.04
+   },
+   "unless": "rinse or anise-forward request",
+   "fix": "6 drops"
+  },
+  {
+   "id": "bitters-overdose",
+   "sev": "major",
+   "kind": "maxOz",
+   "ids": {
+    "angostura": 0.18,
+    "peychauds": 0.12,
+    "orange-bitters": 0.12,
+    "tiki-bitters": 0.12,
+    "mole-bitters": 0.12
+   },
+   "unless": "Angostura crown (0.25) or bitters-base archetype",
+   "fix": "1-2 dashes or a crown"
+  },
+  {
+   "id": "allspice-overdose",
+   "sev": "major",
+   "kind": "maxOz",
+   "ids": {
+    "allspice-dram": 0.5
+   }
+  },
+  {
+   "id": "chartreuse-overdose",
+   "sev": "minor",
+   "kind": "maxOz",
+   "ids": {
+    "green-chartreuse": 0.75
+   },
+   "unless": "Chartreuse base archetype"
+  },
+  {
+   "id": "overproof-overdose",
+   "sev": "fatal",
+   "kind": "custom",
+   "check": "each overproof <= 1.0 (1.5 if sole base); count(overproof) <= 1; total spirits <= 4.0; ethanol <= 2.0 oz",
+   "fix": "0.75-1 oz overproof in a 3-4 oz stack"
+  },
+  {
+   "id": "jamaican-white-overproof-base",
+   "sev": "minor",
+   "kind": "maxOz",
+   "ids": {
+    "rum-jamaican-white-overproof": 0.75
+   },
+   "unless": "explicit request"
+  },
+  {
+   "id": "smoky-bitter-bomb",
+   "sev": "minor",
+   "kind": "maxOz",
+   "ids": {
+    "fernet": 0.25,
+    "scotch-islay": 0.5
+   },
+   "unless": "explicit bitter/smoky/medicinal request"
+  },
+  {
+   "id": "bitter-stack-in-gentle-drink",
+   "sev": "fatal",
+   "when": {
+    "prayerTone": [
+     "gentle",
+     "floral",
+     "garden",
+     "sunny",
+     "brunch",
+     "romantic",
+     "grandmother",
+     "light",
+     "elegant",
+     "morning"
+    ]
+   },
+   "kind": "maxCountOf",
+   "set": "aggressiveBitter",
+   "n": 1,
+   "fix": "flowers, herbs, honey, citrus"
+  },
+  {
+   "id": "too-many-cooks",
+   "sev": "major",
+   "kind": "custom",
+   "check": "components <= familyWindows[family].maxComponents and <= 11",
+   "fix": "one item per job"
+  },
+  {
+   "id": "quarter-ounce-soup",
+   "sev": "major",
+   "kind": "custom",
+   "check": "count(non-seasoning lines with oz <= 0.25) <= componentCounting.maxNonSeasoningAtOrBelowQuarterOz (zombie 4)",
+   "fix": "consolidate"
+  },
+  {
+   "id": "micro-dose-bulk",
+   "sev": "minor",
+   "kind": "minOzIfPresent",
+   "ids": "minDoseIfPresent",
+   "fix": "raise or drop"
+  },
+  {
+   "id": "redundant-red-fruit",
+   "sev": "minor",
+   "kind": "maxCountOf",
+   "set": "redFruit",
+   "n": 2
+  },
+  {
+   "id": "passion-pileup",
+   "sev": "minor",
+   "kind": "maxCountOf",
+   "set": "passionSources",
+   "n": 2
+  },
+  {
+   "id": "vodka-in-golden-age-family",
+   "sev": "major",
+   "when": {
+    "family": [
+     "zombie",
+     "mai-tai",
+     "grog",
+     "swizzle",
+     "beachcomber-sour"
+    ]
+   },
+   "kind": "forbid",
+   "ids": [
+    "vodka"
+   ],
+   "unless": "explicit vodka request"
+  },
+  {
+   "id": "brewed-coffee-cold-stirred",
+   "sev": "major",
+   "when": {
+    "methodNot": [
+     "hot"
+    ]
+   },
+   "kind": "maxOz",
+   "ids": {
+    "coffee": 0.75
+   },
+   "fix": "coffee-liqueur or make it hot"
+  },
+  {
+   "id": "raw-butter",
+   "sev": "major",
+   "kind": "custom",
+   "check": "butter only when method == hot; prefer hot-buttered-rum-batter",
+   "fix": "batter, hot only"
+  },
+  {
+   "id": "fruit-named-absent",
+   "sev": "fatal",
+   "kind": "custom",
+   "check": "every fruit/food word in name, tagline or prayer-as-request maps to a present ingredient at minDose; frozen banana requires 'banana' (fresh), not only banana-liqueur",
+   "fix": "add the fruit"
+  },
+  {
+   "id": "dessert-without-dessert",
+   "sev": "major",
+   "when": {
+    "prayerAsks": [
+     "dessert",
+     "bananas foster",
+     "chocolate",
+     "pie",
+     "cake",
+     "ice cream",
+     "sundae",
+     "horchata",
+     "dreamsicle"
+    ]
+   },
+   "kind": "custom",
+   "check": "drink contains >= 1 of creamyMakers or hot-buttered-rum-batter or creme-de-cacao/coffee-liqueur/banana-liqueur/vanilla-syrup AND no grapefruit",
+   "fix": "dessert-shaped build"
+  },
+  {
+   "id": "coconut-milk-unsweetened-swap",
+   "sev": "minor",
+   "when": {
+    "family": [
+     "colada"
+    ]
+   },
+   "kind": "custom",
+   "check": "coconut-milk without coconut-cream requires >= 0.5 oz simple-equivalent sweetener",
+   "fix": "coconut-cream"
+  },
+  {
+   "id": "spice-sludge",
+   "sev": "minor",
+   "kind": "maxCountOf",
+   "set": "spiceCarriers",
+   "n": 3
+  },
+  {
+   "id": "liqueur-cloy",
+   "sev": "major",
+   "kind": "custom",
+   "check": "sum(sweetLiqueurs oz) <= 1.5 unless archetype is liqueur-based (rum-runner, chartreuse swizzle, resort)",
+   "fix": "trim, add acid"
+  },
+  {
+   "id": "ratio-out-of-window",
+   "sev": "major",
+   "kind": "range",
+   "metric": "sugarToAcid",
+   "bounds": "familyWindows[family].sugarToAcid"
+  },
+  {
+   "id": "acid-missing",
+   "sev": "fatal",
+   "when": {
+    "familyNot": [
+     "colada",
+     "stirred",
+     "hot",
+     "buck"
+    ]
+   },
+   "kind": "range",
+   "metric": "acidConc",
+   "min": 0.4
+  },
+  {
+   "id": "frozen-thin",
+   "sev": "major",
+   "when": {
+    "method": [
+     "blend"
+    ]
+   },
+   "kind": "custom",
+   "check": "sugarConc >= 8.5 and spirits <= 2.5 oz"
+  },
+  {
+   "id": "abv-out-of-band",
+   "sev": "major",
+   "kind": "range",
+   "metric": "abv",
+   "bounds": "familyWindows[family].abv, overridden by styleOverrides"
+  },
+  {
+   "id": "passion-plus-full-lime",
+   "sev": "minor",
+   "kind": "custom",
+   "check": "incompatibilities.passion-plus-full-lime"
+  },
+  {
+   "id": "pineapple-flab",
+   "sev": "minor",
+   "when": {
+    "familyNot": [
+     "colada",
+     "resort-punch",
+     "bitter-tiki"
+    ]
+   },
+   "kind": "custom",
+   "check": "pineapple-juice <= 3 x (lime + lemon)"
+  },
+  {
+   "id": "hot-too-dry-or-strong",
+   "sev": "minor",
+   "when": {
+    "method": [
+     "hot"
+    ]
+   },
+   "kind": "custom",
+   "check": "sugarConc >= 2.5 and abv <= 14"
+  },
+  {
+   "id": "tasting-contradicts-numbers",
+   "sev": "major",
+   "kind": "custom",
+   "check": "sweet/tart/balanced words consistent with sugarToAcid position within family window (lower third = tart, upper third = sweet)"
+  },
+  {
+   "id": "shaken-carbonation",
+   "sev": "fatal",
+   "kind": "custom",
+   "check": "methodRules.shaken-carbonation"
+  },
+  {
+   "id": "sparkling-shaken",
+   "sev": "fatal",
+   "kind": "custom",
+   "check": "methodRules.sparkling-shaken"
+  },
+  {
+   "id": "swizzle-method-mismatch",
+   "sev": "major",
+   "kind": "custom",
+   "check": "methodRules.swizzle-method"
+  },
+  {
+   "id": "flash-blend-up",
+   "sev": "major",
+   "kind": "custom",
+   "check": "methodRules.flash-blend-up and crushed-shake-up"
+  },
+  {
+   "id": "layer-claim-shaken",
+   "sev": "major",
+   "kind": "custom",
+   "check": "methodRules.layer-claim"
+  },
+  {
+   "id": "float-too-dense",
+   "sev": "major",
+   "kind": "custom",
+   "check": "methodRules.float-density"
+  },
+  {
+   "id": "sink-too-light",
+   "sev": "major",
+   "kind": "custom",
+   "check": "methodRules.sink-density"
+  },
+  {
+   "id": "mint-shredded-or-unstrained",
+   "sev": "minor",
+   "kind": "custom",
+   "check": "muddled mint + up service requires fine-strain step"
+  },
+  {
+   "id": "egg-no-dry-shake",
+   "sev": "minor",
+   "kind": "custom",
+   "check": "methodRules.egg-no-dry-shake"
+  },
+  {
+   "id": "hot-vessel-unsafe",
+   "sev": "major",
+   "when": {
+    "method": [
+     "hot"
+    ]
+   },
+   "kind": "custom",
+   "check": "vessel in heatSafeVessels"
+  },
+  {
+   "id": "punchbowl-crushed",
+   "sev": "minor",
+   "kind": "custom",
+   "check": "methodRules.punchbowl-block"
+  },
+  {
+   "id": "fire-unsafe",
+   "sev": "major",
+   "kind": "custom",
+   "check": "fire garnish only in garnish.fireAllowedVessels; fuel is lemon-extract crouton (or overproof in a well), never poured from bottle; not with mint bouquet/umbrella adjacent; copy never says 'flaming 151 float'"
+  },
+  {
+   "id": "ice-cone-misuse",
+   "sev": "minor",
+   "kind": "custom",
+   "check": "ice-cone only family grog (or explicit request) in dof/rocks"
+  },
+  {
+   "id": "frozen-no-mound",
+   "sev": "minor",
+   "kind": "custom",
+   "check": "methodRules.frozen-vessel"
+  },
+  {
+   "id": "volume-overflow",
+   "sev": "fatal",
+   "kind": "vesselFit",
+   "side": "max"
+  },
+  {
+   "id": "volume-stingy",
+   "sev": "major",
+   "kind": "vesselFit",
+   "side": "min"
+  },
+  {
+   "id": "up-drink-in-mug",
+   "sev": "major",
+   "kind": "custom",
+   "check": "ice == none and vessel in opaqueVessels (except hot-mug for hot)"
+  },
+  {
+   "id": "colada-in-coupe",
+   "sev": "minor",
+   "when": {
+    "family": [
+     "colada"
+    ]
+   },
+   "kind": "custom",
+   "check": "vessel not in upVessels unless method == stir"
+  },
+  {
+   "id": "fruit-vessel-for-up",
+   "sev": "major",
+   "kind": "custom",
+   "check": "vessel in [coconut, pineapple] requires crushed ice and method != stir"
+  },
+  {
+   "id": "stirred-on-crushed",
+   "sev": "major",
+   "kind": "custom",
+   "check": "methodRules.stirred-on-crushed"
+  },
+  {
+   "id": "garnish-excluded-ingredient",
+   "sev": "fatal",
+   "kind": "custom",
+   "check": "no garnish signals (garnish.truth.signals) an excluded ingredient or avoided flavor tag"
+  },
+  {
+   "id": "garnish-contradicts-recipe",
+   "sev": "major",
+   "kind": "custom",
+   "check": "garnish.truth.rule"
+  },
+  {
+   "id": "garnish-duplicate",
+   "sev": "minor",
+   "kind": "custom",
+   "check": "garnish.duplicates groups max 1 each"
+  },
+  {
+   "id": "garnish-missing-aroma",
+   "sev": "major",
+   "kind": "custom",
+   "check": "garnish.byFamily[family].required and archetypeAromaRequired present"
+  },
+  {
+   "id": "garnish-heavy-on-up",
+   "sev": "major",
+   "kind": "custom",
+   "check": "service up => no forbiddenOnUp items and <= 1 element"
+  },
+  {
+   "id": "garnish-rim",
+   "sev": "minor",
+   "kind": "custom",
+   "check": "no salt/sugar rim unless li-hing-mui-syrup present"
+  },
+  {
+   "id": "garnish-whipped-cream",
+   "sev": "minor",
+   "kind": "custom",
+   "check": "whipped cream only when prayer asks dessert and drink is blended/creamy"
+  },
+  {
+   "id": "garnish-clutter",
+   "sev": "minor",
+   "kind": "custom",
+   "check": "elements <= garnish.maxElementsByService; elegant/minimal prayer => <= 1"
+  },
+  {
+   "id": "mint-without-dome",
+   "sev": "minor",
+   "kind": "custom",
+   "check": "mint bouquet requires crushed-family ice"
+  },
+  {
+   "id": "cherry-in-mai-tai",
+   "sev": "minor",
+   "when": {
+    "family": [
+     "mai-tai"
+    ]
+   },
+   "kind": "custom",
+   "check": "no cherry/flag"
+  },
+  {
+   "id": "nutmeg-on-tart-sour",
+   "sev": "minor",
+   "kind": "custom",
+   "check": "grated nutmeg only on colada, punch, hot, swizzle (Chartreuse/151), creamy or rum-rich drinks; not on a lean up daiquiri"
+  },
+  {
+   "id": "blue-goes-green",
+   "sev": "major",
+   "kind": "custom",
+   "check": "incompatibilities.blue-goes-green (copy/name color word must be aqua/turquoise/teal/green, not blue)"
+  },
+  {
+   "id": "blue-plus-red",
+   "sev": "major",
+   "kind": "custom",
+   "check": "incompatibilities.blue-plus-red"
+  },
+  {
+   "id": "blue-plus-dark-rum",
+   "sev": "fatal",
+   "kind": "pairForbidden",
+   "a": [
+    "blue-curacao"
+   ],
+   "b": "darkSpirits"
+  },
+  {
+   "id": "color-name-lie",
+   "sev": "major",
+   "kind": "custom",
+   "check": "copy.colorWordsRequire"
+  },
+  {
+   "id": "red-zombie-or-mai-tai",
+   "sev": "major",
+   "when": {
+    "family": [
+     "zombie",
+     "mai-tai"
+    ]
+   },
+   "kind": "custom",
+   "check": "computed hue not red/pink"
+  },
+  {
+   "id": "opacity-lie",
+   "sev": "minor",
+   "kind": "custom",
+   "check": "'clear/crystal' copy forbidden if any opaqueMakers present; 'creamy' requires creamyMakers"
+  },
+  {
+   "id": "coffee-citrus-mud",
+   "sev": "minor",
+   "kind": "custom",
+   "check": "incompatibilities.coffee-citrus-mud"
+  },
+  {
+   "id": "angostura-brown-wash",
+   "sev": "minor",
+   "kind": "custom",
+   "check": "angostura mixed (not crown) <= 0.09 oz when drink is pale/white (coconut-cream, clear bases)"
+  },
+  {
+   "id": "midori-orange-mud",
+   "sev": "minor",
+   "kind": "custom",
+   "check": "incompatibilities.midori-orange-mud"
+  },
+  {
+   "id": "noun-claim-false",
+   "sev": "fatal",
+   "kind": "custom",
+   "check": "every nameNouns entry present in name satisfies its require"
+  },
+  {
+   "id": "phantom-flavor",
+   "sev": "major",
+   "kind": "custom",
+   "check": "copy.headlineFlavorRule"
+  },
+  {
+   "id": "adjective-soup",
+   "sev": "major",
+   "kind": "custom",
+   "check": "copy.noRepeatedWords and maxFlavorAdjectivesInTagline and tagline has a verb or a noun phrase beyond the adjective list"
+  },
+  {
+   "id": "label-names-absent-ingredient",
+   "sev": "fatal",
+   "kind": "custom",
+   "check": "copy.familyLabelMustBeTrue"
+  },
+  {
+   "id": "prayer-ignored",
+   "sev": "fatal",
+   "kind": "custom",
+   "check": "copy.prayerTrace"
+  },
+  {
+   "id": "sacred-or-offensive",
+   "sev": "major",
+   "kind": "copyBan",
+   "phrases": "copy.bannedNameTerms"
+  },
+  {
+   "id": "false-provenance",
+   "sev": "major",
+   "kind": "copyBan",
+   "phrases": [
+    "Don's original",
+    "Vic's secret",
+    "since 1934",
+    "authentic original"
+   ]
+  },
+  {
+   "id": "classic-name-misuse",
+   "sev": "fatal",
+   "kind": "custom",
+   "check": "classic drink names (Mai Tai, Zombie, Painkiller, Navy Grog, Jungle Bird, Hurricane, Scorpion, Fog Cutter, Pi\u00f1a Colada, Saturn, Three Dots and a Dash) only in riffs that pass that archetype's signature"
+  },
+  {
+   "id": "strength-word-lie",
+   "sev": "major",
+   "kind": "custom",
+   "check": "copy.strengthWords"
+  },
+  {
+   "id": "creamy-without-cream",
+   "sev": "major",
+   "kind": "custom",
+   "check": "copy.creamyWordsRequire"
+  },
+  {
+   "id": "rich-for-lean",
+   "sev": "minor",
+   "kind": "custom",
+   "check": "'rich' requires sugarConc >= 8 or creamyMakers or dark/navy/demerara rum >= 1 oz"
+  },
+  {
+   "id": "cliche-copy",
+   "sev": "minor",
+   "kind": "copyBan",
+   "phrases": "copy.bannedPhrases"
+  },
+  {
+   "id": "possessive-mad-libs",
+   "sev": "minor",
+   "kind": "custom",
+   "check": "name not of form 'The X's Y'; 'of <Place>' only when a spirit from that place >= 1 oz or the prayer names it"
+  },
+  {
+   "id": "copy-too-long",
+   "sev": "minor",
+   "kind": "custom",
+   "check": "tagline words within copy.taglineWords; tasting <= 3 sentences"
+  }
+ ],
+ "sweetEquivalentsPerOz": {
+  "about": "oz of 1:1 simple syrup with the same sugar, and oz of lime with the same acid, per oz of ingredient (from data/ingredients.json)",
+  "pineapple-juice": [
+   0.16,
+   0.13
+  ],
+  "orange": [
+   0.16,
+   0.15
+  ],
+  "grapefruit": [
+   0.11,
+   0.4
+  ],
+  "passion-fruit-juice": [
+   0.16,
+   0.58
+  ],
+  "passion-fruit-syrup": [
+   0.89,
+   0.25
+  ],
+  "passion-fruit-nectar": [
+   0.21,
+   0.13
+  ],
+  "guava-nectar": [
+   0.21,
+   0.07
+  ],
+  "mango-nectar": [
+   0.23,
+   0.05
+  ],
+  "coconut-cream": [
+   0.89,
+   0
+  ],
+  "coconut-milk": [
+   0.03,
+   0
+  ],
+  "orgeat": [
+   1.06,
+   0
+  ],
+  "velvet-falernum": [
+   0.49,
+   0
+  ],
+  "orange-curacao": [
+   0.33,
+   0
+  ],
+  "triple-sec": [
+   0.41,
+   0
+  ],
+  "allspice-dram": [
+   0.41,
+   0
+  ],
+  "maraschino": [
+   0.57,
+   0
+  ],
+  "campari": [
+   0.39,
+   0
+  ],
+  "grenadine": [
+   0.89,
+   0.13
+  ],
+  "honey-syrup": [
+   0.94,
+   0
+  ],
+  "rich-simple": [
+   1.43,
+   0
+  ],
+  "demerara-syrup": [
+   1.43,
+   0
+  ],
+  "ginger-beer": [
+   0.16,
+   0.05
+  ],
+  "lime-cordial": [
+   0.49,
+   0.42
+  ],
+  "dons-mix": [
+   0.42,
+   0.27
+  ],
+  "lemon": [
+   0.03,
+   1.0
+  ],
+  "lime": [
+   0.03,
+   1.0
+  ]
+ }
+}

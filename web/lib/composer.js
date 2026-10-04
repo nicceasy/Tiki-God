@@ -147,7 +147,10 @@ export function createComposer({ archetypes, ingMap, model }) {
         return { item: sp, s };
       });
       const sp = ctx.softPick(rng, scored, 0.6, greedy);
-      lines = sp.lines.filter(l => ingMap.has(l.id)).map(l => ({ id: l.id, role: roleOf(l.id), oz: l.oz, unit: l.unit, float: !!l.float, sink: !!l.sink, crown: !!l.crown, slot: slotOf(a, l.id), range: rangeOf(a, l.id), fromSpec: sp.name }));
+      lines = sp.lines.filter(l => ingMap.has(l.id)).map(l => ({ id: l.id, role: roleOf(l.id), oz: l.oz, unit: l.unit, amount: l.amount, float: !!l.float, sink: !!l.sink, crown: !!l.crown, slot: slotOf(a, l.id), range: rangeOf(a, l.id), fromSpec: sp.name }));
+      // Mint the archetype is built on (blended into a Missionary's Downfall, muddled in a Mojito)
+      // is an ingredient, not a garnish.
+      for (const l of lines) if (l.role === 'aromatic' && ['leaves', 'sprig'].includes(l.unit) && a.signature.some(c => c.required && c.anyOf.includes(l.id))) { l.muddled = true; l.amount = l.amount || 8; l.unit = 'leaves'; if (l.amount < 6) l.amount = 8; }
       notes.push(`spec:${sp.name}`);
     } else lines = fillSlots(a, intent, ctx, rng, greedy);
 
@@ -473,6 +476,8 @@ export function createComposer({ archetypes, ingMap, model }) {
       if (lines.filter(l => l.slot === o.slot).length >= (o.maxCount || 1)) continue;
       for (const id of o.anyOf) {
         if (!ingMap.has(id) || ctx.forbidden(id, intent) || ids.includes(id) || ctx.conflicts(id, ids)) continue;
+        // A twist you can't taste (two drops of saline, a dash of water) isn't a twist.
+        if (['saline', 'water', 'hot-water'].includes(id) && ctx.intentMatch(id, intent) < 1) continue;
         options.push({ item: { o, id }, s: 2.2 * ctx.intentMatch(id, intent) + 0.6 * ctx.compat(id, ids) + (o.common ? 0.4 : 0) - (o.anyOf.indexOf(id) * 0.05) });
       }
     }

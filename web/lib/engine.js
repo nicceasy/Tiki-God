@@ -777,6 +777,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
 
   function finalizeAmounts(lines) {
     for (const l of lines) {
+      if (l.muddled) { l.oz = 0; continue; }
       const ing = ingMap.get(l.id);
       const s = snap(l.oz, ing, l.role);
       l.amount = s.amount; l.unit = s.unit; l.oz = s.oz;
@@ -883,62 +884,116 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
 
   // Method steps that match the build: what goes in the tin, what is held back to top, float,
   // sink or crown the drink, and the garnish last.
+  // Technique a bartender wouldn't break: egg white needs a dry shake and never meets a
+  // swizzle stick or blender; cream and dairy are shaken or blended, never stirred; nothing
+  // carbonated goes in the tin (it is held back and topped). Returns notes on what changed.
+  const EGG = new Set(['egg-white', 'whole-egg']);
+  const DAIRY = new Set(['heavy-cream', 'half-and-half', 'whole-milk', 'vanilla-ice-cream', 'coconut-cream', 'coconut-milk', 'irish-cream']);
+  function fixTechnique(svc, lines, notes) {
+    const has = set => lines.some(l => set.has(l.id) && !l.garnish);
+    if (has(EGG) && ['swizzle', 'blend', 'flash-blend', 'build', 'muddle-build', 'stir'].includes(svc.method)) {
+      notes.push(`shaken, not ${svc.method === 'blend' ? 'blended' : svc.method === 'flash-blend' ? 'flash-blended' : svc.method + 'ed'}: egg white needs a dry shake`);
+      svc.method = 'shake';
+      if (['blended', 'shaved', 'ice-cone'].includes(svc.ice)) svc.ice = 'cubed';
+    }
+    if (has(DAIRY) && svc.method === 'stir') { svc.method = 'shake'; notes.push('shaken rather than stirred, because cream needs the air'); }
+  }
+
+  // Method steps that match the build: what goes in the tin, what is held back to top, float,
+  // sink or crown the drink, the ice exactly as served, and the garnish last. A batch for a
+  // group gives totals and a pitcher or bowl method instead of "multiply by eight".
+  const ICE_WORD = { crushed: 'crushed ice', pebble: 'pebble ice', shaved: 'shaved ice', cubed: 'cubed ice', block: 'one large block', 'ice-cone': 'an ice cone', none: 'no ice', blended: 'ice' };
   function steps(svc, lines, intent, garnish = []) {
     const g = svc.glass;
     const aG = `${/^[aeiou]/i.test(g) && !/^(u|one)/i.test(g) ? 'an' : 'a'} ${g}`;
-    const poured = lines.filter(l => l.role !== 'aromatic');
+    const n = intent.servings > 1 ? intent.servings : 1;
+    const batch = n > 1;
+    const poured = lines.filter(l => l.role !== 'aromatic' && !l.garnish);
     const floats = poured.filter(l => l.float), sinks = poured.filter(l => l.sink);
     const crowns = poured.filter(l => l.crown || (svc.method === 'swizzle' && ingMap.get(l.id).cat === 'bitters' && !l.float));
-    const lengthener = poured.find(l => l.role === 'lengthener' && !l.float && !l.sink);
-    const held = [...floats, ...sinks, ...crowns, ...(lengthener ? [lengthener] : [])];
-    const except = held.length ? ` except the ${list(held.map(l => displayName(l.id)))}` : '';
-    const mint = lines.find(l => l.id === 'mint' && svc.method === 'swizzle');
+    const fizz = poured.filter(l => !l.float && !l.sink && (l.role === 'lengthener' || ['sparkling-wine'].includes(l.id)) && !['hot-water', 'water', 'coffee', 'black-tea'].includes(l.id));
+    const hotTop = svc.method === 'hot' ? poured.find(l => ['hot-water', 'coffee', 'black-tea', 'whole-milk'].includes(l.id)) : null;
+    const held = [...floats, ...sinks, ...crowns, ...fizz, ...(hotTop ? [hotTop] : [])];
+    const except = held.length ? ` except the ${list(held.map(l => displayName(l.id).toLowerCase()))}` : '';
+    const egg = poured.some(l => EGG.has(l.id));
+    const mint = lines.find(l => l.id === 'mint') && ['swizzle', 'muddle-build'].includes(svc.method);
+    const up = svc.up || svc.ice === 'none';
     const out = [];
-    const mul = intent.servings > 1 ? ` (multiply everything by ${intent.servings})` : '';
+    const vessel = batch && intent.style.bowl ? aG : aG;
+    // Where the drink ends up, in the ice it is actually served on.
+    const serveOn = () => {
+      if (svc.up) return `Double-strain into a chilled ${g}.`;
+      switch (svc.ice) {
+        case 'none': return `Double-strain into ${up ? `a chilled ${g}` : aG}.`;
+        case 'cubed': return `Strain into ${aG} over fresh cubed ice.`;
+        case 'block': return `Strain into ${aG} over one large cube or block.`;
+        case 'shaved': return `Pack ${aG} with shaved ice and strain the drink over it; mound more shaved ice on top.`;
+        case 'pebble': return `Open-pour, ice and all, into ${aG}; top with pebble ice to fill.`;
+        case 'ice-cone': return `Strain into ${aG} over an ice cone (shaved ice packed around a chopstick in a pilsner glass, frozen and unmolded), or over one large cube if you have no cone.`;
+        default: return `Open-pour, ice and all, into ${aG}; top with crushed ice to fill.`;
+      }
+    };
+    if (batch) out.push(`For ${n}: combine the batch totals${except} in a pitcher${svc.method === 'blend' ? ' and blend in rounds' : ''}; ${['shake', 'flash-blend'].includes(svc.method) ? 'shake or flash-blend in rounds of two drinks' : 'stir well'}.`);
+    if (mint) out.push(`Lightly press the mint in the bottom of ${aG}.`);
     switch (svc.method) {
       case 'flash-blend':
-        out.push(`Add everything${except} to a blender cup with 12 oz (1½ cups) of crushed ice${mul}.`);
-        out.push('Flash-blend for 3–5 seconds, or shake very hard with crushed ice if you have no spindle mixer.');
-        out.push(`Open-pour everything, ice and all, into ${aG}; top with more crushed ice.`);
+        if (!batch) out.push(`Add everything${except} to a blender cup with 6 oz of crushed ice.`);
+        out.push('Flash-blend for 3–5 seconds (or shake very hard with crushed ice if you have no spindle mixer).');
+        out.push(`Pour everything, ice and all, into ${vessel}; top with more crushed ice.`);
         break;
       case 'blend':
-        out.push(`Add everything${except} to a blender with 1 cup (8 oz) of crushed ice${mul}.`);
-        out.push(`Blend until smooth and thick, then pour into ${aG}.`);
+        if (!batch) out.push(`Add everything${except} to a blender with about 1 cup (8 oz) of ice.`);
+        out.push(`Blend until smooth and thick, then pour into ${vessel}.`);
         break;
       case 'swizzle':
-        if (mint) out.push(`Lightly press the mint in the bottom of ${aG}.`);
-        out.push(`Add everything${except}${mul}.`);
-        out.push('Fill two-thirds with crushed ice and swizzle until the glass frosts over; pack with more ice.');
+        out.push(`Add everything${except} to ${vessel}.`);
+        out.push('Fill two-thirds with crushed ice and swizzle until the glass frosts over; pack with more crushed ice.');
         break;
       case 'stir':
-        out.push(`Stir everything${except} with ice for 20–30 seconds${mul}.`);
-        out.push(svc.up ? `Strain into a chilled ${g}.` : `Strain into ${aG} over one large cube.`);
+        if (!batch) out.push(`Stir everything${except} with cubed ice for 20–30 seconds.`);
+        out.push(svc.ice === 'none' || svc.up ? `Strain into a chilled ${g}.` : `Strain into ${aG} over one large cube.`);
         break;
       case 'build':
       case 'muddle-build':
-        out.push(`Build everything${except} in ${aG} over ice${mul}.`);
+        out.push(`Build everything${except} in ${vessel} over ${ICE_WORD[svc.ice] || 'ice'}${svc.ice === 'none' ? '' : ''}, and stir briefly.`);
         break;
-      case 'hot':
+      case 'hot': {
+        const paste = poured.find(l => ['hot-buttered-rum-batter', 'butter', 'gardenia-mix', 'tom-and-jerry-batter'].includes(l.id));
         out.push(`Preheat ${aG} with boiling water, then empty it.`);
-        out.push(`Add everything${lengthener ? ` except the ${displayName(lengthener.id)}` : ''} and stir to dissolve${mul}.`);
+        if (paste) out.push(`Add the ${displayName(paste.id).toLowerCase()} with a splash of ${hotTop ? `the ${displayName(hotTop.id).toLowerCase().replace(/^hot /, 'hot ')}` : 'hot water'} and stir until it melts.`);
+        out.push(`Add ${paste ? 'the rest' : 'everything'}${hotTop ? ` except the ${displayName(hotTop.id).toLowerCase()}` : ''} and stir.`);
         break;
+      }
       default:
-        if (svc.ice === 'cubed' || svc.ice === 'none') {
-          out.push(`Shake everything${except} hard with cubed ice for 10–12 seconds${mul}.`);
-          out.push(svc.up ? `Double-strain into a chilled ${g}.` : `Strain into ${aG} over fresh ice.`);
+        if (egg) out.push(`Dry-shake everything${except} without ice for 10 seconds to whip the egg white.`);
+        if (['cubed', 'none', 'block'].includes(svc.ice)) {
+          out.push(`${egg ? 'Add cubed ice and shake' : `Shake everything${except} with cubed ice`} hard for 10–12 seconds.`);
+          out.push(serveOn());
         } else {
-          out.push(`Shake everything${except} with 12 oz of crushed ice for 8–10 seconds${mul}.`);
-          out.push(`Open-pour, ice and all, into ${aG}; top with crushed ice to fill.`);
+          out.push(`${egg ? 'Add crushed ice and shake' : `Shake everything${except} with about 12 oz of crushed ice`} for 8–10 seconds.`);
+          out.push(serveOn());
         }
     }
-    if (lengthener) out.push(svc.method === 'hot' ? `Top with ${lengthener.amount} oz of steaming ${displayName(lengthener.id).toLowerCase()}.` : `Top with ${displayName(lengthener.id).toLowerCase()} and give one gentle stir.`);
-    for (const f of sinks) out.push(`Pour the ${displayName(f.id).toLowerCase()} slowly down the inside of the glass; it sinks and blushes upward through the drink.`);
+    if (svc.method === 'flash-blend' && ['ice-cone', 'shaved'].includes(svc.ice)) out.splice(out.length - 1, 1, serveOn());
+    if (hotTop) out.push(`Top with ${hotTop.amount ? `${fracStr(hotTop.amount)} oz of ` : ''}steaming ${displayName(hotTop.id).toLowerCase()} and stir.`);
+    for (const f of fizz) out.push(`Top with the ${displayName(f.id).toLowerCase()} and give one gentle lift with the spoon.`);
+    for (const f of sinks) out.push(`Pour the ${displayName(f.id).toLowerCase()} slowly down the inside of the glass; it sinks and blushes upward. Don't stir: let the guest do it.`);
     for (const f of floats) out.push(`Float the ${displayName(f.id).toLowerCase()} on top: pour it gently over the back of a bar spoon.`);
-    if (crowns.length) out.push(`Dash the ${list(crowns.map(b => displayName(b.id)))} over the ice to form a crown.`);
-    if (intent.style.flaming) out.push('Theatrics (optional, carefully): set a spent lime half on the ice, add a sugar cube soaked in lemon extract or 151 rum, and light it. Keep hair, sleeves and straws clear, and never pour spirit onto a flame.');
+    if (crowns.length) out.push(`Dash the ${list(crowns.map(b => displayName(b.id)))} over the top of the ice to form a crown.`);
+    if (intent.style.flaming) out.push('Theatrics (optional, carefully): set a spent lime half on the ice, add a sugar cube soaked in lemon extract or 151 rum, and light it with a long lighter. Keep hair, sleeves and straws clear, never pour spirit near a flame, and put the fire out before anyone drinks.');
     if (garnish.length) out.push(`Garnish with ${list(garnish.map(x => x.replace(/\s*\(.*?\)/, '')))}.`);
     return out;
   }
+  // A batch total a host can measure: cups past 8 oz, ounces below, dashes stay dashes.
+  function batchAmount(l, n) {
+    if (['dash', 'drop'].includes(l.unit)) return `${l.amount * n} ${l.unit === 'dash' ? 'dashes' : 'drops'}`;
+    if (l.unit === 'piece') return `${fracStr(l.amount * n)}`;
+    const oz = l.oz * n;
+    if (oz >= 8) { const cups = Math.round(oz / 8 * 4) / 4; return `${fracStr(cups)} cup${cups > 1 ? 's' : ''} (${Math.round(oz)} oz)`; }
+    if (oz < 0.375) return `${Math.max(1, Math.round(oz * 6))} tsp`;
+    return `${fracStr(Math.round(oz * 4) / 4)} oz`;
+  }
+  const fracStr = x => { const w = Math.floor(x), r = x - w; const f = r >= 0.7 ? '¾' : r >= 0.45 ? '½' : r >= 0.2 ? '¼' : ''; return `${w || ''}${f}` || '0'; };
   const list = a => a.length > 1 ? `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}` : (a[0] || '');
 
   // ---------- explanation ----------
@@ -1165,15 +1220,34 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     const blank = !Object.keys(intent.tags).length && !intent.spirits.length && !Object.keys(intent.ings).length && !Object.keys(intent.style).length && !Object.keys(intent.fam).length && !intent.concepts.length;
     // One build on one archetype. A color prayer the build can't honor tries the next-best
     // archetypes (a Blue Hawaii-shaped drink rather than a dark rum swizzle dyed blue).
+    let classic = null;
     const attempt = forced => {
       const notes = [];
       let A = null, lines;
+      classic = null;
       blenderContext = !!intent.style.frozen || (riffSrc && riffSrc.method === 'blend');
       if (!forced && riffSrc && !(intent.style.hot && riffSrc.family !== 'hot')) {
-        A = archetypeForDrink(riffSrc) || adHocArchetype(riffSrc);
-        lines = buildRiff(riffSrc, intent, rng, greedy, notes);
-        for (const l of lines) l.slot = A ? composer.slotOf(A, l.id) : null;
-        if (A) composer.repair(A, lines, intent, ctx, rng, notes);
+        const real = archetypeForDrink(riffSrc);
+        A = real || adHocArchetype(riffSrc);
+        // The named drink is the spec. Bare ("zombie"), the first prayer pours the classic as
+        // written and credited; praying again riffs on it with one signed change. With a twist
+        // ("a Mai Tai with mezcal"), exactly that twist is made inside the archetype's slots.
+        const srcLines = riffSrc.ingredients.filter(l => ingMap.has(l.id)).map(l => {
+          const ing = ingMap.get(l.id);
+          return { id: l.id, role: roleOf(l, ing), oz: lineOz(l, ing, units) / (riffSrc.servings || 1), unit: l.unit, amount: l.amount, float: !!l.float, sink: !!l.sink, garnish: !!l.garnish || ing.role === 'aromatic', fromSpec: riffSrc.name };
+        });
+        const bare = !Object.keys(intent.tags).length && !intent.spirits.length && !Object.keys(intent.ings).length && !Object.keys(intent.style).filter(k => k !== 'bowl').length && !intent.concepts.length && !intent.color && !intent.diets.length && !intent.strength && !intent.sweetness && !intent.tartness;
+        if (real && bare && seed === 0) {
+          lines = srcLines.map(l => ({ ...l, slot: composer.slotOf(A, l.id), req: true }));
+          classic = riffSrc;
+        } else if (real) {
+          lines = composer.compose(A, intent, ctx, rng, greedy, notes, { lines: srcLines });
+          // Bare names and repeat prayers get one signed change of their own.
+          if (bare || seed > 0) { const v = composer.twist(A, lines, intent, ctx, rng, false) || composer.vary(A, lines, intent, ctx, rng, false); if (v) notes.push(v); }
+        } else {
+          lines = buildRiff(riffSrc, intent, rng, greedy, notes);
+          for (const l of lines) l.slot = null;
+        }
         // A riff keeps its source's spirit budget: a requested spirit and a repaired base share
         // the pour instead of doubling it (Mai Tai with mezcal is 1 + 1, not 2 + 2).
         const srcBase = linesOf(riffSrc).filter(l => l.role === 'base' && !l.float && !l.garnish).reduce((t, l) => t + l.oz, 0);
@@ -1207,6 +1281,10 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       lines = lines.filter(l => ingMap.has(l.id));
       addLayer(lines, A, intent, notes);
 
+      // Mint the archetype is built on is an ingredient (blended, muddled or swizzled in), not a garnish.
+      for (const l of lines) if ((ingMap.get(l.id) || {}).role === 'aromatic' && (A.signature || []).some(c => c.required && c.anyOf.includes(l.id))) {
+        l.muddled = true; l.garnish = false; l.role = 'aromatic'; l.unit = 'leaves'; l.amount = l.unit === 'leaves' && l.amount >= 6 ? l.amount : 10;
+      }
       // Aromatic garnishes the archetype calls for (mint on a Mai Tai, nutmeg on a Painkiller).
       for (const id of A.aromatics || []) if (!lines.some(l => l.id === id) && !forbidden(id, intent)) lines.push({ id, role: 'aromatic', garnish: true });
       for (const l of lines) if (intent.ings[l.id] || Object.entries(intent.tags).some(([t, w]) => w >= 1.4 && ((ingVec[l.id] || {})[t] || 0) >= 0.55)) l.req = true;
@@ -1226,6 +1304,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
         else if (askedV.serve.includes('rocks')) { if (!['shake', 'stir', 'build'].includes(svc.method)) svc.method = 'shake'; svc.ice = 'cubed'; }
       }
 
+      fixTechnique(svc, lines, notes);
       // Doses: the composer set them inside the archetype's ranges; balance pulls sugar, acid and
       // strength onto the archetype's targets without leaving those ranges.
       initialDoses(lines, famId, intent);
@@ -1255,11 +1334,11 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
 
     const chem = chemOf(lines, svc.method, svc.ice);
     const profile = profileOf(lines.map(l => ({ id: l.id, amount: l.oz, unit: 'oz', garnish: l.role === 'aromatic' })), 1, svc.method, svc.ice);
-    const flavorTop = copy.named(copy.presence(lines.filter(l => l.role !== 'aromatic'))).map(x => x.tag).slice(0, 5);
+    const flavorTop = copy.named(copy.presence(lines.filter(l => l.role !== 'aromatic' || l.muddled))).map(x => x.tag).slice(0, 5);
     const garnish = garnishForArchetype(A, intent, lines, flavorTop);
     // Aromatic garnishes (mint, nutmeg, cinnamon) are part of the garnish, said once.
     const AROMA_WORD = { mint: 'mint sprig', nutmeg: 'freshly grated nutmeg', cinnamon: 'cinnamon stick', clove: 'clove-studded orange peel', basil: 'basil sprig', 'ginger-fresh': 'ginger coin' };
-    for (const l of lines) if (l.role === 'aromatic' && AROMA_WORD[l.id] && !garnish.some(g => garnishKey(g) === garnishKey(AROMA_WORD[l.id]))) garnish.push(AROMA_WORD[l.id]);
+    for (const l of lines) if (l.role === 'aromatic' && AROMA_WORD[l.id] && garnish.length < 3 && !garnish.some(g => garnishKey(g) === garnishKey(AROMA_WORD[l.id]))) garnish.push(AROMA_WORD[l.id]);
     const pick = chooseVessel(famId, intent, svc, chem, riffSrc, rngFrom(`${prompt}::${seed}::vessel`), greedy, A);
     if (pick) { svc.glass = pick.v.name; svc.vessel = pick.v.id; svc.up = pick.v.serve.includes('up') && serviceOf(svc.method, svc.ice) === 'shaken'; }
     const look = drinkLook(lines, ingMap, { method: svc.method, ice: svc.ice, dilutionOz: Math.max(0, chem.finalOz - chem.volOz) });
@@ -1267,8 +1346,10 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       archetype: A, family: famId, intent, flavorTags: flavorTop, color: intent.color,
       baseIds: lines.filter(l => l.role === 'base').map(l => l.id), riffOf: riffSrc ? riffSrc.name : null, taken: takenNames,
     });
+    const credit = d => [d.creator, d.venue].filter(Boolean).join(', ') + (d.year ? `${d.creator || d.venue ? ', ' : ''}${d.circa ? 'c. ' : ''}${d.year}` : '');
     const recipe = {
-      name,
+      name: classic ? classic.name : name,
+      classic: classic ? { id: classic.id, name: classic.name, credit: credit(classic), source: classic.source || '' } : null,
       prompt,
       seed,
       archetype: { id: A.id, name: A.name, definition: A.definition || '' },
@@ -1276,11 +1357,12 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       riffOf: riffSrc ? { id: riffSrc.id, name: riffSrc.name } : null,
       heard: [...new Set(intent.matched.map(m => m.label))],
       servings: intent.servings,
-      lines: lines.filter(l => l.role !== 'aromatic').map(l => ({
+      lines: lines.filter(l => l.role !== 'aromatic' || l.muddled).map(l => ({
         id: l.id, name: displayName(l.id), role: l.role, oz: round(l.oz, 3), amount: l.amount, unit: l.unit, float: !!l.float, sink: !!l.sink,
-        garnish: l.role === 'aromatic', examples: ingMap.get(l.id).examples || [], avail: ingMap.get(l.id).avail,
+        garnish: l.role === 'aromatic' && !l.muddled, muddled: !!l.muddled, examples: ingMap.get(l.id).examples || [], avail: ingMap.get(l.id).avail,
       })),
       method: { ...svc, steps: steps(svc, lines, intent, garnish) },
+      batch: intent.servings > 1 ? lines.filter(l => l.role !== 'aromatic').map(l => ({ id: l.id, name: displayName(l.id), total: batchAmount(l, intent.servings) })) : null,
       vessel: pick ? { id: pick.v.id, name: pick.v.name, kind: pick.v.kind, story: pick.v.story || '', why: pick.why } : null,
       garnish,
       flavor: flavorTop,
@@ -1293,7 +1375,9 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     };
     recipe.style = { ...intent.style };
     recipe.notes = notes.filter(n => n !== 'split-base').map(n => n.replace(/^riff:/, ''));
-    recipe.tagline = copy.tagline({ lines, archetype: A, intent, riffOf: riffSrc ? riffSrc.name : null, riffIds: riffSrc ? riffSrc.ingredients.map(l => l.id) : null, look });
+    recipe.tagline = classic
+      ? `The ${classic.name}${recipe.classic.credit ? ` (${recipe.classic.credit})` : ''}, poured as written. Pray again and the gods will riff on it.`
+      : copy.tagline({ lines, archetype: A, intent, riffOf: riffSrc ? riffSrc.name : null, riffIds: riffSrc ? riffSrc.ingredients.map(l => l.id) : null, look });
     recipe.explanation = explain(recipe, profile, famId, intent, riffSrc, notes);
     recipe.explanation.tasting = copy.tastingNote({ lines, stats: recipe.stats, archetype: A, look, method: svc.method, ice: svc.ice, rng });
     recipe.explanation.prayer = intent.readings.filter(r => !r.negated).map(r => ({ phrase: r.phrase, reading: r.reading }));
@@ -1319,7 +1403,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     }
     const moves = notes.filter(n => !/^spec:|^split-base$/.test(n)).map(n => n.replace(/^riff:/, '').replace(/, to make it more than an? .*$/, ''));
     const spec = (notes.find(n => n.startsWith('spec:')) || '').slice(5);
-    const base = recipe.riffOf ? `a riff on the ${recipe.riffOf.name}` : spec ? `the ${A.name} frame, starting from the ${spec}` : `the ${A.name} frame`;
+    const base = recipe.classic ? `the classic itself: you named the ${recipe.classic.name}, so the gods poured it straight` : recipe.riffOf ? `a riff on the ${recipe.riffOf.name}` : spec ? `the ${A.name} frame, starting from the ${spec}` : `the ${A.name} frame`;
     const waived = (recipe.check && recipe.check.waived) || [];
     return {
       heard,
@@ -1349,11 +1433,11 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
   // Research garnish notes read like "flaming lime shell (later mug service)" or "orchid or
   // pineapple frond"; the menu gets one plain garnish per idea, nothing marked as later or optional.
   function cleanGarnish(t) {
-    if (!t || /\b(later|optional|modern|sometimes|occasionally|if available)\b/i.test(t.replace(/\(.*?\)/g, ''))) return null;
-    const s = t.replace(/\s*\(.*?\)\s*/g, ' ').split(/\s+or\s+|\s*\/\s*|;/)[0].replace(/\s+/g, ' ').trim().toLowerCase();
-    return s || null;
+    if (!t || /\b(later|optional|modern|sometimes|occasionally|if available|idea)\b/i.test(t.replace(/\(.*?\)/g, ''))) return null;
+    const s = t.replace(/\s*\(.*?\)\s*/g, ' ').split(/\s+or\s+|\s*\/\s*|;|:/)[0].replace(/\s+/g, ' ').trim().toLowerCase();
+    return s && s.length <= 48 ? s : null;
   }
-  const garnishKey = g => (g.match(/mint|pineapple|lime|orange|lemon|cherr|orchid|flower|umbrella|cinnamon|nutmeg|coffee|banana|grapefruit|cucumber|basil|ginger|sugar cane|shell/i) || [g])[0].toLowerCase();
+  const garnishKey = g => /peel|twist|zest/i.test(g) ? 'peel' : (g.match(/mint|pineapple|lime|orange|lemon|cherr|orchid|flower|gardenia|umbrella|cinnamon|nutmeg|coffee|banana|grapefruit|cucumber|basil|ginger|sugar cane|shell|straw/i) || [g])[0].toLowerCase();
   function garnishForArchetype(A, intent, lines, flavorTop) {
     const g = A.garnish || {};
     const never = (g.never || []).map(x => x.toLowerCase());

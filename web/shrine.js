@@ -106,7 +106,7 @@ function subText(l) {
 function render(r, seed) {
   let d = 250;
   const at = (step = 70) => `style="--d:${(d += step)}ms"`;
-  const lines = r.lines.map(l => `<li class="bleed" ${at(45)}><span class="amt${l.garnish ? ' g' : ''}">${l.garnish ? 'garnish' : esc(amountString(l, 'oz'))}</span><span class="ing"><b>${esc(l.name)}</b>${l.float ? '<small class="float">float on top</small>' : ''}${subText(l) ? `<small>${esc(subText(l))}</small>` : ''}</span></li>`).join('');
+  const lines = r.lines.map(l => `<li class="bleed" ${at(45)}><span class="amt${l.garnish ? ' g' : ''}">${l.garnish ? 'garnish' : esc(amountString(l, 'oz'))}</span><span class="ing"><b>${esc(l.name)}</b>${l.float ? '<small class="float">float on top</small>' : l.sink ? '<small class="float">poured last, sinks</small>' : ''}${subText(l) ? `<small>${esc(subText(l))}</small>` : ''}</span></li>`).join('');
   const inf = r.explanation.influences.slice(0, 3);
   const lineage = [
     `Family: <b>${esc(r.family.name)}</b>`,

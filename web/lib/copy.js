@@ -44,7 +44,7 @@ export function createCopywriter({ ingMap, ingVec }) {
     for (const l of lines) {
       const ing = ingMap.get(l.id);
       if (!ing) continue;
-      const k = l.garnish || ing.role === 'aromatic' ? 0.25 : ((l.oz || 0) / total) * (INTENSITY[ing.cat] ?? 1) * (ing.role === 'base' ? 1.2 : 1);
+      const k = l.muddled ? 0.6 : l.garnish || ing.role === 'aromatic' ? 0.25 : ((l.oz || 0) / total) * (INTENSITY[ing.cat] ?? 1) * (ing.role === 'base' ? 1.2 : 1);
       for (const [t, w] of Object.entries(ingVec[l.id] || {})) {
         const v = w * k;
         if (!out[t]) out[t] = { tag: t, score: 0, carriers: [] };
@@ -128,13 +128,17 @@ export function createCopywriter({ ingMap, ingVec }) {
   function tagline({ lines, archetype, intent, riffOf, riffIds = null, look = null }) {
     const isBase = id => (ingMap.get(id) || {}).role === 'base';
     // The tagline describes what is in the glass; garnish aromas (a mint sprig) aren't flavors of the drink.
-    lines = lines.filter(l => !l.garnish && (ingMap.get(l.id) || {}).role !== 'aromatic');
+    lines = lines.filter(l => l.muddled || (!l.garnish && (ingMap.get(l.id) || {}).role !== 'aromatic'));
     const ozOf = id => lines.filter(l => l.id === id).reduce((s, l) => s + (l.oz || 0), 0);
     const askedIng = new Set(Object.entries(intent.ings || {}).filter(([, w]) => w >= 1).map(([id]) => id));
     const changed = riffIds ? new Set(lines.map(l => l.id).filter(id => !riffIds.includes(id))) : new Set();
     const asked = t => (intent.tags[t] || 0) >= 1 || lines.some(l => (askedIng.has(l.id) || changed.has(l.id)) && ((ingVec[l.id] || {})[t] || 0) >= 0.5);
+    // What makes this one different from every drink of its type: flavors carried by bottles
+    // outside the archetype's signature (the falernum in a Mai Tai cousin, not its orgeat).
+    const sigIds = new Set((archetype.signature || []).filter(c => c.required).flatMap(c => c.anyOf));
+    const extra = id => !isBase(id) && !sigIds.has(id);
     const pres = named(presence(lines)).filter(x => !(archetype.taglineSkip || []).includes(x.tag) && x.carriers.some(id => !isBase(id))
-      && (asked(x.tag) || x.carriers.some(id => !isBase(id) && ozOf(id) >= 0.2)));
+      && (asked(x.tag) || x.carriers.some(id => extra(id) && ozOf(id) >= 0.2)));
     const baseTags = named(presence(lines.filter(l => isBase(l.id) && !l.float)));
     const askedBase = baseTags.find(x => BASE_ADJ[x.tag] && asked(x.tag));
     const baseAdj = (askedBase || baseTags.find(x => BASE_ADJ[x.tag]) || {}).tag;
@@ -146,7 +150,7 @@ export function createCopywriter({ ingMap, ingVec }) {
     const order = [...pres.filter(x => asked(x.tag) && !inType(x)), ...pres.filter(x => !asked(x.tag) && !inType(x) && !defining.has(x.tag))];
     // A flavor the guest asked for is named even when it's a supporting note.
     const faint = named(presence(lines, 0.015)).filter(x => asked(x.tag) && !inType(x) && !order.some(o => o.tag === x.tag) && x.carriers.some(id => !isBase(id)));
-    const pool = order.length || faint.length ? [...order.filter(x => asked(x.tag)), ...faint, ...order.filter(x => !asked(x.tag))] : pres.filter(x => !inType(x));
+    const pool = [...order.filter(x => asked(x.tag)), ...faint, ...order.filter(x => !asked(x.tag))];
     let words = [...new Set(pool.map(x => x.tag))];
     if (words.some(t => SPICES.has(t))) words = words.filter(t => t !== 'baking-spice');
     if (baseAdj) words = words.filter(t => t !== baseAdj);
