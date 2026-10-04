@@ -1103,6 +1103,9 @@ export function createLinter({ rules, vocab, vessels } = {}) {
         if (!m.pos || seen.has(tag + (ids || []).join())) continue;
         if (word === 'berr' && FOOD.some(([w, t, x]) => x && mentions(text, w).pos)) continue;
         if (word === 'orange' && where === 'name') continue; // a colour word in names
+        // "An orange, funky daiquiri": the tagline's opening colour adjective, which the copy only
+        // writes when the look shows that colour.
+        if (word === 'orange' && where === 'tagline' && /^an orange\b(?![- ]?(juice|wheel|peel|slice))/i.test(text.trim()) && !/\borange (juice|wheel|peel|slice|curaçao)\b/i.test(text)) continue;
         seen.add(tag + (ids || []).join());
         const shown = word.replace(/rr$/, 'rry').replace(/err$/, 'erry').replace(/^cherr$/, 'cherry');
         const { full, weak } = carriers(C, tag, ids);

@@ -4,11 +4,11 @@
 import { indexIngredients, analyzeLines, lineOz, roleOf, round } from './chem.js';
 import { flavorVector, normalize, cosine, lineImpact, tagWeights } from './flavor.js';
 import { parsePrompt, buildNameIndex, indexConcepts } from './prompt.js';
-import { snap, amountString } from './format.js';
-import { makeName } from './names.js';
+import { snap, amountString, pieceName } from './format.js';
+import { makeName, polynesianPrayer } from './names.js';
 import { serviceOf, SERVICE_FITS } from './vessels.js';
 import { createComposer, doseCap } from './composer.js';
-import { createCopywriter } from './copy.js';
+import { createCopywriter, creditText, decap, polish, strengthCopy } from './copy.js';
 import { drinkLook, showsColor, colorDistance, opticsOf, hsl, COLOR_TEST } from './optics.js';
 import { createLinter } from './lint.js';
 
@@ -1081,7 +1081,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       for (const l of muddy) {
         const slot = slots.find(c => (c.component || c.slot) === l.slot);
         const tl = opticsOf(ingMap.get(l.id)).tint;
-        const clear = slot ? slot.anyOf.filter(id => ok(id) && sameJob(l.id, id) && fits(id, lines, l) && !lines.some(x => x !== l && x.role === 'base' && !x.float && originOf(x.id) === originOf(id)) && intentMatch(id, intent) >= intentMatch(l.id, intent) - 0.15 && opticsOf(ingMap.get(id)).tint < tl * 0.8 && hsl(opticsOf(ingMap.get(id)).hex).l >= 0.4 && !(cool && yellowish(opticsOf(ingMap.get(id)).hex) && opticsOf(ingMap.get(id)).tint >= 0.5)) : [];
+        const clear = slot ? slot.anyOf.filter(id => ok(id) && sameJob(l.id, id) && fits(id, lines, l) && !lines.some(x => x !== l && x.role === 'base' && !x.float && spiritOrigin(x.id) === spiritOrigin(id)) && intentMatch(id, intent) >= intentMatch(l.id, intent) - 0.15 && opticsOf(ingMap.get(id)).tint < tl * 0.8 && hsl(opticsOf(ingMap.get(id)).hex).l >= 0.4 && !(cool && yellowish(opticsOf(ingMap.get(id)).hex) && opticsOf(ingMap.get(id)).tint >= 0.5)) : [];
         for (const alt of clear.sort((x, y) => opticsOf(ingMap.get(y)).tint - opticsOf(ingMap.get(x)).tint).slice(0, 2)) tries.push({ cost: 0.04, muddy: true, why: `${prose(alt)} in place of ${prose(l.id)}, so it glows`, edit: L => { const x = L[lines.indexOf(l)]; if (!x) return; x.id = alt; x.role = ingMap.get(alt).role; } });
         // A colored sweetener beside a plain syrup folds into it (the lime cordial's half-ounce
         // becomes simple syrup), so the cool color isn't greened.
@@ -1221,7 +1221,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
   // three spirits and two citruses, one fizzy top, and floats that are a float, not the base.
   const OVER = id => (ingMap.get(id).abv || 0) >= 60;
   const FIZZ = new Set(['soda-water', 'ginger-beer', 'ginger-ale', 'cola', 'tonic', 'lemon-lime-soda', 'grapefruit-soda']);
-  const originOf = id => {
+  const spiritOrigin = id => {
     const m = /^rum-(jamaican|demerara|agricole)/.exec(id);
     if (m && !OVER(id)) return m[1];
     return { 'rum-white-column': 'light', 'rum-blended-light': 'light' }[id] || id;
@@ -1240,7 +1240,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     // Same origin, same job: one pour.
     for (const l of body()) {
       if (!lines.includes(l)) continue;
-      const twin = body().find(x => x !== l && originOf(x.id) === originOf(l.id));
+      const twin = body().find(x => x !== l && spiritOrigin(x.id) === spiritOrigin(l.id));
       if (!twin || (sole(l) && sole(twin))) continue;
       const [keep, drop] = sole(twin) && !sole(l) ? [twin, l] : sole(l) && !sole(twin) ? [l, twin] : (asked(twin) && !asked(l)) || twin.oz > l.oz ? [twin, l] : [l, twin];
       if (asked(drop)) continue;
@@ -2395,11 +2395,11 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       color: [intent.color, intent.colorLean].find(c => c && showsColor(look, c)) || null,
       shows: c => showsColor(look, c), poured: new Set(lines.filter(l => !l.garnish || l.muddled).map(l => l.id)),
       baseIds: lines.filter(l => l.role === 'base').map(l => l.id), riffOf: riffSrc ? riffSrc.name : null, taken: takenNames,
+      facts: nameFacts({ lines, A, intent, svc, vessel: pick ? pick.v : null, garnish, riffSrc }),
     });
-    const credit = d => [d.creator, d.venue].filter(Boolean).join(', ') + (d.year ? `${d.creator || d.venue ? ', ' : ''}${d.circa ? 'c. ' : ''}${d.year}` : '');
     const recipe = {
       name: classic ? classic.name : name,
-      classic: classic ? { id: classic.id, name: classic.name, credit: classic.fromArchetype ? (classic.source || '').split(/;|\//)[0].trim() : credit(classic), creator: classic.creator || '', venue: classic.venue || '', year: classic.year || null, circa: !!classic.circa, source: classic.source || '' } : null,
+      classic: classic ? classicRecord(classic) : null,
       prompt,
       seed,
       archetype: { id: A.id, name: A.name, definition: A.definition || '' },
@@ -2425,64 +2425,234 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     };
     recipe.style = { ...intent.style };
     recipe.notes = notes.filter(n => n !== 'split-base').map(n => n.replace(/^riff:/, ''));
-    recipe.tagline = classic
-      ? `The ${classic.name}${recipe.classic.credit ? ` (${recipe.classic.credit})` : ''}, poured as written. Pray again and the gods will riff on it.`
-      : copy.tagline({ lines, archetype: A, intent, riffOf: riffSrc ? riffSrc.name : null, riffIds: riffSrc ? riffSrc.ingredients.map(l => l.id) : null, look, stats: recipe.stats, method: svc.method, ice: svc.ice, garnish, rng: rngFrom(`${prompt}::${seed}::tag`) });
-    recipe.explanation = explain(recipe, profile, famId, intent, riffSrc, notes);
     recipe.stats.standardDrinks = round(chem.alcMl / 17.74, 1);
-    recipe.explanation.tasting = copy.tastingNote({ lines, stats: recipe.stats, archetype: A, look, method: svc.method, ice: svc.ice, garnish, rng });
-    recipe.explanation.prayer = intent.readings.filter(r => !r.negated).map(r => ({ phrase: r.phrase, reading: r.reading }));
     recipe.check = composer.satisfies(A, lines, intent.ings, id => forbidden(id, intent));
-    recipe.explanation.reading = readPrayer(intent, A, notes, recipe);
-    recipe.stats.standardDrinks = round(chem.alcMl / 17.74, 1);
-    recipe.explanation.whyItWorks = whyLines(recipe, A, intent);
+    recipe.explanation = explain(recipe, profile, famId, intent, riffSrc, notes);
+    finishCopy(recipe, { A, intent, riffSrc, notes, lines, look, svc, garnish, classic, seed, prompt });
     return recipe;
   }
 
-  // Why it works, the way a bartender would say it: what it's built on, what changed and how
-  // that answers the prayer, one line of history, and its strength in standard drinks.
-  function whyLines(recipe, A, intent) {
-    const rd = recipe.explanation.reading;
-    const out = [];
-    const def = ((A.definition || '').split(/(?<=\.)\s/)[0] || '').replace(/^./, c => c.toLowerCase());
-    const c = recipe.classic;
-    if (c) out.push(`It's the ${c.name} as ${c.creator || 'the canon'} poured it${c.venue && c.venue !== c.creator ? ` at ${c.venue}` : ''}${c.year ? ` in ${c.circa ? 'about ' : ''}${c.year}` : ''}: ${def || 'a proven classic'}`);
-    else if (recipe.riffOf) out.push(`Built on the ${recipe.riffOf.name}${A.name && A.name !== recipe.riffOf.name ? ` (the ${A.name} frame)` : ''}: ${def}`);
-    else out.push(`Built on the ${A.name}${rd.builtOn.spec ? `, starting from the ${rd.builtOn.spec}` : ''}: ${def}`);
-    const asked = rd.heard.filter(h => !/^riff on|^served in|family$/.test(h.meaning)).map(h => `“${h.phrase}”`).slice(0, 3);
-    if (rd.moves.length) out.push(`${asked.length ? `For ${asked.join(', ')}: ` : 'The twist: '}${rd.moves.slice(0, 4).join('; ')}.`);
-    const hist = (A.classics || []).find(c => /\(/.test(c));
-    if (hist && !recipe.classic) out.push(`The family tree runs back to the ${hist.replace(/\s*\(/, ' (')}.`);
-    const sd = recipe.stats.standardDrinks;
-    if (sd !== undefined && recipe.stats.abv > 0.5) out.push(`About ${sd} US standard drink${sd === 1 ? '' : 's'} (${recipe.stats.abv}% ABV after dilution)${sd >= 2.5 ? '. Don the Beachcomber\'s rule applies: two per guest.' : '.'}`);
-    else if (recipe.stats.abv <= 0.5) out.push('No alcohol at all, so anyone at the table can have one.');
-    return out;
+  // ---------- credits, references and the card's words ----------
+  // Who made a drink, where and when, comes from the archetypes' researched origins (kept apart
+  // from the book whose spec is poured); a catalogue drink no origin covers is credited from its
+  // own record.
+  const normName = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s*\(.*?\)\s*/g, ' ').replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  const conceptById = new Map(concepts.map(c => [c.id, c]));
+  const originByName = new Map();
+  for (const a of archetypes) for (const [nm, o] of Object.entries(a.origins || {})) if (!originByName.has(normName(nm))) originByName.set(normName(nm), { ...o, drink: o.drink || nm });
+  // Which archetypes count a drink as their own: its credited drinks and its canonical specs.
+  const ownerByName = new Map();
+  for (const a of archetypes) {
+    for (const nm of [...Object.entries(a.origins || {}).filter(([, o]) => !o.ancestor).map(([k]) => k), ...(a.canonicalSpecs || []).map(sp => sp.drink || sp.name)]) {
+      const k = normName(nm);
+      if (!ownerByName.has(k)) ownerByName.set(k, new Set());
+      ownerByName.get(k).add(a.id);
+    }
+  }
+  const GENERIC_DRINK = /^(daiquiri|frozen daiquiri|swizzle|rum swizzle|punch|rum punch|grog|colada|sour|mule|highball|cooler|hot grog|hot rum|rum old fashioned|tiki old fashioned|zero proof tiki)$/;
+  const classicNames = [...new Set(archetypes.flatMap(a => [...(a.classics || []).map(c => c.replace(/\s*\(.*\)\s*/, '').trim()), ...Object.keys(a.origins || {})]))].filter(n => n.length >= 6 && !GENERIC_DRINK.test(normName(n)));
+  function originOf(x) {
+    const d = typeof x === 'string' ? { name: x } : x;
+    const o = originByName.get(normName(d.name));
+    if (o) return o;
+    if (!d.id) return null;
+    const when = d.year ? (d.circa && d.year % 10 === 0 ? `${d.year}s` : `${d.circa ? 'c. ' : ''}${d.year}`) : '';
+    const who = d.creator && !/\(/.test(d.creator) && d.creator !== 'Donn Beach' ? d.creator : '';
+    const venue = String(d.venue || '').replace(/\s*\(.*?\)\s*/g, ' ').trim();
+    const text = [who, venue, when].filter(Boolean).join(', ');
+    const all = `${d.creator || ''} ${d.venue || ''}`;
+    return { drink: d.name, text, year: d.year || null, who: d.creator || '', house: /Donn Beach|Don the Beachcomber/.test(all) ? 'don' : /Bergeron|Trader Vic/.test(all) ? 'vic' : null, confidence: 'documented' };
+  }
+  // A spec's mint pressed into the glass (leaves or a sprig with a dose) is in the drink, the
+  // way the finished build marks it muddled; a sprig on top is garnish.
+  const specLines = sp => sp.lines.filter(l => ingMap.has(l.id)).map(l => {
+    const inGlass = ingMap.get(l.id).role === 'aromatic' && ['leaves', 'sprig'].includes(l.unit) && (l.amount || l.oz) > 0;
+    return { id: l.id, oz: l.oz, float: !!l.float, sink: !!l.sink, garnish: ingMap.get(l.id).role === 'aromatic' && !inGlass, muddled: inGlass };
+  });
+  const asPoured = ls => ls.map(l => (ingMap.get(l.id) || {}).role === 'aromatic' && !l.garnish ? { ...l, muddled: true } : l);
+  const fromSpec = (sp, A) => {
+    const name = sp.drink || sp.name.replace(/\s*\(.*?\)\s*/g, ' ').trim();
+    const o = sp.origin || originOf(name) || (A && A.origin && normName(A.origin.drink) === normName(name) ? A.origin : null);
+    return { kind: 'spec', id: `${A ? A.id : ''}:${sp.name}`, specName: sp.name, name, lines: specLines(sp), origin: o, credit: creditText(o), edition: sp.edition || '', archetype: A ? A.id : null };
+  };
+  const fromDrink = d => { const o = originOf(d); return { kind: 'drink', id: d.id, name: d.name, lines: asPoured(linesOf(d)), origin: o, credit: creditText(o), edition: '', popularity: d.popularity }; };
+  // Every proven spec a finished drink could turn out to be: the archetypes' canonical specs and
+  // the catalogue's better-known drinks (a templated zero-proof spec is no classic).
+  let refPool = null;
+  const pool = () => refPool || (refPool = [
+    ...archetypes.filter(a => a.id !== 'zero-proof-tiki').flatMap(a => (a.canonicalSpecs || []).map(sp => fromSpec(sp, a))),
+    ...drinks.filter(d => d.popularity >= 2).map(fromDrink),
+  ].filter(r => r.lines.length));
+  // The named reference a card anchors to: the drink the guest named; else the nearest proven
+  // spec of this archetype or catalogue drink of its family (a strawberry colada is a Lava Flow,
+  // not a Blue Hawaiian with its blue taken out). The spec the build started from wins a tie.
+  // Rare bottles say more about which drink this is than lime and simple syrup do: each bottle is
+  // weighted by how few proven specs pour it.
+  let idf = null;
+  const rarity = id => {
+    if (!idf) {
+      const df = new Map();
+      const all = pool();
+      for (const r of all) for (const id0 of new Set(r.lines.filter(l => !l.garnish).map(l => l.id))) df.set(id0, (df.get(id0) || 0) + 1);
+      idf = id0 => 1 + Math.log((all.length + 1) / (1 + (df.get(id0) || 0)));
+    }
+    return idf(id);
+  };
+  function referenceFor(lines, A, riffSrc, notes) {
+    if (riffSrc) { const r = fromDrink(riffSrc); return { ...r, similarity: copy.sameness(lines, r.lines) }; }
+    const startedFrom = (notes.find(n => n.startsWith('spec:')) || '').slice(5);
+    // The archetype's own proven specs come first; a family cousin from the catalogue has to be
+    // clearly nearer to win (a sunrise is not "built on the Hurricane").
+    // A catalogue drink another archetype owns (the Miami Vice, the Hurricane) is that
+    // archetype's anchor, not this one's.
+    const ownersOf = nm => ownerByName.get(normName(nm)) || null;
+    const cands = [
+      ...(A.canonicalSpecs || []).map(sp => ({ ...fromSpec(sp, A), bonus: sp.name === startedFrom ? 0.05 : 0.04 })),
+      ...drinks.filter(d => d.family === A.family && (d.popularity >= 3 || originByName.has(normName(d.name))) && (!ownersOf(d.name) || ownersOf(d.name).has(A.id))).map(d => ({ ...fromDrink(d), bonus: 0 })),
+    ].filter(c => c.lines.length);
+    let best = null;
+    for (const c of cands) {
+      const score = copy.kinship(lines, c.lines, rarity) + c.bonus;
+      if (!best || score > best.score) best = { ...c, score };
+    }
+    if (best) { best.similarity = copy.sameness(lines, best.lines); delete best.score; }
+    return best || { kind: 'frame', name: A.name.replace(/\s*\(.*?\)\s*/g, ' ').trim(), lines: [], origin: A.origin || null, credit: creditText(A.origin), edition: '', similarity: 0 };
+  }
+  // A drink 95% the same as a proven spec is that drink, and the card says so.
+  function exactClassic(lines) {
+    let best = null;
+    for (const c of pool()) { const s = copy.sameness(lines, c.lines); if (s >= 0.95 && (!best || s > best.similarity + 1e-9 || (Math.abs(s - best.similarity) < 1e-9 && c.kind === 'spec' && best.kind !== 'spec'))) best = { ...c, similarity: s }; }
+    return best;
+  }
+  function classicRecord(c) {
+    const sp = c.fromArchetype;
+    const name = sp ? (sp.drink || c.name) : c.name;
+    const o = (sp && sp.origin) || originOf(sp ? name : c) || {};
+    return { id: c.id, name, credit: creditText(o), edition: sp ? sp.edition || '' : '', origin: o, creator: o.who || c.creator || '', venue: c.venue || '', year: o.year || c.year || null, circa: !!c.circa, source: c.source || (sp && sp.source) || '' };
+  }
+  // What the name generator needs to keep its words true of the build.
+  const SPIRIT_NAME = { bourbon: 'Bourbon', rye: 'Rye', mezcal: 'Mezcal', 'tequila-blanco': 'Tequila', 'tequila-reposado': 'Reposado', gin: 'Gin', pisco: 'Pisco', 'rum-cachaca': 'Cachaça', 'rum-agricole-blanc': 'Agricole', 'rum-agricole-vieux': 'Agricole', 'scotch-islay': 'Islay', brandy: 'Brandy', vodka: 'Vodka', 'japanese-whisky': 'Whisky', aquavit: 'Aquavit', 'batavia-arrack': 'Arrack' };
+  function nameFacts({ lines, A, intent, svc, vessel, garnish, riffSrc }) {
+    const poured = lines.filter(l => !l.garnish || l.muddled);
+    const ozOf = ids => poured.filter(l => ids.includes(l.id)).reduce((t, l) => t + (l.oz || 0), 0);
+    const srcIds = riffSrc ? new Set(riffSrc.ingredients.map(l => l.id)) : null;
+    const swapped = srcIds && poured.find(l => l.role === 'base' && !srcIds.has(l.id) && SPIRIT_NAME[l.id] && (intent.spirits.includes(l.id) || (intent.ings[l.id] || 0) >= 1));
+    return {
+      vessel: vessel ? vessel.id : '', bowl: !!(vessel && vessel.serve.includes('bowl')), method: svc.method, hot: svc.method === 'hot',
+      flaming: garnish.some(g => /flaming/.test(g)) || (!!intent.style.flaming && FIRE_VESSELS.has(vessel ? vessel.id : '')),
+      fizzy: ozOf(['soda-water', 'ginger-beer', 'ginger-ale', 'sparkling-wine', 'tonic', 'cola', 'grapefruit-soda', 'lemon-lime-soda']) >= 0.75,
+      creamy: ozOf(['coconut-cream', 'coconut-milk', 'heavy-cream', 'half-and-half', 'vanilla-ice-cream']) >= 0.5, smoky: poured.some(l => ['mezcal', 'scotch-islay', 'lapsang-tea'].includes(l.id)),
+      prayer: intent.raw || '', classicNames, riffSpirit: swapped ? SPIRIT_NAME[swapped.id] : null, who: (A.origin || {}).who || '',
+      blackBase: poured.some(l => ['rum-black-blended', 'rum-black-overproof'].includes(l.id) && !l.float && (l.oz || 0) >= 0.75),
+    };
   }
 
-  // How the gods heard you: what each part of the prayer meant, what the drink is built on,
-  // what was done to answer it, and anything they didn't catch.
-  function readPrayer(intent, A, notes, recipe) {
+  // Every word on the card, written last, from the finished drink: the named reference and its
+  // credit, a real classic recognized by its real name, the net moves, the reading said back,
+  // the tagline, the tasting note and the Why lines.
+  function finishCopy(recipe, { A, intent, riffSrc, notes, lines, look, svc, garnish, classic, prompt }) {
+    const vessel = recipe.vessel ? vesselById[recipe.vessel.id] : null;
+    let ref = classic ? { ...(classic.fromArchetype ? fromSpec(classic.fromArchetype, A) : fromDrink(classic)), similarity: 1 } : referenceFor(lines, A, riffSrc, notes);
+    // A riff on a drink the guest named keeps its riff name ("Bourbon Navy Grog"); a fresh
+    // build that turns out to be a proven classic is printed as that classic.
+    if (!classic && !riffSrc) {
+      const ex = exactClassic(lines);
+      if (ex) {
+        if (normName(ex.name) !== normName(recipe.name)) recipe.nickname = recipe.name;
+        recipe.name = ex.name;
+        recipe.classic = { id: ex.id, name: ex.name, credit: ex.credit, edition: ex.edition, origin: ex.origin, creator: (ex.origin || {}).who || '', venue: '', year: (ex.origin || {}).year || null, circa: false, source: '', recognized: true };
+        ref = ex;
+      }
+    }
+    if (classic) { recipe.classic.credit = ref.credit || recipe.classic.credit; recipe.name = recipe.classic.name; }
+    recipe.reference = { kind: ref.kind, id: ref.id || null, name: ref.name, credit: ref.credit || '', edition: ref.edition || '', similarity: round(ref.similarity || 0, 2), year: (ref.origin || {}).year ?? null };
+    const origin = ref.origin || A.origin || null;
+    const perGuest = (intent.servings || 1) > 1;
+    const facts = copy.drinkFacts({ lines, stats: recipe.stats, look, method: svc.method, ice: svc.ice, up: svc.up, vessel, garnish, archetype: A, prayer: prompt, concepts: intent.concepts, riffOf: riffSrc ? riffSrc.name : '', origin, servings: intent.servings || 1, steps: recipe.method.steps, polynesian: polynesianPrayer(prompt, intent.concepts), intent });
+    const same = classic || (recipe.classic && ref.similarity >= 0.999);
+    const mv = same ? { moves: [], cousin: '', lost: [] } : copy.netMoves({ ref: ref.lines, lines, archetype: A, intent, notes, slotOf: id => composer.slotOf(A, id), refName: ref.name });
+    recipe.explanation.reading = readPrayer(intent, A, notes, recipe, { facts, ref, mv });
+    const house = (origin || {}).house || null;
+    if (recipe.classic) {
+      const mood = (intent.taglineWords || []).find(m => copy.moodOk(m, facts));
+      recipe.tagline = copy.classicTagline({ name: recipe.classic.name, credit: recipe.classic.credit, asWritten: !!classic, mood, facts });
+    } else {
+      recipe.tagline = copy.tagline({ lines, archetype: A, intent, riffOf: riffSrc ? riffSrc.name : null, riffIds: riffSrc ? riffSrc.ingredients.map(l => l.id) : null, look, stats: recipe.stats, method: svc.method, ice: svc.ice, garnish, rng: rngFrom(`${prompt}::${recipe.seed}::tag`), facts, cousin: mv.cousin ? `${ref.name} cousin` : null });
+    }
+    recipe.explanation.tasting = copy.tastingNote({ lines, stats: recipe.stats, archetype: A, look, method: svc.method, ice: svc.ice, garnish, intent, house, perGuest });
+    recipe.explanation.whyItWorks = whyLines(recipe, A, intent, { ref, mv, house, perGuest });
+    recipe.explanation.prayer = recipe.explanation.reading.heard.map(h => ({ phrase: h.phrase, reading: h.meaning }));
+    const rd = recipe.explanation.reading;
+    const kept = (recipe.explanation.lineage || []).filter(x => !/^(A riff on|Design moves:)/.test(x));
+    recipe.explanation.lineage = [rd.builtOn.text, rd.moves.length ? `${cap(rd.moves.join('; '))}.` : '', ...kept].filter(Boolean).map(polish);
+    // Bottle names keep their capitals inside the steps ("the dark Jamaican rum float"), and
+    // whole fruit reads the way a recipe says it ("½ ripe banana", "2 strawberries").
+    recipe.method.steps = recipe.method.steps.map(polish);
+    for (const l of recipe.lines) if (l.unit === 'piece') l.name = pieceName(l.id, l.name, l.amount);
+    recipe.name = polish(recipe.name);
+    if (recipe.nickname) recipe.nickname = polish(recipe.nickname);
+  }
+
+  // Why it works, the way a bartender would say it: what it's built on (the named reference and
+  // who made it), what the prayer changed, at most one twist of the gods' own, what a missing
+  // defining bottle makes it, one line of history, and its strength on the one scale.
+  function whyLines(recipe, A, intent, { ref, mv, house, perGuest }) {
+    const rd = recipe.explanation.reading;
+    const out = [];
+    const def = decap(firstSentences(A.definition || '', 1).replace(/\.$/, ''));
+    const frame = (A.name || '').replace(/\s*\(.*?\)\s*/g, ' ').trim();
+    const refText = refLabel(ref);
+    // Only a bottle dropped outright is "without"; one swapped for another is a move, not a loss.
+    const without = (mv.moves || []).filter(m => m.cause === 'structure' && m.id === null && m.replaced && (ref.lines.find(l => l.id === m.replaced) || {}).oz >= 0.25).map(m => copy.say(m.replaced));
+    if (recipe.classic && !recipe.classic.recognized) out.push(`It's the ${refText}, poured as written: ${def || 'a proven classic'}.`);
+    else if (recipe.classic) out.push(`It's the ${refText}, as the gods pour it: ${def || 'a proven classic'}.`);
+    else out.push(`Built on the ${refText}${recipe.riffOf && normName(frame) !== normName(ref.name) ? `, in the ${frame} frame` : ''}${without.length ? `, here without its ${list(without)}` : ''}: ${def}.`);
+    const asked = rd.heard.filter(h => !/^riff on|^served in|family$/.test(h.meaning)).map(h => `“${h.phrase}”`).slice(0, 3);
+    const prayerMoves = mv.moves.filter(m => m.cause === 'prayer').map(m => m.text);
+    if (prayerMoves.length) out.push(asked.length ? `For ${asked.join(', ')}: ${prayerMoves.slice(0, 4).join('; ')}.` : `${cap(prayerMoves.slice(0, 4).join('; '))}.`);
+    const twist = mv.moves.find(m => m.cause === 'novelty');
+    if (twist) out.push(`The twist: ${twist.text}.`);
+    if (mv.cousin) out.push(`${cap(mv.cousin)}.`);
+    const o = A.origin;
+    if (o && o.text && !recipe.classic && normName(o.drink) !== normName(ref.name) && o.text !== ref.credit) out.push(`The family tree runs back to the ${o.drink} (${o.text}).`);
+    out.push(strengthCopy(recipe.stats, { method: recipe.method.method, house, archetypeId: A.id, perGuest }).why);
+    return out.map(polish);
+  }
+  const refLabel = ref => `${ref.name}${ref.credit || ref.edition ? ` (${[ref.credit, ref.edition].filter(Boolean).join('; ')})` : ''}`;
+
+  // How the gods heard you: what each part of the prayer meant (a reading said back only if this
+  // drink keeps its promises, else what was poured for it), what the drink is built on, what
+  // the prayer changed, any twist of the gods' own, and anything they didn't catch.
+  function readPrayer(intent, A, notes, recipe, { facts, ref, mv }) {
     const heard = [];
     const seenPhrase = new Set();
     for (const r of intent.readings) {
       if (seenPhrase.has(r.phrase)) continue;
       seenPhrase.add(r.phrase);
-      heard.push({ phrase: r.phrase, meaning: r.negated ? `not ${r.concept.replace(/-/g, ' ')}` : r.reading || r.concept.replace(/-/g, ' ') });
+      const label = r.concept.replace(/-/g, ' ');
+      heard.push({ phrase: r.phrase, meaning: r.negated ? `not ${label}` : r.reading ? copy.hear(r.reading, conceptById.get(r.concept), facts) : label });
     }
     for (const m of intent.matched) {
       if (seenPhrase.has(m.phrase)) continue;
       seenPhrase.add(m.phrase);
-      heard.push({ phrase: m.phrase, meaning: m.label });
+      heard.push({ phrase: m.phrase, meaning: copy.heardLabel(m.label, facts) });
     }
-    const moves = notes.filter(n => !/^spec:|^split-base$/.test(n)).map(n => n.replace(/^riff:/, '').replace(/, to make it more than an? .*$/, ''));
-    const spec = (notes.find(n => n.startsWith('spec:')) || '').slice(5);
-    const base = recipe.classic ? `the classic itself: you named the ${recipe.classic.name}, so the gods poured it straight` : recipe.riffOf ? `a riff on the ${recipe.riffOf.name}` : spec ? `the ${A.name} frame, starting from the ${spec}` : `the ${A.name} frame`;
+    const frame = (A.name || '').replace(/\s*\(.*?\)\s*/g, ' ').trim();
+    const refText = refLabel(ref);
+    const base = recipe.classic && !recipe.classic.recognized ? `the classic itself: you named the ${recipe.classic.name}, so the gods poured it straight`
+      : recipe.classic ? `the ${refText}, poured as the canon has it`
+        : recipe.riffOf ? `a riff on the ${refText}`
+          : `the ${refText}${normName(frame) !== normName(ref.name) ? `, in the ${frame} frame` : ''}`;
+    const moves = mv.moves.filter(m => m.cause === 'prayer').map(m => m.text);
+    const twist = mv.moves.find(m => m.cause === 'novelty');
+    if (twist) moves.push(`the twist: ${twist.text}`);
+    if (mv.cousin) moves.push(mv.cousin);
     const waived = (recipe.check && recipe.check.waived) || [];
     return {
       heard,
-      builtOn: { archetype: A.name, definition: A.definition || '', spec: spec || null, text: `Built on ${base}.` },
-      moves: [...new Set(moves)].slice(0, 6),
-      waived: waived.length ? `You ruled out the ${waived.join(' and ')}, so this is a cousin of the ${A.name} rather than the real thing.` : '',
+      builtOn: { archetype: frame, definition: A.definition || '', spec: ref.name || null, text: polish(`Built on ${base}.`) },
+      moves: [...new Set(moves)].slice(0, 6).map(polish),
+      waived: waived.length ? `You ruled out the ${waived.join(' and ')}, so this is a cousin of the ${frame} rather than the real thing.` : '',
       unheard: intent.unheard || [],
     };
   }

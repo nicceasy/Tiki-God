@@ -74,6 +74,18 @@ export function amountString(line, system = 'oz') {
   return `${amount} ${amount === 1 ? one : many}`;
 }
 
+// Whole fruit and eggs read the way a recipe says them: "½ ripe banana", "2 strawberries",
+// "1 egg white". The amount comes from amountString; this is the noun that follows it.
+const PIECES = {
+  banana: ['ripe banana', 'ripe bananas'], strawberry: ['strawberry', 'strawberries'], 'egg-white': ['egg white', 'egg whites'],
+  'egg-whole': ['whole egg', 'whole eggs'], cucumber: ['cucumber slice', 'cucumber slices'], 'ginger-fresh': ['coin of fresh ginger', 'coins of fresh ginger'],
+};
+export function pieceName(id, name, amount) {
+  const p = PIECES[id];
+  if (!p) return name;
+  return amount > 1 ? p[1] : p[0];
+}
+
 export function pct(x, d = 1) {
   return `${(Math.round(x * 10 ** d) / 10 ** d).toFixed(d)}%`;
 }
