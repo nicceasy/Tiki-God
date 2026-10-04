@@ -83,9 +83,12 @@ export function createComposer({ archetypes, ingMap, model }) {
     s += 2.2 * ((intent.archetypes || {})[a.id] || 0);
     // Flavor fit: the archetype's own profile, plus what its slots can carry.
     const profile = new Set(a.flavorProfile || []);
-    for (const [t, w] of Object.entries(intent.tags)) {
-      if (w <= 0) continue;
+    for (const [t, w0] of Object.entries(intent.tags)) {
+      if (w0 <= 0) continue;
+      // Impressions ("citrus", "light") weigh little: every sour is citrus.
+      const w = NOT_A_FLAVOR.has(t) ? w0 * 0.3 : w0;
       if (profile.has(t)) { s += 0.9 * w; continue; }
+      if (NOT_A_FLAVOR.has(t)) continue;
       const carry = slotsCarry(a, t, intent, ctx);
       if (carry) s += 0.55 * w;
       else if (w >= 1.2) { s -= 1.2 * w; why.push(`no slot for ${t}`); }

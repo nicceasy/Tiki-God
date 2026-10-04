@@ -1304,6 +1304,8 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
           || composer.byId['planters-punch'] || archetypes[0];
         if ((A.methods || [])[0] === 'blend') blenderContext = true;
         lines = composer.compose(A, intent, ctx, rng, greedy, notes, null, seed);
+        // A repeat prayer on the same frame still makes one signed change of its own.
+        if (seed > 0 && (A.canonicalSpecs || []).length <= 1) { const v = composer.twist(A, lines, intent, ctx, rng, false) || composer.vary(A, lines, intent, ctx, rng, false); if (v) notes.push(v); }
         if (blank) intent.complexity = Math.max(intent.complexity, 0.4);
         // A fresh build that lands on top of an existing recipe isn't new: swap one filling.
         for (let tries = 0; tries < 3; tries++) {

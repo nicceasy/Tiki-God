@@ -33,6 +33,14 @@ const COLOR = {
   black: 'dark', dark: 'dark', brown: 'dark', mahogany: 'dark', white: 'white', cream: 'white', ivory: 'white', clear: 'clear', silver: 'clear',
 };
 const issues = [];
+// Patches for bottles added after the research ran (it noted them as missing from the pantry).
+const PATCH = {
+  'japan-tokyo': { ings: { 'japanese-whisky': 1.6, sake: 0.5 }, vessels: { highball: 1 } },
+  neon: { ings: { 'melon-liqueur': 0.8 }, color: 'green' },
+  dragon: { ings: { 'pitaya-puree': 0.8 } },
+  pele: { style: { flaming: true } },
+  'hurricane-new-orleans': { ings: { fassionola: 1 } },
+};
 const num = (x, lo, hi) => typeof x === 'number' && Number.isFinite(x) ? Math.max(lo, Math.min(hi, x)) : null;
 const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9' -]+/g, ' ').replace(/\s+/g, ' ').trim();
 
@@ -69,6 +77,8 @@ const concepts = [];
 const ids = new Set();
 for (const x of all) {
   const { c, f } = x;
+  const pt = PATCH[c.id];
+  if (pt) { c.ings = { ...(c.ings || {}), ...(pt.ings || {}) }; c.vessels = { ...(c.vessels || {}), ...(pt.vessels || {}) }; c.style = { ...(c.style || {}), ...(pt.style || {}) }; if (pt.color) c.color = pt.color; }
   if (x.dup) continue;
   {
     const where = `${f.split('/').pop()}:${c.id}`;

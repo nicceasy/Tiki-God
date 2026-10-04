@@ -371,7 +371,10 @@ export function indexConcepts(concepts = []) {
     for (const ph of c.phrases || []) {
       const norm = normalizeText(ph).trim();
       if (!norm) continue;
-      entries.push({ phrase: norm, stems: stemLine(norm), concept: c });
+      const stems = stemLine(norm);
+      // "andes" stems to "and": an entry that stems to nothing but function words never matches.
+      if (stems.every(st => FILLER.has(st) || st.length < 3)) continue;
+      entries.push({ phrase: norm, stems, concept: c });
     }
   }
   entries.sort((a, b) => b.stems.length - a.stems.length || b.phrase.length - a.phrase.length);
@@ -417,20 +420,27 @@ function applyConcepts(text, intent, index) {
       if (used.slice(i, i + n).some(Boolean)) continue;
       let ok = true;
       for (let k = 0; k < n; k++) if (stems[i + k] !== e.stems[k]) { ok = false; break; }
+      // "a night in Tahiti" is a night spent somewhere, not a cozy night in.
+      if (ok && / in$/.test(e.phrase) && i + n < words.length && !FILLER.has(words[i + n])) ok = false;
       if (ok) hit(e, i);
     }
   }
   // Typo tolerance for leftover longer words ("hearbreak", "celebraton").
+  const known = lexPhrases();
   for (let i = 0; i < words.length; i++) {
-    if (used[i] || words[i].length < 6 || STOP.has(words[i])) continue;
+    // A word the lexicon already knows ("bitter") is never a typo of something else ("jitters").
+    if (used[i] || words[i].length < 6 || STOP.has(words[i]) || known.has(words[i]) || known.has(stems[i])) continue;
     const max = words[i].length >= 9 ? 2 : 1;
     const e = index.singles.find(x => editDistance(stems[i], x.stems[0], max) <= max);
     if (e) hit(e, i, true);
   }
-  return ' ' + words.filter((_, i) => !used[i]).join(' ') + ' ';
+  // A concept's words stay readable to the hand-tuned lexicon when the lexicon knows them too
+  // ("volcano goddess" is the goddess concept *and* the lexicon's fire and flame).
+  const lex = lexPhrases();
+  return ' ' + words.filter((w, i) => !used[i] || lex.has(w)).join(' ') + ' ';
 }
 // Words that carry no wish of their own.
-const FILLER = new Set(['the', 'and', 'for', 'with', 'something', 'anything', 'drink', 'drinks', 'cocktail', 'cocktails', 'please', 'want', 'like', 'some', 'that', 'this', 'from', 'make', 'give', 'gimme', 'into', 'about', 'what', 'just', 'really', 'very', 'little', 'bit', 'kind', 'sort', 'one', 'can', 'you', 'your', 'our', 'their', 'are', 'was', 'have', 'has', 'had', 'but', 'not', 'too', 'tiki', 'would', 'could', 'should', 'need', 'feel', 'feeling', 'feels', 'makes', 'made', 'taste', 'tastes', 'tasting', 'flavor', 'flavors', 'flavour', 'with', 'without', 'who', 'its', "it's", 'got', 'get', 'let', 'lets', "let's", 'more', 'less', 'much', 'way', 'tonight', 'today', 'now', 'out', 'all', 'any', 'them', 'they', 'his', 'her', 'him', 'she', 'how', 'when', 'where', 'why', 'than', 'then', 'there', 'here', 'also', 'maybe', 'perhaps', 'gods', 'god', 'pray', 'prayer', 'praying', 'oh', 'mighty', 'great', 'grant', 'bring', 'bless', 'offer', 'offering']);
+const FILLER = new Set(['glass', 'cup', 'dare', 'the', 'and', 'for', 'with', 'something', 'anything', 'drink', 'drinks', 'cocktail', 'cocktails', 'please', 'want', 'like', 'some', 'that', 'this', 'from', 'make', 'give', 'gimme', 'into', 'about', 'what', 'just', 'really', 'very', 'little', 'bit', 'kind', 'sort', 'one', 'can', 'you', 'your', 'our', 'their', 'are', 'was', 'have', 'has', 'had', 'but', 'not', 'too', 'tiki', 'would', 'could', 'should', 'need', 'feel', 'feeling', 'feels', 'makes', 'made', 'taste', 'tastes', 'tasting', 'flavor', 'flavors', 'flavour', 'with', 'without', 'who', 'its', "it's", 'got', 'get', 'let', 'lets', "let's", 'more', 'less', 'much', 'way', 'tonight', 'today', 'now', 'out', 'all', 'any', 'them', 'they', 'his', 'her', 'him', 'she', 'how', 'when', 'where', 'why', 'than', 'then', 'there', 'here', 'also', 'maybe', 'perhaps', 'gods', 'god', 'pray', 'prayer', 'praying', 'oh', 'mighty', 'great', 'grant', 'bring', 'bless', 'offer', 'offering']);
 const STOP = new Set(['something', 'anything', 'everything', 'please', 'little', 'really', 'without', 'drinks', 'cocktail', 'cocktails', 'tastes', 'flavors', 'flavour', 'flavours', 'should', 'would', 'could', 'make', 'gimme']);
 
 function applyConcept(intent, c, sign) {
@@ -500,8 +510,20 @@ export function buildNameIndex(drinks) {
   return idx;
 }
 
+// "Coconutty", "minty", "spicy": an adjective the lexicon doesn't know falls back to its root.
+function deAdjective(text, concepts) {
+  const known = lexPhrases();
+  const conceptStems = concepts ? new Set(concepts.singles.map(e => e.stems[0])) : new Set();
+  const isKnown = w => known.has(w) || conceptStems.has(stem(w));
+  return text.replace(/\b([a-z]{4,})(tty|ty|y|ey|ish)\b/g, (m, root, suf) => {
+    if (isKnown(m)) return m;
+    for (const r of [root + (suf === 'tty' ? 't' : ''), root, root + 'e', root.replace(/(.)\1$/, '$1')]) if (isKnown(r)) return r;
+    return m;
+  });
+}
+
 export function parsePrompt(raw, { nameIndex = [], familyIds = [], concepts = null } = {}) {
-  let text = normalizeText(raw);
+  let text = deAdjective(normalizeText(raw), concepts);
   const intent = {
     raw,
     tags: {}, avoidTags: {}, ings: {}, avoidIngs: new Set(), spirits: [], avoidSpirits: new Set(),
@@ -616,7 +638,7 @@ export function parsePrompt(raw, { nameIndex = [], familyIds = [], concepts = nu
   if (intent.style.zeroProof) intent.strength = -3;
   // Words the gods didn't catch: everything a guest wrote that no phrase, name or concept used.
   const covered = new Set(intent.matched.flatMap(m => normalizeText(m.phrase).trim().split(' ').map(stem)));
-  intent.unheard = [...new Set(normalizeText(raw).trim().split(' ').filter(w => w.length >= 3 && !FILLER.has(w) && !covered.has(stem(w)) && !/^\d+$/.test(w)))];
+  intent.unheard = [...new Set(deAdjective(normalizeText(raw), concepts).trim().split(' ').filter(w => w.length >= 3 && !FILLER.has(w) && !covered.has(stem(w)) && !/^\d+$/.test(w)))];
   return intent;
 }
 
