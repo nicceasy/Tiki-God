@@ -1811,10 +1811,12 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       const shared = [...new Set(d.ingredients.map(l => l.id))].filter(id => recipe.lines.some(l => l.id === id) && ingMap.get(id).role !== 'aromatic');
       return {
         id: d.id, name: d.name, variant: d.variant || '', year: d.year, circa: !!d.circa, creator: d.creator || '', venue: d.venue || '',
+        // The same hedged credit the card uses ("Kuala Lumpur Hilton, 1970s, attributed").
+        credit: creditText(originOf(d)) || '',
         family: d.family, similarity: round(x.s, 2),
         shared: shared.map(id => prose(id)),
       };
-    }).filter(x => !riffSrc || x.id !== riffSrc.id).slice(0, 4);
+    }).filter(x => !riffSrc || x.id !== riffSrc.id).filter((x, i, a) => a.findIndex(y => y.name === x.name) === i).slice(0, 4);
 
     // Pairings with pedigree.
     const ids = [...new Set(recipe.lines.filter(l => l.role !== 'aromatic').map(l => l.id))];

@@ -111,7 +111,7 @@ function render(r, seed) {
   const lineage = [
     `Family: <b>${esc(r.family.name)}</b>`,
     r.riffOf ? `A riff on the <b>${esc(r.riffOf.name)}</b>` : '',
-    ...inf.map(i => `<b>${esc(i.name)}</b>${i.year ? ` (${i.circa ? 'c. ' : ''}${i.year})` : ''}${i.creator ? `, ${esc(i.creator)}` : ''}: shares ${esc(i.shared.slice(0, 3).join(', ') || 'its structure')}`),
+    ...inf.map(i => `<b>${esc(i.name)}</b>${i.credit ? ` (${esc(i.credit)})` : ''}: shares ${esc(i.shared.slice(0, 3).join(', ') || 'its structure')}`),
   ].filter(Boolean);
   const why = r.explanation.whyItWorks.filter(w => !/^Built on|^It's the/.test(w)).slice(0, 3);
   const meta = [esc(r.family.name), r.riffOf ? `riff on the ${esc(r.riffOf.name)}` : '', r.servings > 1 ? `batch for ${r.servings}, amounts per drink` : ''].filter(Boolean).join(' · ');

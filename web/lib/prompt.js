@@ -512,7 +512,10 @@ export function buildNameIndex(drinks) {
   const idx = [];
   const seen = new Map();
   for (const d of drinks) {
-    for (const n of [d.name, ...(d.aka || []), ...[d.name, ...(d.aka || [])].filter(x => /'/.test(x)).map(x => x.replace(/'/g, ''))]) {
+    // Possessives typed without the apostrophe, or without the s ("missionarys downfall",
+    // "missionary downfall") still name the drink.
+    const typed = [d.name, ...(d.aka || [])].filter(x => /'/.test(x)).flatMap(x => [x.replace(/'/g, ''), x.replace(/'s\b/g, '')]);
+    for (const n of [d.name, ...(d.aka || []), ...typed]) {
       const key = normalizeText(n).trim();
       if (key.length < 4 || GENERIC_NAMES.has(key) || lexPhrases().has(key)) continue;
       const prev = seen.get(key);

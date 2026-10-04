@@ -655,6 +655,9 @@ export function createCopywriter({ ingMap, ingVec }) {
     let colorPart = null;
     const wanted = [intent.color, intent.colorLean].find(c => c && look && COLOR_WORD[c] && showsColor(look, c));
     if (wanted) colorPart = wanted === 'orange' && TIME_WORDS.dusk.test(prayer) ? 'sunset-orange' : COLOR_WORD[wanted];
+    // A color that lives only in a sink ("mango gold with grenadine settling garnet") is a
+    // gradient, not the drink's color: say so instead of calling the whole glass ruby-red.
+    if (wanted && look && !showsColor({ body: look.body, layers: [] }, wanted)) colorPart = ['red', 'pink'].includes(wanted) && (look.layers || []).some(x => x.kind === 'sink') ? 'gold-to-garnet' : null;
     const sameAsColor = w => colorPart && w.toLowerCase().includes(colorPart.replace(/^ruby-/, ''));
     // "A coconut sour with coconut water" says coconut twice.
     const sharesType = w => w.toLowerCase().split(/\s+/).some(t => t.length >= 4 && typeWord.toLowerCase().split(/[\s-]+/).includes(t));

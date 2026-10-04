@@ -109,7 +109,7 @@ function renderResult(r) {
     <button type="button" class="inf" data-drink="${esc(i.id)}">
       <span class="yr">${i.year ? (i.circa ? 'c. ' : '') + i.year : 'undated'}</span>
       <span class="nm">${esc(i.name)}</span>
-      <span class="by">${esc([i.variant, i.creator, i.venue].filter(Boolean).slice(0, 2).join(' · '))}</span>
+      <span class="by">${esc(i.credit || [i.variant, i.creator, i.venue].filter(Boolean).slice(0, 2).join(' · '))}</span>
       <span class="sh">Shares ${esc(i.shared.slice(0, 4).join(', ') || 'its structure')}</span>
     </button>`).join('');
   el.innerHTML = `
