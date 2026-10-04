@@ -195,7 +195,12 @@ export function createComposer({ archetypes, ingMap, model }) {
         return { item: sp, s };
       });
       // A repeat prayer on the same frame starts from a different proven spec.
-      const sp = specOffset > 0 && scored.length > 1 ? [...scored].sort((x, y) => y.s - x.s)[specOffset % scored.length].item : ctx.softPick(rng, scored, 0.6, greedy);
+      // Only from the specs that suit the prayer (not a Blue Hawaiian stripped of its blue), and
+      // among those the prayer's own tie-break picks, so two prayers on one frame differ.
+      const sorted = [...scored].sort((x, y) => y.s - x.s);
+      const fit = sorted.filter(x => x.s >= sorted[0].s - 1.5);
+      const sp = specOffset > 0 && fit.length > 1 ? ctx.softPick(rng, fit.slice(1).map(x => ({ ...x, s: 0 })), 1, true).item || fit[1].item
+        : specOffset > 0 ? fit[0].item : ctx.softPick(rng, scored, 0.6, greedy);
       lines = sp.lines.filter(l => ingMap.has(l.id)).map(l => ({ id: l.id, role: roleOf(l.id), oz: l.oz, unit: l.unit, amount: l.amount, float: !!l.float, sink: !!l.sink, crown: !!l.crown, slot: slotOf(a, l.id), range: rangeOf(a, l.id), fromSpec: sp.name }));
       // A sink has to be dense and a float light: a spec that marks rum as "sink" is describing
       // which half of a two-part pour it goes in, not physics.
@@ -235,10 +240,11 @@ export function createComposer({ archetypes, ingMap, model }) {
     // goes in like an ask, up to two of them, if the frame can hold it without breaking.
     // A reading's promise comes first: the first bottle it names that this frame can hold, unless
     // one of its bottles is already poured.
+    // A reading that names a spirit and a seasoning (a dragon's mezcal and chile) gets both.
     const promised = (intent.promises || []).filter(pr => pr.ids.length && !pr.ids.some(id => lines.some(l => l.id === id)))
-      .map(pr => pr.ids.find(id => canHold(a, id, intent, ctx))).filter(Boolean);
+      .flatMap(pr => { const ok = pr.ids.filter(id => canHold(a, id, intent, ctx)); return roleOf(ok[0]) === 'base' ? ok.slice(0, 2) : ok.slice(0, 1); });
     const heroes = [...new Set([...promised, ...Object.entries(intent.prefer || {}).filter(([id, w]) => w >= 1.25).sort((x, y) => y[1] - x[1]).map(([id]) => id)])]
-      .filter(id => ingMap.has(id) && !lines.some(l => l.id === id) && !ctx.forbidden(id, intent) && !archForbids(a, id)).slice(0, 2).map(id => [id]);
+      .filter(id => ingMap.has(id) && !lines.some(l => l.id === id) && !ctx.forbidden(id, intent) && !archForbids(a, id)).slice(0, 3).map(id => [id]);
     let heroSpirit = false;
     for (const [id] of heroes) {
       // A citrus hero shares the main citrus's pour (yuzu with the lime) rather than adding acid.

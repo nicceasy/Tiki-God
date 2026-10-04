@@ -134,7 +134,8 @@ test('the signature serves wear their own garnish', () => {
   every('painkiller', (r, w) => { assert.ok(r.garnish.includes('heavy nutmeg cap'), w); if (has(r, 'orange') && !(engine.parse(r.prompt).avoidTags.orange >= 1)) assert.ok(r.garnish.includes('orange wheel') && r.garnish.includes('cherry'), w); });
   every('trinidad-swizzle', (r, w) => assert.ok(r.garnish.includes('mint sprig') && r.garnish.includes('swizzle stick left in'), w));
   every('zombie', (r, w) => { assert.equal(r.garnish[0], 'mint sprig', w); if (has(r, 'pineapple-juice') && !(engine.parse(r.prompt).avoidTags.pineapple >= 1)) assert.ok(r.garnish.includes('pineapple frond'), w); });
-  every('hurricane', (r, w) => assert.ok(r.garnish.includes('orange slice and cherry flag'), w), r => r.lines.some(l => l.id === 'orange'));
+  // A Hurricane batched into a punch bowl floats its fruit instead of wearing a flag.
+  every('hurricane', (r, w) => assert.ok(r.garnish.includes('orange slice and cherry flag'), w), r => r.lines.some(l => l.id === 'orange') && !/bowl/.test(r.vessel.id));
   every('scorpion-bowl', (r, w) => assert.ok(!r.garnish.some(g => /flaming/.test(g)) || r.style.flaming, w));
   for (const x of all) if (/^scorpion/.test(x.r.archetype.id) && !x.r.style.flaming) assert.ok(x.r.garnish.includes('gardenia'), id(x));
 });

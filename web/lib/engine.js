@@ -1759,6 +1759,13 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
   // up to three times, and the build with the fewest fatal findings is served.
   const linter = rules ? createLinter({ rules, vocab, vessels }) : null;
   function generate(prompt, opts = {}) {
+    // Praying again brings a different idea: the frames the earlier seeds served are known.
+    const seed = opts.seed || 0;
+    if (seed > 0 && !opts.prior) {
+      const prior = new Set();
+      for (let s0 = 0; s0 < Math.min(seed, 3); s0++) prior.add(generate(prompt, { ...opts, seed: s0, prior: new Set() }).archetype.id);
+      opts = { ...opts, prior };
+    }
     const first = generateOnce(prompt, opts);
     if (!linter || first.classic) return first;
     const fatal = r => { try { return linter.lint(r, { intent: parsePrompt(prompt, { nameIndex, concepts: conceptIndex }) }).filter(f => f.sev === 'fatal'); } catch { return []; } };
@@ -1775,7 +1782,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     return best;
   }
 
-  function generateOnce(prompt, { seed = 0, avoid = null } = {}) {
+  function generateOnce(prompt, { seed = 0, avoid = null, prior = null } = {}) {
     swappedOut.clear();
     const intent = parsePrompt(prompt, { nameIndex, concepts: conceptIndex });
     if (!intent.riffOf) {
@@ -1906,9 +1913,13 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
           // (a bananas-foster prayer stays banana on every seed).
           const lead = Object.entries(intent.tags).filter(([t]) => !['sweet', 'tart', 'light', 'rich', 'boozy', 'warm', 'fruity', 'tropical', 'citrus', 'creamy', 'effervescent', 'crisp', 'dry'].includes(t)).sort((a, b) => b[1] - a[1])[0];
           const near = ranked.filter(x => x.s >= best - 3.5 && (!lead || lead[1] < 1 || composer.carries(x.a, lead[0], intent, ctx)));
-          const skip = new Set(near.slice(0, Math.min(seed, near.length - 1)).map(x => x.a));
+          // The frames earlier seeds actually served (after their own retries) are set aside first.
+          const served = near.filter(x => prior && prior.has(x.a.id));
+          const skip = new Set(served.length ? served.slice(0, near.length - 1).map(x => x.a) : near.slice(0, Math.min(seed, near.length - 1)).map(x => x.a));
           if (near.length > 1) { scored = near.filter(x => !skip.has(x.a)); skipped = skip; }
         }
+        // An open prayer with nothing to steer it still never repeats the frame an earlier seed served.
+        if (blank && prior && prior.size && scored.some(x => !prior.has(x.a.id))) scored = scored.filter(x => !prior.has(x.a.id));
         A = forced || softPick(rng, scored.map(x => ({ item: x.a, s: x.s })), blank ? 2.5 : 0.8, (greedy || seed > 0) && !blank)
           // Nothing can be built as asked (every archetype needs something the guest ruled out):
           // fall back to the most forgiving frame, a planter's punch.
@@ -1944,6 +1955,12 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       const methods = A.methods || ['shake'], ices = A.ice || ['crushed'];
       const svc = { method: methods[0], ice: ices[0], glass: '' };
       if (riffSrc && A === archetypeForDrink(riffSrc)) { svc.method = riffSrc.method; svc.ice = riffSrc.ice; }
+      // Praying again on a named drink with only one historical branch changes how it's served
+      // instead: frozen this time, if the frame allows it (a Painkiller frappé).
+      if (riffSrc && seed > 0 && !intent.style.hot && !intent.style.stirred && svc.method !== 'blend' && methods.includes('blend') && seed % 2 === 1) {
+        svc.method = 'blend'; svc.ice = 'blended'; blenderContext = true;
+        notes.push('blended this time, frozen and frothy');
+      }
       if (intent.style.frozen && methods.includes('blend')) { svc.method = 'blend'; svc.ice = 'blended'; }
       if (intent.style.hot && methods.includes('hot')) { svc.method = 'hot'; svc.ice = 'none'; }
       if (intent.style.stirred && methods.includes('stir')) { svc.method = 'stir'; svc.ice = ices.includes('block') ? 'block' : 'cubed'; }
