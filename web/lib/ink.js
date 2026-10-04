@@ -188,6 +188,16 @@ function deform(verts, depth, r) {
 // Precompute the layered wash for a polygon. `soft` controls how far edges wander.
 export function makeWash(poly, { seed = 1, layers = 22, soft = 1, verts = 12, off = 3, depth = 3 } = {}) {
   const r = rng(seed);
+  // A thin shape (a stem, a pick, a strip of peel) may wander only a little or it loses its
+  // form: scale the wander by its thickness, twice its area over its perimeter.
+  let area = 0, per = 0;
+  for (let i = 0; i < poly.length; i++) {
+    const a = poly[i], b = poly[(i + 1) % poly.length];
+    area += a[0] * b[1] - b[0] * a[1];
+    per += Math.hypot(b[0] - a[0], b[1] - a[1]);
+  }
+  const thin = Math.max(0.15, Math.min(1, (Math.abs(area) / Math.max(1, per)) / 30));
+  soft *= thin; off *= Math.max(0.4, thin);
   const dx = (r() - 0.5) * 2 * off, dy = (r() - 0.5) * 2 * off;
   const base0 = resample(poly, verts).map(([x, y]) => ({ x: x + dx, y: y + dy, v: (0.35 + r() * 0.9) * soft }));
   const base = deform(base0, depth, r);

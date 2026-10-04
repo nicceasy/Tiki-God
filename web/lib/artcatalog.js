@@ -3,7 +3,7 @@
 // Each part returns local-space ink strokes, watercolor washes and ink dots:
 //   { box: [w, h], strokes: [{ pts, tier }], washes: [{ pts, color, alpha?, soft? }], dots: [{ x, y, r, tier?, color? }] }
 // tier 1 = contour, 2 = inner detail, 3 = faint detail (line hierarchy).
-import { ell, rng, TAU } from './ink.js';
+import { ell, rng, TAU, spline, mixHex } from './ink.js';
 
 export const PALETTE = {
   hibiscus: '#E4574A', hibiscusDeep: '#B8325A', butter: '#F2C14E', lagoon: '#2D9B94', frond: '#5E8F4C', mint: '#7FB069',
@@ -159,110 +159,582 @@ function pineapple() {
   };
 }
 
+// A glass fishing float in its rope net: a nautical object for the decorative frame, where a
+// carved figure would make a mascot of something sacred (presentation.md §6.2).
+function glassFloat() {
+  const cx = 90, cy = 110, r = 72, strokes = [{ pts: ell(cx, cy, r, r, -1.2, -1.2 + TAU * 1.03, 40), tier: 1 }];
+  for (const s of [0.4, 0.8]) strokes.push({ pts: ell(cx, cy, r * s, r * 0.98, -Math.PI / 2, Math.PI / 2, 22), tier: 3 }, { pts: ell(cx, cy, r * s, r * 0.98, Math.PI / 2, Math.PI * 1.5, 22), tier: 3 });
+  for (const y of [-0.55, 0, 0.55]) strokes.push({ pts: ell(cx, cy + y * r, r * Math.sqrt(1 - y * y), r * 0.12, 0.05, Math.PI - 0.05, 18), tier: 3 });
+  strokes.push({ pts: ell(cx - 28, cy - 34, 22, 26, Math.PI + 0.3, Math.PI + 1.2, 10), tier: 3 });
+  strokes.push({ pts: ell(cx, cy - r - 8, 10, 7, 0, TAU, 14), tier: 1 }, { pts: [[cx + 8, cy - r - 12], [cx + 34, cy - r - 30], [cx + 52, cy - r - 26]], tier: 2 });
+  return { box: [180, 200], strokes, washes: [{ pts: ell(cx, cy, r - 2, r - 2, 0, TAU, 24), color: PALETTE.lagoon, alpha: 0.03 }, { pts: ell(cx + 18, cy + 22, r * 0.55, r * 0.5, 0, TAU, 16), color: PALETTE.lagoon, alpha: 0.025, soft: 0.6 }] };
+}
+
 // ---------------------------------------------------------------- garnishes
-function mint({ big = false } = {}) {
-  const k = big ? 1.25 : 1;
-  const strokes = [{ pts: [[35, 90], [36, 62], [34, 30]], tier: 1 }], washes = [];
-  [[36, 70, -2.6], [36, 66, -0.5], [35, 48, -2.4], [35, 44, -0.7], [34, 30, -1.6]].forEach(([x, y, a], i) => {
-    const leaf = leafShape((24 - i * 1.5) * k, 7.5 * k, x, y, a);
-    strokes.push({ pts: leaf, tier: 1 });
-    strokes.push({ pts: [leaf[0], leaf[4]], tier: 3 });
-    washes.push({ pts: leaf, color: PALETTE.mint, alpha: 0.07, soft: 0.5 });
-  });
-  return { box: [70, 92], strokes, washes };
-}
+// Garnishes are drawn at their real size, 38 units to the inch like the vessels (docs/vessels.md):
+// a cherry is about 32 units across, a lime shell 80, an orange wheel 110. Each has its origin
+// at the point that touches the drink, so a spec places it at s ≈ 1. A part may also carry
+// `cover` polygons, the area it hides: the renderer keeps anything drawn before it out of them,
+// so a wheel slotted on the rim sits in front of the glass and mint in front of the straw.
+export const PER_INCH = 38;
 
-function citrusWheel({ color = PALETTE.lime } = {}) {
-  const strokes = [{ pts: ell(30, 30, 26, 26, 0.3, 0.3 + TAU * 1.03, 30), tier: 1 }, { pts: ell(30, 30, 21, 21, 0, TAU, 26), tier: 2 }];
-  for (let i = 0; i < 8; i++) strokes.push({ pts: [[30, 30], polar(30, 30, 19, i * TAU / 8)], tier: 3 });
-  return { box: [60, 60], strokes, washes: [{ pts: ell(30, 30, 25, 25, 0, TAU, 18), color, alpha: 0.08, soft: 0.4 }] };
-}
+const turn = (pts, a, ox = 0, oy = 0) => { const c = Math.cos(a), s = Math.sin(a); return pts.map(([x, y]) => [ox + x * c - y * s, oy + x * s + y * c]); };
+const circle = (cx, cy, r, n = 22) => ell(cx, cy, r, r, 0, TAU, n);
+const NUTMEG = '#7A4A26', BAMBOO = '#D2AC63', PEEL = { orange: PALETTE.orange, lemon: PALETTE.butter, lime: PALETTE.lime, grapefruit: '#F2A08A' };
 
-function limeShell() {
+// Several drawings ({ strokes, washes, dots, cover }) as one.
+function merge(...parts) {
+  const out = { strokes: [], washes: [], dots: [], cover: [] };
+  for (const p of parts) for (const k of Object.keys(out)) if (p && p[k]) out[k].push(...p[k]);
+  return out;
+}
+// A drawing turned by `a` about its origin, then moved by (dx, dy).
+function moved(part, dx, dy, a = 0) {
+  const T = pts => turn(pts, a, dx, dy);
   return {
-    box: [60, 34],
-    strokes: [{ pts: ell(30, 16, 24, 6, 0, TAU, 22), tier: 2 }, { pts: [[6, 16], [12, 26], [30, 31], [48, 26], [54, 16]], tier: 1 }],
-    washes: [{ pts: [[6, 16], [12, 26], [30, 31], [48, 26], [54, 16]], color: PALETTE.lime, alpha: 0.09, soft: 0.4 }],
+    strokes: (part.strokes || []).map(s => ({ ...s, pts: T(s.pts) })),
+    washes: (part.washes || []).map(w => ({ ...w, pts: T(w.pts) })),
+    dots: (part.dots || []).map(d => { const [[x, y]] = T([[d.x, d.y]]); return { ...d, x, y }; }),
+    cover: (part.cover || []).map(T),
   };
 }
 
-function cherry() {
-  return {
-    box: [44, 62],
-    strokes: [{ pts: ell(18, 48, 10, 10, -1.2, -1.2 + TAU * 1.04, 20), tier: 1 }, { pts: [[19, 38], [23, 20], [36, 6]], tier: 1 }],
-    washes: [{ pts: ell(18, 48, 10, 10, 0, TAU, 14), color: PALETTE.cherry, alpha: 0.11, soft: 0.4 }],
-    dots: [{ x: 14, y: 44, r: 2, color: PALETTE.paper }],
-  };
-}
-
-function orchid() {
-  const strokes = [], washes = [];
-  for (let i = 0; i < 5; i++) {
-    const t = -Math.PI / 2 + i * TAU / 5;
-    const p = ell(30 + Math.cos(t) * 13, 30 + Math.sin(t) * 13, 12, 7, 0, TAU, 14, t);
-    strokes.push({ pts: p, tier: 1 });
-    washes.push({ pts: p, color: PALETTE.orchid, alpha: 0.07, soft: 0.5 });
+// A leaf along +x from the origin, widest about a third of the way out; `teeth` serrates it.
+function leaf(len, wid, { teeth = false, n = 14, round = 0.72 } = {}) {
+  const up = [], dn = [];
+  for (let i = 0; i <= n; i++) {
+    const u = i / n;
+    let w = wid * Math.pow(Math.max(0, Math.sin(Math.PI * Math.pow(u, round))), 0.85);
+    if (teeth && i > 1 && i < n - 1 && i % 2) w *= 1.11;
+    up.push([u * len, -w]); dn.push([u * len, w]);
   }
-  return { box: [60, 60], strokes, washes, dots: [{ x: 30, y: 30, r: 3.5, color: PALETTE.butter }] };
+  return [...up, ...dn.reverse().slice(1)];
 }
 
+// Mint: a garnish sprig is the top of the stem, a bushy crown of serrated leaves about an inch
+// long. Pairs alternate at right angles up the stem, so every other pair is seen end-on,
+// shorter and more upright; three young leaves make the tip.
+function mintSprig(h, lean, k = 1, seed = 1) {
+  const r = rng(seed), strokes = [], washes = [], cover = [];
+  const ax = Math.sin(lean), ay = -Math.cos(lean), dir = Math.atan2(ay, ax);
+  const at = u => [ax * h * u + Math.sin(u * Math.PI) * 2.5, ay * h * u];
+  strokes.push({ pts: [0, 0.25, 0.5, 0.75, 0.96].map(at), tier: 1 });
+  const addLeaf = (x, y, ang, len, wid, color) => {
+    len *= k; wid *= k;
+    const L = turn(leaf(len, wid, { teeth: true, n: 16 }), ang, x, y);
+    const p = (u, v) => [x + Math.cos(ang) * len * u - Math.sin(ang) * wid * v, y + Math.sin(ang) * len * u + Math.cos(ang) * wid * v];
+    strokes.push({ pts: L, tier: 2 }, { pts: [p(0.06, 0), p(0.84, 0)], tier: 3 });
+    if (len > 20) strokes.push({ pts: [p(0.28, 0), p(0.5, -0.6)], tier: 3 }, { pts: [p(0.28, 0), p(0.5, 0.6)], tier: 3 });
+    washes.push({ pts: L, color, alpha: 0.075, soft: 0.5 });
+    cover.push(L);
+  };
+  // [height up the stem, leaf length, width, spread from the stem, seen end-on]
+  const nodes = [[0.3, 36, 15, 1.38, false], [0.48, 24, 12, 0.5, true], [0.62, 31, 13.5, 1.08, false], [0.78, 19, 10, 0.42, true]];
+  for (const [u, len, wid, spread, endOn] of nodes) {
+    const [x, y] = at(u), droop = endOn ? 0 : 0.14;
+    addLeaf(x, y, dir - spread + droop, len, wid, mixHex(PALETTE.mint, PALETTE.frond, 0.1 + r() * 0.35));
+    addLeaf(x, y, dir + spread - droop, len * 0.95, wid, mixHex(PALETTE.mint, PALETTE.frond, 0.1 + r() * 0.35));
+  }
+  const [tx, ty] = at(0.96);
+  [-0.45, 0.02, 0.48].forEach((d, i) => addLeaf(tx, ty, dir + d, i === 1 ? 19 : 15, i === 1 ? 8 : 7, PALETTE.mint));
+  return { strokes, washes, cover };
+}
+function mint({ big = false, h = 110 } = {}) {
+  const part = big
+    ? merge(mintSprig(h * 0.8, -0.4, 0.9, 2), mintSprig(h * 0.86, 0.38, 0.9, 3), mintSprig(h, 0.02, 1, 4))
+    : mintSprig(h, 0.04, 1, 5);
+  return { box: [140, h + 24], ...part };
+}
+// Basil, rosemary or geranium: the mint drawing with the herb's own leaf.
+function herbSprig({ herb = 'basil', h = 100 } = {}) {
+  if (herb !== 'rosemary') {
+    const p = mintSprig(h, 0.05, 1.08);
+    return { box: [120, h + 20], ...p, washes: p.washes.map(w => ({ ...w, color: herb === 'basil' ? '#4F8F3A' : PALETTE.frond })) };
+  }
+  const strokes = [{ pts: [[0, 0], [3, -h * 0.5], [6, -h]], tier: 1 }], washes = [];
+  for (let i = 0; i < 16; i++) {
+    const u = 0.2 + i * 0.05, x = 3 * u * 2, y = -h * u, a = -Math.PI / 2 + (i % 2 ? 0.9 : -0.9);
+    const L = turn(leaf(16, 2.4), a, x, y);
+    strokes.push({ pts: L, tier: 2 });
+    washes.push({ pts: L, color: '#5C7F5A', alpha: 0.08, soft: 0.4 });
+  }
+  return { box: [60, h + 10], strokes, washes };
+}
+
+// The spent lime half. Dome up, it floats skin-up on the ice like an island (the Mai Tai); cup
+// up, its cut face makes a little boat for a flaming crouton.
+function limeShell({ orientation = 'dome-up', seed = 3 } = {}) {
+  const r = rng(seed), rx = 40;
+  const pores = (ry, up) => Array.from({ length: 16 }, () => {
+    const a = Math.PI + 0.25 + r() * (Math.PI - 0.5), k = 0.25 + r() * 0.65;
+    return { x: Math.cos(a) * rx * k, y: (up ? -1 : 1) * Math.abs(Math.sin(a)) * ry * k, r: 0.75, tier: 3 };
+  });
+  if (orientation === 'cup-up') {
+    const ry = 11, skin = ell(0, 0, rx, 24, 0, Math.PI, 18);
+    const outline = [...ell(0, 0, rx, ry, Math.PI, TAU, 16), ...skin.slice(1)];
+    return {
+      box: [84, 60],
+      strokes: [
+        { pts: ell(0, 0, rx, ry, 0, TAU * 1.02, 26), tier: 1 }, { pts: ell(0, 1.5, rx - 7, ry - 3.5, 0, TAU, 22), tier: 2 },
+        { pts: skin, tier: 1 },
+        // a sugar cube soaked in lemon extract, sitting in the hollow
+        { pts: [[-8, 1], [-8, -10], [7, -11], [8, 0]], tier: 2 }, { pts: [[-8, -10], [-3, -14], [11, -15], [7, -11]], tier: 3 },
+      ],
+      washes: [{ pts: outline, color: PALETTE.lime, alpha: 0.12, soft: 0.35 }, { pts: ell(0, 1.5, rx - 8, ry - 4, 0, TAU, 14), color: '#E6EBC0', alpha: 0.07, soft: 0.4 }, { pts: [[-8, 0], [-8, -10], [7, -11], [8, 0]], color: PALETTE.butter, alpha: 0.12, soft: 0.3 }],
+      dots: pores(20, false).map(d => ({ ...d, y: Math.abs(d.y) + 6 })),
+      cover: [outline],
+    };
+  }
+  const ry = 25, dome = ell(0, 0, rx, ry, Math.PI, TAU, 26);
+  const water = [];
+  for (let x = -rx - 9; x <= rx + 9; x += 6) water.push([x, 2 + (r() - 0.5) * 3 + (Math.abs(x) > rx - 4 ? -2 : 0)]);
+  return {
+    box: [96, 40],
+    strokes: [
+      { pts: dome, tier: 1 }, { pts: water, tier: 3 },
+      { pts: ell(3, -ry + 2.5, 3.4, 1.8, 0, TAU, 10), tier: 2 },
+      { pts: ell(-8, -6, 22, 14, Math.PI + 0.5, Math.PI + 1.3, 8), tier: 3 },
+    ],
+    washes: [{ pts: [...dome, [rx, 1], [-rx, 1]], color: PALETTE.lime, alpha: 0.085, soft: 0.35 }, { pts: [...ell(0, 0, rx - 3, 9, Math.PI, TAU, 14), [rx - 3, 2], [-rx + 3, 2]], color: PALETTE.frond, alpha: 0.035, soft: 0.5 }],
+    dots: pores(ry, true),
+    cover: [[...dome, [rx, 2], [-rx, 2]]],
+  };
+}
+
+// Fire for a flaming crouton or a volcano crater: three tongues, butter at the heart.
+function flame({ h = 56 } = {}) {
+  const k = h / 56;
+  const outer = [[-15, 0], [-20, -14], [-13, -29], [-15, -42], [-5, -33], [0, -56], [6, -37], [15, -46], [13, -28], [19, -13], [15, 0]].map(([x, y]) => [x * k, y * k]);
+  const inner = [[-8, -2], [-9, -13], [-3, -23], [0, -34], [4, -23], [9, -13], [8, -2]].map(([x, y]) => [x * k, y * k]);
+  return {
+    box: [44, 60],
+    strokes: [{ pts: outer, tier: 1 }, { pts: inner, tier: 2 }],
+    washes: [{ pts: outer, color: PALETTE.orange, alpha: 0.12, soft: 0.4 }, { pts: inner, color: PALETTE.butter, alpha: 0.16, soft: 0.3 }, { pts: [[-14, -30], [0, -56], [14, -44], [6, -30]].map(([x, y]) => [x * k, y * k]), color: PALETTE.hibiscus, alpha: 0.06, soft: 0.6 }],
+    cover: [outer],
+  };
+}
+
+// A cocktail cherry, 0.85 in across, with its stem (or pitted, for a pick).
+function cherryBody(cx, cy, rr = 16, stem = true) {
+  const body = [];
+  for (let i = 0; i <= 26; i++) {
+    const a = -Math.PI / 2 + 0.28 + (i / 26) * (TAU - 0.56);
+    body.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * 0.95]);
+  }
+  const top = [cx, cy - rr * 0.95 + 3.5], closed = [...body, top];
+  const strokes = [{ pts: body, tier: 1 }, { pts: [body[body.length - 1], top, body[0]], tier: 2 }];
+  if (stem) strokes.push({ pts: [top, [cx + 2, cy - rr - 12], [cx + 8, cy - rr - 28], [cx + 18, cy - rr - 40]], tier: 2 });
+  return {
+    strokes,
+    washes: [{ pts: closed, color: PALETTE.cherry, alpha: 0.17, soft: 0.3 }, { pts: ell(cx + 4, cy + 4, rr * 0.68, rr * 0.6, 0, TAU, 12), color: PALETTE.hibiscusDeep, alpha: 0.08, soft: 0.4 }],
+    dots: [{ x: cx - rr * 0.38, y: cy - rr * 0.36, r: rr * 0.2, color: PALETTE.paper, top: true }, { x: cx - rr * 0.1, y: cy - rr * 0.58, r: rr * 0.08, color: PALETTE.paper, top: true }],
+    cover: [closed],
+  };
+}
+function cherry({ stem = true } = {}) { return { box: [44, 76], ...cherryBody(0, -16, 16, stem) }; }
+
+// A band of rind between radii r0 and r1 from angle a0 to a1, as a few short arcs so each wash
+// keeps its curve (one ring-shaped polygon would not survive the watercolor's wander).
+function rindBands(r0, r1, a0, a1, sq = p => p, n = 6) {
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const b0 = a0 + (a1 - a0) * (i / n) - 0.03, b1 = a0 + (a1 - a0) * ((i + 1) / n) + 0.03;
+    out.push(sq([...ell(0, 0, r1, r1, b0, b1, 5), ...ell(0, 0, r0, r0, b1, b0, 5)]));
+  }
+  return out;
+}
+
+// A citrus wheel (or half-wheel), upright and slotted onto the rim, or lying flat on a hot
+// drink (`flat` squashes it). Origin at the center; the slot runs up from the bottom edge.
+function citrusWheel({ r = 38, color = PALETTE.lime, rind = PALETTE.frond, half = false, flat = 1, slot = true, cloves = false } = {}) {
+  const sq = pts => pts.map(([x, y]) => [x, y * flat]);
+  const outer = half ? [...ell(0, 0, r, r, Math.PI, TAU, 20), [0, 0.5], [-r, 0]] : ell(0, 0, r, r, 0.3, 0.3 + TAU * 1.02, 30);
+  const strokes = [{ pts: sq(outer), tier: 1 }, { pts: sq(half ? ell(0, 0, r * 0.86, r * 0.86, Math.PI + 0.02, TAU - 0.02, 18) : circle(0, 0, r * 0.86, 26)), tier: 2 }];
+  const n = 10, washes = [];
+  for (let i = 0; i < n; i++) {
+    const a = i * TAU / n + 0.15;
+    if (half && Math.sin(a) > -0.05) continue;
+    strokes.push({ pts: sq([polar(0, 0, r * 0.13, a), polar(0, 0, r * 0.8, a)]), tier: 3 });
+    // each segment a little juicier at its heart
+    const b = a + TAU / n;
+    if (!half || Math.sin(b) < 0.05) washes.push({ pts: sq([polar(0, 0, r * 0.18, a + 0.1), polar(0, 0, r * 0.76, a + 0.08), polar(0, 0, r * 0.78, (a + b) / 2), polar(0, 0, r * 0.76, b - 0.08), polar(0, 0, r * 0.18, b - 0.1)]), color, alpha: 0.05, soft: 0.4 });
+  }
+  if (!half) strokes.push({ pts: sq(circle(0, 0, r * 0.1, 10)), tier: 3 });
+  if (slot) strokes.push({ pts: half ? [[0, 0], [0, -r * 0.42]] : [[0, r * 0.98], [0, r * 0.5]], tier: 2 });
+  const fill = sq(half ? ell(0, 0, r * 0.84, r * 0.84, Math.PI, TAU, 16) : circle(0, 0, r * 0.84, 18));
+  washes.unshift({ pts: fill, color, alpha: 0.045, soft: 0.5 });
+  for (const b of rindBands(r * 0.86, r, half ? Math.PI : 0, half ? TAU : TAU, sq, half ? 4 : 8)) washes.push({ pts: b, color: rind, alpha: 0.07, soft: 0.3 });
+  const dots = cloves ? Array.from({ length: 6 }, (_, i) => { const [x, y] = polar(0, 0, r * 0.55, i * TAU / 6 + 0.4); return { x, y: y * flat, r: 2.6, color: '#3B2416' }; }) : [];
+  return {
+    box: [r * 2, r * 2],
+    strokes,
+    washes,
+    dots,
+    cover: [sq(half ? [...ell(0, 0, r, r, Math.PI, TAU, 20), [r, 1], [-r, 1]] : circle(0, 0, r, 24))],
+  };
+}
+
+// A citrus wedge seen from the side: flesh edge on top, rind arc below, slotted at the middle.
+function citrusWedge({ len = 66, color = PALETTE.lime, rind = PALETTE.frond, slot = true } = {}) {
+  const h = len * 0.36;
+  const top = [[-len / 2, 0], [-len / 4, -3], [0, -4], [len / 4, -3], [len / 2, 0]];
+  const skin = ell(0, 0, len / 2, h, 0, Math.PI, 18), pith = ell(0, 0, len / 2 - 4, h - 4, 0.14, Math.PI - 0.14, 16);
+  const outline = [...top, ...skin.slice(1)];
+  const strokes = [{ pts: top, tier: 2 }, { pts: skin, tier: 1 }, { pts: pith, tier: 3 }];
+  for (const f of [-0.3, -0.1, 0.1, 0.3]) strokes.push({ pts: [[f * len, -2], [f * len * 1.1, h * 0.55]], tier: 3 });
+  if (slot) strokes.push({ pts: [[0, -4], [0, h * 0.45]], tier: 2 });
+  const band = [];
+  for (let i = 0; i < 4; i++) { const a0 = 0.05 + i * (Math.PI - 0.1) / 4, a1 = a0 + (Math.PI - 0.1) / 4 + 0.03; band.push([...ell(0, 0, len / 2, h, a0, a1, 5), ...ell(0, 0, len / 2 - 4.5, h - 4.5, a1, a0, 5)]); }
+  return {
+    box: [len, h + 6],
+    strokes,
+    washes: [{ pts: outline, color, alpha: 0.06, soft: 0.5 }, ...band.map(pts => ({ pts, color: rind, alpha: 0.08, soft: 0.3 }))],
+    cover: [outline],
+  };
+}
+
+// A pineapple wedge with its rind, slotted onto the rim: about 2.75 in long, pale fibrous
+// flesh, the core edge on top, and the rind's diamond eyes along the curve.
+function pineappleWedge({ len = 104 } = {}) {
+  const h = 38;
+  const top = [[-len / 2, 0], [-len / 4, -2.5], [0, -3], [len / 4, -2.5], [len / 2, 0]];
+  const outer = ell(0, 0, len / 2, h, 0, Math.PI, 24), inner = ell(0, 0, len / 2 - 8, h - 10, 0.1, Math.PI - 0.1, 20);
+  const outline = [...top, ...outer.slice(1)];
+  const strokes = [{ pts: top, tier: 2 }, { pts: [[-len / 2 + 6, 5], [len / 2 - 6, 5]], tier: 3 }, { pts: outer, tier: 1 }, { pts: inner, tier: 2 }, { pts: [[0, -3], [0, 13]], tier: 2 }];
+  // the rind's eyes: a crosshatch of short diagonals between the two arcs
+  for (let a = 0.22; a < Math.PI - 0.18; a += 0.2) {
+    const m = [Math.cos(a) * (len / 2 - 4), Math.sin(a) * (h - 5)], t = [-Math.sin(a) * 4, Math.cos(a) * 4], n = [Math.cos(a) * 3.2, Math.sin(a) * 3.2];
+    strokes.push({ pts: [[m[0] - t[0] - n[0], m[1] - t[1] - n[1]], [m[0] + t[0] + n[0], m[1] + t[1] + n[1]]], tier: 3 }, { pts: [[m[0] + t[0] - n[0], m[1] + t[1] - n[1]], [m[0] - t[0] + n[0], m[1] - t[1] + n[1]]], tier: 3 });
+  }
+  for (const f of [-0.32, -0.16, 0.16, 0.32]) strokes.push({ pts: [[f * len, 6], [f * len * 1.12, h * 0.55]], tier: 3 });
+  const band = [];
+  for (let i = 0; i < 5; i++) { const a0 = 0.04 + i * (Math.PI - 0.08) / 5, a1 = a0 + (Math.PI - 0.08) / 5 + 0.03; band.push([...ell(0, 0, len / 2, h, a0, a1, 5), ...ell(0, 0, len / 2 - 8, h - 10, a1, a0, 5)]); }
+  return {
+    box: [len, h + 6],
+    strokes,
+    washes: [{ pts: outline, color: PALETTE.butter, alpha: 0.06, soft: 0.5 }, { pts: [[-len / 2 + 4, 0], [len / 2 - 4, 0], [len / 2 - 8, 6], [-len / 2 + 8, 6]], color: PALETTE.butter, alpha: 0.07, soft: 0.3 }, ...band.map(pts => ({ pts, color: '#9A8A3A', alpha: 0.085, soft: 0.3 }))],
+    cover: [outline],
+  };
+}
+
+// A pineapple spear: a long baton with a strip of rind, standing in the ice.
+function pineappleSpear({ len = 150 } = {}) {
+  const outline = [[-9, 0], [-9, -len + 6], [-2, -len], [9, -len + 3], [9, 0]];
+  const strokes = [{ pts: outline, tier: 1 }, { pts: [[4, -2], [4, -len + 4]], tier: 2 }];
+  for (let y = -12; y > -len + 12; y -= 10) strokes.push({ pts: [[4.5, y + 3], [8, y], [4.5, y - 3]], tier: 3 });
+  for (const y of [-len * 0.3, -len * 0.55, -len * 0.8]) strokes.push({ pts: [[-6, y], [1, y - 6]], tier: 3 });
+  return {
+    box: [22, len],
+    strokes,
+    washes: [{ pts: outline, color: PALETTE.butter, alpha: 0.07, soft: 0.4 }, { pts: [[4, 0], [4, -len + 4], [9, -len + 3], [9, 0]], color: '#9A8A3A', alpha: 0.09, soft: 0.3 }],
+    cover: [outline],
+  };
+}
+
+// A long, narrow, gently curved blade along +x (a pineapple leaf), with a few spines.
+function blade(len, wid, bend) {
+  const n = 12, up = [], dn = [], mid = [];
+  for (let i = 0; i <= n; i++) {
+    const u = i / n, w = wid * Math.pow(1 - u, 0.85) + 0.4, x = u * len, y = bend * len * u * u;
+    up.push([x, y - w]); dn.push([x, y + w]); mid.push([x, y]);
+  }
+  const spines = [];
+  for (let i = 2; i < n - 1; i += 3) spines.push({ pts: [up[i], [up[i][0] + 4, up[i][1] - 2.2]], tier: 3 }, { pts: [dn[i + 1], [dn[i + 1][0] + 4, dn[i + 1][1] + 2.2]], tier: 3 });
+  return { outline: [...up, ...dn.reverse()], mid, spines };
+}
+function pineappleFronds({ h = 150 } = {}) {
+  const out = { strokes: [], washes: [], cover: [] };
+  for (const [off, lf, bend] of [[-0.34, 0.84, 0.06], [0.04, 1, -0.03], [0.36, 0.76, -0.07]]) {
+    const b = blade(h * lf, 7.5, bend), a = -Math.PI / 2 + off;
+    const O = turn(b.outline, a);
+    out.strokes.push({ pts: O, tier: 2 }, { pts: turn(b.mid.slice(1, -2), a), tier: 3 }, ...b.spines.map(s => ({ ...s, pts: turn(s.pts, a) })));
+    out.washes.push({ pts: O, color: '#5E9A6E', alpha: 0.075, soft: 0.4 });
+    out.cover.push(O);
+  }
+  return { box: [120, h], ...out };
+}
+
+// A small bamboo pick skewering fruit in order along +x, the pick showing past both ends.
+// Items: 'cherry', 'chunk' (a rectangle of pineapple with its rind), 'ginger' (a candied cube).
+function pickWith(items, { gap = 4, lead = 0 } = {}) {
+  const W = { cherry: 32, chunk: 46, ginger: 28, ring: 62 };
+  const parts = [], spans = [];
+  let x = 16 + lead;
+  for (const it of items) {
+    const w = W[it] || 30, cx = x + w / 2;
+    if (it === 'cherry') parts.push(cherryBody(cx, 0, 16, false));
+    else if (it === 'chunk') {
+      const box = [[cx - 23, -9], [cx + 23, -10], [cx + 23, 9], [cx - 23, 10]];
+      const ticks = [];
+      for (let t = cx - 19; t < cx + 20; t += 7) ticks.push({ pts: [[t, 6], [t + 3, 9], [t + 6, 6]], tier: 3 });
+      parts.push({ strokes: [{ pts: [...box, box[0]], tier: 1 }, { pts: [[cx - 23, 4.5], [cx + 23, 4]], tier: 2 }, ...ticks, { pts: [[cx - 12, -8], [cx - 10, 3]], tier: 3 }, { pts: [[cx + 8, -9], [cx + 10, 3]], tier: 3 }], washes: [{ pts: box, color: PALETTE.butter, alpha: 0.07, soft: 0.3 }, { pts: [[cx - 23, 4.5], [cx + 23, 4], [cx + 23, 9], [cx - 23, 10]], color: '#9A8A3A', alpha: 0.09, soft: 0.3 }], cover: [box] });
+    } else if (it === 'ginger') {
+      const box = [[cx - 13, -12], [cx + 13, -13], [cx + 14, 12], [cx - 12, 13]];
+      parts.push({ strokes: [{ pts: [...box, box[0]], tier: 1 }, { pts: [[cx - 13, -12], [cx - 7, -17], [cx + 18, -17], [cx + 13, -13]], tier: 2 }], washes: [{ pts: box, color: PALETTE.ochre, alpha: 0.13, soft: 0.3 }], dots: Array.from({ length: 7 }, (_, k) => ({ x: cx - 9 + (k * 5.3) % 19, y: -8 + (k * 7.1) % 17, r: 0.9, color: PALETTE.paper, top: true })), cover: [box] });
+    } else if (it === 'ring') parts.push(saturnRing(cx, 0));
+    spans.push([x, x + w]);
+    x += w + gap;
+  }
+  const end = x + 10;
+  // The pick shows only between and beyond the fruit; a knotted end on the left.
+  const strokes = [];
+  const cuts = [-4, ...spans.flat(), end];
+  for (let i = 0; i < cuts.length; i += 2) {
+    const [a, b] = [cuts[i], cuts[i + 1]];
+    if (b - a > 1) strokes.push({ pts: [[a, -1.4], [b, -1.4]], tier: 2 }, { pts: [[a, 1.4], [b, 1.4]], tier: 2 });
+  }
+  if (!lead) strokes.push({ pts: ell(-8, 0, 4.5, 3.2, 0, TAU, 10), tier: 2 });
+  return merge({ strokes, washes: [{ pts: [[-4, -1.6], [end, -1.6], [end, 1.6], [-4, 1.6]], color: BAMBOO, alpha: 0.1, soft: 0.2 }] }, ...parts);
+}
+// Fruit on a pick, laid along +x (the spec turns it). Origin at the pick's middle, or with
+// `lead` at its bare end, `lead` units of pick before the first fruit (to stand in the ice).
+function fruitPick({ items = ['cherry'], lead = 0 } = {}) {
+  const p = pickWith(items, { lead });
+  const xs = p.strokes.flatMap(s => s.pts.map(q => q[0]));
+  const at = lead ? Math.min(...xs) : (Math.min(...xs) + Math.max(...xs)) / 2;
+  return { box: [Math.max(...xs) - Math.min(...xs), 40], ...moved(p, -at, 0) };
+}
+// Three Dots and a Dash: Morse V, · · · —, three cherries then a pineapple chunk.
+const morsePick = () => fruitPick({ items: ['cherry', 'cherry', 'cherry', 'chunk'] });
+
+// Saturn: a thin lemon-peel band around a cherry, a planet and its ring.
+function saturnRing(cx, cy) {
+  const tilt = -0.35, ring = (rx, ry, a0, a1) => turn(ell(0, 0, rx, ry, a0, a1, 18), tilt, cx, cy);
+  const c = cherryBody(cx, cy + 14, 15, false);
+  const band = (a0, a1) => [...ring(34, 11, a0, a1), ...ring(26, 6.5, a1, a0)];
+  return merge(
+    { strokes: [{ pts: ring(34, 11, Math.PI + 0.2, TAU - 0.2), tier: 2 }, { pts: ring(26, 6.5, Math.PI + 0.3, TAU - 0.3), tier: 3 }], washes: [{ pts: band(Math.PI + 0.2, TAU - 0.2), color: PALETTE.butter, alpha: 0.1, soft: 0.3 }] },
+    moved(c, 0, -14),
+    { strokes: [{ pts: ring(34, 11, -0.2, Math.PI + 0.2), tier: 1 }, { pts: ring(26, 6.5, -0.15, Math.PI + 0.15), tier: 2 }], washes: [{ pts: band(-0.2, Math.PI / 2), color: PALETTE.butter, alpha: 0.18, soft: 0.3 }, { pts: band(Math.PI / 2, Math.PI + 0.2), color: PALETTE.butter, alpha: 0.18, soft: 0.3 }], cover: [band(-0.2, Math.PI / 2), band(Math.PI / 2, Math.PI + 0.2)] },
+  );
+}
+const peelRing = () => fruitPick({ items: ['ring'] });
+
+// A hurricane-style flag: a half orange wheel standing on the rim, a cherry in its crook and a
+// pick through both. Origin where the wheel meets the rim.
+function orangeFlag() {
+  const w = citrusWheel({ r: 54, color: PALETTE.orange, rind: '#D9792A', half: true, slot: false });
+  const flipped = moved(w, 0, 0, Math.PI);
+  const c = cherryBody(0, -8, 16, true);
+  const pick = { strokes: [{ pts: [[-66, -14], [66, -22]], tier: 2 }, { pts: ell(-70, -14, 4, 3, 0, TAU, 10), tier: 2 }] };
+  return { box: [140, 100], ...moved(merge(flipped, pick, c), 0, -46) };
+}
+
+// A floating flower, seen from the side: Dendrobium orchid.
+function orchid({ size = 1 } = {}) {
+  const strokes = [], washes = [], cover = [];
+  const seg = (ang, len, wid, color = PALETTE.orchid) => {
+    const L = turn(leaf(len * size, wid * size, { round: 0.6 }), ang);
+    strokes.push({ pts: L, tier: 1 });
+    washes.push({ pts: L, color, alpha: 0.1, soft: 0.45 });
+    cover.push(L);
+  };
+  seg(-Math.PI / 2, 33, 7.5);
+  seg(-Math.PI / 2 + 2.3, 31, 7.5);
+  seg(-Math.PI / 2 - 2.3, 31, 7.5);
+  seg(-Math.PI / 2 + 1.1, 34, 12.5);
+  seg(-Math.PI / 2 - 1.1, 34, 12.5);
+  const lip = ell(0, 9 * size, 10 * size, 12 * size, 0, TAU, 18);
+  strokes.push({ pts: lip, tier: 1 }, { pts: ell(0, 6 * size, 4.5 * size, 5.5 * size, 0, TAU, 12), tier: 2 });
+  washes.push({ pts: lip, color: PALETTE.hibiscusDeep, alpha: 0.11, soft: 0.4 });
+  cover.push(lip);
+  return { box: [80, 80], strokes, washes, cover, dots: [{ x: 0, y: -1, r: 2.6 * size, color: PALETTE.butter, top: true }] };
+}
+
+// A gardenia floating on a bowl: a waxy white spiral of petals on two glossy leaves.
+function gardenia({ r = 54, tilt = 0.55 } = {}) {
+  const sq = pts => pts.map(([x, y]) => [x, y * tilt]);
+  const lobes = (R, n, a0) => { const pts = []; for (let i = 0; i <= n * 8; i++) { const a = a0 + (i / (n * 8)) * TAU; pts.push(polar(0, 0, R * (0.78 + 0.22 * Math.sqrt(Math.abs(Math.cos((a - a0) * n / 2)))), a)); } return pts; };
+  const L1 = sq(turn(leaf(r * 1.2, r * 0.3), Math.PI - 0.3)), L2 = sq(turn(leaf(r * 1.1, r * 0.28), 0.25));
+  const outer = sq(lobes(r, 6, 0.2)), inner = sq(lobes(r * 0.6, 5, 0.6));
+  const strokes = [{ pts: L1, tier: 1 }, { pts: L2, tier: 1 }, { pts: outer, tier: 1 }, { pts: inner, tier: 2 }, { pts: sq(ell(0, 0, r * 0.2, r * 0.2, 0, TAU * 0.85, 14)), tier: 2 }];
+  for (let i = 0; i < 6; i++) { const a = 0.2 + (i + 0.5) * TAU / 6; strokes.push({ pts: sq([polar(0, 0, r * 0.62, a), polar(0, 0, r * 0.9, a)]), tier: 3 }); }
+  return {
+    box: [r * 3, r * 1.6],
+    strokes,
+    washes: [{ pts: L1, color: PALETTE.frond, alpha: 0.1, soft: 0.4 }, { pts: L2, color: PALETTE.frond, alpha: 0.1, soft: 0.4 }, { pts: outer, color: '#EDE3C4', alpha: 0.05, soft: 0.5 }, { pts: sq(circle(0, 0, r * 0.24, 12)), color: PALETTE.butter, alpha: 0.07, soft: 0.5 }],
+    cover: [outer],
+  };
+}
+
+// A small edible flower (borage, viola): five round petals.
+function edibleFlower() {
+  const strokes = [], washes = [], cover = [];
+  for (let i = 0; i < 5; i++) {
+    const L = turn(leaf(17, 7, { round: 0.5 }), -Math.PI / 2 + i * TAU / 5);
+    strokes.push({ pts: L, tier: 1 }); washes.push({ pts: L, color: '#7E8FD8', alpha: 0.1, soft: 0.4 }); cover.push(L);
+  }
+  return { box: [40, 40], strokes, washes, cover, dots: [{ x: 0, y: 0, r: 2.4, color: PALETTE.butter, top: true }] };
+}
+
+// A paper parasol: canopy about 3 in across on a 4 in stick, standing in the ice.
 function umbrella() {
-  const tips = [[6, 36], [22, 32], [40, 37], [58, 32], [74, 36]];
-  const top = [40, 10];
-  const strokes = [
-    { pts: [[6, 36], [18, 17], [40, 10], [62, 17], [74, 36]], tier: 1 },
-    { pts: [[6, 36], [14, 31], [22, 34], [31, 31], [40, 37], [49, 31], [58, 34], [66, 31], [74, 36]], tier: 2 },
-    ...tips.slice(1, -1).map(t => ({ pts: [top, t], tier: 3 })),
-    { pts: [[40, 10], [42, 50], [45, 88]], tier: 1 },
-  ];
+  const H = 150, cw = 58, apex = [0, -H], n = 8, tips = [];
+  for (let i = 0; i <= n; i++) { const x = -cw + i * (2 * cw / n); tips.push([x, -H + 30 + (1 - (x / cw) ** 2) * 7]); }
+  const edge = [];
+  for (let i = 0; i < n; i++) edge.push(tips[i], [(tips[i][0] + tips[i + 1][0]) / 2, (tips[i][1] + tips[i + 1][1]) / 2 - 3.5]);
+  edge.push(tips[n]);
+  const canopy = [[-cw, tips[0][1]], [-cw * 0.55, -H + 11], apex, [cw * 0.55, -H + 11], [cw, tips[n][1]]];
+  const strokes = [{ pts: canopy, tier: 1 }, { pts: edge, tier: 2 }, { pts: [[0, 0], [0, -H]], tier: 2 }];
+  for (let i = 1; i < n; i++) strokes.push({ pts: [apex, tips[i]], tier: 3 });
+  for (let i = 1; i < n; i += 2) strokes.push({ pts: [[0, -H + 48], tips[i]], tier: 3 });
   const cols = [PALETTE.hibiscus, PALETTE.butter, PALETTE.lagoon, PALETTE.orchid];
   const washes = [];
-  for (let i = 0; i < tips.length - 1; i++) washes.push({ pts: [top, tips[i], tips[i + 1]], color: cols[i], alpha: 0.08, soft: 0.4 });
-  return { box: [80, 90], strokes, washes };
+  for (let i = 0; i < n; i++) washes.push({ pts: [apex, tips[i], tips[i + 1]], color: cols[i % 4], alpha: 0.1, soft: 0.35 });
+  washes.push({ pts: [[-1.5, 0], [-1.5, -H], [1.5, -H], [1.5, 0]], color: PALETTE.wood, alpha: 0.08, soft: 0.2 });
+  return { box: [120, H + 6], strokes, washes, cover: [[...canopy, ...edge.slice().reverse()]] };
 }
 
-function pineappleWedge() {
-  const body = [[6, 22], [64, 22], [35, 58]];
+// A cinnamon quill: rolled bark with its scroll showing at the top.
+function cinnamon({ len = 132 } = {}) {
+  const L = [[-7, 0], [-7.5, -len * 0.5], [-7, -len]], Rt = [[7, 0], [7.5, -len * 0.5], [7, -len]];
   return {
-    box: [70, 60],
-    strokes: [{ pts: [[6, 22], [35, 58], [64, 22]], tier: 1 }, { pts: [[4, 20], [66, 20]], tier: 1, w: 3 }, { pts: [[30, 20], [24, 4]], tier: 2 }, { pts: [[36, 20], [40, 2]], tier: 2 }, { pts: [[42, 20], [52, 8]], tier: 2 }],
-    washes: [{ pts: body, color: PALETTE.butter, alpha: 0.1, soft: 0.4 }, { pts: [[26, 20], [24, 4], [40, 2], [52, 8], [44, 20]], color: PALETTE.frond, alpha: 0.06, soft: 0.4 }],
+    box: [20, len + 6],
+    strokes: [{ pts: L, tier: 1 }, { pts: Rt, tier: 1 }, { pts: ell(0, -len, 7, 3, 0, TAU, 14), tier: 2 }, { pts: ell(1.5, -len + 0.5, 3.5, 1.5, 0, TAU * 0.8, 10), tier: 3 }, { pts: [[2, -6], [2.5, -len + 4]], tier: 3 }, { pts: [[-3, -len * 0.3], [-3, -len * 0.62]], tier: 3 }],
+    washes: [{ pts: [...L, ...Rt.slice().reverse()], color: PALETTE.wood, alpha: 0.085, soft: 0.3 }],
+    cover: [[...L, ...Rt.slice().reverse()]],
   };
 }
 
-function cinnamon() {
-  return {
-    box: [24, 84],
-    strokes: [{ pts: [[8, 4], [8, 80]], tier: 1 }, { pts: [[16, 4], [16, 80]], tier: 1 }, { pts: ell(12, 4, 4, 2, 0, TAU, 12), tier: 2 }],
-    washes: [{ pts: [[8, 4], [16, 4], [16, 80], [8, 80]], color: PALETTE.wood, alpha: 0.08, soft: 0.3 }],
-  };
+// A bamboo rod with node rings every couple of inches (back-scratcher, swizzle stick, cane).
+function rod(len, w, color, nodes = 70) {
+  const strokes = [{ pts: [[-w / 2, 0], [-w / 2, -len]], tier: 1 }, { pts: [[w / 2, 0], [w / 2, -len]], tier: 1 }];
+  for (let y = -nodes * 0.6; y > -len + 10; y -= nodes) strokes.push({ pts: [[-w / 2 - 0.8, y], [w / 2 + 0.8, y - 1]], tier: 2 });
+  return { strokes, washes: [{ pts: [[-w / 2, 0], [-w / 2, -len], [w / 2, -len], [w / 2, 0]], color, alpha: 0.075, soft: 0.25 }], cover: [[[-w / 2, 0], [-w / 2, -len], [w / 2, -len], [w / 2, 0]]] };
+}
+// Harry Yee's Tropical Itch: a bamboo back-scratcher, a little cupped hand carved at the top,
+// its five fingers side by side with the tips curled over toward you.
+function backScratcher({ len = 300 } = {}) {
+  const top = -len, strokes = [], washes = [], cover = [];
+  const palm = [[-4, top + 2], [-12, top - 6], [-14, top - 18], [14, top - 18], [12, top - 6], [4, top + 2]];
+  strokes.push({ pts: palm, tier: 1 });
+  washes.push({ pts: [...palm, [-14, top - 18]], color: BAMBOO, alpha: 0.09, soft: 0.3 });
+  cover.push(palm);
+  [-11.2, -5.6, 0, 5.6, 11.2].forEach((x, i) => {
+    const h = i === 0 ? 11 : i === 4 ? 12 : 16 - Math.abs(i - 2) * 1.5, y0 = top - 18, w = 2.6;
+    const f = [[x - w, y0], [x - w, y0 - h], [x - w + 0.5, y0 - h - 2.6], [x, y0 - h - 3.8], [x + w - 0.5, y0 - h - 2.6], [x + w, y0 - h], [x + w, y0]];
+    strokes.push({ pts: f, tier: 2 }, { pts: [[x - w + 0.6, y0 - h + 1.5], [x + w - 0.6, y0 - h + 1.5]], tier: 3 });
+    washes.push({ pts: f, color: BAMBOO, alpha: 0.08, soft: 0.3 });
+    cover.push(f);
+  });
+  return { box: [40, len + 40], ...merge(rod(len, 7, BAMBOO, 64), { strokes, washes, cover }) };
+}
+// A bois lélé: a twig with a whorl of short prongs at the foot. `plain` is a stir stick.
+function swizzleStick({ len = 300, plain = false } = {}) {
+  if (plain) {
+    const paddle = [[-5, -len], [-5, -len - 20], [0, -len - 23], [5, -len - 20], [5, -len]];
+    return { box: [16, len + 24], ...merge(rod(len, 3.5, PALETTE.hibiscus, 9999), { strokes: [{ pts: paddle, tier: 1 }], washes: [{ pts: paddle, color: PALETTE.hibiscus, alpha: 0.1, soft: 0.3 }] }) };
+  }
+  const prongs = [-2.4, -1.4, -0.5, 0.5, 1.4].map(a => ({ pts: [[0, -2], [Math.sin(a) * 18, -2 + Math.cos(a) * 4 - 1]], tier: 2 }));
+  return { box: [40, len + 6], ...merge(rod(len, 4.5, PALETTE.woodPale, 90), { strokes: prongs }) };
+}
+function sugarcane({ len = 230 } = {}) {
+  return { box: [20, len], ...rod(len, 11, '#B9C77A', 56) };
 }
 
+// A citrus twist: a strip of peel with one twist in it, hooked over the rim. `cloves` studs it.
+function peel({ citrus = 'orange', cloves = false } = {}) {
+  const c = [[0, 0], [8, -14], [22, -20], [34, -14], [40, 4], [38, 28], [32, 46]];
+  const S = spline(c, 4), left = [], right = [];
+  S.forEach(([x, y], i) => {
+    const a = S[Math.max(0, i - 1)], b = S[Math.min(S.length - 1, i + 1)], dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1;
+    const u = i / (S.length - 1), w = 8 * Math.abs(Math.cos(u * Math.PI * 1.15 + 0.3)) + 1.2;
+    left.push([x - dy / l * w, y + dx / l * w]); right.push([x + dy / l * w, y - dx / l * w]);
+  });
+  const color = PEEL[citrus] || PALETTE.orange, outline = [...left, ...right.slice().reverse()];
+  const dots = cloves ? [8, 18, 28].map(i => { const p = S[Math.min(S.length - 1, i)]; return { x: p[0], y: p[1], r: 2.4, color: '#3B2416' }; }) : [];
+  return { box: [52, 70], strokes: [{ pts: left, tier: 1 }, { pts: right, tier: 1 }], washes: [{ pts: outline, color, alpha: 0.13, soft: 0.3 }], dots, cover: [outline] };
+}
+
+// A coin of lime peel resting at the bottom of a Ti' Punch.
+function limeCoin() {
+  const o = ell(0, 0, 21, 8, 0, TAU, 20);
+  return { box: [44, 18], strokes: [{ pts: o, tier: 1 }, { pts: ell(0, -1, 16, 5, 0, TAU, 16), tier: 3 }], washes: [{ pts: o, color: PALETTE.lime, alpha: 0.13, soft: 0.3 }] };
+}
+
+// Fruit slices on the rim: banana, strawberry, a passion-fruit half, mango, cucumber, ginger.
+function fruitSlice({ fruit = 'banana' } = {}) {
+  if (fruit === 'strawberry') {
+    const berry = [[0, 4], [-15, -10], [-18, -26], [-10, -38], [0, -40], [10, -38], [18, -26], [15, -10], [0, 4]];
+    const calyx = [-1.1, -0.5, 0.1, 0.7, 1.3].map(a => ({ pts: [[0, -39], [Math.sin(a) * 14, -39 - Math.cos(a) * 7 + 2]], tier: 2 }));
+    const seeds = [];
+    for (let i = 0; i < 12; i++) seeds.push({ x: -10 + (i * 7.3) % 20, y: -32 + (i * 11.7) % 30, r: 0.9, color: PALETTE.butter, top: true });
+    return { box: [40, 48], strokes: [{ pts: berry, tier: 1 }, ...calyx, { pts: [[0, 4], [0, -8]], tier: 2 }], washes: [{ pts: berry, color: PALETTE.cherry, alpha: 0.15, soft: 0.35 }, { pts: ell(0, -40, 12, 4, 0, TAU, 10), color: PALETTE.frond, alpha: 0.1, soft: 0.3 }], dots: seeds, cover: [berry] };
+  }
+  if (fruit === 'passion-fruit') {
+    const skin = ell(0, 0, 26, 18, 0, Math.PI, 16), face = ell(0, 0, 26, 8, 0, TAU, 20);
+    const seeds = Array.from({ length: 9 }, (_, i) => ({ x: -16 + (i * 9.1) % 32, y: -3 + (i * 5.3) % 6, r: 1.4, color: '#2A1A14' }));
+    return { box: [56, 30], strokes: [{ pts: face, tier: 1 }, { pts: skin, tier: 1 }, { pts: ell(0, 0, 21, 6, 0, TAU, 18), tier: 3 }], washes: [{ pts: [...skin, ...ell(0, 0, 26, 8, Math.PI, TAU, 10)], color: '#7A3A6A', alpha: 0.12, soft: 0.3 }, { pts: ell(0, 0, 21, 6, 0, TAU, 14), color: PALETTE.butter, alpha: 0.14, soft: 0.3 }], dots: seeds, cover: [[...skin, ...ell(0, 0, 26, 8, Math.PI, TAU, 10)]] };
+  }
+  const spec = {
+    banana: { r: 17, color: '#F3E3B0', rind: PALETTE.butter, seeds: true },
+    mango: { r: 26, color: PALETTE.orange, rind: PALETTE.ochre },
+    cucumber: { r: 22, color: '#CFE3A8', rind: PALETTE.frond, seeds: true },
+    ginger: { r: 15, color: '#E9D3A0', rind: PALETTE.woodPale },
+    apple: { r: 28, color: '#F4EBC8', rind: PALETTE.hibiscus },
+    grapefruit: { r: 44, color: '#F2A08A', rind: '#E7B05A' },
+  }[fruit] || { r: 20, color: PALETTE.butter, rind: PALETTE.ochre };
+  const w = citrusWheel({ r: spec.r, color: spec.color, rind: spec.rind });
+  if (spec.seeds) w.dots = Array.from({ length: 6 }, (_, i) => { const [x, y] = polar(0, 0, spec.r * 0.35, i * TAU / 6); return { x, y, r: 1, tier: 2 }; });
+  return w;
+}
+
+// Whipped cream: a soft piped swirl in three tiers.
+function whippedCream() {
+  const tier = (w, y, n) => { const pts = []; for (let i = 0; i <= n * 6; i++) { const u = i / (n * 6), x = -w + u * 2 * w; pts.push([x, y - Math.abs(Math.sin(u * n * Math.PI)) * 5 - Math.sqrt(Math.max(0, 1 - (x / w) ** 2)) * 4]); } return pts; };
+  const t1 = tier(28, 0, 4), t2 = tier(20, -11, 3), t3 = tier(11, -21, 2), peak = [[-6, -24], [0, -36], [5, -26]];
+  const outline = [[-28, 0], ...ell(0, -8, 28, 30, Math.PI, Math.PI * 1.5, 8), [0, -36], ...ell(0, -8, 28, 30, Math.PI * 1.5, TAU, 8), [28, 0]];
+  return { box: [60, 40], strokes: [{ pts: t1, tier: 1 }, { pts: t2, tier: 2 }, { pts: t3, tier: 2 }, { pts: peak, tier: 1 }, { pts: [[-28, 0], [-24, -12], [-14, -26], [0, -36]], tier: 3 }, { pts: [[28, 0], [22, -14], [12, -27]], tier: 3 }], washes: [{ pts: outline, color: '#F1E4C4', alpha: 0.06, soft: 0.5 }], cover: [outline] };
+}
+
+// Three coffee beans floated on a cream or foam top, each about half an inch.
 function beans() {
   const strokes = [];
-  [[10, 12], [26, 8], [42, 13]].forEach(([x, y]) => { strokes.push({ pts: ell(x, y, 6, 4, 0, TAU, 14, 0.3), tier: 1 }); strokes.push({ pts: [[x - 4, y], [x + 4, y]], tier: 2 }); });
-  return { box: [52, 22], strokes, washes: [{ pts: [[4, 8], [48, 8], [48, 18], [4, 18]], color: PALETTE.wood, alpha: 0.05, soft: 0.5 }] };
+  [[-17, 1], [0, -3], [17, 2]].forEach(([x, y], i) => { strokes.push({ pts: ell(x, y, 8.5, 5.5, 0, TAU, 14, 0.3 - i * 0.25), tier: 1 }); strokes.push({ pts: turn([[-5.5, 0], [-1, 1], [5.5, 0]], 0.3 - i * 0.25, x, y), tier: 2 }); });
+  return { box: [52, 16], strokes, washes: [{ pts: ell(0, 0, 26, 7, 0, TAU, 14), color: PALETTE.wood, alpha: 0.09, soft: 0.4 }] };
 }
 
-function peel() {
-  const pts = [];
-  for (let i = 0; i < 26; i++) pts.push([12 + Math.cos(i * 0.5) * 8, 4 + i * 2.6]);
-  return { box: [26, 74], strokes: [{ pts, tier: 1 }], washes: [{ pts: [[4, 4], [20, 4], [20, 70], [4, 70]], color: PALETTE.orange, alpha: 0.06, soft: 0.8 }] };
-}
-
-function straw({ len = 200 } = {}) {
-  const washes = [];
-  for (let y = 6; y < len - 10; y += 20) washes.push({ pts: [[2, y], [12, y + 4], [12, y + 12], [2, y + 8]], color: PALETTE.hibiscus, alpha: 0.12, soft: 0.2 });
-  return { box: [14, len], strokes: [{ pts: [[2, 0], [2, len]], tier: 2 }, { pts: [[12, 0], [12, len]], tier: 2 }, { pts: ell(7, 0, 5, 1.6, 0, TAU, 10), tier: 3 }], washes };
-}
-
-function sparkle() {
-  const strokes = [];
-  for (let i = 0; i < 5; i++) {
-    const a = -Math.PI / 2 + (i - 2) * 0.5;
-    strokes.push({ pts: [polar(30, 34, 12, a), polar(30, 34, 24, a)], tier: 1 });
+// Grated spice on the cap: a freckle field over `region` (a polygon), denser toward its middle,
+// never a ring. Nutmeg is a warm brown, cinnamon redder, cocoa dark; toasted coconut is flakes.
+function dust({ region = ell(0, 0, 40, 8, 0, TAU, 16), spice = 'nutmeg', density = 0.6, seed = 11 } = {}) {
+  const r = rng(seed);
+  const xs = region.map(p => p[0]), ys = region.map(p => p[1]);
+  const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+  const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, hx = (x1 - x0) / 2 || 1, hy = (y1 - y0) / 2 || 1;
+  const inside = (x, y) => { let c = false; for (let i = 0, j = region.length - 1; i < region.length; j = i++) { const [xi, yi] = region[i], [xj, yj] = region[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; };
+  const color = { nutmeg: NUTMEG, cinnamon: '#A2552C', cocoa: '#4A2C1C', coconut: PALETTE.ochre }[spice] || NUTMEG;
+  const n = Math.round((spice === 'coconut' ? 26 : 45) + density * 110 * Math.min(1.6, hx / 50));
+  const dots = [], strokes = [];
+  // a few clumps where the grater lingered
+  const clumps = Array.from({ length: 3 }, () => [cx + (r() - 0.5) * hx * 0.9, cy + (r() - 0.5) * hy * 0.7]);
+  for (let tries = 0; dots.length + strokes.length < n && tries < n * 30; tries++) {
+    let x, y;
+    if (r() < 0.25) { const c = clumps[Math.floor(r() * 3)]; x = c[0] + (r() - 0.5) * 10; y = c[1] + (r() - 0.5) * 5; } else { x = cx + (r() * 2 - 1) * hx; y = cy + (r() * 2 - 1) * hy; }
+    const d = Math.hypot((x - cx) / hx, (y - cy) / hy);
+    if (!inside(x, y) || r() > (1 - d * d) * (0.55 + density * 0.45) + 0.08) continue;
+    if (spice === 'coconut') { const a = r() * Math.PI; strokes.push({ pts: [[x - Math.cos(a) * 3, y - Math.sin(a) * 1.5], [x, y - 1], [x + Math.cos(a) * 3, y + Math.sin(a) * 1.5]], tier: 3 }); }
+    else dots.push({ x, y, r: 0.7 + r() * r() * 1.5, color });
   }
-  return { box: [60, 40], strokes };
+  const core = region.map(([x, y]) => [cx + (x - cx) * 0.6, cy + (y - cy) * 0.6]);
+  return { box: [hx * 2, hy * 2], strokes, dots, washes: [{ pts: core, color, alpha: spice === 'coconut' ? 0.03 : 0.025 + density * 0.012, soft: 0.8 }] };
+}
+const nutmeg = p => dust({ ...p, spice: 'nutmeg' });
+
+function straw({ len = 200, w = 11, color = PALETTE.hibiscus } = {}) {
+  const washes = [];
+  for (let y = 6; y < len - 10; y += 18) washes.push({ pts: [[1.5, y], [w - 1.5, y + 5], [w - 1.5, y + 11], [1.5, y + 6]], color, alpha: 0.12, soft: 0.2 });
+  return { box: [w + 2, len], strokes: [{ pts: [[1.5, 0], [1.5, len]], tier: 2 }, { pts: [[w - 1.5, 0], [w - 1.5, len]], tier: 2 }, { pts: ell(w / 2, 0, w / 2 - 1.5, 1.6, 0, TAU, 10), tier: 3 }], washes };
+}
+
+// Cinnamon sparks above a flame: short ticks and a few motes.
+function sparkle() {
+  const strokes = [], dots = [];
+  for (let i = 0; i < 6; i++) {
+    const a = -Math.PI / 2 + (i - 2.5) * 0.42;
+    strokes.push({ pts: [polar(30, 40, 14 + (i % 2) * 6, a), polar(30, 40, 22 + (i % 2) * 8, a)], tier: 2 });
+    dots.push({ x: polar(30, 40, 30 + (i % 3) * 5, a + 0.2)[0], y: polar(30, 40, 30 + (i % 3) * 5, a + 0.2)[1], r: 1.1, color: '#A2552C' });
+  }
+  return { box: [60, 44], strokes, dots };
 }
 
 // ---------------------------------------------------------------- vessels
@@ -347,11 +819,15 @@ function handle(x, y0, y1, out, tier = 1) {
 const bodyPoly = (left) => [...left, ...mir(left).reverse()];
 
 // Clear glass from its profile: sides, rim, and the right foot.
-function clearGlass(kind) {
+// `front`: 'with' draws everything; 'without' leaves out the front of the rim, which a separate
+// 'glass.front' ('only') draws after what sits inside the glass, so the rim passes in front of it.
+function clearGlass(kind, front = 'with') {
   const G = GLASS_PROFILES[kind], cx = 150;
   const rimY = G.pts[0][0], rw = G.pts[0][1], bottom = G.pts[G.pts.length - 1];
+  const [rimFront, rimBack] = rimStrokes(cx, rimY, rw, G.rimTilt);
+  if (front === 'only') return { box: [300, 460], strokes: [rimFront], washes: [] };
   const side = s => G.pts.map(([y, w]) => [cx + s * w, y]);
-  const strokes = [{ pts: side(-1), tier: 1 }, { pts: side(1), tier: 1 }, ...rimStrokes(cx, rimY, rw, G.rimTilt)];
+  const strokes = [{ pts: side(-1), tier: 1 }, { pts: side(1), tier: 1 }, ...(front === 'without' ? [rimBack] : [rimFront, rimBack])];
   if (G.foot === 'slab') {
     strokes.push(frontArc(cx, bottom[0], bottom[1], bottom[1] * 0.14));
     strokes.push({ pts: ell(cx, bottom[0] - 10, bottom[1] * 0.96, bottom[1] * 0.12, 0.2, Math.PI - 0.2, 16), tier: 3 });
@@ -450,36 +926,31 @@ function barrelMugVessel() {
   };
 }
 
-// Trader Vic's Fog Cutter mug: tall, handleless, slightly waisted, sand glaze, with island scenes
-// in low relief. The front shows the hula girl under a palm; the ukulele player and the beach
-// bum wrap round the back.
+// Trader Vic's Fog Cutter mug: tall, handleless, slightly waisted, sand glaze, with an island
+// scene in low relief. Drawn as landscape only (a palm over a small island, a sailboat, waves):
+// no figures as décor (presentation.md §6.2).
 function fogCutterVessel() {
   const left = [[93, 117], [99, 200], [101, 280], [98, 360], [93, 436]];
   const sand = '#D8C29B';
+  const wave = y => { const pts = []; for (let x = 104; x <= 196; x += 4) pts.push([x, y + Math.sin((x - 104) / 9) * 2.4]); return pts; };
   return {
     strokes: [
       { pts: left, tier: 1 }, { pts: mir(left), tier: 1 }, frontArc(150, 436, 57, 9), ...rimStrokes(150, 117, 57, 0.18),
       frontArc(150, 134, 56, 10, 3), frontArc(150, 412, 56, 10, 3),
-      // palm leaning over her
-      { pts: [[190, 408], [186, 330], [176, 250], [168, 196]], tier: 2 },
-      ...[-2.8, -2.1, -1.2, -0.4].map(a => ({ pts: [[168, 196], [168 + Math.cos(a) * 20, 196 + Math.sin(a) * 11 - 2], [168 + Math.cos(a) * 36, 196 + Math.sin(a) * 4 + 12]], tier: 2 })),
-      // hula girl: head, hair, raised arms, lei, grass skirt, legs
-      { pts: ell(136, 250, 12, 13, 0, TAU * 1.04, 18), tier: 1 },
-      { pts: [[124, 244], [117, 270], [122, 290]], tier: 2 },
-      { pts: [[128, 272], [104, 256], [96, 232]], tier: 1 }, { pts: [[144, 272], [166, 262], [176, 240]], tier: 1 },
-      { pts: [[128, 268], [136, 276], [144, 268]], tier: 2 },
-      { pts: [[130, 270], [127, 318], [137, 328], [146, 318], [143, 270]], tier: 1 },
-      { pts: [[116, 326], [158, 326]], tier: 2 },
-      ...[118, 125, 132, 139, 146, 153].map((x, i) => ({ pts: [[x, 327], [x - 6 + i * 2.2, 370]], tier: 2 })),
-      { pts: [[130, 370], [126, 398], [118, 408]], tier: 1 }, { pts: [[144, 370], [148, 398], [158, 408]], tier: 1 },
-      // the ukulele player's shoulder at the left edge
-      { pts: [[100, 292], [112, 286], [116, 324], [104, 346]], tier: 3 }, { pts: ell(110, 316, 6, 9, 0, TAU, 12), tier: 3 },
+      // a palm leaning over a little island
+      { pts: [[166, 352], [164, 300], [156, 250], [146, 214]], tier: 2 },
+      ...[-2.9, -2.3, -1.6, -0.9, -0.3].map(a => ({ pts: [[146, 214], [146 + Math.cos(a) * 20, 214 + Math.sin(a) * 11 - 2], [146 + Math.cos(a) * 36, 214 + Math.sin(a) * 4 + 12]], tier: 2 })),
+      { pts: [[112, 356], [134, 342], [168, 340], [192, 354]], tier: 2 },
+      // a sailboat on the horizon, the sea, a couple of birds
+      { pts: [[112, 300], [128, 300], [124, 306], [114, 306], [112, 300]], tier: 2 }, { pts: [[120, 300], [120, 272], [130, 298]], tier: 2 },
+      { pts: wave(366), tier: 2 }, { pts: wave(380), tier: 3 }, { pts: wave(394), tier: 3 },
+      { pts: [[176, 236], [181, 232], [186, 236]], tier: 3 }, { pts: [[186, 250], [190, 247], [194, 250]], tier: 3 },
     ],
     washes: [
       { pts: bodyPoly(left), color: sand, alpha: 0.05 },
-      { pts: [[116, 326], [158, 326], [162, 370], [112, 370]], color: PALETTE.frond, alpha: 0.07, soft: 0.4 },
-      { pts: [[128, 268], [144, 268], [142, 320], [130, 320]], color: PALETTE.wood, alpha: 0.05, soft: 0.4 },
-      { pts: [[128, 268], [136, 278], [144, 268]], color: PALETTE.hibiscus, alpha: 0.1, soft: 0.3 },
+      { pts: [[112, 356], [134, 342], [168, 340], [192, 354]], color: PALETTE.ochre, alpha: 0.07, soft: 0.4 },
+      { pts: [[104, 362], [196, 362], [196, 400], [104, 400]], color: PALETTE.lagoon, alpha: 0.05, soft: 0.5 },
+      { pts: [[121, 274], [121, 298], [129, 297]], color: PALETTE.paper, alpha: 0.05, soft: 0.3 },
       { pts: [...ell(150, 117, 58, 10, 0, Math.PI, 12), ...ell(150, 131, 58, 10, Math.PI, 0, 12)], color: PALETTE.wood, alpha: 0.06, soft: 0.3 },
     ],
   };
@@ -517,7 +988,7 @@ function coconutVessel() {
   return { strokes, washes: [{ pts: bodyPoly(left), color: PALETTE.wood, alpha: 0.045 }, { pts: ell(150, 297, 54, 12, 0, TAU, 14), color: PALETTE.paper, alpha: 0.2, soft: 0.3 }] };
 }
 
-function pineappleVessel() {
+function pineappleVessel({ lid = false } = {}) {
   const cx = 150, cy = 336, rx = 76, ry = 100, strokes = [], cut = 262;
   const t0 = Math.asin((cut - cy) / ry);
   strokes.push({ pts: ell(cx, cy, rx, ry, t0, Math.PI - t0, 36), tier: 1 });
@@ -534,9 +1005,9 @@ function pineappleVessel() {
     }
     if (pts.length > 3) strokes.push({ pts: [pts[0], pts[pts.length - 1]], tier: 3 });
   }
-  // the crown, set down beside it like a lid
+  // the crown, set down beside it (unless it sits back on top as a lid: garnish.pineapple-crown-lid)
   const crown = [];
-  [-2.2, -1.95, -1.7, -1.45, -1.2].forEach((a, i) => {
+  if (!lid) [-2.2, -1.95, -1.7, -1.45, -1.2].forEach((a, i) => {
     const leaf = leafShape(58 + (i === 2 ? 18 : 0) - Math.abs(i - 2) * 6, 7, 246 + (i - 2) * 4, 436, a + 0.35);
     crown.push(leaf); strokes.push({ pts: leaf, tier: 1 });
   });
@@ -591,7 +1062,8 @@ function enamelVessel() {
   };
 }
 
-// The Scorpion bowl on three kneeling hula girls, island scenes in relief round the body.
+// The Scorpion bowl on three short carved feet, palms in relief round the body. (The original
+// stands on kneeling figures; drawn here as plain feet, presentation.md §6.2.)
 function scorpionBowlVessel({ glaze = PALETTE.wood } = {}) {
   const left = [[18, 282], [24, 314], [48, 350], [84, 378], [120, 390]];
   const palm = (x, y, lean) => {
@@ -601,12 +1073,10 @@ function scorpionBowlVessel({ glaze = PALETTE.wood } = {}) {
       ...[-2.9, -2.3, -1.6, -0.9, -0.3].map(a => ({ pts: [top, [top[0] + Math.cos(a) * 14, top[1] + Math.sin(a) * 9 - 3], [top[0] + Math.cos(a) * 24, top[1] + Math.sin(a) * 4 + 7]], tier: 2 })),
     ];
   };
-  // a kneeling girl holding the bowl up: head, raised arms, body, folded knees
-  const kneeler = x => [
-    { pts: ell(x, 402, 6, 6.5, 0, TAU * 1.04, 12), tier: 2 },
-    { pts: [[x - 6, 398], [x - 12, 390]], tier: 2 }, { pts: [[x + 6, 398], [x + 12, 390]], tier: 2 },
-    { pts: [[x - 6, 409], [x - 9, 426], [x + 9, 426], [x + 6, 409]], tier: 2 },
-    { pts: [[x - 12, 436], [x - 10, 426], [x + 10, 426], [x + 14, 436]], tier: 2 },
+  // a short carved foot: a tapered block with a chevron band
+  const foot = x => [
+    { pts: [[x - 9, 392], [x - 13, 436], [x + 13, 436], [x + 9, 392]], tier: 2 },
+    { pts: [[x - 10, 410], [x - 5, 416], [x, 410], [x + 5, 416], [x + 10, 410]], tier: 3 },
   ];
   const band = [];
   for (let x = 34; x <= 266; x += 6) band.push([x, 312 + Math.pow((x - 150) / 116, 2) * 10]);
@@ -614,29 +1084,29 @@ function scorpionBowlVessel({ glaze = PALETTE.wood } = {}) {
     strokes: [
       { pts: left, tier: 1 }, { pts: mir(left), tier: 1 }, frontArc(150, 390, 30, 5, 2), ...rimStrokes(150, 282, 132, 0.15),
       { pts: band, tier: 3 }, ...palm(92, 318, 8), ...palm(208, 318, -8),
-      ...kneeler(110), ...kneeler(150), ...kneeler(190),
+      ...foot(110), ...foot(150), ...foot(190),
     ],
     washes: [
       { pts: bodyPoly(left), color: glaze, alpha: 0.036 },
-      ...[110, 150, 190].map(x => ({ pts: [[x - 10, 396], [x + 10, 396], [x + 14, 436], [x - 12, 436]], color: PALETTE.woodPale, alpha: 0.05, soft: 0.4 })),
-      ...[110, 150, 190].map(x => ({ pts: [[x - 10, 416], [x + 10, 416], [x + 12, 430], [x - 11, 430]], color: PALETTE.frond, alpha: 0.06, soft: 0.3 })),
+      ...[110, 150, 190].map(x => ({ pts: [[x - 9, 392], [x + 9, 392], [x + 13, 436], [x - 13, 436]], color: PALETTE.woodPale, alpha: 0.05, soft: 0.4 })),
     ],
   };
 }
 
-// Trader Vic's Tiki Bowl: an earthen bowl held up by three standing tikis.
+// Trader Vic's Tiki Bowl: an earthen bowl on three carved posts (generic chevron carving rather
+// than faces, presentation.md §6.2).
 function tikiBowlVessel({ glaze = PALETTE.wood } = {}) {
   const left = [[46, 300], [52, 328], [72, 360], [104, 382], [126, 388]];
-  const tiki = x => [
+  const post = x => [
     { pts: [[x - 11, 388], [x - 12, 436], [x + 12, 436], [x + 11, 388]], tier: 1 },
     { pts: [[x - 10, 398], [x + 10, 398]], tier: 3 },
-    { pts: ell(x - 5, 406, 3.5, 3.5, 0, TAU, 10), tier: 2 }, { pts: ell(x + 5, 406, 3.5, 3.5, 0, TAU, 10), tier: 2 },
-    { pts: [[x - 6, 418], [x + 6, 418]], tier: 2 }, { pts: [[x - 6, 418], [x, 424], [x + 6, 418]], tier: 3 },
+    { pts: [[x - 10, 404], [x - 5, 410], [x, 404], [x + 5, 410], [x + 10, 404]], tier: 2 },
+    { pts: [[x - 10, 416], [x - 5, 422], [x, 416], [x + 5, 422], [x + 10, 416]], tier: 3 },
   ];
   return {
     strokes: [
       { pts: left, tier: 1 }, { pts: mir(left), tier: 1 }, ...rimStrokes(150, 300, 104, 0.16),
-      frontArc(150, 316, 102, 16, 3), ...tiki(104), ...tiki(150), ...tiki(196),
+      frontArc(150, 316, 102, 16, 3), ...post(104), ...post(150), ...post(196),
     ],
     washes: [
       { pts: bodyPoly(left), color: glaze, alpha: 0.04 },
@@ -678,37 +1148,77 @@ const OPAQUE_ART = {
 
 export const VESSEL_IDS = Object.keys(GLASS_PROFILES);
 
-function glass({ kind = 'collins', glaze, flaming = false } = {}) {
+function glass({ kind = 'collins', glaze, flaming = false, lid = false, front = 'with' } = {}) {
   if (!GLASS_PROFILES[kind]) kind = 'collins';
   if (OPAQUE_ART[kind]) {
-    const art = OPAQUE_ART[kind]({ glaze, flaming });
+    if (front === 'only') return { box: [300, 460], strokes: [], washes: [] };
+    const art = OPAQUE_ART[kind]({ glaze, flaming, lid });
     return { box: [300, 460], strokes: art.strokes, washes: art.washes || [], dots: art.dots || [] };
   }
-  return clearGlass(kind);
+  return clearGlass(kind, front);
 }
+
+// ---------------------------------------------------------------- the drink
+const UP_KINDS = ['coupe', 'nick-nora', 'cocktail-glass', 'flute'];
+const HEAP = ['crushed', 'pebble', 'shaved'];
+
+// The heap of ice standing above the rim: its top edge, left to right, and the polygon it
+// covers, closed along a front arc just inside the rim (so a sliver of drink shows between ice
+// and rim in a mug). Ice, a crown soaked into the cap and the garnish resting on it share it.
+export function capMound(kind, seed = 5, style = 'crushed') {
+  const R = rimOf(kind), r = rng(((seed >>> 0) % 9973) * 7 + 3);
+  const lift = UP_KINDS.includes(kind) ? 0 : R.hw > 100 ? 18 : 22;
+  const top = [];
+  for (let i = 0; i <= 12; i++) {
+    const u = i / 12, k = style === 'shaved' ? 1 : 0.8 + r() * 0.4;
+    top.push([R.cx - R.hw * 0.92 + u * R.hw * 1.84, R.y + 2 - Math.pow(Math.sin(Math.PI * u), 0.8) * lift * k]);
+  }
+  return { top, poly: [...top, ...ell(R.cx, R.y + 2, R.hw * 0.92, R.hw * 0.92 * R.tilt, 0, Math.PI, 16)], lift };
+}
+// The height of a heap's top edge at x.
+export function capYAt(top, x) {
+  if (x <= top[0][0]) return top[0][1];
+  for (let i = 1; i < top.length; i++) if (x <= top[i][0]) { const [x0, y0] = top[i - 1], [x1, y1] = top[i]; return y0 + (y1 - y0) * (x - x0) / (x1 - x0); }
+  return top[top.length - 1][1];
+}
+
+// Light crosses more drink where the glass is wide or tall: the same drink reads paler in a
+// shallow coupe and deeper down a chimney or in the belly of a snifter (presentation.md §3.1).
+const DEPTH = { coupe: 0.7, 'nick-nora': 0.7, 'cocktail-glass': 0.7, flute: 0.75 };
+const BULGE = ['snifter', 'hurricane', 'poco-grande', 'goblet', 'tulip', 'punch-bowl', 'pearl-diver'];
+const TALL = ['chimney', 'collins', 'highball'];
+const okHex = h => typeof h === 'string' && /^#[0-9a-f]{6}$/i.test(h);
+const lum = h => { const n = parseInt(h.slice(1), 16); return (0.3 * (n >> 16 & 255) + 0.59 * (n >> 8 & 255) + 0.11 * (n & 255)) / 255; };
 
 // The drink itself, painted from its computed look (web/lib/optics.js): a body wash up to the
 // fill line, then graded washes for whatever the build leaves in layers — a float sitting on
-// top, a sink settling at the bottom, a bitters crown, a pale froth. Each layer is laid as a
-// few overlapping washes of falling strength, so it bleeds into the body wet-in-wet like a
-// real graded wash rather than ending at a hard line. Opaque mugs show only the surface.
-function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, body = null, layers = [], frozen = false } = {}) {
+// top, a sink settling at the bottom, a pale froth. Each layer is laid as a few overlapping
+// washes of falling strength, so it bleeds into the body wet-in-wet like a real graded wash
+// rather than ending at a hard line. Opaque mugs show only the surface. A bitters crown sits on
+// the ice, so it is painted by its own part (garnish.bitters-crown) when there is a heap.
+function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, body = null, layers = [], frozen = false, frost = false, shell = 0, crushed = false, crownOnIce = false, froth = false } = {}) {
   const G = GLASS_PROFILES[kind] || GLASS_PROFILES.collins, R = rimOf(kind);
-  const strokes = [], washes = [];
-  const bodyHex = body ? body.hex : color;
-  const bodyOp = body ? body.opacity : 0.3;
-  // Cloudy drinks read denser on paper; nearly clear ones stay a whisper.
-  const clearish = body && body.opacity < 0.15 && body.clarity > 0.85;
-  const alphaFor = op => clearish ? 0.03 : 0.045 + 0.03 * Math.min(1, op);
-  const topLayer = layers.find(x => x.kind === 'float' || x.kind === 'crown' || x.kind === 'foam');
+  const strokes = [], washes = [], cover = [];
+  let bodyHex = body && okHex(body.hex) ? body.hex : color;
+  const bodyOp = body && Number.isFinite(body.opacity) ? body.opacity : 0.3;
+  // A nearly colorless drink (a daiquiri, a ti' punch) is painted as a cool, watery tint so it
+  // still reads on white paper; a frosted glass veils the drink, a third less color showing.
+  if (lum(bodyHex) > 0.9) bodyHex = mixHex(bodyHex, PALETTE.ice, 0.4);
+  if (frost) bodyHex = mixHex(bodyHex, PALETTE.paper, 0.3);
+  const clearish = body && bodyOp < 0.15 && body.clarity > 0.85;
+  const depth = DEPTH[kind] || 1;
+  const alphaFor = op => clearish ? 0.032 : (0.045 + 0.03 * Math.min(1, op)) * depth;
+  const shown = layers.filter(x => okHex(x.hex) && !(crownOnIce && x.kind === 'crown'));
+  const topLayer = shown.find(x => x.kind === 'float' || x.kind === 'crown');
   if (G.opaque) {
     const surf = topLayer ? topLayer.hex : bodyHex;
     washes.push({ pts: ell(R.cx, R.y + 1, R.hw - 8, (R.hw - 8) * R.tilt, 0, TAU, 18), color: surf, alpha: 0.085, soft: 0.5 });
   } else {
     const top = frozen ? R.y + 2 : levelOf(kind, fill);
-    const inset = y => halfAt(G, y) - 4;
+    const inset = y => Math.max(2, halfAt(G, y) - 4 - shell);
+    const bottom = R.bottom - 2 - shell * 0.8;
     const band = (y0, y1, shrink = 0) => {
-      y0 = Math.max(top, y0); y1 = Math.min(R.bottom - 2, y1);
+      y0 = Math.max(top, y0); y1 = Math.min(bottom, y1);
       if (y1 - y0 < 3) return null;
       const ys = [];
       for (let y = y0; y < y1; y += 12) ys.push(y);
@@ -716,16 +1226,26 @@ function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, body = 
       return [...ys.map(y => [R.cx - inset(y) + shrink, y]), ...ys.slice().reverse().map(y => [R.cx + inset(y) - shrink, y])];
     };
     const h = R.bottom - top;
-    washes.push({ pts: band(top, R.bottom), color: bodyHex, alpha: alphaFor(bodyOp) });
-    // A little depth toward the bottom of a tall, colored drink.
-    if (!clearish && h > 120) washes.push({ pts: band(top + h * 0.55, R.bottom, 4), color: bodyHex, alpha: 0.025, soft: 0.7 });
-    for (const L of layers) {
-      const a = alphaFor(L.opacity) * 1.35;
-      const t = Math.max(0.05, L.frac) * h;
+    washes.push({ pts: band(top, bottom), color: bodyHex, alpha: alphaFor(bodyOp) * (crushed ? 0.94 : 1) });
+    if (!clearish && BULGE.includes(kind)) {
+      // The belly holds the longest light path: a second glaze where the glass is widest.
+      let yw = top, wmax = 0;
+      for (let y = top; y <= bottom; y += 4) if (halfAt(G, y) > wmax) { wmax = halfAt(G, y); yw = y; }
+      const pts = band(yw - h * 0.22, yw + h * 0.2, 6);
+      if (pts) washes.push({ pts, color: bodyHex, alpha: 0.03 * depth, soft: 0.8 });
+    } else if (!clearish && TALL.includes(kind)) {
+      // A tall column deepens toward the foot, gently: it is still one color.
+      washes.push({ pts: band(top + h * 0.45, bottom, 5), color: bodyHex, alpha: 0.018, soft: 0.9 });
+      washes.push({ pts: band(top + h * 0.7, bottom, 8), color: bodyHex, alpha: 0.014, soft: 0.9 });
+    }
+    for (const L of shown) {
+      // A near-black float (black rum) reads as a dark, smoky cloud rather than ink.
+      const a = alphaFor(L.opacity) * 1.35 * (L.kind === 'float' ? 0.5 + 0.5 * lum(L.hex) : 1);
+      const t = Math.min(L.kind === 'float' ? 0.2 : 0.4, Math.max(0.05, L.frac || 0.08)) * h;
       if (L.kind === 'sink') {
         // Strongest at the floor, fading upward: a sunrise.
-        [[R.bottom - t * 1.6, 0.3], [R.bottom - t, 0.6], [R.bottom - t * 0.55, 1]].forEach(([y0, k], i) => {
-          const pts = band(y0, R.bottom, i * 2);
+        [[bottom - t * 1.6, 0.3], [bottom - t, 0.6], [bottom - t * 0.55, 1]].forEach(([y0, k], i) => {
+          const pts = band(y0, bottom, i * 2);
           if (pts) washes.push({ pts, color: L.hex, alpha: a * k, soft: 0.8 });
         });
       } else if (L.kind === 'float' || L.kind === 'crown') {
@@ -733,85 +1253,243 @@ function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, body = 
         const reach = L.kind === 'crown' ? 1.8 : 1.5;
         [[top + t * reach, 0.3], [top + t, 0.6], [top + t * 0.55, 1]].forEach(([y1, k], i) => {
           const pts = band(top, y1, i * 2);
-          if (pts) washes.push({ pts, color: L.hex, alpha: a * k, soft: 0.8 });
+          if (pts) washes.push({ pts, color: L.hex, alpha: a * k * (frozen ? 0.6 : 1), soft: 0.8 });
         });
-      } else if (L.kind === 'foam') {
-        const pts = band(top, top + t);
-        if (pts) washes.push({ pts, color: L.hex, alpha: 0.03, soft: 0.5 });
-        strokes.push({ pts: ell(R.cx, top + t, inset(top + t) * 0.92, inset(top + t) * G.rimTilt * 0.8, 0.25, Math.PI - 0.25, 16), tier: 3 });
+        // A float poured on a tall drink bleeds down in tendrils: the Dark 'n Stormy's storm.
+        if (L.kind === 'float' && !frozen && (L.frac || 0) >= 0.1) for (let i = 0; i < 4; i++) {
+          const x0 = R.cx + ((i + 0.5) / 4 - 0.5) * 1.3 * inset(top + t), len = t * (0.9 + ((i * 37) % 10) / 12), Lp = [], Rp = [];
+          for (let k = 0; k <= 6; k++) { const u = k / 6, y = top + t * 0.6 + u * len, w = 6 * (1 - u) + 1, x = x0 + Math.sin(u * 4 + i * 2) * 4; Lp.push([x - w, y]); Rp.push([x + w, y]); }
+          washes.push({ pts: [...Lp, ...Rp.reverse()], color: L.hex, alpha: a * 0.7, soft: 0.6 });
+        }
+      } else if (L.kind === 'foam' && !frozen) {
+        // A pale head with a soft lower edge.
+        const pts = band(top, top + t * 1.2);
+        if (pts) washes.push({ pts, color: L.hex, alpha: 0.026, soft: 0.6 });
+        strokes.push({ pts: ell(R.cx, top + t, inset(top + t) * 0.9, inset(top + t) * G.rimTilt * 0.8, 0.3, Math.PI - 0.3, 16), tier: 3 });
       }
     }
     if (!frozen) strokes.push({ pts: ell(R.cx, top, inset(top), inset(top) * G.rimTilt, 0.15, Math.PI - 0.15, 20), tier: 3 });
+    // A shaken drink served up wears a thin line of froth just under the surface.
+    if (froth && !frozen && !shown.some(x => x.kind === 'foam')) strokes.push({ pts: ell(R.cx, top + 4, inset(top + 4) * 0.94, inset(top + 4) * G.rimTilt * 0.9, 0.35, Math.PI - 0.35, 16), tier: 3 });
   }
   if (frozen) {
+    // A matte, slushy dome above the rim: no pebbles, one color, hiding the back of the rim.
     const dome = [];
     for (let i = 0; i <= 12; i++) {
       const u = i / 12, x = R.cx - R.hw * 0.96 + u * R.hw * 1.92;
-      dome.push([x, R.y - Math.sin(Math.PI * u) * 34 - (i % 2 ? 4 : 0)]);
+      dome.push([x, R.y - Math.sin(Math.PI * u) * 34 - (i % 2 ? 3 : 0)]);
     }
-    strokes.push({ pts: dome, tier: 2 });
-    washes.push({ pts: [...dome, [R.cx + R.hw * 0.9, R.y + 6], [R.cx - R.hw * 0.9, R.y + 6]], color: topLayer ? topLayer.hex : bodyHex, alpha: alphaFor(bodyOp), soft: 0.6 });
+    const poly = [...dome, ...ell(R.cx, R.y + 2, R.hw * 0.94, R.hw * 0.94 * R.tilt, 0, Math.PI, 14)];
+    strokes.push({ pts: dome, tier: 1 });
+    // fine crystals in the slush
+    for (let i = 0; i < 12; i++) { const u = 0.12 + ((i * 0.618) % 1) * 0.76, x = R.cx - R.hw * 0.96 + u * R.hw * 1.92; strokes.push({ pts: ell(x, R.y - Math.sin(Math.PI * u) * 34 * (0.3 + ((i * 0.37) % 1) * 0.55), 1.2, 0.9, 0, TAU, 6), tier: 3 }); }
+    washes.push({ pts: poly, color: bodyHex, alpha: alphaFor(Math.max(bodyOp, 0.5)), soft: 0.6 });
+    cover.push(poly);
+    // A float on a frozen drink pools on the dome and runs down its sides.
+    const fl = shown.find(x => x.kind === 'float');
+    if (fl) {
+      const pool = dome.slice(3, 10).map(([x, y]) => [x, y + 2]);
+      washes.push({ pts: [...pool, ...pool.slice().reverse().map(([x, y]) => [x, y + 12])], color: fl.hex, alpha: 0.07, soft: 0.6 });
+      for (const k of [0.35, 0.62]) { const x = R.cx - R.hw + k * 2 * R.hw; washes.push({ pts: [[x - 4, R.y - 20], [x + 4, R.y - 20], [x + 1.5, R.y + 14], [x - 1, R.y + 14]], color: fl.hex, alpha: 0.06, soft: 0.4 }); }
+    }
   }
-  return { box: [300, 460], strokes, washes: washes.filter(w => w.pts) };
+  return { box: [300, 460], strokes, washes: washes.filter(w => w.pts), cover };
 }
 
-function pebble(x, y, s, r) {
-  const n = 5 + Math.floor(r() * 2), a0 = r() * TAU, pts = [];
+function pebble(x, y, s, r, round = false) {
+  const n = round ? 7 : 5 + Math.floor(r() * 2), a0 = r() * TAU, pts = [];
   for (let i = 0; i <= n; i++) {
-    const a = a0 + (i / n) * TAU, k = i === n ? 1 : 0.75 + r() * 0.45;
+    const a = a0 + (i / n) * TAU, k = i === n ? 1 : round ? 0.92 + r() * 0.12 : 0.75 + r() * 0.45;
     pts.push(i === n ? pts[0].slice() : [x + Math.cos(a) * s * k, y + Math.sin(a) * s * k * 0.85]);
   }
   return pts;
 }
 
-// Ice, drawn sparingly: a few outlines suggest the whole glassful.
-function ice({ kind = 'collins', style = 'cubed', fill = 0.84, seed = 5 } = {}) {
+// A cap soaked from above (a bitters crown, a dark float): strongest on top, mottled, with
+// tendrils running down through the ice into the top of the drink.
+function soakWashes(kind, M, hex, r, { cap = 0.07, reach = 0.18, tendrils = 5, opaque = false } = {}) {
+  const R = rimOf(kind), G = GLASS_PROFILES[kind] || GLASS_PROFILES.collins, washes = [];
+  if (M.lift) {
+    washes.push({ pts: M.poly, color: hex, alpha: cap * 0.8, soft: 0.6 });
+    const crest = M.top.slice(1, -1);
+    washes.push({ pts: [...crest, ...crest.slice().reverse().map(([x, y]) => [x, Math.min(R.y + 2, y + 12)])], color: hex, alpha: cap, soft: 0.5 });
+  }
+  if (opaque || G.opaque) return washes;
+  const h = R.bottom - R.y, depth = reach * h;
+  const inset = y => halfAt(G, y) - 6;
+  washes.push({ pts: [[R.cx - inset(R.y + 2), R.y + 2], [R.cx + inset(R.y + 2), R.y + 2], [R.cx + inset(R.y + depth * 0.5), R.y + depth * 0.5], [R.cx - inset(R.y + depth * 0.5), R.y + depth * 0.5]], color: hex, alpha: cap * 0.6, soft: 0.8 });
+  for (let i = 0; i < tendrils; i++) {
+    const y0 = R.y + 4, len = depth * (0.55 + r() * 0.6), x0 = R.cx + ((i + 0.5) / tendrils - 0.5) * 1.5 * inset(y0) + (r() - 0.5) * 8;
+    const L = [], Rt = [];
+    for (let k = 0; k <= 6; k++) {
+      const u = k / 6, y = y0 + u * len, w = 4.5 * (1 - u) + 0.8, x = x0 + Math.sin(u * 5 + i) * 3;
+      L.push([x - w, y]); Rt.push([x + w, y]);
+    }
+    washes.push({ pts: [...L, ...Rt.reverse()], color: hex, alpha: cap * 0.85, soft: 0.5 });
+  }
+  return washes;
+}
+
+// Ice, drawn sparingly: a few outlines suggest the whole glassful. Crushed ice packs the glass
+// as white chips with the drink tinting the spaces between them, and heaps above the rim;
+// pebble ice is rounder; shaved ice is a smooth snowy dome; an ice cone stands in the middle.
+function ice({ kind = 'collins', style = 'cubed', fill = 0.84, seed = 5, soak = null } = {}) {
   const G = GLASS_PROFILES[kind] || GLASS_PROFILES.collins, R = rimOf(kind), r = rng(seed);
-  const strokes = [], washes = [];
+  const strokes = [], washes = [], cover = [], dots = [];
   const top = levelOf(kind, fill);
-  const heap = ['crushed', 'pebble', 'shaved', 'ice-cone'].includes(style);
-  if (heap) {
-    const lift = ['coupe', 'cocktail-glass', 'nick-nora', 'flute'].includes(kind) ? 0 : 22;
-    if (lift) {
-      const mound = [];
-      for (let i = 0; i <= 10; i++) {
-        const u = i / 10;
-        mound.push([R.cx - R.hw * 0.92 + u * R.hw * 1.84, R.y + 2 - Math.sin(Math.PI * u) * lift * (0.8 + r() * 0.4)]);
-      }
-      strokes.push({ pts: mound, tier: 2 });
-      washes.push({ pts: [...mound, [R.cx + R.hw * 0.9, R.y + 8], [R.cx - R.hw * 0.9, R.y + 8]], color: PALETTE.ice, alpha: 0.032, soft: 0.6 });
-      for (let i = 0; i < 5; i++) {
-        const u = 0.15 + r() * 0.7;
-        strokes.push({ pts: pebble(R.cx - R.hw * 0.9 + u * R.hw * 1.8, R.y - Math.sin(Math.PI * u) * lift * 0.5, 5 + r() * 3, r), tier: 3 });
-      }
+  if (style === 'ice-shell') {
+    // Beachcomber's Gold: shaved ice pressed into the bowl and frozen, the drink in the hollow.
+    const ys = [];
+    for (let y = R.y + 3; y < R.bottom - 2; y += 6) ys.push(y);
+    const outerL = ys.map(y => [R.cx - halfAt(G, y) + 2, y]), innerL = ys.map(y => [R.cx - Math.max(0, halfAt(G, y) - 11), Math.min(y + 4, R.bottom - 9)]);
+    const inner = [...innerL, ...mir(innerL, R.cx).reverse()];
+    strokes.push({ pts: inner, tier: 2 });
+    const lining = [...outerL, ...mir(outerL, R.cx).reverse(), ...inner.slice().reverse()];
+    washes.push({ pts: [...outerL, ...mir(outerL, R.cx).reverse()], color: PALETTE.ice, alpha: 0.026, soft: 0.5 });
+    for (let i = 0; i < 26; i++) { const y = R.y + 4 + r() * (R.bottom - R.y - 8), w = halfAt(G, y), side = r() < 0.5 ? -1 : 1; dots.push({ x: R.cx + side * (w - 3 - r() * 7), y, r: 0.6 + r() * 0.5, tier: 3 }); }
+    cover.push(lining);
+    return { box: [300, 460], strokes, washes, cover, dots };
+  }
+  if (style === 'ice-cone') {
+    // Navy Grog: a cone of shaved ice frozen round the straw, rising an inch above the rim.
+    const coneTop = R.y - 38, wt = Math.min(R.hw * 0.44, 30), foot = G.opaque ? R.y + 6 : R.bottom - 6;
+    const wb = G.opaque ? wt * 1.12 : Math.min(R.hw * 0.66, halfAt(G, foot) - 10);
+    const L = [[R.cx - wt, coneTop], [R.cx - wb, foot]], Rt = [[R.cx + wt, coneTop], [R.cx + wb, foot]];
+    strokes.push({ pts: L, tier: 2 }, { pts: Rt, tier: 2 }, { pts: ell(R.cx, coneTop, wt, wt * 0.24, 0, TAU, 20), tier: 2 });
+    if (!G.opaque) strokes.push({ pts: ell(R.cx, foot, wb, wb * G.rimTilt, 0.2, Math.PI - 0.2, 14), tier: 3 });
+    const body = [...ell(R.cx, coneTop, wt, wt * 0.24, Math.PI, TAU, 10), [R.cx + wb, foot], [R.cx - wb, foot]];
+    // packed snow: paper white, a few soft grain marks, no ice-cube edges
+    for (let i = 0; i < 16; i++) { const u = r(), y = coneTop + 10 + u * (foot - coneTop - 16), w = wt + (wb - wt) * u - 6, x = R.cx + (r() * 2 - 1) * w; strokes.push({ pts: ell(x, y, 2.6, 1.1, 0.2, Math.PI - 0.2, 5), tier: 3 }); }
+    cover.push(body);
+    return { box: [300, 460], strokes, washes, cover, dots };
+  }
+  if (HEAP.includes(style)) {
+    const M = capMound(kind, seed, style);
+    if (M.lift) {
+      strokes.push({ pts: M.top, tier: 2 });
+      if (soak) washes.push(...soakWashes(kind, M, soak.hex, r, { cap: soak.alpha || 0.05, reach: soak.reach || 0.12, tendrils: 3 }));
+      else washes.push({ pts: M.poly, color: PALETTE.ice, alpha: 0.026, soft: 0.6 });
+      cover.push(M.poly);
+      if (style === 'shaved') for (let i = 0; i < 10; i++) { const x = R.cx + (r() * 2 - 1) * R.hw * 0.75; strokes.push({ pts: ell(x, capYAt(M.top, x) + 5 + r() * Math.max(2, R.y - capYAt(M.top, x) - 4), 2.2, 1, 0, Math.PI, 5), tier: 3 }); }
+      else for (let i = 0; i < 6; i++) { const x = R.cx + (r() * 2 - 1) * R.hw * 0.7, y0 = capYAt(M.top, x); strokes.push({ pts: pebble(x, y0 + 6 + r() * Math.max(2, R.y - y0 - 8), 5 + r() * 3, r, style === 'pebble'), tier: 3 }); }
     }
-    if (!G.opaque) {
-      const n = kind === 'punch-bowl' ? 12 : 9;
+    if (!G.opaque && style !== 'shaved') {
+      // Chips packed down the glass, more toward the top; each keeps the paper white.
+      const n = kind === 'punch-bowl' ? 16 : Math.round(9 + (R.bottom - top) / 13);
       for (let i = 0; i < n; i++) {
-        const y = top + 8 + r() * (R.bottom - top - 22), hw = halfAt(G, y) - 12;
-        strokes.push({ pts: pebble(R.cx + (r() * 2 - 1) * hw, y, 5 + r() * 4, r), tier: 3 });
+        const y = top + 8 + Math.pow(r(), 1.3) * (R.bottom - top - 22), hw = halfAt(G, y) - 13;
+        if (hw < 6) continue;
+        const P = pebble(R.cx + (r() * 2 - 1) * hw, y, style === 'pebble' ? 6 : 3.5 + r() * 4.5, r, style === 'pebble');
+        // the pen catches only the lit edge of most chips
+        const k = r();
+        strokes.push({ pts: k < 0.35 ? P : P.slice(0, Math.max(3, Math.ceil(P.length * (0.45 + k * 0.3)))), tier: 3 });
+        cover.push(P);
       }
+    } else if (!G.opaque) {
+      // shaved ice: a fine snowy matte with no pieces, a few white flecks in the drink
+      for (let i = 0; i < 40; i++) { const y = top + 6 + r() * (R.bottom - top - 12); dots.push({ x: R.cx + (r() * 2 - 1) * (halfAt(G, y) - 8), y, r: 0.7 + r() * 0.9, color: PALETTE.paper, top: true }); }
     }
-    if (style === 'ice-cone' && !G.opaque) {
-      const w0 = Math.min(26, R.hw * 0.5);
-      strokes.push({ pts: [[R.cx - w0, R.y - 30], [R.cx - w0 * 0.8, R.bottom - 12]], tier: 2 }, { pts: [[R.cx + w0, R.y - 30], [R.cx + w0 * 0.8, R.bottom - 12]], tier: 2 });
-      strokes.push({ pts: ell(R.cx, R.y - 30, w0, w0 * 0.25, 0, TAU, 16), tier: 2 });
-      washes.push({ pts: [[R.cx - w0, R.y - 30], [R.cx + w0, R.y - 30], [R.cx + w0 * 0.8, R.bottom - 12], [R.cx - w0 * 0.8, R.bottom - 12]], color: PALETTE.ice, alpha: 0.05, soft: 0.4 });
+  } else if ((style === 'cubed' || style === 'block') && G.opaque) {
+    // In a mug, a couple of cube corners break the surface.
+    for (const k of style === 'block' ? [0] : [-0.32, 0.3]) {
+      const x = R.cx + k * R.hw, y = R.y + 2, s = style === 'block' ? 24 : 14;
+      const P = [[x - s, y], [x - s * 0.2, y - s * 0.55], [x + s, y - s * 0.3], [x + s * 0.3, y + s * 0.35], [x - s, y]];
+      strokes.push({ pts: P, tier: 2 });
+      washes.push({ pts: P.slice(0, 4), color: PALETTE.ice, alpha: 0.03, soft: 0.3 });
+      cover.push(P.slice(0, 4));
     }
-  } else if ((style === 'cubed' || style === 'block') && !G.opaque) {
+  } else if (style === 'cubed' || style === 'block') {
     const cubes = style === 'block' ? 1 : kind === 'rocks' ? 2 : 3;
     for (let i = 0; i < cubes; i++) {
-      const size = style === 'block' ? Math.min(R.hw * 1.3, 96) : Math.min(R.hw * 0.95, 44);
+      const size = style === 'block' ? Math.min(R.hw * 1.3, 86) : Math.min(R.hw * 0.95, 44);
       const y = top + 6 + size / 2 + i * size * 0.95;
       if (y + size / 2 > R.bottom - 4) break;
       const x = R.cx + (i % 2 ? 1 : -1) * R.hw * 0.18 * (cubes > 1 ? 1 : 0), a = (r() - 0.5) * 0.5, h = size / 2;
       const c = [[-h, -h], [h, -h], [h, h], [-h, h], [-h, -h]].map(([px, py]) => [x + px * Math.cos(a) - py * Math.sin(a), y + px * Math.sin(a) + py * Math.cos(a)]);
       strokes.push({ pts: c, tier: 2 });
-      strokes.push({ pts: [[c[0][0] + (c[1][0] - c[0][0]) * 0.2 + 5, c[0][1] + (c[3][1] - c[0][1]) * 0.2 + 5], [c[0][0] + (c[1][0] - c[0][0]) * 0.2 + 5, c[0][1] + (c[3][1] - c[0][1]) * 0.45 + 5]], tier: 3 });
-      washes.push({ pts: c.slice(0, 4), color: PALETTE.ice, alpha: 0.04, soft: 0.3 });
+      strokes.push({ pts: [[c[0][0] + (c[1][0] - c[0][0]) * 0.2 + 5, c[0][1] + (c[3][1] - c[0][1]) * 0.2 + 5], [c[0][0] + (c[1][0] - c[0][0]) * 0.2 + 5, c[0][1] + (c[3][1] - c[0][1]) * (style === 'block' ? 0.7 : 0.45) + 5]], tier: 3 });
+      if (style === 'cubed') washes.push({ pts: c.slice(0, 4), color: PALETTE.ice, alpha: 0.04, soft: 0.3 });
     }
   }
+  return { box: [300, 460], strokes, washes, cover, dots };
+}
+
+// Angostura dashed over a swizzle: it soaks the ice cap rust-red and bleeds down through the
+// top of the drink. With no heap (cubes, a drink served up) it is a band at the surface.
+function bittersCrown({ kind = 'collins', hex = '#8c2814', fill = 0.9, seed = 5, style = 'crushed' } = {}) {
+  const r = rng(seed * 3 + 1), R = rimOf(kind);
+  const M = HEAP.includes(style) ? capMound(kind, seed, style) : { lift: 0, top: [], poly: [] };
+  if (M.lift) return { box: [300, 460], strokes: [], washes: soakWashes(kind, M, hex, r, { cap: 0.036, reach: 0.2, tendrils: 6 }) };
+  const G = GLASS_PROFILES[kind] || GLASS_PROFILES.collins, level = G.opaque ? R.y : levelOf(kind, fill), w = (G.opaque ? R.hw - 8 : halfAt(G, level) - 5);
+  return { box: [300, 460], strokes: [], washes: [{ pts: ell(R.cx, level, w, w * R.tilt + 6, 0, TAU, 18), color: hex, alpha: 0.08, soft: 0.6 }] };
+}
+
+// Mint pressed into the bottom of a swizzle or a Mojito: bright leaves among the ice.
+function mintLeaves({ kind = 'collins', fill = 0.9, seed = 13, n = 7, zone = 0.22 } = {}) {
+  const G = GLASS_PROFILES[kind] || GLASS_PROFILES.collins, R = rimOf(kind), r = rng(seed), top = levelOf(kind, fill);
+  const strokes = [], washes = [];
+  const y0 = R.bottom - zone * (R.bottom - top), y1 = R.bottom - 7;
+  for (let i = 0; i < n; i++) {
+    const y = y0 + 6 + r() * (y1 - y0 - 6), hw = Math.max(4, halfAt(G, y) - 18), x = R.cx + ((i + 0.5) / n * 2 - 1) * hw + (r() - 0.5) * 8;
+    const a = r() * TAU, len = 18 + r() * 9, L = turn(leaf(len, 7 + r() * 3, { teeth: true }), a, x - Math.cos(a) * len / 2, y - Math.sin(a) * len / 2);
+    strokes.push({ pts: L, tier: 2 });
+    washes.push({ pts: L, color: PALETTE.mint, alpha: 0.06, soft: 0.4 });
+  }
+  const band = [[R.cx - halfAt(G, y0) + 5, y0], [R.cx + halfAt(G, y0) - 5, y0], [R.cx + halfAt(G, y1) - 5, y1], [R.cx - halfAt(G, y1) + 5, y1]];
+  washes.push({ pts: band, color: PALETTE.mint, alpha: 0.025, soft: 0.6 });
   return { box: [300, 460], strokes, washes };
+}
+
+// A long citrus spiral lining the glass: front turns in firm ink, back turns faint, the end
+// hooked over the rim.
+function peelSpiral({ kind = 'collins', citrus = 'orange', turns = 2.5 } = {}) {
+  const G = GLASS_PROFILES[kind] || GLASS_PROFILES.collins, R = rimOf(kind);
+  const color = PEEL[citrus] || PALETTE.orange, y0 = R.bottom - 12, y1 = R.y + 10, w = 6.5, N = 96;
+  const pts = [];
+  for (let i = 0; i <= N; i++) {
+    const u = i / N, th = Math.PI / 2 - (1 - u) * turns * TAU, y = y0 + (y1 - y0) * u, rx = halfAt(G, y) - 10;
+    pts.push({ x: R.cx + rx * Math.sin(th), y, front: Math.cos(th) > 0 });
+  }
+  const strokes = [], washes = [];
+  let seg = [pts[0]];
+  const flush = () => {
+    if (seg.length < 2) return;
+    const up = seg.map(p => [p.x, p.y - w]), dn = seg.map(p => [p.x, p.y + w]), front = seg[1].front;
+    strokes.push({ pts: up, tier: front ? 2 : 3 }, { pts: dn, tier: front ? 2 : 3 });
+    washes.push({ pts: [...up, ...dn.reverse()], color, alpha: front ? 0.08 : 0.035, soft: 0.4 });
+  };
+  for (let i = 1; i < pts.length; i++) { seg.push(pts[i]); if (pts[i].front !== pts[i - 1].front || i === pts.length - 1) { flush(); seg = [pts[i]]; } }
+  const e = pts[pts.length - 1], hx = R.cx + R.hw;
+  const hook = [[e.x, e.y], [hx - 2, R.y - 6], [hx + 8, R.y - 4], [hx + 12, R.y + 16]];
+  strokes.push({ pts: hook.map(([x, y]) => [x, y - w * 0.6]), tier: 1 }, { pts: hook.map(([x, y]) => [x + 5, y + w * 0.6]), tier: 1 });
+  washes.push({ pts: [...hook.map(([x, y]) => [x, y - w * 0.6]), ...hook.slice().reverse().map(([x, y]) => [x + 5, y + w * 0.6])], color, alpha: 0.12, soft: 0.3 });
+  return { box: [300, 460], strokes, washes };
+}
+
+// Frost on a swizzle glass or julep cup: a pale granular veil of white flecks over the outside.
+function frost({ kind = 'collins', seed = 17, amount = 1 } = {}) {
+  const G = GLASS_PROFILES[kind] || GLASS_PROFILES.collins, R = rimOf(kind), r = rng(seed), dots = [], strokes = [];
+  const y0 = R.y + 6, y1 = (G.opaque ? 432 : R.bottom - 4);
+  // denser toward the top, where the ice is packed hardest against the glass
+  for (let i = 0; i < 170 * amount; i++) {
+    const y = y0 + Math.pow(r(), 1.4) * (y1 - y0), w = (G.opaque ? R.hw : halfAt(G, y)) - 3;
+    dots.push({ x: R.cx + (r() * 2 - 1) * w, y, r: 0.45 + r() * 0.6, color: PALETTE.paper, top: true });
+  }
+  // a finger mark wiped through the frost
+  if (amount >= 1) { const x = R.cx - R.hw * 0.45, y = y0 + (y1 - y0) * 0.35; strokes.push({ pts: [[x, y], [x + 2, y + 26]], tier: 3 }, { pts: [[x + 7, y - 2], [x + 9, y + 24]], tier: 3 }); }
+  return { box: [300, 460], strokes, washes: [], dots };
+}
+
+// Condensation beading on a chilled glass: a few droplets, some running, each with a glint.
+function beads({ kind = 'coupe', seed = 19, n = 7 } = {}) {
+  const G = GLASS_PROFILES[kind] || GLASS_PROFILES.collins, R = rimOf(kind), r = rng(seed), strokes = [], dots = [];
+  for (let i = 0; i < n; i++) {
+    const y = R.y + 12 + r() * (R.bottom - R.y - 18) * 0.8, w = halfAt(G, y) - 6, x = R.cx + (r() < 0.5 ? -1 : 1) * w * (0.55 + r() * 0.4), s = 1.4 + r() * 1.3;
+    strokes.push({ pts: [[x, y - s * 2.2], [x - s, y], [x - s * 0.7, y + s * 0.8], [x, y + s * 1.1], [x + s * 0.7, y + s * 0.8], [x + s, y], [x, y - s * 2.2]], tier: 3 });
+    if (i % 3 === 0) strokes.push({ pts: [[x, y - s * 2.6], [x + 0.6, y - s * 2.6 - 8 - r() * 8]], tier: 3 });
+    dots.push({ x: x - s * 0.3, y: y - s * 0.2, r: s * 0.35, color: PALETTE.paper, top: true });
+  }
+  return { box: [300, 460], strokes, dots };
 }
 
 function fizz({ kind = 'collins', fill = 0.84, seed = 9 } = {}) {
@@ -834,13 +1512,19 @@ function steam({ kind = 'hot-mug' } = {}) {
   return { box: [300, 460], strokes };
 }
 
-function nutmeg({ rx = 40, ry = 6, seed = 11 } = {}) {
-  const r = rng(seed), dots = [];
-  for (let i = 0; i < 16; i++) {
-    const a = r() * TAU, k = Math.sqrt(r());
-    dots.push({ x: rx + Math.cos(a) * rx * 0.8 * k, y: ry + Math.sin(a) * ry * 0.8 * k, r: 0.7 + r() * 0.9, color: PALETTE.wood });
-  }
-  return { box: [rx * 2, ry * 2], strokes: [], dots };
+// The hollowed pineapple's own leafy crown, set back on the cut top ajar.
+function pineappleCrownLid() {
+  const collar = [[-30, 0], [-29, -12], [29, -14], [30, -2]];
+  const strokes = [{ pts: ell(0, 0, 30, 8, 0.1, Math.PI - 0.1, 16), tier: 1 }, { pts: ell(0, -13, 29, 8, 0, TAU, 20), tier: 2 }, { pts: [[-30, 0], [-29, -12]], tier: 1 }, { pts: [[30, -2], [29, -14]], tier: 1 }];
+  const washes = [{ pts: collar, color: PALETTE.ochre, alpha: 0.1, soft: 0.3 }], cover = [[...collar, ...ell(0, 0, 30, 8, 0.1, Math.PI - 0.1, 10)]];
+  [-1.1, -0.72, -0.36, 0, 0.34, 0.7, 1.05].forEach((d, i) => {
+    const b = blade(64 + (3 - Math.abs(i - 3)) * 16, 6, d > 0 ? -0.05 : 0.05), a = -Math.PI / 2 + d;
+    const O = turn(b.outline, a, (i - 3) * 3, -16);
+    strokes.push({ pts: O, tier: 1 });
+    washes.push({ pts: O, color: '#4E8F66', alpha: 0.08, soft: 0.4 });
+    cover.push(O);
+  });
+  return { box: [130, 130], strokes, washes, cover };
 }
 
 // A hand-drawn rounded box, two strokes that overlap at the corners like a pen going round.
@@ -853,8 +1537,19 @@ function frame({ w = 400, h = 56, r = 16 } = {}) {
 
 export const CATALOG = {
   'mug.moai': moaiMug, 'idol.ku': kuIdol, 'flower.hibiscus': hibiscus, 'flower.plumeria': plumeria, 'leaf.monstera': monstera,
-  'fruit.pineapple': pineapple, glass, 'garnish.mint': mint, 'garnish.lime-wheel': p => citrusWheel({ color: PALETTE.lime, ...p }),
-  'garnish.orange-wheel': p => citrusWheel({ color: PALETTE.orange, ...p }), 'garnish.lime-shell': limeShell, 'garnish.cherry': cherry,
-  'garnish.orchid': orchid, 'garnish.umbrella': umbrella, 'garnish.pineapple-wedge': pineappleWedge, 'garnish.cinnamon': cinnamon,
-  'garnish.beans': beans, 'garnish.peel': peel, 'garnish.nutmeg': nutmeg, straw, sparkle, liquid, ice, fizz, steam, frame,
+  'fruit.pineapple': pineapple, 'float.glass': glassFloat, glass, 'glass.front': p => glass({ ...p, front: 'only' }), liquid, ice, fizz, steam, frame, straw, sparkle,
+  'glass.frost': frost, 'glass.condensation': beads,
+  // garnishes, at real size (38 units to the inch)
+  'garnish.mint': mint, 'garnish.herb-sprig': herbSprig, 'garnish.mint-leaves': mintLeaves,
+  'garnish.lime-wheel': p => citrusWheel({ r: 38, color: PALETTE.lime, rind: PALETTE.frond, ...p }),
+  'garnish.lemon-wheel': p => citrusWheel({ r: 42, color: PALETTE.butter, rind: PALETTE.ochre, ...p }),
+  'garnish.orange-wheel': p => citrusWheel({ r: 55, color: PALETTE.orange, rind: '#D9792A', ...p }),
+  'garnish.lime-wedge': p => citrusWedge({ len: 66, color: PALETTE.lime, rind: PALETTE.frond, ...p }),
+  'garnish.lime-shell': limeShell, 'garnish.lime-coin': limeCoin, 'garnish.flame': flame,
+  'garnish.cherry': cherry, 'garnish.pick': fruitPick, 'garnish.morse-pick': morsePick, 'garnish.peel-ring': peelRing, 'garnish.orange-flag': orangeFlag,
+  'garnish.pineapple-wedge': pineappleWedge, 'garnish.pineapple-spear': pineappleSpear, 'garnish.pineapple-fronds': pineappleFronds, 'garnish.pineapple-crown-lid': pineappleCrownLid,
+  'garnish.orchid': orchid, 'garnish.gardenia': gardenia, 'garnish.edible-flower': edibleFlower, 'garnish.umbrella': umbrella,
+  'garnish.cinnamon': cinnamon, 'garnish.back-scratcher': backScratcher, 'garnish.swizzle-stick': swizzleStick, 'garnish.sugarcane': sugarcane,
+  'garnish.peel': peel, 'garnish.peel-spiral': peelSpiral, 'garnish.fruit-slice': fruitSlice, 'garnish.whipped-cream': whippedCream,
+  'garnish.beans': beans, 'garnish.nutmeg': nutmeg, 'garnish.dust': dust, 'garnish.bitters-crown': bittersCrown,
 };
