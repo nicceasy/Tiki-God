@@ -1410,7 +1410,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     const credit = d => [d.creator, d.venue].filter(Boolean).join(', ') + (d.year ? `${d.creator || d.venue ? ', ' : ''}${d.circa ? 'c. ' : ''}${d.year}` : '');
     const recipe = {
       name: classic ? classic.name : name,
-      classic: classic ? { id: classic.id, name: classic.name, credit: credit(classic), source: classic.source || '' } : null,
+      classic: classic ? { id: classic.id, name: classic.name, credit: credit(classic), creator: classic.creator || '', venue: classic.venue || '', year: classic.year || null, circa: !!classic.circa, source: classic.source || '' } : null,
       prompt,
       seed,
       archetype: { id: A.id, name: A.name, definition: A.definition || '' },
@@ -1444,7 +1444,29 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     recipe.explanation.prayer = intent.readings.filter(r => !r.negated).map(r => ({ phrase: r.phrase, reading: r.reading }));
     recipe.check = composer.satisfies(A, lines, intent.ings, id => forbidden(id, intent));
     recipe.explanation.reading = readPrayer(intent, A, notes, recipe);
+    recipe.stats.standardDrinks = round(chem.alcMl / 17.74, 1);
+    recipe.explanation.whyItWorks = whyLines(recipe, A, intent);
     return recipe;
+  }
+
+  // Why it works, the way a bartender would say it: what it's built on, what changed and how
+  // that answers the prayer, one line of history, and its strength in standard drinks.
+  function whyLines(recipe, A, intent) {
+    const rd = recipe.explanation.reading;
+    const out = [];
+    const def = ((A.definition || '').split(/(?<=\.)\s/)[0] || '').replace(/^./, c => c.toLowerCase());
+    const c = recipe.classic;
+    if (c) out.push(`It's the ${c.name} as ${c.creator || 'the canon'} poured it${c.venue && c.venue !== c.creator ? ` at ${c.venue}` : ''}${c.year ? ` in ${c.circa ? 'about ' : ''}${c.year}` : ''}: ${def || 'a proven classic'}`);
+    else if (recipe.riffOf) out.push(`Built on the ${recipe.riffOf.name}${A.name && A.name !== recipe.riffOf.name ? ` (the ${A.name} frame)` : ''}: ${def}`);
+    else out.push(`Built on the ${A.name}${rd.builtOn.spec ? `, starting from the ${rd.builtOn.spec}` : ''}: ${def}`);
+    const asked = rd.heard.filter(h => !/^riff on|^served in|family$/.test(h.meaning)).map(h => `“${h.phrase}”`).slice(0, 3);
+    if (rd.moves.length) out.push(`${asked.length ? `For ${asked.join(', ')}: ` : 'The twist: '}${rd.moves.slice(0, 4).join('; ')}.`);
+    const hist = (A.classics || []).find(c => /\(/.test(c));
+    if (hist && !recipe.classic) out.push(`The family tree runs back to the ${hist.replace(/\s*\(/, ' (')}.`);
+    const sd = recipe.stats.standardDrinks;
+    if (sd !== undefined && recipe.stats.abv > 0.5) out.push(`About ${sd} US standard drink${sd === 1 ? '' : 's'} (${recipe.stats.abv}% ABV after dilution)${sd >= 2.5 ? '. Don the Beachcomber\'s rule applies: two per guest.' : '.'}`);
+    else if (recipe.stats.abv <= 0.5) out.push('No alcohol at all, so anyone at the table can have one.');
+    return out;
   }
 
   // How the gods heard you: what each part of the prayer meant, what the drink is built on,

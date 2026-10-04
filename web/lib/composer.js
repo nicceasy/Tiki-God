@@ -212,8 +212,10 @@ export function createComposer({ archetypes, ingMap, model }) {
     // A flavor asked for plainly ("with mango") that no slot could carry: pour the bottle that
     // leads with it, worked in the way a bartender would.
     const explicit = t => (intent.tags[t] || 0) - ((intent.conceptTags || {})[t] || 0) * 0.6;
+    // In a riff ("a Mai Tai but tropical") the modifier is the whole request: a lower bar.
+    const bar = src ? 1.0 : 1.5;
     for (const [tag] of Object.entries(intent.tags).sort((x, y) => y[1] - x[1])) {
-      if (explicit(tag) < 1.5 || NOT_A_FLAVOR.has(tag) || carried(lines, tag, ctx)) continue;
+      if (explicit(tag) < bar || NOT_A_FLAVOR.has(tag) || carried(lines, tag, ctx)) continue;
       const ids = lines.map(l => l.id);
       const pool = [...ingMap.values()].filter(i => i.role !== 'base' && i.role !== 'aromatic' && leads(i.id, tag) && ['common', 'specialty', 'homemade'].includes(i.avail)
         && !ctx.forbidden(i.id, intent) && !archForbids(a, i.id) && !ids.includes(i.id) && !ctx.conflicts(i.id, ids));

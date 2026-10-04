@@ -105,7 +105,7 @@ export const LEXICON = [
   { k: ['yuzu'], ings: { 'yuzu-juice': 3 }, tags: { citrus: 1 }, label: 'yuzu' },
   { k: ['citrus', 'citrusy', 'zesty', 'zingy'], tags: { citrus: 2 }, label: 'citrus' },
   { k: ['fruity', 'juicy', 'fruit'], tags: { fruity: 2 }, label: 'fruity' },
-  { k: ['tropical', 'exotic'], tags: { tropical: 1.5 }, label: 'tropical' },
+  { k: ['tropical', 'exotic'], tags: { tropical: 1.5, 'passion-fruit': 1.2, pineapple: 0.9, mango: 0.6, guava: 0.5 }, label: 'tropical' },
   { k: ['dried fruit', 'raisin', 'fig'], tags: { 'dried-fruit': 2 }, label: 'dried fruit' },
 
   // ---- spice & aromatics ----

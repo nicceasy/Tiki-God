@@ -19,18 +19,21 @@ let md = '# Review packet\n';
 for (const p of prompts) for (const seed of seeds) {
   const r = engine.generate(p, { seed });
   recs.push({ prompt: p, seed, recipe: r });
+  const rd = r.explanation.reading || {};
   md += `\n## "${p}" (seed ${seed}): ${r.name}\n*${r.tagline}*\n\n`;
-  md += `- Family: ${r.family.name}${r.riffOf ? ` (riff on ${r.riffOf.name})` : ''}\n`;
+  md += `- Built on: ${r.classic ? `the classic ${r.classic.name} (${r.classic.credit})` : `${r.archetype.name}${rd.builtOn && rd.builtOn.spec ? `, from the ${rd.builtOn.spec}` : ''}`}${r.riffOf ? `; riff on ${r.riffOf.name}` : ''} · family ${r.family.name} · archetype check: ${r.check && r.check.ok ? 'ok' : JSON.stringify(r.check)}\n`;
   md += `- Vessel: ${r.vessel ? r.vessel.name : r.method.glass} · ${r.method.method}, ${r.method.ice} ice · serves ${r.servings}\n`;
-  md += `- Stats: ${r.stats.abv}% ABV, sugar ${r.stats.sugarConc}, acid ${r.stats.acidConc} g/100 ml, ${r.stats.finalOz} oz finished\n`;
-  md += `- Heard: ${r.heard.join(', ') || '(nothing)'}\n`;
-  md += `- Recipe:\n${r.lines.map(l => `  - ${l.garnish ? 'garnish' : `${l.amount} ${l.unit}`} ${l.name}${l.float ? ' (float)' : ''}${l.sink ? ' (sink)' : ''}`).join('\n')}\n`;
+  md += `- Stats: ${r.stats.abv}% ABV (${r.stats.standardDrinks} std drinks), sugar ${r.stats.sugarConc}, acid ${r.stats.acidConc} g/100 ml, ${r.stats.volOz} oz poured, ${r.stats.finalOz} oz finished\n`;
+  md += `- Heard: ${(rd.heard || []).map(h => `"${h.phrase}" → ${h.meaning}`).join(' | ') || '(nothing)'}${rd.unheard && rd.unheard.length ? ` · NOT HEARD: ${rd.unheard.join(', ')}` : ''}\n`;
+  md += `- Recipe:\n${r.lines.map(l => `  - ${l.garnish ? 'garnish' : `${l.amount} ${l.unit}`} ${l.name}${l.float ? ' (float)' : ''}${l.sink ? ' (sink)' : ''}${l.muddled ? ' (muddled/blended in)' : ''}`).join('\n')}\n`;
+  if (r.batch) md += `- Batch for ${r.servings}: ${r.batch.map(b => `${b.total} ${b.name}`).join(', ')}\n`;
   md += `- Garnish: ${r.garnish.join(', ')}\n`;
   md += `- Steps:\n${r.method.steps.map((s, i) => `  ${i + 1}. ${s}`).join('\n')}\n`;
   md += `- Tasting: ${r.explanation.tasting}\n`;
-  if (r.explanation.prayer) md += `- Prayer reading: ${r.explanation.prayer.map(x => typeof x === 'string' ? x : `${x.phrase} → ${x.effect}`).join('; ')}\n`;
-  if (r.look) md += `- Look: ${typeof r.look === 'string' ? r.look : JSON.stringify(r.look)}\n`;
-  md += `- Why: ${r.explanation.whyItWorks.slice(0, 3).join(' / ')}\n`;
+  md += `- Look: ${r.look ? `${r.look.description} (body ${r.look.body.hex}, opacity ${r.look.body.opacity}${r.look.layers.length ? `; layers ${r.look.layers.map(x => `${x.kind} ${x.hex}`).join(', ')}` : ''})` : ''}\n`;
+  if (rd.moves && rd.moves.length) md += `- Moves: ${rd.moves.join('; ')}\n`;
+  if (rd.waived) md += `- Waived: ${rd.waived}\n`;
+  md += `- Why: ${r.explanation.whyItWorks.join(' / ')}\n`;
 }
 writeFileSync(join(out, 'packet.json'), JSON.stringify(recs, null, 1));
 writeFileSync(join(out, 'packet.md'), md);
