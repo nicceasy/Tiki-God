@@ -188,7 +188,7 @@ export function drinkSpec(recipe, ingMap) {
 
   const els = [];
   const garnishEls = [];
-  // Scale a tall part standing at y so it stays inside the drawing's box (at least `min`).
+  // Scale a tall part standing at y so it stays inside the drawing box (never below 0.7).
   const fitUp = (y, height, s = 1) => Math.max(0.7, Math.min(s, (y - 6) / height));
   const put = (part, params, x, y, { s = 1, rot = 0, anchor = [0, 0], from, z = 50 } = {}) => garnishEls.push({ part, params, x, y, s, rot, anchor, from, z });
   const full = (part, params, from, z) => garnishEls.push({ part, params, x: 0, y: 0, from, z });

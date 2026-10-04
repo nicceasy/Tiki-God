@@ -1358,8 +1358,7 @@ function ice({ kind = 'collins', style = 'cubed', fill = 0.84, seed = 5, soak = 
     strokes.push({ pts: L, tier: 2 }, { pts: Rt, tier: 2 }, { pts: ell(R.cx, coneTop, wt, wt * 0.24, 0, TAU, 20), tier: 2 });
     if (!G.opaque) strokes.push({ pts: ell(R.cx, foot, wb, wb * G.rimTilt, 0.2, Math.PI - 0.2, 14), tier: 3 });
     const body = [...ell(R.cx, coneTop, wt, wt * 0.24, Math.PI, TAU, 10), [R.cx + wb, foot], [R.cx - wb, foot]];
-    // packed snow: shade down the far side, a few soft grain marks, no ice-cube edges
-    washes.push({ pts: [[R.cx + wt * 0.45, coneTop + 4], [R.cx + wt, coneTop], [R.cx + wb, foot], [R.cx + wb * 0.5, foot]], color: PALETTE.ice, alpha: 0.01, soft: 0.8 });
+    // packed snow: paper white, a few soft grain marks, no ice-cube edges
     for (let i = 0; i < 16; i++) { const u = r(), y = coneTop + 10 + u * (foot - coneTop - 16), w = wt + (wb - wt) * u - 6, x = R.cx + (r() * 2 - 1) * w; strokes.push({ pts: ell(x, y, 2.6, 1.1, 0.2, Math.PI - 0.2, 5), tier: 3 }); }
     cover.push(body);
     return { box: [300, 460], strokes, washes, cover, dots };
