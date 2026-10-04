@@ -212,3 +212,25 @@ test('the spirit is a full pour, not a bucket: 2½ oz (3 for the Zombie line), f
 test('a leaning reaches for a colorant, never more juice "for a golden glow"', () => {
   for (const x of all) for (const n of x.r.notes || []) assert.ok(!/(pineapple|orange|mango|nectar|juice)[^,]*, for a (golden|sunset-orange) glow|traded for [^,]*(nectar|juice), for a/.test(n), `${label(x)}: "${n}"`);
 });
+
+// A hot drink never takes a straw: not on the card, not in the steps, not in the drawing. And a
+// hot prayer is answered hot on every seed, even when the engine's own critic re-plans it.
+test('hot drinks are hot on every seed, with no ice and never a straw', async () => {
+  const { drinkSpec } = await import('../web/lib/artspec.js');
+  const vocab = j('data/ingredients.json'), ingMap = new Map((vocab.ingredients || vocab).map(i => [i.id, i]));
+  const HOT = ['hot buttered rum', 'a hot toddy', 'tom and jerry', 'hot grog', 'a hot drink for a snowy night', 'a warm mug by the fire', 'steaming mug for a rainy day', 'hot rum punch for a party of 8', 'hot buttered rum but flaming', 'a toddy for a sore throat', 'winter tiki, served hot'];
+  const cases = [...HOT.flatMap(p => [0, 1, 2, 3, 4, 5].map(seed => ({ p, seed, r: engine.generate(p, { seed }) }))), ...all];
+  let hot = 0;
+  for (const { p, seed, r } of cases) {
+    if (HOT.includes(p)) assert.equal(r.method.method, 'hot', `${p} [${seed}] ${r.name}: a hot prayer served ${r.method.method}/${r.method.ice}`);
+    if (r.method.method !== 'hot') continue;
+    hot++;
+    assert.ok(['none', undefined].includes(r.method.ice), `${p} [${seed}] ${r.name}: hot with ice ${r.method.ice}`);
+    const text = JSON.stringify([r.garnish, r.steps]);
+    const straw = text.match(/[^"]*\bstraws?\b[^"]*/i);
+    assert.ok(!straw, `${p} [${seed}] ${r.name}: a straw on a hot drink: ${straw && straw[0]}`);
+    const spec = drinkSpec(r, ingMap);
+    assert.ok(!spec.elements.some(e => e.part === 'straw'), `${p} [${seed}] ${r.name}: a straw drawn in a hot drink`);
+  }
+  assert.ok(hot >= HOT.length * 6, `only ${hot} hot drinks checked`);
+});

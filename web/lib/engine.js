@@ -2823,11 +2823,18 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     if (!linter || (first.classic && !(opts.priorRecipes && opts.priorRecipes.length))) return first;
     const fatal = r => { try { return linter.lint(r, { intent: parsePrompt(prompt, { nameIndex, concepts: conceptIndex }) }).filter(f => f.sev === 'fatal'); } catch { return []; } };
     let best = first, bestF = first.classic ? [] : fatal(first);
+    // A hot prayer is answered hot on every rebuild: a re-plan that runs out of hot frames never
+    // falls back to a cold drink (a Planter's Punch over crushed ice, straw and all).
+    // (Asked outright, or a named hot drink: the first build or an earlier seed came out hot.)
+    const isHot = t => (t.method || {}).method === 'hot';
+    const hotAsked = !!(parsePrompt(prompt, { nameIndex, concepts: conceptIndex }).style || {}).hot || isHot(first) || (opts.priorRecipes || []).some(isHot);
+    const keepsTemp = t => !hotAsked || isHot(t);
     const avoid = new Set([first.archetype.id]);
     for (let i = 0; bestF.length && !first.classic && i < 3; i++) {
       const t = generateOnce(prompt, { ...opts, avoid });
       if (avoid.has(t.archetype.id)) break;
       avoid.add(t.archetype.id);
+      if (!keepsTemp(t)) continue;
       const f = fatal(t);
       if (f.length < bestF.length) { best = t; bestF = f; }
     }
@@ -2840,7 +2847,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       for (let i = 0; close(best) && i < 4; i++) {
         const t = generateOnce(prompt, { ...opts, avoid: new Set(away), sibling: named && i === 0 });
         away.add(t.archetype.id);
-        if (close(t)) continue;
+        if (close(t) || !keepsTemp(t)) continue;
         // A new idea never breaks what the first build kept (the color demanded, a reading's promise).
         if (best.kept && t.kept && ((best.kept.color && !t.kept.color) || t.kept.broken > best.kept.broken)) continue;
         const f = fatal(t);
