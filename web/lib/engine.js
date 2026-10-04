@@ -3,10 +3,13 @@
 // and explains where each choice came from.
 import { indexIngredients, analyzeLines, lineOz, roleOf, round } from './chem.js';
 import { flavorVector, normalize, cosine, lineImpact, tagWeights } from './flavor.js';
-import { parsePrompt, buildNameIndex } from './prompt.js';
+import { parsePrompt, buildNameIndex, indexConcepts } from './prompt.js';
 import { snap, amountString } from './format.js';
 import { makeName } from './names.js';
 import { serviceOf, SERVICE_FITS } from './vessels.js';
+import { createComposer } from './composer.js';
+import { createCopywriter } from './copy.js';
+import { drinkLook } from './optics.js';
 
 const ROLE_ORDER = ['base', 'sour', 'juice', 'sweet', 'modifier', 'rich', 'accent', 'lengthener'];
 const USABLE = new Set(['common', 'specialty', 'homemade']);
@@ -93,7 +96,9 @@ function interpQ(q, s) {
   return q.median;
 }
 
-export function createEngine({ vocab, families, drinks, model, vessels = { vessels: [] } }) {
+export function createEngine({ vocab, families, drinks, model, vessels = { vessels: [] }, archetypes: archetypeData = { archetypes: [] }, concepts: conceptData = { concepts: [] } }) {
+  const archetypes = archetypeData.archetypes || [];
+  const concepts = conceptData.concepts || [];
   const vesselList = vessels.vessels || [];
   const vesselById = Object.fromEntries(vesselList.map(v => [v.id, v]));
   const ingMap = indexIngredients(vocab);
@@ -558,7 +563,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     }
     // Keep each role near the family's typical total.
     for (const role of ['sour', 'juice', 'sweet', 'modifier', 'rich']) {
-      const rl = lines.filter(l => l.role === role);
+      const rl = lines.filter(l => l.role === role && !l.range);
       if (!rl.length) continue;
       const q = F.roleOz[role];
       if (!q || !q.median) continue;
@@ -612,8 +617,10 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
   function balance(lines, T) {
     const I = l => ingMap.get(l.id);
     const clampLine = l => {
-      const lo = l.req ? l.oz0 * 0.8 : l.role === 'sweet' ? Math.min(0.08, l.oz0) : l.oz0 * 0.4;
-      const hi = Math.max(l.oz0 * 2.5, 0.5);
+      let lo = l.req ? l.oz0 * 0.8 : l.role === 'sweet' ? Math.min(0.08, l.oz0) : l.oz0 * 0.4;
+      let hi = Math.max(l.oz0 * 2.5, 0.5);
+      // An archetype's ranges are hard edges: a colada never thins its pineapple to a splash.
+      if (l.range) { lo = Math.max(lo, l.range[0] * 0.85); hi = Math.min(hi, l.range[1] * 1.15); }
       l.oz = Math.max(lo, Math.min(hi, l.oz));
     };
     const acidLevers = lines.filter(l => I(l).acid >= 2 && l.role !== 'aromatic');
@@ -690,7 +697,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
   // Every drink gets one specific vessel. Asked-for beats riff source beats the family's habits;
   // the vessel must take the drink's service (up, rocks, crushed, frozen, hot, bowl) and hold it.
   const CONF = { high: 3, medium: 2, low: 1 };
-  function chooseVessel(famId, intent, svc, chem, src, rng, greedy) {
+  function chooseVessel(famId, intent, svc, chem, src, rng, greedy, A = null) {
     if (!vesselList.length) return null;
     const service = serviceOf(svc.method, svc.ice);
     const servings = intent.servings || 1;
@@ -725,6 +732,8 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       const fit = bowl ? 1 : fitOf(v);
       if (!fit) continue;
       let w = (F[v.id] || 0) + 0.3 * ((v.families || {})[famId] || 0) + 0.004;
+      if (A && A.vessels) { const i = A.vessels.indexOf(v.id); if (i >= 0) w += 0.6 / (1 + i); }
+      w += 0.5 * ((intent.vesselAffinity || {})[v.id] || 0);
       if (bowl && v.id === 'volcano-bowl' && intent.style.flaming) w += 2;
       if (bowl && v.id === 'punch-bowl' && ['punch', 'stirred', 'buck'].includes(famId)) w += 0.5;
       if (bowl && v.id === 'tiki-bowl' && servings <= 3) w += 0.4;
@@ -765,58 +774,65 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     return /^(Jamaican|Demerara|Barbados|Haitian|Angostura|Campari|Aperol|Galliano|Bénédictine|Green Chartreuse|Yellow Chartreuse|Cherry Heering|Don's|Gardenia|London|Old Tom|Irish|Islay|Batavia|Okolehao|Peychaud's|Pedro|Licor|Fernet|Drambuie|Cynar|Lillet|Blue|Tequila|Mezcal|Pisco|Cachaça|Bourbon|Rye|Brandy|Vodka|Aquavit|Navy)/.test(n) ? n : n.charAt(0).toLowerCase() + n.slice(1);
   };
 
-  function steps(svc, lines, intent) {
+  // Method steps that match the build: what goes in the tin, what is held back to top, float,
+  // sink or crown the drink, and the garnish last.
+  function steps(svc, lines, intent, garnish = []) {
     const g = svc.glass;
     const aG = `${/^[aeiou]/i.test(g) && !/^(u|one)/i.test(g) ? 'an' : 'a'} ${g}`;
-    const floats = lines.filter(l => l.float);
-    const lengthener = lines.find(l => l.role === 'lengthener');
-    const bitters = lines.filter(l => ingMap.get(l.id).cat === 'bitters');
-    const mint = lines.find(l => l.id === 'mint');
+    const poured = lines.filter(l => l.role !== 'aromatic');
+    const floats = poured.filter(l => l.float), sinks = poured.filter(l => l.sink);
+    const crowns = poured.filter(l => l.crown || (svc.method === 'swizzle' && ingMap.get(l.id).cat === 'bitters' && !l.float));
+    const lengthener = poured.find(l => l.role === 'lengthener' && !l.float && !l.sink);
+    const held = [...floats, ...sinks, ...crowns, ...(lengthener ? [lengthener] : [])];
+    const except = held.length ? ` except the ${list(held.map(l => displayName(l.id)))}` : '';
+    const mint = lines.find(l => l.id === 'mint' && svc.method === 'swizzle');
     const out = [];
-    const main = lines.filter(l => !l.float && l.role !== 'aromatic' && l !== lengthener);
     const mul = intent.servings > 1 ? ` (multiply everything by ${intent.servings})` : '';
     switch (svc.method) {
       case 'flash-blend':
-        out.push(`Add everything${lengthener ? ` except the ${displayName(lengthener.id)}` : ''} to a blender cup with 12 oz (1½ cups) of crushed ice${mul}.`);
-        out.push('Flash-blend for 3–5 seconds — or shake very hard with crushed ice if you have no spindle mixer.');
+        out.push(`Add everything${except} to a blender cup with 12 oz (1½ cups) of crushed ice${mul}.`);
+        out.push('Flash-blend for 3–5 seconds, or shake very hard with crushed ice if you have no spindle mixer.');
         out.push(`Open-pour everything, ice and all, into ${aG}; top with more crushed ice.`);
         break;
       case 'blend':
-        out.push(`Add everything to a blender with 1 cup (8 oz) of crushed ice${mul}.`);
+        out.push(`Add everything${except} to a blender with 1 cup (8 oz) of crushed ice${mul}.`);
         out.push(`Blend until smooth and thick, then pour into ${aG}.`);
         break;
       case 'swizzle':
-        if (mint) out.push(`Lightly muddle the mint in the bottom of ${aG}.`);
-        out.push(`Add the remaining ingredients${bitters.length ? ` except the ${bitters.map(b => displayName(b.id)).join(' and ')}` : ''}${mul}.`);
+        if (mint) out.push(`Lightly press the mint in the bottom of ${aG}.`);
+        out.push(`Add everything${except}${mul}.`);
         out.push('Fill two-thirds with crushed ice and swizzle until the glass frosts over; pack with more ice.');
-        if (bitters.length) out.push(`Dash the ${bitters.map(b => displayName(b.id)).join(' and ')} over the top to form a red crown.`);
         break;
       case 'stir':
-        out.push(`Stir everything with ice for 20–30 seconds${mul}.`);
+        out.push(`Stir everything${except} with ice for 20–30 seconds${mul}.`);
         out.push(svc.up ? `Strain into a chilled ${g}.` : `Strain into ${aG} over one large cube.`);
         break;
       case 'build':
       case 'muddle-build':
-        out.push(`Build in ${aG} over ice${mul}.`);
+        out.push(`Build everything${except} in ${aG} over ice${mul}.`);
         break;
       case 'hot':
         out.push(`Preheat ${aG} with boiling water, then empty it.`);
         out.push(`Add everything${lengthener ? ` except the ${displayName(lengthener.id)}` : ''} and stir to dissolve${mul}.`);
         break;
       default:
-        if (svc.ice === 'cubed') {
-          out.push(`Shake everything${lengthener ? ` except the ${displayName(lengthener.id)}` : ''} hard with cubed ice for 10–12 seconds${mul}.`);
-          out.push(`Strain into a chilled ${g}${svc.up ?? /coupe|cocktail/.test(g) ? '' : ' over fresh ice'}.`);
+        if (svc.ice === 'cubed' || svc.ice === 'none') {
+          out.push(`Shake everything${except} hard with cubed ice for 10–12 seconds${mul}.`);
+          out.push(svc.up ? `Double-strain into a chilled ${g}.` : `Strain into ${aG} over fresh ice.`);
         } else {
-          out.push(`Shake everything${lengthener ? ` except the ${displayName(lengthener.id)}` : ''} with 12 oz of crushed ice for 8–10 seconds${mul}.`);
+          out.push(`Shake everything${except} with 12 oz of crushed ice for 8–10 seconds${mul}.`);
           out.push(`Open-pour, ice and all, into ${aG}; top with crushed ice to fill.`);
         }
     }
     if (lengthener) out.push(svc.method === 'hot' ? `Top with ${lengthener.amount} oz of steaming ${displayName(lengthener.id).toLowerCase()}.` : `Top with ${displayName(lengthener.id).toLowerCase()} and give one gentle stir.`);
-    for (const f of floats) out.push(`Float the ${displayName(f.id)} on top.`);
-    if (intent.style.flaming) out.push('Theatrics (optional, carefully): set a spent lime half on the ice, add a crouton or sugar cube soaked in lemon extract or 151 rum, and light it. Keep hair, sleeves and straws clear, and never pour spirit onto a flame.');
+    for (const f of sinks) out.push(`Pour the ${displayName(f.id).toLowerCase()} slowly down the inside of the glass; it sinks and blushes upward through the drink.`);
+    for (const f of floats) out.push(`Float the ${displayName(f.id).toLowerCase()} on top: pour it gently over the back of a bar spoon.`);
+    if (crowns.length) out.push(`Dash the ${list(crowns.map(b => displayName(b.id)))} over the ice to form a crown.`);
+    if (intent.style.flaming) out.push('Theatrics (optional, carefully): set a spent lime half on the ice, add a sugar cube soaked in lemon extract or 151 rum, and light it. Keep hair, sleeves and straws clear, and never pour spirit onto a flame.');
+    if (garnish.length) out.push(`Garnish with ${list(garnish.map(x => x.replace(/\s*\(.*?\)/, '')))}.`);
     return out;
   }
+  const list = a => a.length > 1 ? `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}` : (a[0] || '');
 
   // ---------- explanation ----------
   function describeRum(id) {
@@ -983,60 +999,90 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
   }
 
   // ---------- public ----------
+  const composer = createComposer({ archetypes, ingMap, model });
+  const copy = createCopywriter({ ingMap, ingVec });
+  const conceptIndex = indexConcepts(concepts);
+  const ctx = {
+    forbidden: (id, intent) => forbidden(id, intent) || (intent.softAvoid && intent.softAvoid[id] >= 1 && !intent.ings[id]),
+    intentMatch, compat, conflicts, softPick, ingVec,
+  };
+  const linesOf = d => d.ingredients.filter(l => ingMap.has(l.id)).map(l => ({ id: l.id, role: roleOf(l, ingMap.get(l.id)), oz: lineOz(l, ingMap.get(l.id), units) / (d.servings || 1), float: !!l.float, garnish: !!l.garnish }));
+
+  // Which archetype a catalogued drink belongs to: the one that names it as a classic and that
+  // its spec actually satisfies, else any archetype of its family that it satisfies.
+  function archetypeForDrink(d) {
+    const nm = d.name.toLowerCase();
+    const L = linesOf(d);
+    const named = archetypes.filter(a => (a.classics || []).some(c => c.toLowerCase().replace(/\s*\(.*\)/, '') === nm));
+    const fits = named.find(a => composer.satisfies(a, L).ok);
+    if (fits) return fits;
+    return archetypes.find(a => a.family === d.family && composer.satisfies(a, L).ok) || named[0] || null;
+  }
+
+  // Layered presentation: the prayer asked for it, or the archetype traditionally floats or sinks.
+  function addLayer(lines, A, intent, notes) {
+    if (lines.some(l => l.float || l.sink || l.crown)) return;
+    if (!intent.style.layered) return;
+    const rumBased = lines.some(l => (ingMap.get(l.id) || {}).cat === 'rum');
+    const avoid = id => forbidden(id, intent) || lines.some(l => l.id === id);
+    const red = !lines.some(l => ['blue-curacao'].includes(l.id));
+    if (red && !avoid('grenadine') && !intent.style.creamy) {
+      lines.push({ id: 'grenadine', role: 'sweet', oz: 0.5, sink: true, slot: 'sink', req: true });
+      notes.push('grenadine poured last so it sinks into a sunrise');
+    } else if (rumBased && !avoid('rum-jamaican-dark')) {
+      lines.push({ id: 'rum-jamaican-dark', role: 'base', oz: 0.5, float: true, slot: 'float', req: true });
+      notes.push('a dark rum float for a layered top');
+    }
+  }
+
   function generate(prompt, { seed = 0 } = {}) {
     swappedOut.clear();
-    const intent = parsePrompt(prompt, { nameIndex });
+    const intent = parsePrompt(prompt, { nameIndex, concepts: conceptIndex });
     const rng = rngFrom(`${prompt}::${seed}`);
     const greedy = seed === 0;
     const notes = [];
     const riffSrc = intent.riffOf ? drinkById[intent.riffOf] : null;
-    // Asking for whole fruit (strawberries, a banana) means the blender.
     if (!intent.style.hot && Object.entries(intent.ings).some(([id, w]) => w >= 1.5 && (ingMap.get(id) || {}).oz_per_piece && id !== 'egg-white')) intent.style.frozen = true;
     blenderContext = !!intent.style.frozen || (riffSrc && riffSrc.method === 'blend');
-    let famId;
-    if (riffSrc && !(intent.style.hot && riffSrc.family !== 'hot')) famId = riffSrc.family;
-    else {
-      // No real signal ("surprise me")? Let the roll roam instead of always landing on the biggest family.
-      const blank = !Object.keys(intent.tags).length && !intent.spirits.length && !Object.keys(intent.ings).length && !Object.keys(intent.style).length && !Object.keys(intent.fam).length;
-      famId = softPick(rng, familyScores(intent), blank ? 2.5 : 0.9, greedy && !blank);
-      if (blank) intent.complexity = Math.max(intent.complexity, 0.6);
-    }
 
-    blenderContext = blenderContext || Object.keys(model.families[famId].methods || {})[0] === 'blend';
-    let lines = riffSrc && famId === riffSrc.family ? buildRiff(riffSrc, intent, rng, greedy, notes) : buildFresh(famId, intent, rng, greedy, notes);
-    if (!riffSrc || famId !== riffSrc.family) {
-      injectRequests(lines, model.families[famId], intent, rng, greedy, notes);
-      // A fresh build that lands on top of an existing recipe isn't new: nudge it until it is.
+    let A = null, lines;
+    const blank = !Object.keys(intent.tags).length && !intent.spirits.length && !Object.keys(intent.ings).length && !Object.keys(intent.style).length && !Object.keys(intent.fam).length && !intent.concepts.length;
+    if (riffSrc && !(intent.style.hot && riffSrc.family !== 'hot')) {
+      A = archetypeForDrink(riffSrc);
+      lines = buildRiff(riffSrc, intent, rng, greedy, notes);
+      for (const l of lines) l.slot = A ? composer.slotOf(A, l.id) : null;
+      if (A) composer.repair(A, lines, intent, ctx, rng, notes);
+    }
+    if (!A) {
+      const scored = archetypes.map(a => composer.scoreArchetype(a, intent, ctx)).filter(x => Number.isFinite(x.s));
+      A = softPick(rng, scored.map(x => ({ item: x.a, s: x.s })), blank ? 2.5 : 0.8, greedy && !blank);
+      lines = composer.compose(A, intent, ctx, rng, greedy, notes);
+      if (blank) intent.complexity = Math.max(intent.complexity, 0.4);
+      // A fresh build that lands on top of an existing recipe isn't new: swap one filling.
       for (let tries = 0; tries < 3; tries++) {
         const twin = closestTwin(lines);
-        if (!twin || twin.s < 0.8) break;
-        const before = notes.length;
-        varyOne(lines, model.families[famId], intent, rng, greedy && tries === 0, notes);
-        if (notes.length === before) break;
-        notes[notes.length - 1] = `${notes[notes.length - 1]} (to step away from the ${drinkById[twin.id].name})`;
+        if (!twin || twin.s < 0.85) break;
+        const v = composer.twist(A, lines, intent, ctx, rng, greedy && tries === 0) || composer.vary(A, lines, intent, ctx, rng, greedy && tries === 0);
+        if (!v) break;
+        notes.push(`${v}, to make it more than a ${drinkById[twin.id].name}`);
       }
     }
+    const famId = A.family;
+    blenderContext = blenderContext || (A.methods || [])[0] === 'blend';
     lines = lines.filter(l => ingMap.has(l.id));
+    addLayer(lines, A, intent, notes);
 
-    // Aromatic garnish that carries a requested or family-typical flavor.
-    const F = model.families[famId];
-    for (const id of ['mint', 'nutmeg', 'cinnamon']) {
-      if (lines.some(l => l.id === id) || forbidden(id, intent)) continue;
-      const tagAsk = intent.tags[id] || 0;
-      const famUse = (F.ingredients[id] || {}).share || 0;
-      if (tagAsk >= 1 || famUse >= 0.35) lines.push({ id, role: 'aromatic', garnish: true });
-    }
+    // Aromatic garnishes the archetype calls for (mint on a Mai Tai, nutmeg on a Painkiller).
+    for (const id of A.aromatics || []) if (!lines.some(l => l.id === id) && !forbidden(id, intent)) lines.push({ id, role: 'aromatic', garnish: true });
+    for (const l of lines) if (intent.ings[l.id] || Object.entries(intent.tags).some(([t, w]) => w >= 1.4 && ((ingVec[l.id] || {})[t] || 0) >= 0.55)) l.req = true;
 
-    // Anything that carries an explicitly requested flavor (or color) is protected from the balancer.
-    for (const l of lines) {
-      const v = ingVec[l.id] || {};
-      if (Object.entries(intent.tags).some(([t, w]) => w >= 1.4 && (v[t] || 0) >= 0.55)) l.req = true;
-      const ing = ingMap.get(l.id);
-      if (intent.color && ing && ing.color && ({ blue: ['blue'], red: ['red'], pink: ['pink', 'red'], gold: ['yellow'], green: ['green'] }[intent.color] || []).includes(ing.color)) { l.req = true; l.colorKey = true; }
-    }
-    ensureStructure(lines, famId, intent);
-    const svc = service(famId, intent, lines, riffSrc && famId === riffSrc.family ? riffSrc : null);
-    // Asked for a coconut or a coupe? Serve the drink the way that vessel holds it.
+    // Service from the archetype, bent by the prayer where the archetype allows it.
+    const methods = A.methods || ['shake'], ices = A.ice || ['crushed'];
+    const svc = { method: methods[0], ice: ices[0], glass: '' };
+    if (riffSrc && A === archetypeForDrink(riffSrc)) { svc.method = riffSrc.method; svc.ice = riffSrc.ice; }
+    if (intent.style.frozen && methods.includes('blend')) { svc.method = 'blend'; svc.ice = 'blended'; }
+    if (intent.style.hot && methods.includes('hot')) { svc.method = 'hot'; svc.ice = 'none'; }
+    if (intent.style.stirred && methods.includes('stir')) { svc.method = 'stir'; svc.ice = ices.includes('block') ? 'block' : 'cubed'; }
     const askedV = intent.vessel && vesselById[intent.vessel];
     if (askedV && !askedV.serve.includes('bowl') && !SERVICE_FITS[serviceOf(svc.method, svc.ice)].some(x => askedV.serve.includes(x))) {
       if (askedV.serve.includes('crushed')) { if (svc.method === 'blend' || svc.method === 'stir') svc.method = 'shake'; svc.ice = 'crushed'; }
@@ -1044,39 +1090,47 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       else if (askedV.serve.includes('up')) { if (!['shake', 'stir'].includes(svc.method)) svc.method = 'shake'; svc.ice = 'cubed'; }
       else if (askedV.serve.includes('rocks')) { if (!['shake', 'stir', 'build'].includes(svc.method)) svc.method = 'shake'; svc.ice = 'cubed'; }
     }
+
+    // Doses: the composer set them inside the archetype's ranges; balance pulls sugar, acid and
+    // strength onto the archetype's targets without leaving those ranges.
     initialDoses(lines, famId, intent);
-    const T = riffSrc && famId === riffSrc.family ? riffTargets(riffSrc, famId, intent, svc) : targetsFor(famId, intent, svc.method, svc.ice);
+    const T = riffSrc && A === archetypeForDrink(riffSrc) ? riffTargets(riffSrc, famId, intent, svc) : targetsForArchetype(A, famId, intent, svc);
     balance(lines, T);
     finalizeAmounts(lines);
-    // Aromatics & zero-volume lines are displayed as garnish-style lines.
     lines.sort((a, b) => ROLE_ORDER.concat(['aromatic']).indexOf(a.role) - ROLE_ORDER.concat(['aromatic']).indexOf(b.role) || b.oz - a.oz);
 
     const chem = chemOf(lines, svc.method, svc.ice);
     const profile = profileOf(lines.map(l => ({ id: l.id, amount: l.oz, unit: 'oz', garnish: l.role === 'aromatic' })), 1, svc.method, svc.ice);
-    const flavorTop = Object.entries(profile.flavor).sort((a, b) => b[1] - a[1]).map(([t]) => t).filter(t => !['light', 'crisp', 'dry', 'sweet', 'citrus', 'tart'].includes(t)).slice(0, 5);
-    const garnish = garnishFor(famId, intent, lines, flavorTop);
-    const pick = chooseVessel(famId, intent, svc, chem, riffSrc, rngFrom(`${prompt}::${seed}::vessel`), greedy);
+    const flavorTop = copy.named(copy.presence(lines)).map(x => x.tag).slice(0, 5);
+    const garnish = garnishForArchetype(A, intent, lines, flavorTop);
+    // Aromatic garnishes (mint, nutmeg, cinnamon) are part of the garnish, said once.
+    const AROMA_WORD = { mint: 'mint sprig', nutmeg: 'freshly grated nutmeg', cinnamon: 'cinnamon stick', clove: 'clove-studded orange peel', basil: 'basil sprig', 'ginger-fresh': 'ginger coin' };
+    for (const l of lines) if (l.role === 'aromatic' && AROMA_WORD[l.id] && !garnish.some(g => g.toLowerCase().includes(l.id.split('-')[0]))) garnish.push(AROMA_WORD[l.id]);
+    const pick = chooseVessel(famId, intent, svc, chem, riffSrc, rngFrom(`${prompt}::${seed}::vessel`), greedy, A);
     if (pick) { svc.glass = pick.v.name; svc.vessel = pick.v.id; svc.up = pick.v.serve.includes('up') && serviceOf(svc.method, svc.ice) === 'shaken'; }
-    const name = makeName(rng, {
-      family: famId, flavorTags: [...Object.entries(intent.tags).sort((a, b) => b[1] - a[1]).map(([t]) => t), ...flavorTop], color: intent.color,
-      baseIds: lines.filter(l => l.role === 'base').map(l => l.id), mood: intent.matched.some(m => m.label === 'spooky') ? 'spooky' : null, taken: takenNames,
+    const look = drinkLook(lines, ingMap, { method: svc.method, ice: svc.ice, dilutionOz: Math.max(0, chem.finalOz - chem.volOz) });
+    const name = makeName(rngFrom(`${prompt}::${seed}::name`), {
+      archetype: A, family: famId, intent, flavorTags: flavorTop, color: intent.color,
+      baseIds: lines.filter(l => l.role === 'base').map(l => l.id), riffOf: riffSrc ? riffSrc.name : null, taken: takenNames,
     });
     const recipe = {
       name,
       prompt,
       seed,
+      archetype: { id: A.id, name: A.name, definition: A.definition || '' },
       family: { id: famId, name: famById[famId].name },
       riffOf: riffSrc ? { id: riffSrc.id, name: riffSrc.name } : null,
       heard: intent.matched.map(m => m.label).concat(intent.diets),
       servings: intent.servings,
-      lines: lines.map(l => ({
-        id: l.id, name: displayName(l.id), role: l.role, oz: round(l.oz, 3), amount: l.amount, unit: l.unit, float: !!l.float,
+      lines: lines.filter(l => l.role !== 'aromatic').map(l => ({
+        id: l.id, name: displayName(l.id), role: l.role, oz: round(l.oz, 3), amount: l.amount, unit: l.unit, float: !!l.float, sink: !!l.sink,
         garnish: l.role === 'aromatic', examples: ingMap.get(l.id).examples || [], avail: ingMap.get(l.id).avail,
       })),
-      method: { ...svc, steps: steps(svc, lines, intent) },
+      method: { ...svc, steps: steps(svc, lines, intent, garnish) },
       vessel: pick ? { id: pick.v.id, name: pick.v.name, kind: pick.v.kind, story: pick.v.story || '', why: pick.why } : null,
       garnish,
       flavor: flavorTop,
+      look,
       stats: {
         abv: round(chem.abv, 1), sugarConc: round(chem.sugarConc, 1), acidConc: round(chem.acidConc, 2),
         sweetSour: chem.sweetSour === null ? null : round(chem.sweetSour, 1), volOz: round(chem.volOz, 2), finalOz: round(chem.finalOz, 1),
@@ -1085,10 +1139,41 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     };
     recipe.style = { ...intent.style };
     recipe.notes = notes.filter(n => n !== 'split-base').map(n => n.replace(/^riff:/, ''));
-    recipe.tagline = tagline(recipe, intent);
+    recipe.tagline = copy.tagline({ lines, archetype: A, intent, riffOf: riffSrc ? riffSrc.name : null });
     recipe.explanation = explain(recipe, profile, famId, intent, riffSrc, notes);
+    recipe.explanation.tasting = copy.tastingNote({ lines, stats: recipe.stats, archetype: A, look, method: svc.method, ice: svc.ice, rng });
+    recipe.explanation.prayer = intent.readings.filter(r => !r.negated).map(r => ({ phrase: r.phrase, reading: r.reading }));
+    recipe.check = composer.satisfies(A, lines);
     return recipe;
   }
+
+  function targetsForArchetype(A, famId, intent, svc) {
+    const base = targetsFor(famId, intent, svc.method, svc.ice);
+    const r = A.ratios || {};
+    if (r.abvAfterDilution && !intent.style.zeroProof) {
+      const [lo, hi] = r.abvAfterDilution;
+      const mid = (lo + hi) / 2 + (intent.strength || 0) * (hi - lo) / 4;
+      base.abv = mid; base.abvBand = [Math.max(lo, mid - (hi - lo) / 3), Math.min(hi, mid + (hi - lo) / 3)];
+    }
+    if (r.sugarToAcid && base.acid) {
+      const [lo, hi] = r.sugarToAcid;
+      const ratio = (lo + hi) / 2 * (1 + 0.12 * (intent.sweetness || 0) - 0.1 * (intent.tartness || 0));
+      base.sugar = base.acid * Math.max(lo * 0.85, Math.min(hi * 1.15, ratio));
+    }
+    return base;
+  }
+
+  function garnishForArchetype(A, intent, lines, flavorTop) {
+    const g = A.garnish || {};
+    const out = [...(g.required || [])];
+    const never = (g.never || []).map(x => x.toLowerCase());
+    const ok = x => !never.some(n => x.toLowerCase().includes(n));
+    for (const idea of intent.garnishIdeas || []) if (out.length < 3 && ok(idea) && DRAWABLE_GARNISH.test(idea)) out.push(idea);
+    for (const t of g.typical || []) if (out.length < 3 && ok(t)) out.push(t);
+    if (!out.length) out.push(...garnishFor(A.family, intent, lines, flavorTop));
+    return [...new Set(out)].slice(0, 3);
+  }
+  const DRAWABLE_GARNISH = /mint|pineapple|lime|orange|cherr|orchid|flower|umbrella|cinnamon|nutmeg|coffee bean|peel|twist|shell/i;
 
   function tagline(recipe, intent) {
     const fam = famById[recipe.family.id];
@@ -1121,7 +1206,8 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     };
   }
 
-  return { generate, describeDrink, parse: p => parsePrompt(p, { nameIndex }), ingMap, famById, drinkById };
+  const debugScores = intent => ['rum-white-column', 'rum-gold-column', 'rum-agricole-blanc', 'rum-jamaican-aged'].map(id => `${id}: match ${intentMatch(id, intent).toFixed(2)} compat ${compat(id, ['pineapple-juice']).toFixed(2)} forb ${ctx.forbidden(id, intent)}`).join('\n');
+  return { debugScores, generate, describeDrink, parse: p => parsePrompt(p, { nameIndex, concepts: conceptIndex }), ingMap, famById, drinkById, archetypes, composer, archetypeForDrink };
 }
 
 function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }

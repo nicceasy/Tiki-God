@@ -6,6 +6,7 @@
 import { CATALOG, PALETTE, rimOf, levelOf, GLASS_PROFILES } from './artcatalog.js';
 import { rng, seedOf, mixHex } from './ink.js';
 import { vesselForDrink } from './vessels.js';
+import { drinkLook } from './optics.js';
 
 // [r, g, b, tint]: tint is how strongly an ingredient colors the drink per ounce.
 const COLOR = {
@@ -93,14 +94,13 @@ export function drinkSpec(recipe, ingMap) {
   const frozen = method === 'blend' || recipe.method.ice === 'blended';
   const iceStyle = hot ? 'none' : frozen ? 'blended' : recipe.method.ice;
   const UP = ['coupe', 'nick-nora', 'cocktail-glass', 'flute'];
-  const BOWL = ['scorpion-bowl', 'volcano-bowl', 'punch-bowl'].includes(kind);
+  const BOWL = ['scorpion-bowl', 'tiki-bowl', 'volcano-bowl', 'punch-bowl'].includes(kind);
   const heaped = ['crushed', 'pebble', 'shaved', 'ice-cone'].includes(iceStyle) && !UP.includes(kind);
   const fill = UP.includes(kind) ? 0.86 : BOWL ? 0.72 : kind === 'irish-coffee' ? 0.8 : 0.84;
   const level = levelOf(kind, fill);
-  const color = liquidColor(recipe.lines, ingMap);
-  const floats = recipe.lines.filter(l => l.float && !l.garnish);
-  const bitters = recipe.lines.some(l => (ingMap.get(l.id) || {}).cat === 'bitters');
-  const crown = floats.length ? liquidColor(floats.map(f => ({ ...f, float: false })), ingMap) : method === 'swizzle' && bitters ? '#8C2F1C' : null;
+  // The look comes from the recipe's own ingredients and build (see optics.js); the engine
+  // computes it, and older recipes get it computed here.
+  const look = recipe.look && recipe.look.body ? recipe.look : drinkLook(recipe.lines, ingMap, { method, ice: recipe.method.ice });
   const g = (recipe.garnish || []).join(' ').toLowerCase();
   const flaming = !!(recipe.style && recipe.style.flaming) || recipe.method.steps.some(s => /light it/i.test(s));
   const glaze = [PALETTE.wood, PALETTE.lagoon, PALETTE.frond, PALETTE.woodPale][Math.floor(r() * 4)];
@@ -108,7 +108,7 @@ export function drinkSpec(recipe, ingMap) {
   const els = [];
   const add = (part, params, x, y, s = 1, rot = 0) => els.push({ part, params, x, y, s, rot, anchor: ANCHOR[part] });
   els.push({ part: 'glass', params: { kind, glaze, flaming }, x: 0, y: 0 });
-  els.push({ part: 'liquid', params: { kind, fill, color, crown, frozen }, x: 0, y: 0 });
+  els.push({ part: 'liquid', params: { kind, fill, body: look.body, layers: look.layers, frozen }, x: 0, y: 0 });
   if (iceStyle !== 'none' && iceStyle !== 'blended' && !(UP.includes(kind) && !heaped)) els.push({ part: 'ice', params: { kind, style: iceStyle, fill, seed: seed % 997 }, x: 0, y: 0 });
   if (recipe.lines.some(l => FIZZ.has(l.id))) els.push({ part: 'fizz', params: { kind, fill, seed: seed % 991 }, x: 0, y: 0 });
 

@@ -687,27 +687,59 @@ function glass({ kind = 'collins', glaze, flaming = false } = {}) {
   return clearGlass(kind);
 }
 
-// The drink itself: a wash inside the glass up to the fill line, a glaze of depth near the
-// bottom, an optional crown (float or bitters) and the surface line. Opaque mugs show only
-// the surface at the rim. `frozen` heaps a soft dome above the rim.
-function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, crown = null, frozen = false } = {}) {
+// The drink itself, painted from its computed look (web/lib/optics.js): a body wash up to the
+// fill line, then graded washes for whatever the build leaves in layers — a float sitting on
+// top, a sink settling at the bottom, a bitters crown, a pale froth. Each layer is laid as a
+// few overlapping washes of falling strength, so it bleeds into the body wet-in-wet like a
+// real graded wash rather than ending at a hard line. Opaque mugs show only the surface.
+function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, body = null, layers = [], frozen = false } = {}) {
   const G = GLASS_PROFILES[kind] || GLASS_PROFILES.collins, R = rimOf(kind);
   const strokes = [], washes = [];
+  const bodyHex = body ? body.hex : color;
+  const bodyOp = body ? body.opacity : 0.3;
+  // Cloudy drinks read denser on paper; nearly clear ones stay a whisper.
+  const clearish = body && body.opacity < 0.15 && body.clarity > 0.85;
+  const alphaFor = op => clearish ? 0.03 : 0.045 + 0.03 * Math.min(1, op);
+  const topLayer = layers.find(x => x.kind === 'float' || x.kind === 'crown' || x.kind === 'foam');
   if (G.opaque) {
-    washes.push({ pts: ell(R.cx, R.y + 1, R.hw - 8, (R.hw - 8) * R.tilt, 0, TAU, 18), color, alpha: 0.08, soft: 0.5 });
+    const surf = topLayer ? topLayer.hex : bodyHex;
+    washes.push({ pts: ell(R.cx, R.y + 1, R.hw - 8, (R.hw - 8) * R.tilt, 0, TAU, 18), color: surf, alpha: 0.085, soft: 0.5 });
   } else {
     const top = frozen ? R.y + 2 : levelOf(kind, fill);
-    const ys = [];
-    for (let y = top; y < R.bottom; y += 14) ys.push(y);
-    ys.push(R.bottom - 2);
     const inset = y => halfAt(G, y) - 4;
-    const body = [...ys.map(y => [R.cx - inset(y), y]), ...ys.slice().reverse().map(y => [R.cx + inset(y), y])];
-    washes.push({ pts: body, color, alpha: 0.06 });
-    const deep = ys.filter(y => y > top + (R.bottom - top) * 0.5);
-    if (deep.length > 1) washes.push({ pts: [...deep.map(y => [R.cx - inset(y) + 4, y]), ...deep.slice().reverse().map(y => [R.cx + inset(y) - 4, y])], color, alpha: 0.04, soft: 0.7 });
-    if (crown) {
-      const band = [top, top + 12, top + 24];
-      washes.push({ pts: [...band.map(y => [R.cx - inset(y), y]), ...band.slice().reverse().map(y => [R.cx + inset(y), y])], color: crown, alpha: 0.09, soft: 0.6 });
+    const band = (y0, y1, shrink = 0) => {
+      y0 = Math.max(top, y0); y1 = Math.min(R.bottom - 2, y1);
+      if (y1 - y0 < 3) return null;
+      const ys = [];
+      for (let y = y0; y < y1; y += 12) ys.push(y);
+      ys.push(y1);
+      return [...ys.map(y => [R.cx - inset(y) + shrink, y]), ...ys.slice().reverse().map(y => [R.cx + inset(y) - shrink, y])];
+    };
+    const h = R.bottom - top;
+    washes.push({ pts: band(top, R.bottom), color: bodyHex, alpha: alphaFor(bodyOp) });
+    // A little depth toward the bottom of a tall, colored drink.
+    if (!clearish && h > 120) washes.push({ pts: band(top + h * 0.55, R.bottom, 4), color: bodyHex, alpha: 0.025, soft: 0.7 });
+    for (const L of layers) {
+      const a = alphaFor(L.opacity) * 1.35;
+      const t = Math.max(0.05, L.frac) * h;
+      if (L.kind === 'sink') {
+        // Strongest at the floor, fading upward: a sunrise.
+        [[R.bottom - t * 1.6, 0.3], [R.bottom - t, 0.6], [R.bottom - t * 0.55, 1]].forEach(([y0, k], i) => {
+          const pts = band(y0, R.bottom, i * 2);
+          if (pts) washes.push({ pts, color: L.hex, alpha: a * k, soft: 0.8 });
+        });
+      } else if (L.kind === 'float' || L.kind === 'crown') {
+        // Strongest at the surface, bleeding down into the body.
+        const reach = L.kind === 'crown' ? 1.8 : 1.5;
+        [[top + t * reach, 0.3], [top + t, 0.6], [top + t * 0.55, 1]].forEach(([y1, k], i) => {
+          const pts = band(top, y1, i * 2);
+          if (pts) washes.push({ pts, color: L.hex, alpha: a * k, soft: 0.8 });
+        });
+      } else if (L.kind === 'foam') {
+        const pts = band(top, top + t);
+        if (pts) washes.push({ pts, color: L.hex, alpha: 0.03, soft: 0.5 });
+        strokes.push({ pts: ell(R.cx, top + t, inset(top + t) * 0.92, inset(top + t) * G.rimTilt * 0.8, 0.25, Math.PI - 0.25, 16), tier: 3 });
+      }
     }
     if (!frozen) strokes.push({ pts: ell(R.cx, top, inset(top), inset(top) * G.rimTilt, 0.15, Math.PI - 0.15, 20), tier: 3 });
   }
@@ -718,9 +750,9 @@ function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, crown =
       dome.push([x, R.y - Math.sin(Math.PI * u) * 34 - (i % 2 ? 4 : 0)]);
     }
     strokes.push({ pts: dome, tier: 2 });
-    washes.push({ pts: [...dome, [R.cx + R.hw * 0.9, R.y + 6], [R.cx - R.hw * 0.9, R.y + 6]], color, alpha: 0.05, soft: 0.6 });
+    washes.push({ pts: [...dome, [R.cx + R.hw * 0.9, R.y + 6], [R.cx - R.hw * 0.9, R.y + 6]], color: topLayer ? topLayer.hex : bodyHex, alpha: alphaFor(bodyOp), soft: 0.6 });
   }
-  return { box: [300, 460], strokes, washes };
+  return { box: [300, 460], strokes, washes: washes.filter(w => w.pts) };
 }
 
 function pebble(x, y, s, r) {

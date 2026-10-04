@@ -71,13 +71,24 @@ const PLACE_BY_ING = {
 };
 
 function pick(rng, arr) { return arr[Math.floor(rng() * arr.length)]; }
+const titleCase = w => w.split(/([ -])/).map(x => /^[a-z]/.test(x) && !['of', 'the', 'and', 'a', 'in', 'on', 'at'].includes(x) ? x[0].toUpperCase() + x.slice(1) : x).join('');
 
-export function makeName(rng, { family, flavorTags = [], color = null, baseIds = [], mood = null, taken = new Set() }) {
+// Type nouns a drink may carry in its name without claiming to be a specific classic.
+const TYPE_NOUN = {
+  punch: ['Punch', 'Cup'], grog: ['Grog'], daiquiri: ['Daiquiri', 'Sour'], swizzle: ['Swizzle'], zombie: ['Revenant', 'Specter'],
+  'beachcomber-sour': ['Cup', 'Punch'], 'mai-tai': ['Cooler', 'Cup'], 'orgeat-punch': ['Punch', 'Bowl'], colada: ['Colada'],
+  buck: ['Buck', 'Mule', 'Cooler', 'Highball'], 'resort-punch': ['Punch', 'Cooler'], 'bitter-tiki': ['Sour', 'Cup'], stirred: ['Nightcap'], hot: ['Toddy', 'Grog', 'Mug'],
+};
+
+// Names come from the prayer first (its imagery words), then from what is really in the glass:
+// flavor adjectives only for flavors the drink carries, places only for the spirits it pours.
+// A classic's name appears only when the drink is a riff on that classic.
+export function makeName(rng, { archetype = null, family, intent = {}, flavorTags = [], color = null, baseIds = [], riffOf = null, mood = null, taken = new Set() }) {
+  const prayerWords = [...new Set((intent.nameWords || []).filter(w => w && w.length <= 18))].map(titleCase);
   const adjPool = [];
-  if (color && COLOR_ADJ[color]) adjPool.push(...COLOR_ADJ[color], ...COLOR_ADJ[color]);
+  if (color && COLOR_ADJ[color]) adjPool.push(...COLOR_ADJ[color]);
   for (const t of flavorTags.slice(0, 4)) if (ADJ[t]) adjPool.push(...ADJ[t]);
-  if (!adjPool.length) adjPool.push('Lost', 'Hidden', 'Secret', 'Southern', 'Last');
-
+  if (!adjPool.length) adjPool.push('Hidden', 'Southern', 'Last', 'Lucky');
   const nounThemes = mood === 'spooky' || family === 'zombie' ? ['spooky', 'adventure', 'weather']
     : family === 'bitter-tiki' ? ['creature', 'jungle']
       : family === 'grog' || family === 'punch' ? ['sea', 'weather', 'adventure']
@@ -85,18 +96,26 @@ export function makeName(rng, { family, flavorTags = [], color = null, baseIds =
           : ['sea', 'jungle', 'creature', 'weather', 'adventure'];
   const nounPool = nounThemes.flatMap(t => NOUN[t]);
   const places = baseIds.flatMap(id => PLACE_BY_ING[id] || []);
-  const famNoun = FAMILY_NOUN[family] || ['Punch'];
+  const typeNoun = (archetype && archetype.nameNouns) || TYPE_NOUN[family] || ['Punch'];
+  const isNoun = w => /^(the |la |el )?[A-Z]/.test(w) && !/(ed|y|ish|ing)$/.test(w.split(' ').pop().toLowerCase());
 
-  for (let attempt = 0; attempt < 12; attempt++) {
-    const r = rng();
-    let name;
-    if (r < 0.3) name = `${pick(rng, adjPool)} ${pick(rng, nounPool)}`;
-    else if (r < 0.5) name = `${pick(rng, nounPool)} ${pick(rng, famNoun)}`;
-    else if (r < 0.68 && places.length) name = `${pick(rng, places)} ${pick(rng, nounPool)}`;
-    else if (r < 0.8 && places.length) name = `${pick(rng, nounPool)} of ${pick(rng, places)}`;
-    else if (r < 0.9) name = `The ${pick(rng, nounPool)}'s ${pick(rng, NOUN.adventure)}`;
-    else name = `${pick(rng, adjPool)} ${pick(rng, famNoun)}`;
-    name = name.replace(/\b(\w+)\s+\1\b/i, '$1');
+  const options = [];
+  if (riffOf) {
+    const lead = prayerWords[0] || pick(rng, adjPool);
+    options.push(`${lead} ${riffOf}`, `${pick(rng, adjPool)} ${riffOf}`);
+  }
+  if (prayerWords.length) {
+    const w = prayerWords[Math.floor(rng() * Math.min(3, prayerWords.length))];
+    const w2 = prayerWords.find(x => x !== w);
+    options.push(`${w} ${pick(rng, typeNoun)}`);
+    options.push(isNoun(w) ? `${pick(rng, adjPool)} ${w}` : `${w} ${pick(rng, nounPool)}`);
+    if (w2) options.push(isNoun(w2) ? `${w} ${w2}` : `${w2} ${w}`);
+    if (places.length) options.push(`${w} of ${pick(rng, places)}`);
+  }
+  options.push(`${pick(rng, adjPool)} ${pick(rng, nounPool)}`, `${pick(rng, nounPool)} ${pick(rng, typeNoun)}`);
+  if (places.length) options.push(`${pick(rng, nounPool)} of ${pick(rng, places)}`, `${pick(rng, places)} ${pick(rng, typeNoun)}`);
+  for (const name0 of options) {
+    const name = name0.replace(/\b(\w+)\s+\1\b/i, '$1').replace(/\s+/g, ' ').trim();
     if (!taken.has(name.toLowerCase())) return name;
   }
   return `${pick(rng, adjPool)} ${pick(rng, nounPool)} No. ${Math.floor(rng() * 90) + 10}`;

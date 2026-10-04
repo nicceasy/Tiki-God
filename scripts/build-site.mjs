@@ -13,7 +13,7 @@ const readJson = p => JSON.parse(read(p));
 const maybe = (p, fallback) => (existsSync(join(root, p)) ? read(p) : fallback);
 
 // Tiny module bundler for our own ES modules (named imports/exports only).
-const LIB = ['web/lib/chem.js', 'web/lib/flavor.js', 'web/lib/prompt.js', 'web/lib/format.js', 'web/lib/names.js', 'web/lib/vessels.js', 'web/lib/engine.js'];
+const LIB = ['web/lib/chem.js', 'web/lib/flavor.js', 'web/lib/prompt.js', 'web/lib/format.js', 'web/lib/names.js', 'web/lib/vessels.js', 'web/lib/optics.js', 'web/lib/composer.js', 'web/lib/copy.js', 'web/lib/engine.js'];
 function bundle(modules) {
   const parts = ['const __m = {};'];
   for (const file of modules) {
@@ -36,6 +36,8 @@ const core = {
   drinks: readJson('data/drinks.json'),
   model: readJson('data/model.json'),
   vessels: readJson('data/vessels.json'),
+  archetypes: readJson('data/archetypes.json'),
+  concepts: readJson('data/concepts.json'),
 };
 const full = {
   ...core,
@@ -54,6 +56,15 @@ const PAGES = [
   { html: 'web/shrine.html', css: 'web/shrine.css', cssLink: './shrine.css', modules: [...LIB, 'web/lib/ink.js', 'web/lib/artcatalog.js', 'web/lib/artspec.js', 'web/lib/artrender.js', 'web/shrine.js'], data: core, out: 'shrine' },
 ];
 
+// `--review <dir>`: build only the dev review gallery (every battery prayer drawn at once) into <dir>.
+const reviewAt = process.argv.indexOf('--review');
+if (reviewAt > 0) {
+  const battery = readJson('scripts/review/battery.json');
+  const seeds = (process.argv[reviewAt + 2] || '0,1').split(',').map(Number);
+  PAGES.length = 0;
+  PAGES.push({ html: 'web/review.html', css: 'web/shrine.css', cssLink: './shrine.css', modules: [...LIB, 'web/lib/ink.js', 'web/lib/artcatalog.js', 'web/lib/artspec.js', 'web/lib/artrender.js', 'web/review.js'], data: core, out: 'review', dir: process.argv[reviewAt + 1], extra: `<script>window.__REVIEW__ = ${toJson({ prompts: battery.prompts, seeds })};</script>` });
+}
+
 mkdirSync(join(root, 'dist'), { recursive: true });
 for (const page of PAGES) {
   const html = read(page.html);
@@ -64,8 +75,9 @@ for (const page of PAGES) {
   };
   const head = between('HEAD').replace(`<link rel="stylesheet" href="${page.cssLink}">`, `<style>\n${read(page.css)}\n</style>`);
   const body = between('BODY');
-  const script = `<script>window.__TIKI_DATA__ = ${toJson(page.data)};</script>\n<script type="module">\n${bundle(page.modules)}\n</script>`;
+  const script = `<script>window.__TIKI_DATA__ = ${toJson(page.data)};</script>\n${page.extra || ''}<script type="module">\n${bundle(page.modules)}\n</script>`;
   const doc = `<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n${head}\n</head>\n<body>\n${body}\n${script}\n</body>\n</html>\n`;
+  if (page.dir) { mkdirSync(page.dir, { recursive: true }); writeFileSync(join(page.dir, `${page.out}.html`), doc); console.log(`${page.dir}/${page.out}.html`); continue; }
   writeFileSync(join(root, `dist/${page.out}.html`), doc);
   writeFileSync(join(root, `dist/${page.out === 'index' ? 'tiki-god' : page.out}.fragment.html`), `${head}\n${body}\n${script}\n`);
   console.log(`dist/${page.out}.html ${(doc.length / 1024).toFixed(0)} KB (${page.data.drinks.length} drinks)`);

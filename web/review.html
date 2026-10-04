@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--BUILD:HEAD-->
+<title>Tiki God review gallery</title>
+<link rel="stylesheet" href="./shrine.css">
+<style>
+  .grid { display: grid; grid-template-columns: repeat(4, 300px); gap: 28px 24px; padding: 24px; align-items: start; }
+  .card { font-size: 12px; line-height: 1.35; color: var(--ink); }
+  .card .art { width: 100%; aspect-ratio: 3 / 4; }
+  .card h4 { margin: 4px 0 0; font: 400 26px/1 var(--brush); }
+  .card .p { color: var(--accent); font-size: 11px; letter-spacing: .04em; }
+  .card .t { font-style: italic; color: var(--ink-2); }
+  .card ul { margin: 4px 0 0; padding-left: 14px; }
+  .card .look { color: var(--ink-3); margin-top: 4px; }
+</style>
+<!--/BUILD:HEAD-->
+</head>
+<body>
+<!--BUILD:BODY-->
+<main class="grid" id="grid"></main>
+<!--/BUILD:BODY-->
+<!--BUILD:SCRIPT-->
+<script type="module" src="./review.js"></script>
+<!--/BUILD:SCRIPT-->
+</body>
+</html>

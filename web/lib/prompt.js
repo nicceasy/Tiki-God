@@ -158,6 +158,7 @@ export const LEXICON = [
   { k: ['fizzy', 'bubbly', 'sparkling', 'effervescent', 'carbonated', 'highball', 'soda', 'spritz', 'tall', 'long drink', 'cooler'], style: { long: true }, tags: { effervescent: 1.5 }, label: 'long & fizzy' },
   { k: ['frozen', 'blended', 'slushy', 'slushie', 'frappe', 'frappé', 'icy', 'blender'], style: { frozen: true }, label: 'frozen' },
   { k: ['flaming', 'fire', 'flame', 'on fire', 'ignite', 'set on fire', 'pyro'], style: { flaming: true }, label: 'flaming' },
+  { k: ['layered', 'layers', 'ombre', 'ombré', 'gradient', 'two tone', 'two-tone', 'striped', 'pousse cafe', 'sunrise effect', 'graded'], style: { layered: true }, label: 'layered' },
   { k: ['hot drink', 'served hot', 'steaming', 'toddy', 'mulled', 'hot toddy', 'warm drink', 'hot cocktail', 'mug of', 'warm me up'], style: { hot: true }, tags: { warm: 1 }, label: 'served hot' },
   { k: ['stirred', 'spirit forward', 'spirit-forward', 'sipper', 'sipping', 'nightcap', 'old fashioned', 'manhattan', 'negroni', 'on a rock', 'big rock'], style: { stirred: true }, label: 'stirred & spirit-forward' },
   { k: ['bowl', 'share', 'sharing', 'group', 'crowd', 'party punch', 'for the table', 'volcano bowl', 'scorpion bowl'], style: { bowl: true }, label: 'shared bowl' },
@@ -344,6 +345,118 @@ function negationBefore(text, pos) {
   return { neg, soft };
 }
 
+// ---------- concepts (data/concepts.json) ----------
+// Moods, places, occasions, colors, foods and lore, each read the way a bartender would read a
+// guest's wish. Matched on word stems so "celebrating", "celebration" and "celebrate" meet, and
+// with a little typo tolerance for longer words.
+export function stem(w) {
+  if (w.length <= 4) return w;
+  return w
+    .replace(/'s$/, '')
+    .replace(/(ies)$/, 'y')
+    .replace(/(sses)$/, 'ss')
+    .replace(/(ing|ings)$/, '')
+    .replace(/(ed)$/, '')
+    .replace(/(ation|ations)$/, 'ate')
+    .replace(/(ness|ful|ly)$/, '')
+    .replace(/([^s])s$/, '$1')
+    .replace(/e$/, '');
+}
+const stemLine = text => text.trim().split(' ').filter(Boolean).map(stem);
+
+export function indexConcepts(concepts = []) {
+  const entries = [];
+  for (const c of concepts) {
+    for (const ph of c.phrases || []) {
+      const norm = normalizeText(ph).trim();
+      if (!norm) continue;
+      entries.push({ phrase: norm, stems: stemLine(norm), concept: c });
+    }
+  }
+  entries.sort((a, b) => b.stems.length - a.stems.length || b.phrase.length - a.phrase.length);
+  const singles = entries.filter(e => e.stems.length === 1 && e.stems[0].length >= 5);
+  return { entries, singles };
+}
+
+function editDistance(a, b, max) {
+  if (Math.abs(a.length - b.length) > max) return max + 1;
+  const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let cur = [i], best = i;
+    for (let j = 1; j <= b.length; j++) {
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      best = Math.min(best, cur[j]);
+    }
+    if (best > max) return max + 1;
+    prev.splice(0, prev.length, ...cur);
+  }
+  return prev[b.length];
+}
+
+// Apply concepts to the intent; returns the text with matched words removed.
+function applyConcepts(text, intent, index) {
+  if (!index || !index.entries.length) return text;
+  const words = text.trim().split(' ').filter(Boolean);
+  const stems = words.map(stem);
+  const used = new Array(words.length).fill(false);
+  const seen = new Set();
+  const hit = (e, i, fuzzy = false) => {
+    for (let k = 0; k < e.stems.length; k++) used[i + k] = true;
+    if (seen.has(e.concept.id)) return;
+    seen.add(e.concept.id);
+    const pos = (' ' + words.slice(0, i).join(' ')).length;
+    const { neg, soft } = negationBefore(' ' + words.join(' ') + ' ', pos + 1);
+    applyConcept(intent, e.concept, neg ? (soft ? -0.5 : -1) : 1);
+    intent.matched.push({ phrase: words.slice(i, i + e.stems.length).join(' '), label: (neg ? 'not ' : '') + (e.concept.label || e.concept.id.replace(/-/g, ' ')) });
+    intent.readings.push({ phrase: words.slice(i, i + e.stems.length).join(' '), concept: e.concept.id, reading: e.concept.reading, negated: neg, fuzzy });
+  };
+  for (const e of index.entries) {
+    const n = e.stems.length;
+    for (let i = 0; i + n <= stems.length; i++) {
+      if (used.slice(i, i + n).some(Boolean)) continue;
+      let ok = true;
+      for (let k = 0; k < n; k++) if (stems[i + k] !== e.stems[k]) { ok = false; break; }
+      if (ok) hit(e, i);
+    }
+  }
+  // Typo tolerance for leftover longer words ("hearbreak", "celebraton").
+  for (let i = 0; i < words.length; i++) {
+    if (used[i] || words[i].length < 6 || STOP.has(words[i])) continue;
+    const max = words[i].length >= 9 ? 2 : 1;
+    const e = index.singles.find(x => editDistance(stems[i], x.stems[0], max) <= max);
+    if (e) hit(e, i, true);
+  }
+  return ' ' + words.filter((_, i) => !used[i]).join(' ') + ' ';
+}
+const STOP = new Set(['something', 'anything', 'everything', 'please', 'little', 'really', 'without', 'drinks', 'cocktail', 'cocktails', 'tastes', 'flavors', 'flavour', 'flavours', 'should', 'would', 'could', 'make', 'gimme']);
+
+function applyConcept(intent, c, sign) {
+  const add = (obj, k, v) => { obj[k] = (obj[k] || 0) + v; };
+  const k = 0.9 * sign;
+  for (const [t, w] of Object.entries(c.tags || {})) {
+    if (w * sign > 0) add(intent.tags, t, w * k * Math.sign(sign));
+    else add(intent.avoidTags, t, Math.abs(w) * 0.6);
+  }
+  if (sign > 0) for (const [id, w] of Object.entries(c.ings || {})) add(intent.ings, id, w * 0.8);
+  if (sign > 0) for (const id of c.avoid || []) add(intent.softAvoid, id, 1);
+  const st = c.style || {};
+  for (const key of ['strength', 'sweetness', 'tartness', 'complexity']) if (typeof st[key] === 'number') intent[key] += st[key] * 0.8 * sign;
+  for (const key of ['creamy', 'frozen', 'hot', 'long', 'bitter', 'flaming', 'layered', 'bowl', 'zeroProof']) {
+    if (st[key] === true && sign > 0) intent.style[key] = true;
+    if (st[key] === true && sign < 0) intent.style[key] = false;
+  }
+  if (sign > 0) {
+    if (c.color && !intent.color) intent.color = c.color;
+    for (const [f, w] of Object.entries(c.families || {})) add(intent.fam, f, w * 0.8);
+    for (const [a, w] of Object.entries(c.archetypes || {})) add(intent.archetypes, a, w);
+    for (const [v, w] of Object.entries(c.vessels || {})) add(intent.vesselAffinity, v, w);
+    intent.garnishIdeas.push(...(c.garnish || []));
+    intent.nameWords.push(...(c.nameWords || []));
+    intent.taglineWords.push(...(c.taglineWords || []));
+    intent.concepts.push(c.id);
+  }
+}
+
 // Generic names are families, not specific drinks to riff on.
 const GENERIC_NAMES = new Set(['grog', 'punch', 'rum punch', 'swizzle', 'rum swizzle', 'daiquiri', 'sour', 'rum sour', 'cooler', 'flip', 'rum flip', 'toddy', 'hot toddy', 'colada', 'sling', 'buck', 'fizz', 'julep', 'cobbler', 'highball', 'frozen daiquiri', 'tiki', 'bowl', 'punch bowl']);
 
@@ -379,7 +492,7 @@ export function buildNameIndex(drinks) {
   return idx;
 }
 
-export function parsePrompt(raw, { nameIndex = [], familyIds = [] } = {}) {
+export function parsePrompt(raw, { nameIndex = [], familyIds = [], concepts = null } = {}) {
   let text = normalizeText(raw);
   const intent = {
     raw,
@@ -387,6 +500,7 @@ export function parsePrompt(raw, { nameIndex = [], familyIds = [] } = {}) {
     fam: {}, strength: 0, sweetness: 0, tartness: 0, complexity: 0,
     style: {}, color: null, servings: 1, riffOf: null, riffName: null, vessel: null,
     matched: [], diets: [],
+    readings: [], concepts: [], archetypes: {}, vesselAffinity: {}, softAvoid: {}, garnishIdeas: [], nameWords: [], taglineWords: [],
   };
   const add = (obj, k, v) => { obj[k] = (obj[k] || 0) + v; };
 
@@ -454,6 +568,9 @@ export function parsePrompt(raw, { nameIndex = [], familyIds = [] } = {}) {
       break;
     }
   }
+
+  // Concepts first: a mood or a place carries more than any single word in it.
+  text = applyConcepts(text, intent, concepts);
 
   // Lexicon, longest phrases first so "blue curacao" beats "blue" and "ginger beer" beats "ginger".
   const entries = [];

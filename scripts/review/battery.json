@@ -1,0 +1,15 @@
+{
+  "about": "Fixed prompt battery for author/critic review rounds. Covers explicit families, flavors, moods, occasions, places, colors, pop culture, constraints, vessels and oddballs.",
+  "prompts": [
+    "a colada for a lazy sunday", "something creamy and coconutty", "a mai tai but tropical", "zombie", "navy grog but with bourbon",
+    "a swizzle", "painkiller but less sweet", "scorpion bowl for 4", "hot buttered rum for a snowy night", "a frozen banana drink",
+    "something smoky and spicy for a cold night", "mezcal and passion fruit", "bananas foster in a glass", "coffee and rum, stirred", "ginger and lime highball",
+    "heartbreak", "first date at the beach", "my grandmother's garden", "a rainy afternoon with a good book", "celebrating a promotion",
+    "a drink that tastes like a sunset", "something blue for the pool", "layered and pretty, like a sunrise", "the color of the ocean at dawn", "green like the jungle",
+    "Havana 1957", "a night in Tahiti", "Jamaican street party", "Tokyo neon", "Elvis in Blue Hawaii",
+    "Gilligan's Island", "a drink for a dragon", "something my dad would like", "volcano goddess", "pirate's treasure",
+    "not too sweet, very tart", "the strongest drink you dare", "low abv for brunch", "zero-proof for the designated driver", "no coconut, no pineapple",
+    "in a coconut", "skull mug of something dark", "a punch bowl for a party of 8", "a Jungle Bird with mezcal", "surprise me",
+    "bitter and refreshing", "something floral and elegant", "chocolate and coffee dessert drink"
+  ]
+}

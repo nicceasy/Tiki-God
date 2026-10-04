@@ -17,7 +17,7 @@ const drinks = read('data/drinks.json');
 const model = read('data/model.json');
 const canon = read('tests/fixtures/canon.json');
 const vessels = read('data/vessels.json');
-const engine = createEngine({ vocab, families, drinks, model, vessels });
+const engine = createEngine({ vocab, families, drinks, model, vessels, archetypes: read('data/archetypes.json'), concepts: read('data/concepts.json') });
 const ingMap = indexIngredients(vocab);
 
 const USABLE = new Set(['common', 'specialty', 'homemade']);

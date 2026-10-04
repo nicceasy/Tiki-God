@@ -24,10 +24,10 @@ const withArticle = n => `${/^[aeiou]/i.test(n) ? 'an' : 'a'} ${n}`;
 async function loadData() {
   if (window.__TIKI_DATA__) return window.__TIKI_DATA__;
   const get = p => fetch(p).then(r => { if (!r.ok) throw new Error(p); return r.json(); });
-  const [vocab, families, drinks, model, vessels] = await Promise.all([
-    get('../data/ingredients.json'), get('../data/families.json'), get('../data/drinks.json'), get('../data/model.json'), get('../data/vessels.json'),
+  const [vocab, families, drinks, model, vessels, archetypes, concepts] = await Promise.all([
+    get('../data/ingredients.json'), get('../data/families.json'), get('../data/drinks.json'), get('../data/model.json'), get('../data/vessels.json'), get('../data/archetypes.json'), get('../data/concepts.json'),
   ]);
-  return { vocab, families, drinks, model, vessels };
+  return { vocab, families, drinks, model, vessels, archetypes, concepts };
 }
 
 let engine, art, idolFrames = null, last = { prayer: '', seed: 0, recipe: null };
