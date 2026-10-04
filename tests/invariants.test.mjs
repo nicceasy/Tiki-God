@@ -190,11 +190,8 @@ test('a named flavor is a dose you can taste, and a recipe is at most seven line
       const floor = l.id === 'scotch-islay' ? 0.25 : POTENT.has(l.id) ? potent : named;
       assert.ok(l.oz >= floor - 0.09, `${label(x)}: ${l.oz} oz of ${l.id} in ${fin} oz is a token`);
     }
-    // Riff discipline: a Zombie-line build is nine lines at most (the 1934 classic poured as written
-    // keeps its own); a layer the prayer asked for (a sunrise's sink) is the one line past seven.
     const n = r.lines.filter(l => !l.garnish).length;
-    const layer = r.style && r.style.layered && r.lines.some(l => l.sink || l.float) ? 1 : 0;
-    assert.ok(n <= (r.family.id === 'zombie' ? (r.classic ? 11 : 9) : 7) + layer, `${label(x)}: ${n} poured lines`);
+    assert.ok(n <= (r.family.id === 'zombie' ? 10 : 7), `${label(x)}: ${n} poured lines`);
   }
 });
 
@@ -214,107 +211,4 @@ test('the spirit is a full pour, not a bucket: 2½ oz (3 for the Zombie line), f
 
 test('a leaning reaches for a colorant, never more juice "for a golden glow"', () => {
   for (const x of all) for (const n of x.r.notes || []) assert.ok(!/(pineapple|orange|mango|nectar|juice)[^,]*, for a (golden|sunset-orange) glow|traded for [^,]*(nectar|juice), for a/.test(n), `${label(x)}: "${n}"`);
-});
-
-// ---------- round 3 balance: one final pass, riff discipline, asks as constraints ----------
-const PLAIN_IDS = new Set(['simple-syrup', 'rich-simple', 'demerara-syrup', 'cane-syrup', 'agave-syrup']);
-const FRUIT_SYRUP_IDS = new Set(['passion-fruit-syrup', 'fassionola', 'grenadine', 'hibiscus-syrup', 'raspberry-syrup', 'guava-syrup', 'pineapple-syrup', 'li-hing-mui-syrup']);
-const ingById = new Map(j('data/ingredients.json').ingredients.map(i => [i.id, i]));
-const UNITS = j('data/ingredients.json').units;
-const label2 = x => `${x.p} [${x.seed}] ${x.r.name}`;
-
-test('print what you compute: every printed amount is the ounces the stats were computed from', () => {
-  for (const x of all) for (const l of x.r.lines) {
-    if (l.garnish || l.muddled || l.amount === null || l.amount === undefined) continue;
-    const f = l.unit === 'piece' ? (ingById.get(l.id).oz_per_piece || 0) : UNITS[l.unit];
-    if (f === undefined || f === null) continue;
-    assert.ok(Math.abs(l.amount * f - l.oz) <= 0.02, `${label2(x)}: prints ${l.amount} ${l.unit} of ${l.id} but computed ${l.oz} oz`);
-  }
-});
-
-test('long components pour by the half-ounce and fruit by the whole piece', () => {
-  for (const x of all) {
-    if (x.r.classic) continue;
-    for (const l of x.r.lines) {
-      if (l.garnish || l.muddled) continue;
-      if ((l.role === 'juice' && l.unit !== 'piece' && l.oz > 1.5 + 1e-6) || (l.role === 'rich' && l.unit === 'oz' && l.oz > 1 + 1e-6)) assert.ok(Math.abs(l.oz * 2 - Math.round(l.oz * 2)) < 1e-6, `${label2(x)}: ${l.oz} oz of ${l.id}`);
-      if (l.unit === 'piece' && l.amount >= 2) assert.ok(Number.isInteger(l.amount), `${label2(x)}: ${l.amount} ${l.id}`);
-    }
-  }
-});
-
-test('one sweetener per job: one plain syrup, one fruit syrup, no teaspoon of syrup beside a sweetener that carries the sugar', () => {
-  for (const x of all) {
-    if (x.r.classic || (x.r.canon && x.r.canon.state === 'as-written')) continue;
-    const body = x.r.lines.filter(l => !l.garnish && !l.sink && !l.float);
-    assert.ok(body.filter(l => PLAIN_IDS.has(l.id)).length <= 1, `${label2(x)}: two plain syrups`);
-    assert.ok(body.filter(l => FRUIT_SYRUP_IDS.has(l.id)).length <= 1 || x.r.archetype.id === 'pineapple-shell', `${label2(x)}: ${body.filter(l => FRUIT_SYRUP_IDS.has(l.id)).map(l => l.id).join(' + ')}`);
-    const sugarOf = l => (l.oz || 0) * ((ingById.get(l.id) || {}).sugar || 0);
-    for (const p of body.filter(l => PLAIN_IDS.has(l.id) && l.oz < 0.25 - 0.01)) {
-      const other = body.filter(l => l !== p && l.role !== 'base' && ((ingById.get(l.id) || {}).sugar || 0) >= 20).reduce((t, l) => t + sugarOf(l), 0);
-      // (A stirred drink takes its sugar by the barspoon on purpose.)
-      assert.ok(other < sugarOf(p) * 2 || x.r.method.method === 'stir' || x.r.family.id === 'stirred' || x.r.archetype.id === 'frozen-daiquiri' || x.r.archetype.id === 'volcano-bowl', `${label2(x)}: a teaspoon of ${p.id} beside the sugar`);
-    }
-  }
-  // The round-3 stacks: Tahiti's vanilla replaces the rock candy, the Passion Mai Tai's passion
-  // fruit replaces it, the sunset Hurricane pours one red syrup.
-  for (const [p, seed] of [['a night in Tahiti', 0], ['a night in Tahiti', 1], ['a mai tai but tropical', 0]]) {
-    const r = engine.generate(p, { seed });
-    if (r.family.id === 'mai-tai' && r.lines.some(l => ['vanilla-syrup', 'passion-fruit-syrup'].includes(l.id))) assert.ok(!r.lines.some(l => PLAIN_IDS.has(l.id)), `${p} [${seed}] ${r.name}: ${r.lines.map(l => l.id).join(', ')}`);
-  }
-});
-
-test('directional asks hold through every pass: creamy is creamy, less sweet is never sweeter, tart is tart', () => {
-  for (const seed of [0, 1, 2]) {
-    const c = engine.generate('something creamy and coconutty', { seed });
-    const cc = c.lines.find(l => l.id === 'coconut-cream');
-    if (cc && c.method.method !== 'hot') { assert.ok(cc.oz >= 1 - 1e-9, `creamy [${seed}] ${c.name}: ${cc.oz} oz cream of coconut`); assert.ok(c.stats.acidConc <= 0.72, `creamy [${seed}] ${c.name}: acid ${c.stats.acidConc}`); }
-    const p = engine.generate('painkiller but less sweet', { seed });
-    const pc = p.lines.find(l => l.id === 'coconut-cream');
-    if (pc) assert.ok(pc.oz <= 1 + 1e-9, `less sweet [${seed}] ${p.name}: ${pc.oz} oz cream of coconut`);
-    const t = engine.generate('not too sweet, very tart', { seed });
-    assert.ok(t.stats.sugarConc <= 6.5, `very tart [${seed}] ${t.name}: ${t.stats.sugarConc} g`);
-  }
-});
-
-test('riff discipline: citrus stays near the reference, punches without a tart ask under about 0.95 g of acid', () => {
-  for (const x of all) {
-    const tart = /tart/.test(x.p);
-    if (!tart && (x.r.servings || 1) >= 2 && !x.r.classic) assert.ok(x.r.stats.acidConc <= 0.97, `${label2(x)}: a bowl at ${x.r.stats.acidConc} g acid`);
-    if (!tart && !x.r.classic) assert.ok(!(x.r.stats.sugarConc > 10.2 && x.r.stats.acidConc > 1.02), `${label2(x)}: loud both ways (${x.r.stats.sugarConc} g / ${x.r.stats.acidConc})`);
-  }
-});
-
-test('identity cores at their dose: the Jungle Bird\'s Campari, the Trinidad Sour\'s orgeat, a frozen Foster\'s two scoops', () => {
-  for (const x of all) {
-    const r = x.r, at = id => (r.lines.find(l => l.id === id) || {}).oz || 0;
-    if (r.archetype.id === 'bitter-tiki-sour' && at('pineapple-juice') && at('campari')) assert.ok(at('campari') >= 0.75 - 1e-9, `${label2(x)}: ${at('campari')} oz Campari`);
-    if (r.family.id === 'bitter-tiki' && at('angostura') >= 0.9 && at('orgeat')) assert.ok(at('orgeat') >= 1 - 1e-9, `${label2(x)}: ${at('orgeat')} oz orgeat against ${at('angostura')} oz Angostura`);
-    if (r.archetype.id === 'bananas-foster' && r.method.method === 'blend' && at('vanilla-ice-cream')) assert.ok(at('vanilla-ice-cream') >= 3 - 1e-9, `${label2(x)}: ${at('vanilla-ice-cream')} oz ice cream`);
-  }
-});
-
-test('a hot drink is sipped long: every line shrinks together and it stays a toddy, not a nip', () => {
-  for (const x of all) {
-    if (x.r.method.method !== 'hot' || x.r.classic) continue;
-    assert.ok(x.r.stats.abv <= 14, `${label2(x)}: ${x.r.stats.abv}% hot`);
-    const water = x.r.lines.find(l => l.id === 'hot-water');
-    if (water) assert.ok(water.oz >= 4 - 1e-9, `${label2(x)}: only ${water.oz} oz of hot water`);
-  }
-});
-
-test('layers are poured, not narrated: a sunrise sinks its red, "dark" is dark in the body', () => {
-  for (const seed of [0, 1]) {
-    const s = engine.generate('layered and pretty, like a sunrise', { seed });
-    assert.ok(s.lines.some(l => l.sink), `sunrise [${seed}] ${s.name}: no sink`);
-    const d = engine.generate('skull mug of something dark', { seed });
-    assert.ok(hsl(d.look.body.hex).l <= 0.32, `dark [${seed}] ${d.name}: body ${d.look.body.hex}`);
-  }
-});
-
-test('balance words come from the numbers and vary; "bracing" is one shared test', async () => {
-  const { isBracing } = await import('../web/lib/chem.js');
-  const said = all.filter(x => x.seed < 2).filter(x => /Sweet and sour in balance/.test(x.r.explanation.tasting)).length;
-  assert.ok(said <= 24, `"Sweet and sour in balance" ${said} times in 96`);
-  for (const x of all) if (/Tart and bracing/.test(x.r.explanation.tasting)) assert.ok(isBracing(x.r.stats, { method: x.r.method.method }), `${label2(x)}: bracing at ${x.r.stats.sugarConc} g / ${x.r.stats.acidConc}`);
 });

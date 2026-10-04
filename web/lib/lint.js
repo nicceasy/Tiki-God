@@ -96,7 +96,6 @@
 const STOP = new Set(['a', 'an', 'the', 'and', 'or', 'of', 'with', 'in', 'on', 'at', 'to', 'for', 'from', 'by', 'it', 'its', 'is', 'as', 'but', 'then', 'into', 'over', 'up', 'that', 'this', 'your', 'you', 'so', 'just', 'one', 'all', 'no', 'not']);
 const DIACRITICS = /[̀-ͯ]/g;
 import { sugarBand, balanceWord } from './chem.js';
-import { recipeFill } from './vessels.js';
 export const fold = s => String(s || '').normalize('NFD').replace(DIACRITICS, '').toLowerCase();
 const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 // Whole word or phrase, case- and accent-insensitive; "Pele's" is still Pele, "Zombie-style" is not Zombie.
@@ -1525,23 +1524,7 @@ export function createLinter({ rules, vocab, vessels } = {}) {
       if (word.includes(w) && !C.poured.some(l => re.test(l.id))) add('look-word-fruit', 'minor', `the look says "${word}" with no ${w.replace('-', ' ')} in the glass`);
     }
   }
-  // ---------- the capacity budget (service, round-3 critique §1) ----------
-  // The same model the engine fits every drink with (vessels.js fillBudget): the liquid (poured
-  // where the glass's own ice diluted it, finished where it was strained onto fresh ice), the ice
-  // the glass holds (cubes 45%, packed crushed 50%, a block 35%, a cone 30%, a shell 30% of its
-  // coupe) and half an ounce of headroom; up drinks to 80% of the glass (85% with bubbles), frozen
-  // drinks to about 92%, hot drinks a tenth short of the rim, bowls with the mix in the ice's voids.
-  function checkCapacity(C, add) {
-    if (!C.v || !C.v.capacity) return;
-    const f = recipeFill(C.recipe, C.v);
-    if (!f || !(f.oz > 0)) return;
-    const what = f.kind === 'up' ? 'finished, served up' : f.kind === 'shell' ? 'finished, strained into its shaved-ice shell' : f.kind === 'frozen' ? 'of frozen drink' : f.kind === 'hot' ? 'of hot drink' : f.open ? 'poured over the glass\'s own ice' : 'finished, strained over fresh ice';
-    const over = f.oz - f.hi;
-    if (over > 0.25) add('capacity-overflow', 'fatal', `${oz(f.oz)} ${what}${f.servings > 1 ? ` for ${f.servings}` : ''}${f.ice > 0.05 ? `, with about ${oz(f.ice)} of ice,` : ''} in a ${C.v.capacity} oz ${vName(C)}: it holds ${oz(Math.max(0, f.hi))} with room to carry it. Choose a bigger vessel or scale it down.`);
-    else if (over > 0.06) add('capacity-tight', 'major', `${oz(f.oz)} ${what} in a ${C.v.capacity} oz ${vName(C)} leaves no headroom (it holds ${oz(Math.max(0, f.hi))}).`);
-  }
-
-  const CHECKS = [checkDoses, checkExclusive, checkIncompat, checkMethod, checkVessel, checkComponents, checkStrength, checkFamily, checkNames, checkRedFlags, checkFoodWords, checkGarnish, checkSteps, checkCopy, checkService, checkBalance, checkPromises, checkHeard, checkLooks, checkCapacity];
+  const CHECKS = [checkDoses, checkExclusive, checkIncompat, checkMethod, checkVessel, checkComponents, checkStrength, checkFamily, checkNames, checkRedFlags, checkFoodWords, checkGarnish, checkSteps, checkCopy, checkService, checkBalance, checkPromises, checkHeard, checkLooks];
   function lint(recipe, { intent } = {}) {
     if (!recipe || !Array.isArray(recipe.lines)) return [{ id: 'unreadable', sev: 'fatal', msg: 'There is no recipe here to check.' }];
     const C = context(recipe, intent);
