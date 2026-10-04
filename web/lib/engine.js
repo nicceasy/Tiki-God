@@ -575,7 +575,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       rl.forEach(l => { l.oz *= l.req && k < 1 ? Math.max(k, 0.85) : k; });
     }
     for (const l of lines) {
-      if (l.req && ['modifier', 'sweet', 'juice'].includes(l.role)) l.oz = Math.max(l.oz, l.colorKey ? 0.75 : 0.5);
+      if (l.req && !l.fromSpec && ['modifier', 'sweet', 'juice'].includes(l.role)) l.oz = Math.max(l.oz, l.colorKey ? 0.75 : 0.5);
       l.oz0 = l.oz;
     }
   }
@@ -1331,7 +1331,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       const specName = (notes.find(n => n.startsWith('spec:')) || '').slice(5);
       const spec = specName && (A.canonicalSpecs || []).find(sp => sp.name === specName);
       const ref = riffSrc ? linesOf(riffSrc).filter(l => !l.garnish) : spec ? spec.lines.filter(l => ingMap.has(l.id)).map(l => ({ id: l.id, oz: l.oz, role: ingMap.get(l.id).role })) : null;
-      balanceTo(lines, ref, A, intent, svc);
+      if (!classic) balanceTo(lines, ref, A, intent, svc);
       finalizeAmounts(lines);
       const colorOk = intent.color ? colorPass(lines, A, intent, svc, notes) : true;
       const c = chemOf(lines, svc.method, svc.ice);
@@ -1361,7 +1361,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     for (const l of lines) if (l.role === 'aromatic' && AROMA_WORD[l.id] && garnish.length < 3 && !garnish.some(g => garnishKey(g) === garnishKey(AROMA_WORD[l.id]))) garnish.push(AROMA_WORD[l.id]);
     const pick = chooseVessel(famId, intent, svc, chem, riffSrc, rngFrom(`${prompt}::${seed}::vessel`), greedy, A);
     if (pick) { svc.glass = pick.v.name; svc.vessel = pick.v.id; svc.up = pick.v.serve.includes('up') && serviceOf(svc.method, svc.ice) === 'shaken'; }
-    const look = drinkLook(lines, ingMap, { method: svc.method, ice: svc.ice, dilutionOz: Math.max(0, chem.finalOz - chem.volOz) });
+    const look = drinkLook(lines, ingMap, { method: svc.method, ice: svc.ice, dilutionOz: Math.max(0, chem.finalOz - chem.volOz), vessel: svc.vessel });
     const heads = copy.headline(lines);
     const srcIds = riffSrc ? new Set(riffSrc.ingredients.map(l => l.id)) : null;
     const name = makeName(rngFrom(`${prompt}::${seed}::name`), {

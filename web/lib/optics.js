@@ -19,11 +19,11 @@ const hexLin = l => rgbToHex(l.map(lin2srgb));
 
 // Fallbacks by category when an ingredient has no optics of its own.
 const CAT_FALLBACK = {
-  rum: { hex: '#c98a3e', opacity: 0, tint: 1 }, spirit: { hex: '#f4f1e8', opacity: 0, tint: 0.1 },
-  liqueur: { hex: '#e9cf9a', opacity: 0, tint: 0.6 }, fortified: { hex: '#c98b4e', opacity: 0, tint: 1 },
-  bitters: { hex: '#7a2418', opacity: 0, tint: 4 }, syrup: { hex: '#f3ead6', opacity: 0, tint: 0.3 },
-  citrus: { hex: '#e6edc0', opacity: 0.25, tint: 0.5 }, juice: { hex: '#f2c560', opacity: 0.5, tint: 1 },
-  cream: { hex: '#f7f3ea', opacity: 0.95, tint: 1 }, soda: { hex: '#f6f4ec', opacity: 0, tint: 0.1 }, aromatic: { hex: '#ffffff', opacity: 0, tint: 0 },
+  rum: { hex: '#c98a3e', opacity: 0, tint: 1, scatter: 0 }, spirit: { hex: '#f4f1e8', opacity: 0, tint: 0.1, scatter: 0 },
+  liqueur: { hex: '#e9cf9a', opacity: 0, tint: 0.6, scatter: 0 }, fortified: { hex: '#c98b4e', opacity: 0, tint: 1, scatter: 0 },
+  bitters: { hex: '#7a2418', opacity: 0, tint: 4, scatter: 0 }, syrup: { hex: '#f3ead6', opacity: 0, tint: 0.3, scatter: 0 },
+  citrus: { hex: '#e6edc0', opacity: 0.25, tint: 0.35, scatter: 0.2 }, juice: { hex: '#f2c560', opacity: 0.5, tint: 1, scatter: 1 },
+  cream: { hex: '#f7f3ea', opacity: 0.95, tint: 0.15, scatter: 5 }, soda: { hex: '#f6f4ec', opacity: 0, tint: 0.1, scatter: 0 }, aromatic: { hex: '#ffffff', opacity: 0, tint: 0, scatter: 0 },
 };
 
 export function opticsOf(ing) {
@@ -33,40 +33,50 @@ export function opticsOf(ing) {
     hex: o.hex || fb.hex,
     opacity: o.opacity ?? fb.opacity,
     tint: o.tint ?? fb.tint,
+    scatter: o.scatter ?? (o.opacity !== undefined ? o.opacity * 2 : fb.scatter),
+    layerHex: o.layerHex || o.hex || fb.hex,
     sg: o.sg ?? specificGravity(ing),
+    behavior: o.behavior || null,
   };
 }
 
-// Specific gravity from the chemistry we already store: dissolved sugar raises it about 0.0038
-// per g/100 ml; alcohol lowers it about 0.0013 per % ABV (40% spirit ≈ 0.95, simple syrup ≈ 1.23).
+// Specific gravity from the chemistry we store, when the data has none: ethanol lowers it
+// (a water–ethanol table), dissolved sugar and acid raise it.
+const ETOH = [[0, 1], [20, 0.975], [40, 0.95], [45, 0.941], [50, 0.932], [57, 0.918], [63, 0.904], [69, 0.89], [75, 0.875]];
 export function specificGravity(ing) {
   if (!ing) return 1;
-  return 1 + 0.0038 * (ing.sugar || 0) - 0.0013 * (ing.abv || 0);
+  const a = Math.max(0, Math.min(75, ing.abv || 0));
+  let base = 1;
+  for (let i = 1; i < ETOH.length; i++) if (a <= ETOH[i][0]) { const [x0, y0] = ETOH[i - 1], [x1, y1] = ETOH[i]; base = y0 + (y1 - y0) * (a - x0) / (x1 - x0); break; }
+  return base + 0.00375 * (ing.sugar || 0) + 0.004 * (ing.acid || 0);
 }
 
-// Mix parts [{ ing, oz }] plus melted ice (waterOz) into one color.
-export function mixColor(parts, waterOz = 0) {
+// The model (calibrated against 50 reference drinks, docs/research/color.md): dissolved
+// colorants absorb (Beer–Lambert, absorbances add in linear light); pulp, fat and almond milk
+// scatter, turning the drink cloudy and pulling it toward their own color, whitened a little,
+// filtered over a shorter path. `pathCm` is how far light travels through the glass.
+const KAPPA = 8, W = 0.15, BETA = 0.5;
+export function mixColor(parts, waterOz = 0, { pathCm = 7 } = {}) {
   const total = parts.reduce((s, p) => s + p.oz, 0) + waterOz;
   if (total <= 0) return { hex: '#f3efe6', opacity: 0, clarity: 1 };
-  const A = [0, 0, 0];
-  let scatter = 0;
-  const albedo = [0, 0, 0];
+  const A = [0, 0, 0], alb = [0, 0, 0];
+  let sigma = 0;
   for (const p of parts) {
-    const o = opticsOf(p.ing);
-    if (!o.tint && !o.opacity) continue;
+    const o = p.optics || opticsOf(p.ing);
+    if (!o.tint && !o.scatter) continue;
     const f = p.oz / total;
     const c = lin(o.hex);
-    // Absorbance of the ingredient at full strength; tint scales how hard it colors per ounce.
-    for (let k = 0; k < 3; k++) A[k] += f * o.tint * -Math.log(Math.max(c[k], 0.004));
-    const s = f * o.opacity;
-    scatter += s;
-    for (let k = 0; k < 3; k++) albedo[k] += s * c[k];
+    for (let k = 0; k < 3; k++) A[k] += (pathCm / 7) * f * o.tint * -Math.log(Math.max(c[k], 0.002));
+    const sc = f * (o.scatter || 0);
+    sigma += sc;
+    for (let k = 0; k < 3; k++) alb[k] += sc * c[k];
   }
   const T = A.map(a => Math.exp(-a));
-  const S = 1 - Math.exp(-3.2 * scatter); // cloudiness 0..1
-  const alb = scatter > 0 ? albedo.map(v => v / scatter) : [1, 1, 1];
-  // Scattered light is still filtered by what the drink absorbs, but over a shorter path.
-  const out = T.map((t, k) => (1 - S) * t + S * alb[k] * Math.sqrt(t));
+  const S = 1 - Math.exp(-KAPPA * sigma);
+  const albedo = sigma > 0 ? alb.map(v => v / sigma) : [1, 1, 1];
+  const R = albedo.map((a, k) => ((1 - W) * a + W) * T[k] ** BETA);
+  // Never pure black: a Goslings float still reads as liquid.
+  const out = T.map((t, k) => Math.max(0.012, (1 - S) * t + S * R[k]));
   const clarity = (T[0] + T[1] + T[2]) / 3;
   return { hex: hexLin(out), opacity: Math.round(S * 100) / 100, clarity: Math.round(clarity * 100) / 100 };
 }
@@ -86,40 +96,65 @@ export function colorWord(hex, opacity) {
     if (d < bd) { bd = d; best = n; }
   }
   const word = best[1];
-  if (opacity >= 0.7 && /cream|tan|straw|pale/.test(word)) return `creamy ${word.replace('creamy ', '')}`;
+  if (opacity >= 0.8 && /cream|tan|straw|pale|peach|gold/.test(word)) return `creamy ${word.replace('creamy ', '')}`;
+  if (opacity >= 0.8) return `opaque ${word}`;
   if (opacity >= 0.45) return `cloudy ${word}`;
   return word;
 }
 
+// How far light travels through each kind of vessel (cm); opaque mugs show only the surface.
+export const PATH = { coupe: 5, 'nick-nora': 5, 'cocktail-glass': 5, flute: 6, rocks: 7, dof: 7, 'clay-cup': 6, highball: 6, collins: 6, chimney: 6, 'footed-pilsner': 6, 'pearl-diver': 6, tulip: 6.5, hurricane: 7.5, 'poco-grande': 7, goblet: 7, snifter: 9.5, 'scorpion-bowl': 9.5, 'tiki-bowl': 9, 'volcano-bowl': 9, 'punch-bowl': 10 };
+// Mint blended into a drink (a Missionary's Downfall) dyes it; about 8 leaves ≈ ¼ oz of green.
+const BLENDED_MINT = { hex: '#6fa04a', tint: 0.8, scatter: 0.3 };
+
 // The look of a finished drink: a body color and the layers its build leaves behind.
-//   lines: recipe lines [{ id, oz, float, sink, garnish, role }]; dilutionOz: melted ice.
-export function drinkLook(lines, ingMap, { method, ice, dilutionOz = 0 } = {}) {
+//   lines: recipe lines [{ id, oz, float, sink, crown, garnish, muddled, role }]; dilutionOz: melted ice.
+export function drinkLook(lines, ingMap, { method, ice, dilutionOz = 0, vessel = null } = {}) {
   const I = l => ingMap.get(l.id);
+  // Calibration against the reference drinks preferred one path for every glass (the eye
+  // judges a drink's color at the glass wall, not through its full width), so PATH is kept for
+  // the drawing's wash depth only.
+  const pathCm = 7;
   const poured = lines.filter(l => !l.garnish && I(l) && l.role !== 'aromatic');
   const mixed = poured.filter(l => !l.float && !l.sink && !l.crown);
-  const body = mixColor(mixed.map(l => ({ ing: I(l), oz: l.oz })), dilutionOz);
-  const layers = [];
-  const bodyVol = mixed.reduce((s, l) => s + l.oz, 0) + dilutionOz;
-  const bodySg = bodyVol ? mixed.reduce((s, l) => s + l.oz * opticsOf(I(l)).sg, 0) / Math.max(1e-6, mixed.reduce((s, l) => s + l.oz, 0)) : 1;
   const frozen = method === 'blend' || ice === 'blended';
+  const parts = mixed.map(l => ({ ing: I(l), oz: l.oz }));
+  for (const l of lines) if (l.muddled && frozen) parts.push({ optics: BLENDED_MINT, oz: 0.25 * (l.amount || 8) / 8 });
+  const body = mixColor(parts, dilutionOz, { pathCm });
+  const layers = [];
+  const pouredOz = mixed.reduce((s, l) => s + l.oz, 0);
+  const bodyVol = pouredOz + dilutionOz;
+  // A float or sink holds against the diluted body, not the neat ingredients.
+  const bodySg = bodyVol ? (mixed.reduce((s, l) => s + l.oz * opticsOf(I(l)).sg, 0) + dilutionOz) / bodyVol : 1;
   for (const l of poured.filter(l => l.float || l.sink || l.crown)) {
     const o = opticsOf(I(l));
-    // A float only floats if it is lighter than the drink; a sink only sinks if heavier.
-    const holds = l.float ? o.sg < bodySg + 0.02 : l.sink ? o.sg > bodySg - 0.02 : true;
+    const holds = l.float ? o.sg < bodySg - 0.02 || ['crushed', 'pebble', 'shaved', 'ice-cone', 'blended'].includes(ice) && o.sg < bodySg : l.sink ? o.sg > bodySg + 0.02 : true;
     if (!holds) continue;
-    const solo = mixColor([{ ing: I(l), oz: l.oz }], l.crown ? 0 : l.oz * 0.3);
-    const frac = Math.min(0.4, Math.max(0.08, l.oz / Math.max(1, bodyVol + l.oz) * (frozen ? 1.2 : 1.6)));
-    layers.push({ kind: l.float ? 'float' : l.sink ? 'sink' : 'crown', id: l.id, hex: solo.hex, opacity: solo.opacity, frac: l.crown ? 0.06 : frac });
+    // A layer you can't see (rich syrup is water-clear) is no layer to draw or describe.
+    if ((o.tint || 0) < 0.3 && (o.scatter || 0) < 0.5) continue;
+    const kind = l.float ? 'float' : l.sink ? 'sink' : 'crown';
+    const frac = kind === 'crown' ? 0.06 : kind === 'float' ? Math.min(0.35, Math.max(0.08, l.oz / Math.max(1, bodyVol) * 1.3)) : Math.min(0.25, Math.max(0.15, l.oz / Math.max(1, bodyVol) * 1.6));
+    const hex = kind === 'crown' ? o.hex : o.layerHex;
+    // Above a sink, a mixing zone where its color bleeds into the body (grenadine in orange
+    // juice reads red-orange; blue curaçao under pineapple reads green, never violet).
+    const blend = kind === 'sink' ? mixColor([...mixed.map(x => ({ ing: I(x), oz: x.oz })), { ing: I(l), oz: l.oz * 2 }], dilutionOz, { pathCm }).hex : null;
+    layers.push({ kind, id: l.id, hex, opacity: o.opacity, frac, ...(blend ? { blend } : {}) });
   }
   // Shaken pineapple, egg white and cream throw a pale head of foam.
   const foamy = (method === 'shake' || method === 'flash-blend') && mixed.some(l => ['pineapple-juice', 'egg-white', 'heavy-cream', 'half-and-half'].includes(l.id) && l.oz >= 0.75);
-  if (foamy && !layers.some(x => x.kind === 'float')) layers.push({ kind: 'foam', hex: mixColor([...mixed.map(l => ({ ing: I(l), oz: l.oz * 0.3 })), { ing: { optics: { hex: '#fbf7ee', opacity: 0.9, tint: 1 } }, oz: bodyVol }]).hex, opacity: 0.6, frac: 0.07 });
-  const words = [colorWord(body.hex, body.opacity)];
+  if (foamy && !frozen && !layers.some(x => x.kind === 'float')) {
+    const [a, b] = [hexToRgb(body.hex), hexToRgb('#fbf7ee')];
+    layers.push({ kind: 'foam', hex: rgbToHex(a.map((v, i) => v * 0.3 + b[i] * 0.7)), opacity: 0.6, frac: mixed.some(l => l.id === 'egg-white') ? 0.09 : 0.06 });
+  }
+  // "Creamy" only when coconut or dairy makes it so; pulp-cloudy is "opaque" or "cloudy".
+  const creamy = mixed.some(l => ['coconut-cream', 'coconut-milk', 'heavy-cream', 'half-and-half', 'vanilla-ice-cream', 'irish-cream', 'egg-white', 'banana'].includes(l.id) && l.oz >= 0.5);
+  const bodyWord = colorWord(body.hex, body.opacity).replace(/^creamy /, creamy ? 'creamy ' : 'opaque ');
+  const words = [bodyWord];
   for (const x of layers) {
-    const n = (ingMap.get(x.id) || {}).name || '';
-    if (x.kind === 'float') words.push(`with a ${colorWord(x.hex, x.opacity)} float of ${n.toLowerCase().replace(/\s*\(.*\)/, '')} on top`);
-    if (x.kind === 'sink') words.push(`with ${n.toLowerCase().replace(/\s*\(.*\)/, '')} settling ${colorWord(x.hex, x.opacity)} at the bottom`);
-    if (x.kind === 'crown') words.push(`under a ${colorWord(x.hex, x.opacity)} crown of bitters`);
+    const n = ((ingMap.get(x.id) || {}).name || '').toLowerCase().replace(/\s*\(.*\)/, '');
+    if (x.kind === 'float') words.push(`with a ${colorWord(x.hex, 0)} float of ${n} on top`);
+    if (x.kind === 'sink') words.push(`with ${n} settling ${colorWord(x.hex, 0)} at the bottom`);
+    if (x.kind === 'crown') words.push(`under a ${colorWord(x.hex, 0)} crown of bitters`);
     if (x.kind === 'foam') words.push('with a pale froth');
   }
   return { body, layers, description: words.join(' ').replace(/^./, c => c.toUpperCase()) };

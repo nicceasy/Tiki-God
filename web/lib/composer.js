@@ -167,8 +167,9 @@ export function createComposer({ archetypes, ingMap, model }) {
       lines = sp.lines.filter(l => ingMap.has(l.id)).map(l => ({ id: l.id, role: roleOf(l.id), oz: l.oz, unit: l.unit, amount: l.amount, float: !!l.float, sink: !!l.sink, crown: !!l.crown, slot: slotOf(a, l.id), range: rangeOf(a, l.id), fromSpec: sp.name }));
       // Two-part specs (a Miami Vice's two halves) list a bottle twice; the card lists it once.
       for (let i = lines.length - 1; i >= 0; i--) {
-        const j = lines.findIndex(x => x.id === lines[i].id && !!x.float === !!lines[i].float && !!x.sink === !!lines[i].sink);
-        if (j < i) { lines[j].oz = (lines[j].oz || 0) + (lines[i].oz || 0); if (lines[j].amount !== undefined && lines[i].amount !== undefined && lines[j].unit === lines[i].unit) lines[j].amount += lines[i].amount; lines.splice(i, 1); }
+        // The same spirit in both halves is one line (it isn't layered; the halves are).
+        const j = lines.findIndex(x => x.id === lines[i].id && (roleOf(x.id) === 'base' ? !x.float && !lines[i].float : !!x.float === !!lines[i].float && !!x.sink === !!lines[i].sink));
+        if (j >= 0 && j < i) { if (lines[j].sink !== lines[i].sink) lines[j].sink = false; lines[j].oz = (lines[j].oz || 0) + (lines[i].oz || 0); if (lines[j].amount !== undefined && lines[i].amount !== undefined && lines[j].unit === lines[i].unit) lines[j].amount += lines[i].amount; lines.splice(i, 1); }
       }
       // Mint the archetype is built on (blended into a Missionary's Downfall, muddled in a Mojito)
       // is an ingredient, not a garnish.
@@ -536,15 +537,20 @@ export function createComposer({ archetypes, ingMap, model }) {
       if (lines.filter(l => l.slot === o.slot).length >= (o.maxCount || 1)) continue;
       for (const id of o.anyOf) {
         if (!ingMap.has(id) || ctx.forbidden(id, intent) || ids.includes(id) || ctx.conflicts(id, ids)) continue;
-        // A twist you can't taste (two drops of saline, a dash of water) isn't a twist.
+        // A twist you can't taste (two drops of saline, a dash of water) isn't a twist, and one
+        // that fights the color the guest asked for (grenadine in a blue drink) is no twist either.
         if (['saline', 'water', 'hot-water'].includes(id) && ctx.intentMatch(id, intent) < 1) continue;
+        const c = (ingMap.get(id) || {}).color;
+        if (intent.color && c && !['white'].includes(c) && c !== intent.color) continue;
         options.push({ item: { o, id }, s: 2.2 * ctx.intentMatch(id, intent) + 0.6 * ctx.compat(id, ids) + (o.common ? 0.4 : 0) - (o.anyOf.indexOf(id) * 0.05) });
       }
     }
     const pick = ctx.softPick(rng, options, 0.6, greedy);
     if (!pick) return null;
     const r = pick.o.ozRange || [0.5, 0.75];
-    lines.push({ id: pick.id, role: roleOf(pick.id), oz: (r[0] + r[1]) / 2, slot: pick.o.slot, range: r, float: !!pick.o.float, sink: !!pick.o.sink, twist: true });
+    // Accents (bitters, anise) go in at the light end of their range; everything else mid-range.
+    const accent = ['accent'].includes(roleOf(pick.id)) || (ingMap.get(pick.id) || {}).cat === 'bitters';
+    lines.push({ id: pick.id, role: roleOf(pick.id), oz: accent ? r[0] : (r[0] + r[1]) / 2, slot: pick.o.slot, range: r, float: !!pick.o.float, sink: !!pick.o.sink, twist: true });
     const nm = ingMap.get(pick.id).name.toLowerCase().replace(/\s*\(.*\)/, '');
     return pick.o.float ? `a ${nm} float` : pick.o.sink ? `${nm} sunk to the bottom` : `${nm} in the ${pick.o.slot} slot`;
   }

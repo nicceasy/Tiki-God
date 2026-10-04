@@ -1,0 +1,570 @@
+{
+ "about": "Reference looks of classic drinks (expert estimates) used to calibrate web/lib/optics.js; hexes are top, middle, bottom.",
+ "model": {
+  "absorbance": "A_k = sum f_i * tint_i * -ln(max(lin(hex_ik), 0.002))",
+  "turbidity": "S = 1 - exp(-kappa * sum f_i * scatter_i)",
+  "kappa": 8,
+  "scatteredLight": "R_k = ((1-w)*albedo_k + w) * T_k^beta",
+  "w": 0.15,
+  "beta": 0.5,
+  "out": "(1-S)*T_k + S*R_k",
+  "calibrationMeanDelta": {
+   "repoInterimOpticsInCurrentEngine": 18,
+   "thisTableInCurrentEngine": 13.7,
+   "thisTableInRecommendedModel": 11.2,
+   "unit": "luma-weighted RGB distance to reference body color (0-255 scale), 50 drinks"
+  }
+ },
+ "references": [
+  {
+   "drink": "Mai Tai (Trader Vic 1944)",
+   "look": "Hazy amber-gold over crushed ice: aged Jamaican rum supplies the amber, orgeat and lime the milky haze. Spent lime shell and a big mint bouquet on top; no float in Vic's spec. Modern bar versions add a dark-rum float, which puts a mahogany band (#5c2a12) on the ice cap.",
+   "hexes": [
+    "#e4b670",
+    "#d5a058",
+    "#cc9248"
+   ],
+   "spec": "catalogue: mai-tai-1944",
+   "modelBody": "#ddb87e"
+  },
+  {
+   "drink": "Zombie (Don the Beachcomber 1934)",
+   "look": "Deep reddish amber-copper in a tall chimney glass of crushed ice: three rums incl. 1 oz Demerara 151, a teaspoon of grenadine and pink Don's Mix push it ruddy. Mint sprig; not orange, not red.",
+   "hexes": [
+    "#d18e52",
+    "#c0773c",
+    "#b56c34"
+   ],
+   "spec": "catalogue: zombie-1934",
+   "modelBody": "#c68351"
+  },
+  {
+   "drink": "Painkiller (Pusser's)",
+   "look": "Opaque tan / pale apricot-beige: Pusser's mahogany rum browns the white coconut and yellow pineapple, orange juice warms it. Heavy dusting of brown nutmeg on a pale froth.",
+   "hexes": [
+    "#a87448",
+    "#e2b276",
+    "#dcaa6c"
+   ],
+   "spec": "catalogue: painkiller-pussers",
+   "modelBody": "#d8ab6b"
+  },
+  {
+   "drink": "Pina Colada (Caribe Hilton)",
+   "look": "Opaque, pale creamy yellow, frothy and frozen; white rum adds no color. Pineapple wedge and cherry.",
+   "hexes": [
+    "#faf0d2",
+    "#f5e6b6",
+    "#f2e0aa"
+   ],
+   "spec": "catalogue: pina-colada-caribe-hilton",
+   "modelBody": "#f8ebbe"
+  },
+  {
+   "drink": "Blue Hawaii (Harry Yee 1957)",
+   "look": "Cloudy sea-green turquoise, not sky blue: 1/2 oz blue curacao against 3 oz yellow pineapple mixes subtractively to green-teal, with a paler pineapple froth on top. Vivid aqua only when the curacao is 1 oz or more or the pineapple is cut (the resort Blue Hawaii that most photos show).",
+   "hexes": [
+    "#c4e2c8",
+    "#6cbc9c",
+    "#5cb090"
+   ],
+   "spec": "catalogue: blue-hawaii",
+   "modelBody": "#a0c591"
+  },
+  {
+   "drink": "Blue Hawaiian (blended, with coconut)",
+   "look": "Opaque pastel aqua: the coconut cream turns the turquoise of a Blue Hawaii into a milky sky-teal.",
+   "hexes": [
+    "#b4e0dc",
+    "#8fd0c8",
+    "#86c8c0"
+   ],
+   "spec": "catalogue: blue-hawaiian",
+   "modelBody": "#73bdc3"
+  },
+  {
+   "drink": "Hurricane (Smuggler's Cove, black rum + passion fruit)",
+   "look": "Russet / burnt orange-brown: 4 oz black rum darkens golden passion fruit syrup. A Hurricane with gold rum and passion syrup is golden-orange (#e79a3c).",
+   "hexes": [
+    "#a05a30",
+    "#8a4420",
+    "#7e3c1c"
+   ],
+   "spec": "catalogue: hurricane-smugglers-cove",
+   "modelBody": "#7b4017"
+  },
+  {
+   "drink": "Hurricane (Pat O'Brien's style mix)",
+   "look": "Coral red-orange in the hurricane glass: the red is grenadine/Fassionola-style mix, not passion fruit itself. Orange wheel and cherry flag.",
+   "hexes": [
+    "#e88a54",
+    "#e06a3e",
+    "#d65c38"
+   ],
+   "spec": "catalogue: hurricane-pat-obriens-mix",
+   "modelBody": "#e58641"
+  },
+  {
+   "drink": "Jungle Bird",
+   "look": "Opaque brick-coral to rust: Campari red + pineapple yellow = coral, darkened by black/dark Jamaican rum; a pinkish pineapple foam head. Revival spec (1.5 oz pineapple) is darker, rust-brown (#a4442a).",
+   "hexes": [
+    "#e8a888",
+    "#cc6440",
+    "#c05a3a"
+   ],
+   "spec": "catalogue: jungle-bird",
+   "modelBody": "#d17b48"
+  },
+  {
+   "drink": "Navy Grog (Don the Beachcomber)",
+   "look": "Hazy honey-amber around a frozen ice cone (white, tinted where the drink wets it) with the straw through it.",
+   "hexes": [
+    "#e8d4ac",
+    "#c98d48",
+    "#c08440"
+   ],
+   "spec": "catalogue: navy-grog-don",
+   "modelBody": "#c38e5c"
+  },
+  {
+   "drink": "Planter's Punch (Smuggler's Cove)",
+   "look": "Copper-amber over crushed ice with a rust-red crown of Angostura dashed on top that bleeds down in streaks.",
+   "hexes": [
+    "#7a2a18",
+    "#c07a3a",
+    "#b67034"
+   ],
+   "spec": "catalogue: planters-punch-smugglers-cove",
+   "modelBody": "#c48c4c"
+  },
+  {
+   "drink": "Singapore Sling (Raffles)",
+   "look": "Opaque coral-pink with a frothy pale-pink pineapple head; Cherry Heering and grenadine give the red, pineapple the opacity.",
+   "hexes": [
+    "#f4c0b0",
+    "#e48478",
+    "#dc7466"
+   ],
+   "spec": "catalogue: singapore-sling-raffles",
+   "modelBody": "#e09c67"
+  },
+  {
+   "drink": "Missionary's Downfall",
+   "look": "Frothy, opaque pale celadon-green: blended fresh mint tints a pineapple-honey frappe. Mint sprig.",
+   "hexes": [
+    "#e8e8c4",
+    "#d6dc9c",
+    "#d0d692"
+   ],
+   "spec": "catalogue: missionarys-downfall",
+   "modelBody": "#efdea0"
+  },
+  {
+   "drink": "Saturn",
+   "look": "Cloudy pale golden-yellow (passion fruit + orgeat haze on clear gin); citrus peel \"rings of Saturn\" garnish.",
+   "hexes": [
+    "#f6dc9c",
+    "#f2d48a",
+    "#eecc7e"
+   ],
+   "spec": "catalogue: saturn",
+   "modelBody": "#f7dfad"
+  },
+  {
+   "drink": "Three Dots and a Dash",
+   "look": "Cloudy orange-amber; three cherries and a pineapple stick (Morse code V).",
+   "hexes": [
+    "#dea268",
+    "#d08c48",
+    "#c88444"
+   ],
+   "spec": "catalogue: three-dots-and-a-dash",
+   "modelBody": "#cc8545"
+  },
+  {
+   "drink": "Fog Cutter (Trader Vic 1946)",
+   "look": "Cloudy pale orange-gold (orange, lemon, orgeat on white rum and brandy) under a thin topaz float of sherry.",
+   "hexes": [
+    "#c08440",
+    "#eec070",
+    "#ecbc68"
+   ],
+   "spec": "catalogue: fog-cutter-1946",
+   "modelBody": "#efc593"
+  },
+  {
+   "drink": "Scorpion (Smuggler's Cove bowl)",
+   "look": "Cloudy pale orange-yellow; served communal with a flaming float and gardenias.",
+   "hexes": [
+    "#f4cc84",
+    "#f0c070",
+    "#ecba68"
+   ],
+   "spec": "catalogue: scorpion-smugglers-cove",
+   "modelBody": "#efc18e"
+  },
+  {
+   "drink": "Scorpion Bowl (New England, with grenadine)",
+   "look": "Cloudy pink-orange from grenadine in the orange-pineapple base; often a flaming 151 well in the center.",
+   "hexes": [
+    "#f2ac78",
+    "#ee9a62",
+    "#e8905a"
+   ],
+   "spec": "catalogue: scorpion-bowl-new-england",
+   "modelBody": "#efb078"
+  },
+  {
+   "drink": "Doctor Funk (catalogue spec, dark Jamaican)",
+   "look": "Reddish amber, faintly opalescent from pastis, lightened by soda. With Vic's Tahitian (light) rum it is pale rosy (#e7ad94).",
+   "hexes": [
+    "#c8845a",
+    "#b86a40",
+    "#b06238"
+   ],
+   "spec": "catalogue: doctor-funk-trader-vic-1946",
+   "modelBody": "#a4623c"
+  },
+  {
+   "drink": "Queen's Park Swizzle",
+   "look": "The canonical three-layer swizzle: green mint leaves packed in the bottom third, amber-mahogany rum in the middle, a rust-red Angostura crown on top bleeding downward.",
+   "hexes": [
+    "#7a2a16",
+    "#a8602a",
+    "#8c7a38"
+   ],
+   "spec": "explicit: 2 oz rum-demerara, 0.75 oz lime, 0.5 oz demerara-syrup, 0 oz mint, 0.12 oz angostura (crown)",
+   "modelBody": "#aa6d3a"
+  },
+  {
+   "drink": "Chartreuse Swizzle",
+   "look": "Cloudy pale chartreuse yellow-green (green Chartreuse into yellow pineapple), crushed ice, grated nutmeg and mint.",
+   "hexes": [
+    "#dbe096",
+    "#cfd67c",
+    "#c8d074"
+   ],
+   "spec": "catalogue: chartreuse-swizzle",
+   "modelBody": "#d5d476"
+  },
+  {
+   "drink": "Rum Runner (Holiday Isle, frozen)",
+   "look": "Frozen raspberry-magenta slush: blackberry liqueur purple + grenadine red + banana amber. Uncertain; versions with orange/pineapple are red-orange.",
+   "hexes": [
+    "#d0687e",
+    "#c05068",
+    "#b84862"
+   ],
+   "spec": "catalogue: rum-runner-holiday-isle",
+   "modelBody": "#aa4d5e"
+  },
+  {
+   "drink": "Bahama Mama (resort)",
+   "look": "Cloudy golden-tan: pineapple-heavy, browned slightly by coffee liqueur and dark rum. Resort versions with grenadine are orange-red.",
+   "hexes": [
+    "#e6bc78",
+    "#dcae66",
+    "#d6a660"
+   ],
+   "spec": "catalogue: bahama-mama",
+   "modelBody": "#d7b063"
+  },
+  {
+   "drink": "Tequila Sunrise",
+   "look": "The canonical sunrise gradient: orange juice on top, grenadine poured last sinks to a deep red band at the bottom, blushing orange-red where they meet.",
+   "hexes": [
+    "#f6a83a",
+    "#f08a3a",
+    "#b8182e"
+   ],
+   "spec": "explicit: 1.5 oz tequila-blanco, 4 oz orange, 0.5 oz grenadine (sink)",
+   "modelBody": "#f49a44"
+  },
+  {
+   "drink": "Mojito",
+   "look": "Near-clear sparkling body with a pale lime haze; muddled mint and lime pieces green the bottom.",
+   "hexes": [
+    "#f2f4e6",
+    "#eef0dc",
+    "#a6c47a"
+   ],
+   "spec": "catalogue: mojito",
+   "modelBody": "#f9faf0"
+  },
+  {
+   "drink": "Daiquiri",
+   "look": "Pale, faintly green-white translucent haze in a coupe; fine ice shards on the surface.",
+   "hexes": [
+    "#eff1da",
+    "#eef0d6",
+    "#eceed2"
+   ],
+   "spec": "catalogue: daiquiri",
+   "modelBody": "#f9faef"
+  },
+  {
+   "drink": "Dark 'n' Stormy",
+   "look": "Black-brown Goslings floated on pale hazy ginger beer: a dark cap fading through a murky storm-cloud band to pale gold.",
+   "hexes": [
+    "#3e1c0e",
+    "#9a6a3a",
+    "#e8d6a6"
+   ],
+   "spec": "catalogue: dark-n-stormy",
+   "modelBody": "#efe3bf"
+  },
+  {
+   "drink": "Pearl Diver",
+   "look": "Opaque creamy golden-yellow (butter-honey Gardenia Mix emulsified by flash blending) in the ridged Pearl Diver glass.",
+   "hexes": [
+    "#f0cc8a",
+    "#e8b86a",
+    "#e2b064"
+   ],
+   "spec": "catalogue: pearl-diver",
+   "modelBody": "#e0a55c"
+  },
+  {
+   "drink": "Port Light",
+   "look": "Cloudy red-orange: bourbon amber + golden passion fruit + grenadine.",
+   "hexes": [
+    "#e09056",
+    "#d77a3e",
+    "#d0723a"
+   ],
+   "spec": "catalogue: port-light-kahiki",
+   "modelBody": "#d77d46"
+  },
+  {
+   "drink": "Test Pilot",
+   "look": "Translucent-hazy amber-copper over crushed ice.",
+   "hexes": [
+    "#c8925a",
+    "#b8783e",
+    "#b07038"
+   ],
+   "spec": "catalogue: test-pilot",
+   "modelBody": "#ab7548"
+  },
+  {
+   "drink": "Jet Pilot",
+   "look": "Hazy copper-amber, darker than the Test Pilot (Demerara 151, cinnamon syrup).",
+   "hexes": [
+    "#c08052",
+    "#b06838",
+    "#a86032"
+   ],
+   "spec": "catalogue: jet-pilot",
+   "modelBody": "#b07645"
+  },
+  {
+   "drink": "Cobra's Fang",
+   "look": "Cloudy orange-amber; Demerara 151 browns golden passion fruit and orange. Lime-wheel-and-mint \"fang\" garnish.",
+   "hexes": [
+    "#d09058",
+    "#c27a3e",
+    "#b87238"
+   ],
+   "spec": "catalogue: cobras-fang",
+   "modelBody": "#bc6e30"
+  },
+  {
+   "drink": "Suffering Bastard",
+   "look": "Pale amber-straw long drink, hazy from ginger beer, mint and orange garnish.",
+   "hexes": [
+    "#e6c88a",
+    "#dcb878",
+    "#d6b070"
+   ],
+   "spec": "catalogue: suffering-bastard",
+   "modelBody": "#e3c696"
+  },
+  {
+   "drink": "Nui Nui",
+   "look": "Cloudy golden amber-orange, spiced.",
+   "hexes": [
+    "#dca868",
+    "#d29a52",
+    "#c8904c"
+   ],
+   "spec": "catalogue: nui-nui",
+   "modelBody": "#e4a760"
+  },
+  {
+   "drink": "Hotel Nacional Special",
+   "look": "Cloudy golden-apricot with a fine pineapple froth in a coupe.",
+   "hexes": [
+    "#f2d48e",
+    "#ecc672",
+    "#e8c06a"
+   ],
+   "spec": "catalogue: hotel-nacional-special",
+   "modelBody": "#edcb75"
+  },
+  {
+   "drink": "Lava Flow",
+   "look": "Strawberry puree poured first, colada blended on top: red lava streaks up the glass walls through an opaque cream-white body.",
+   "hexes": [
+    "#f7ecc8",
+    "#ee9aa0",
+    "#d0303e"
+   ],
+   "spec": "catalogue: lava-flow",
+   "modelBody": "#f7edd0"
+  },
+  {
+   "drink": "Pisco Punch",
+   "look": "Pale straw, softly hazy (pineapple gum) with a pineapple chunk.",
+   "hexes": [
+    "#f4ebc0",
+    "#f2e6b4",
+    "#f0e2ac"
+   ],
+   "spec": "catalogue: pisco-punch",
+   "modelBody": "#faeec3"
+  },
+  {
+   "drink": "Caipirinha",
+   "look": "Pale hazy lime-white with muddled lime wedges and undissolved sugar at the bottom.",
+   "hexes": [
+    "#eef0d8",
+    "#ebeecb",
+    "#c8d88a"
+   ],
+   "spec": "catalogue: caipirinha",
+   "modelBody": "#f8f9ee"
+  },
+  {
+   "drink": "Ti' Punch",
+   "look": "Water-clear to faint straw, neat or one cube, with a coin of lime peel.",
+   "hexes": [
+    "#f5f3e6",
+    "#f4f2e2",
+    "#f0eed8"
+   ],
+   "spec": "catalogue: ti-punch",
+   "modelBody": "#fafbf3"
+  },
+  {
+   "drink": "Corn 'n' Oil (catalogue spec, Barbados rum)",
+   "look": "Amber over crushed ice, Angostura deepening it red-brown. With blackstrap rum (common modern spec) it is near-black (#3a1a0e).",
+   "hexes": [
+    "#c88a50",
+    "#b8743a",
+    "#a8662f"
+   ],
+   "spec": "catalogue: corn-n-oil",
+   "modelBody": "#bf7836"
+  },
+  {
+   "drink": "Hot Buttered Rum",
+   "look": "Cloudy toffee-brown in a mug, a golden butter slick and cinnamon dust on the surface.",
+   "hexes": [
+    "#e6c070",
+    "#d0a070",
+    "#c89868"
+   ],
+   "spec": "catalogue: hot-buttered-rum-smugglers-cove",
+   "modelBody": "#cca477"
+  },
+  {
+   "drink": "Halekulani Cocktail",
+   "look": "Cloudy coral-amber: bourbon, orange, pineapple, a blush of grenadine.",
+   "hexes": [
+    "#e8aa6c",
+    "#e09a58",
+    "#d89252"
+   ],
+   "spec": "catalogue: halekulani-cocktail",
+   "modelBody": "#dc914b"
+  },
+  {
+   "drink": "Bermuda Rum Swizzle",
+   "look": "Cloudy orange-amber; Goslings browns the pineapple-orange.",
+   "hexes": [
+    "#de9a60",
+    "#d4874a",
+    "#cc8044"
+   ],
+   "spec": "catalogue: bermuda-rum-swizzle",
+   "modelBody": "#c58a4b"
+  },
+  {
+   "drink": "Ancient Mariner",
+   "look": "Translucent dark amber-copper (Demerara + dark Jamaican, allspice dram).",
+   "hexes": [
+    "#b8744a",
+    "#a8622e",
+    "#a05a2a"
+   ],
+   "spec": "catalogue: ancient-mariner",
+   "modelBody": "#a36638"
+  },
+  {
+   "drink": "Sidewinder's Fang",
+   "look": "Cloudy golden-orange long drink (passion fruit, orange, soda) browned by black rum; orange-peel snake garnish.",
+   "hexes": [
+    "#e4a868",
+    "#dc9850",
+    "#d49048"
+   ],
+   "spec": "catalogue: sidewinders-fang",
+   "modelBody": "#cf8943"
+  },
+  {
+   "drink": "Midori Sour",
+   "look": "Translucent neon lime-green.",
+   "hexes": [
+    "#b4e278",
+    "#9cd858",
+    "#94d250"
+   ],
+   "spec": "explicit: 1 oz melon-liqueur, 1 oz vodka, 0.5 oz lemon, 0.5 oz lime, 2 oz soda-water",
+   "modelBody": "#a3e079"
+  },
+  {
+   "drink": "Blue Lagoon",
+   "look": "Translucent vivid sky-blue (blue curacao in a clear base): what blue curacao does when nothing yellow is present.",
+   "hexes": [
+    "#5cb2ec",
+    "#3a9ee6",
+    "#3496e0"
+   ],
+   "spec": "explicit: 1.5 oz vodka, 1 oz blue-curacao, 0.5 oz lemon, 4 oz lemon-lime-soda",
+   "modelBody": "#349de5"
+  },
+  {
+   "drink": "Banana Daiquiri (frozen)",
+   "look": "Opaque pale banana-cream frappe.",
+   "hexes": [
+    "#f6ead0",
+    "#f2e4b2",
+    "#eedfa8"
+   ],
+   "spec": "explicit: 2 oz rum-white-column, 3.5 oz banana, 1 oz lime, 0.5 oz simple-syrup",
+   "modelBody": "#f3e5bb"
+  },
+  {
+   "drink": "Strawberry Daiquiri (frozen)",
+   "look": "Opaque pink-red frozen slush with seeds.",
+   "hexes": [
+    "#ec8a92",
+    "#e26a74",
+    "#dc606a"
+   ],
+   "spec": "explicit: 2 oz rum-white-column, 2.5 oz strawberry, 1 oz lime, 0.75 oz simple-syrup",
+   "modelBody": "#e26671"
+  },
+  {
+   "drink": "Cuba Libre",
+   "look": "Dark garnet-brown, translucent at the edges, lime wedge.",
+   "hexes": [
+    "#6a3418",
+    "#4a2210",
+    "#40200e"
+   ],
+   "spec": "explicit: 2 oz rum-white-column, 0.5 oz lime, 4 oz cola",
+   "modelBody": "#502b1a"
+  }
+ ]
+}

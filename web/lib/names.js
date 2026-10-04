@@ -88,7 +88,7 @@ const IMPLIES_COLOR = {
 // Words that promise an ingredient: used only if it is poured.
 const IMPLIES_ING = {
   Hibiscus: ['hibiscus-syrup'], Orchid: [], Plantain: ['banana', 'banana-liqueur'], 'Banana-Leaf': ['banana', 'banana-liqueur'], 'Banana-Boat': ['banana', 'banana-liqueur'],
-  Marzipan: ['orgeat', 'amaretto'], Cacao: ['creme-de-cacao', 'chocolate-liqueur', 'mole-bitters'], Coconut: ['coconut-cream', 'coconut-milk', 'coconut-rum', 'coconut-water'],
+  Marzipan: ['orgeat', 'amaretto'], Banana: ['banana', 'banana-liqueur'], Coco: ['coconut-cream', 'coconut-milk', 'coconut-rum', 'coconut-water'], Kava: ['kava'], Cacao: ['creme-de-cacao', 'chocolate-liqueur', 'mole-bitters'], Coconut: ['coconut-cream', 'coconut-milk', 'coconut-rum', 'coconut-water'],
   Copra: ['coconut-cream', 'coconut-milk', 'coconut-rum', 'coconut-water'], Honeyed: ['honey-syrup', 'gardenia-mix'], Cinnamon: ['cinnamon-syrup', 'dons-mix', 'cinnamon', 'hot-buttered-rum-batter'],
   Pimento: ['allspice-dram'], Gingered: ['ginger-syrup', 'ginger-beer', 'ginger-liqueur', 'ginger-ale'], Vanilla: ['vanilla-syrup', 'vanilla-extract', 'vanilla-ice-cream'],
   'Cane Field': ['rum-agricole-blanc', 'rum-agricole-vieux', 'rum-cachaca'], 'Green-Cane': ['rum-agricole-blanc', 'rum-agricole-vieux', 'rum-cachaca'], Canefield: ['rum-agricole-blanc', 'rum-agricole-vieux', 'rum-cachaca'],
@@ -96,7 +96,7 @@ const IMPLIES_ING = {
   Sparkling: ['sparkling-wine', 'soda-water', 'tonic'], Bubbling: ['sparkling-wine', 'soda-water', 'ginger-beer', 'tonic'],
 };
 // Never in a name: sacred figures, colonial and caricature terms modern tiki has left behind.
-const BANNED = /\b(pele|ku|lono|kane|kanaloa|savage|cannibal|headhunter|witch ?doctor|native|plantation|voodoo|wahine|oriental|kapu|mana|idol|tribal|primitive|heathen|squaw|jungle princess)\b/i;
+const BANNED = /\b(pele|ku|kū|lono|kane|kāne|kanaloa|maui|māui|kahuna|moai|tiki|ohana|ʻohana|aloha|mahalo|savage|cannibal|headhunter|witch ?doctor|native|plantation|planter|voodoo|hoodoo|wahine|hula|island girl|dusky|coolie|oriental|geisha|shanghai'?d|kapu|tapu|mana|idol|tribal|primitive|heathen|squaw|shrunken|tsantsa|conquistador|colonial|missionary|overseer|samoan|tahitian|maori|chief|bongo|ooga|booga|jungle princess)\b/i;
 // Places only for spirits with a strong sense of place (a light column rum is from anywhere).
 const PLACE_OK = new Set(['rum-demerara', 'rum-demerara-overproof', 'rum-jamaican-aged', 'rum-jamaican-pot', 'rum-jamaican-dark', 'rum-jamaican-white-overproof', 'rum-agricole-blanc', 'rum-agricole-vieux', 'rum-barbados', 'rum-haitian', 'rum-navy', 'rum-black-blended', 'rum-cachaca', 'mezcal', 'tequila-blanco', 'tequila-reposado', 'pisco', 'aquavit', 'batavia-arrack', 'scotch-islay']);
 
@@ -126,7 +126,9 @@ export function makeName(rng, { variant = 0, archetype = null, family, intent = 
           : ['sea', 'jungle', 'creature', 'weather', 'adventure'];
   const nounPool = nounThemes.flatMap(t => NOUN[t]).filter(allowed);
   const places = baseIds.filter(id => PLACE_OK.has(id)).flatMap(id => PLACE_BY_ING[id] || []);
-  const typeNoun = (archetype && archetype.nameNouns) || TYPE_NOUN[family] || ['Punch'];
+  // An archetype's name nouns, minus any that are a classic's own name ("Lava Flow", "Hurricane").
+  const ownNouns = ((archetype && archetype.nameNouns) || []).filter(w => allowed(w) && !taken.has(w.toLowerCase()) && !(archetype.classics || []).some(c => c.toLowerCase().startsWith(w.toLowerCase())));
+  const typeNoun = ownNouns.length ? ownNouns : TYPE_NOUN[family] || ['Punch'];
   const isNoun = w => /^(the |la |el )?[A-Z]/.test(w) && !/(ed|y|ish|ing)$/.test(w.split(' ').pop().toLowerCase());
 
   const options = [];
