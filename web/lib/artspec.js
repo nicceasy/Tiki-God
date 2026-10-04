@@ -4,7 +4,7 @@
 //   { v: 1, box: [w, h], seed, elements: [{ part, params?, x, y, s?, rot?, anchor?: [ax, ay], from? }] }
 // (x, y) is where the part's anchor lands; the part is scaled by s and turned by rot about it.
 // A garnish element says which garnish phrase on the card it draws (`from`).
-import { CATALOG, PALETTE, rimOf, levelOf, GLASS_PROFILES, halfAt, capMound, capYAt, pigment, hexHsl, hslHex, TIKI_GLAZES, glazeFamily, glazeFamilies } from './artcatalog.js';
+import { CATALOG, PALETTE, rimOf, levelOf, GLASS_PROFILES, halfAt, capMound, capYAt, pigment, drinkPaint, hexHsl, hslHex, TIKI_GLAZES, glazeFamily, glazeFamilies } from './artcatalog.js';
 import { rng, seedOf } from './ink.js';
 import { vesselForDrink } from './vessels.js';
 import { drinkLook, opticsOf } from './optics.js';
@@ -171,7 +171,7 @@ export function paintTilt(recipe, ingMap, seed) {
     // the syrup's own red, pushed like a sink (a garnet, a ruby), or a garnet
     // (only a drink with something red in it gets a red foot; otherwise just the lean)
     const own = paintOf(strongest(RED_CARRIERS));
-    return red > 0 ? { shift: -5 + jitter, foot: own ? pigment(own, { opacity: 1, layer: true }).body : GARNET, footK: Math.min(0.6, 0.35 + red * 4) } : { shift: -5 + jitter };
+    return red > 0 ? { shift: -9 + jitter, foot: own ? pigment(own, { opacity: 1, layer: true }).body : GARNET, footK: Math.min(0.6, 0.35 + red * 4) } : { shift: -9 + jitter };
   }
   const own = paintOf(strongest(GOLD_CARRIERS)), oh = own && hexHsl(own);
   const top = oh && oh[0] >= 36 && oh[0] <= 58 && oh[1] > 0.35 ? hslHex(oh[0], Math.min(0.9, oh[1] * 1.3), 0.58) : HONEY;
@@ -184,6 +184,26 @@ export function glazeOf(spec) {
   const g = spec && spec.elements.find(e => e.part === 'glass');
   return g && glazeFamily(g.params.glaze) && CATALOG.glass(g.params).glazed ? g.params.glaze : null;
 }
+// What a drawn drink shows its neighbors on the shelf: its glaze, or, in a clear glass, the
+// drink's own painted body (a turquoise Blue Hawaii above a mug counts like a turquoise glaze).
+export function shelfColorOf(spec) {
+  const g = glazeOf(spec);
+  if (g) return g;
+  const glass = spec && spec.elements.find(e => e.part === 'glass'), liq = spec && spec.elements.find(e => e.part === 'liquid');
+  if (!glass || !liq || (GLASS_PROFILES[glass.params.kind] || {}).opaque) return null;
+  const p = liq.params, P = pigment(p.body ? p.body.hex : PALETTE.butter, { opacity: p.body ? p.body.opacity : 0.3, clarity: p.body ? p.body.clarity : 0.5, neon: p.neon, word: p.word, creamy: p.creamy, cafe: p.cafe });
+  return P.kind === 'clear' || P.kind === 'cream' ? null : P.body;
+}
+// The glaze families a neighbor's color stands for: a glaze's own, or a drink body's by hue
+// (a teal or green drink reads with the turquoise, jade and sea-foam glazes, a red with the
+// oxblood, a copper with the coral, a gold with the mustard, a blue with the cobalt).
+const shelfFamilies = c => {
+  const f = glazeFamilies(c);
+  if (f.length || !okHex(c)) return f;
+  const [h, s] = hexHsl(c);
+  if (s < 0.25) return [];
+  return h >= 345 || h < 14 ? ['red'] : h < 34 ? ['coral'] : h < 66 ? ['ochre'] : h < 200 ? ['teal'] : h < 262 ? ['blue'] : [];
+};
 
 export function drinkSpec(recipe, ingMap, opts = {}) {
   const seed = seedOf(`${recipe.name}|${recipe.seed ?? 0}`);
@@ -241,7 +261,7 @@ export function drinkSpec(recipe, ingMap, opts = {}) {
   // (a prayer for something dark, a skull or midnight, asks for black with turquoise drips)
   const gloom = /\b(dark|black|midnight|skull)\b/i.test(recipe.prompt || '');
   const prefer = [...(spicy && !(ds > 0.2 && gap(TIKI_GLAZES.oxblood) < 25) ? [TIKI_GLAZES.oxblood] : []), ...(gloom ? [TIKI_GLAZES.ebony] : [])];
-  const around = (opts.avoid || []).filter(Boolean).map(glazeFamilies);
+  const around = (opts.avoid || []).filter(Boolean).map(shelfFamilies);
   // (the black is kept for those prayers: it is too heavy a glaze to come round by chance)
   const order = [...prefer, ...glazes.map((_, k) => glazes[(g0 + k) % glazes.length]).filter(c => !clash(c) && c !== TIKI_GLAZES.ebony)];
   let glaze = null;
@@ -522,18 +542,22 @@ export function drinkSpec(recipe, ingMap, opts = {}) {
   }
 
   // ---- assemble, back to front: glass, drink, ice, what is inside the glass, then the garnish
+  // A cube stands lit in the drink: paper-white, glowing faintly with the drink's lightest tone.
+  // In an opaque or creamy drink the cubes are sunk out of sight; at most a corner breaks the
+  // surface. (A big stirred block in a clear glass shows the drink through it as a window.)
+  const sunk = creamy || look.body.opacity >= 0.85 || /^(opaque|creamy)\b/.test(word);
   els.push({ part: 'glass', params: { kind, glaze, flaming: flaming && kind === 'volcano-bowl' && !(shell && cupUp), lid: !!get('crown-lid') && kind === 'pineapple', front: clear ? 'without' : 'with' }, x: 0, y: 0 });
-  els.push({ part: 'liquid', params: { kind, fill, body: look.body, layers: look.layers, frozen, frost: frosted, shell: iceStyle === 'ice-shell' ? 9 : 0, crushed: heaped, crownOnIce: crowned && heaped, froth: UP && !frozen && (method === 'shake' || method === 'flash-blend'), seed: iceSeed, neon, word, creamy, cafe, tilt: paintTilt(recipe, ingMap, seed) }, x: 0, y: 0 });
+  const liqParams = { kind, fill, body: look.body, layers: look.layers, frozen, frost: frosted, shell: iceStyle === 'ice-shell' ? 9 : 0, crushed: heaped, crownOnIce: crowned && heaped, froth: UP && !frozen && (method === 'shake' || method === 'flash-blend'), seed: iceSeed, neon, word, creamy, cafe, tilt: paintTilt(recipe, ingMap, seed), block: iceStyle === 'block' && clear && !sunk };
+  els.push({ part: 'liquid', params: liqParams, x: 0, y: 0 });
   // Bubbles rise only through a drink with something carbonated in it (and behind the ice).
   if (!hot && (recipe.lines || []).some(l => FIZZ.has(l.id))) els.push({ part: 'fizz', params: { kind, fill, seed: seed % 991 }, x: 0, y: 0 });
   if (iceStyle !== 'none' && iceStyle !== 'blended') {
     // A float on crushed ice soaks the cap; a crown is painted by its own part.
     const soak = heaped && float && !crowned ? { hex: float.hex, alpha: 0.022 + 0.02 * lum(float.hex), reach: 0.1 } : null;
-    // A cube stands lit in the drink: paper-white, glowing faintly with the drink's lightest tone.
-    // In an opaque or creamy drink the cubes are sunk out of sight; at most a corner breaks the
-    // surface.
-    const sunk = creamy || look.body.opacity >= 0.85 || /^(opaque|creamy)\b/.test(word);
-    els.push({ part: 'ice', params: { kind, style: iceStyle, fill, seed: iceSeed, soak, tint: paint.surf, ...(sunk ? { sunk } : {}) }, x: 0, y: 0 });
+    // (an ice cone is washed with the drink it stands in, and a big stirred block inked in a
+    // deeper tone of it: the drink's own painted body and depths)
+    const dp = iceStyle === 'ice-cone' || iceStyle === 'block' ? drinkPaint(liqParams).P : null;
+    els.push({ part: 'ice', params: { kind, style: iceStyle, fill, seed: iceSeed, soak, tint: paint.surf, ...(sunk ? { sunk } : {}), ...(dp ? { body: dp.body, edge: dp.deep } : {}) }, x: 0, y: 0 });
   }
   if (crowned && crown && !has(plan, 'crown')) full('garnish.bitters-crown', { kind, hex: crown.hex, fill, seed: iceSeed, style: iceStyle }, '(steps) dash the bitters over the ice to form a crown', 12);
   if (frosted) els.push({ part: 'glass.frost', params: { kind, seed: iceSeed + 2, amount: frostAmount }, x: 0, y: 0 });

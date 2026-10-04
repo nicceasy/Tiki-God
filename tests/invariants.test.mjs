@@ -104,6 +104,13 @@ test('a leaning is a preference: real bottles of that color, never a loud one no
   }
 });
 
+test('a color the prayer demands is in the glass at every seed (a neon prayer is green twice, never a pale Mojito)', () => {
+  for (const { p, seed, r } of all.filter(({ p }) => /\bneon\b/i.test(p))) {
+    const c = hsl(r.look.body.hex);
+    assert.ok(c.h !== null && c.h >= 70 && c.h < 165 && c.s > 0.3, `${p} [${seed}] ${r.name}: ${r.look.body.hex} (${r.look.description})`);
+  }
+});
+
 test('a Blue Hawaii for a blue prayer is aqua-turquoise, not pineapple-green', () => {
   const runs = all.filter(({ p, r }) => /blue hawaii/i.test(p) && r.archetype.id === 'blue-hawaii');
   assert.ok(runs.length, 'the battery has a Blue Hawaii prayer');

@@ -152,3 +152,34 @@ test('dark drinks keep their hue; pineapple, Campari and fassionola name the gla
   const rust = look([['rum-demerara-overproof', 0.75], ['mezcal', 0.75], ['rum-jamaican-dark', 0.75], ['lime', 0.5], ['orange', 0.5], ['fassionola', 0.5], ['velvet-falernum', 0.25]], { method: 'shake', ice: 'crushed', dilutionOz: 1.5 });
   assert.match(rust.description, /^Cloudy rust-red$/);
 });
+
+test('the rum ambers are told apart by what is in them, not all called copper', () => {
+  const look = (spec, o) => drinkLook(spec.map(([id, oz, x]) => ({ id, oz, role: ingMap.get(id).role, ...(x || {}) })), ingMap, o);
+  const word = lk => lk.description.split(/ with | under /)[0].toLowerCase().replace(/^(creamy|opaque|cloudy|hazy) /, '');
+  // A teaspoon of grenadine with Don's Mix leaves the 1934 Zombie a ruddy amber, still no red.
+  const zombie = look([['rum-gold-column', 1.5], ['rum-jamaican-aged', 1.5], ['rum-demerara-overproof', 1], ['lime', 0.75], ['dons-mix', 0.5], ['grenadine', 1 / 6], ['velvet-falernum', 0.5], ['angostura', 0.03]], { method: 'flash-blend', ice: 'crushed', dilutionOz: 3 });
+  assert.equal(word(zombie), 'ruddy amber');
+  const zh = hsl(zombie.body.hex).h;
+  assert.ok(zh >= 18 && zh < 32, `Zombie at hue ${zh}`);
+  // A Navy Grog sweetened with honey is honeyed amber.
+  const grog = look([['bourbon', 1], ['rum-jamaican-dark', 1], ['rum-demerara', 1], ['lime', 0.75], ['grapefruit', 0.75], ['honey-syrup', 1], ['soda-water', 1]], { method: 'shake', ice: 'ice-cone', dilutionOz: 2.5 });
+  assert.equal(word(grog), 'honeyed amber');
+  // Campari and four ounces of pineapple are coral (the Jungle Bird), however dark the rum.
+  const bird = look([['rum-jamaican-dark', 0.75], ['mezcal', 0.75], ['lime', 0.5], ['pineapple-juice', 4], ['simple-syrup', 0.5], ['campari', 0.75]], { method: 'shake', ice: 'crushed', dilutionOz: 2.5 });
+  assert.equal(word(bird), 'coral');
+  // Passion fruit syrup over a little black tea is passion-fruit gold.
+  const sandbar = look([['grapefruit', 0.75], ['lime', 0.75], ['passion-fruit-syrup', 1], ['falernum-syrup', 0.25], ['black-tea', 1], ['soda-water', 1]], { method: 'shake', ice: 'crushed', dilutionOz: 2 });
+  assert.equal(word(sandbar), 'passion-fruit gold');
+  // Banana lightens a Bushwacker's mocha to a banana café.
+  const bush = look([['rum-barbados', 2], ['banana', 1.75], ['coffee-liqueur', 0.75], ['creme-de-cacao', 0.75], ['coconut-cream', 2.25], ['half-and-half', 2]], { method: 'blend', ice: 'blended', dilutionOz: 8 });
+  assert.equal(word(bush), 'banana-café');
+  // The new warm words sit on their hues.
+  const cases = { tawny: [26, 38], russet: [14, 30], terracotta: [6, 20], 'blood-orange': [8, 20], 'orange-gold': [32, 44] };
+  for (const [w, [lo, hi]] of Object.entries(cases)) for (const d of drinks) {
+    const lk = lookOf(d);
+    if (word(lk) !== w) continue;
+    const h = hsl(lk.body.hex).h;
+    assert.ok(h !== null && h >= lo && h < hi, `${d.name}: "${w}" for ${lk.body.hex} (hue ${h})`);
+  }
+  for (const hex of ['#f8ecc3', '#f6ebca']) assert.ok(!/tawny|russet|terracotta|blood-orange/.test(colorWord(hex, 1, { creamy: true })), `${hex} is a pale cream`);
+});

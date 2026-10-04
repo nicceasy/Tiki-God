@@ -891,21 +891,47 @@ function clipHalf(poly, f) {
   return out.length >= 3 ? out : null;
 }
 const clipX = (poly, x0, x1) => { const p = clipHalf(poly, q => q[0] - x0); return p && clipHalf(p, q => x1 - q[0]); };
+// A polygon pushed out (or, with d < 0, in) by about d along each vertex's normal: the edge a
+// vessel's paint is laid past, and the one it is held to (a glaze that wandered past the drawn
+// wall stained the page; one that wandered in left a crack of paper inside it).
+export function grow(poly, d) {
+  const n = poly.length;
+  if (n < 3) return poly;
+  let A = 0;
+  for (let i = 0; i < n; i++) { const a = poly[i], b = poly[(i + 1) % n]; A += a[0] * b[1] - b[0] * a[1]; }
+  const o = A > 0 ? 1 : -1, nrm = (a, b) => { const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1; return [o * dy / L, -o * dx / L]; };
+  return poly.map((p, i) => {
+    let j = (i + n - 1) % n, k = (i + 1) % n;
+    while (j !== i && Math.hypot(poly[j][0] - p[0], poly[j][1] - p[1]) < 1e-6) j = (j + n - 1) % n;
+    while (k !== i && Math.hypot(poly[k][0] - p[0], poly[k][1] - p[1]) < 1e-6) k = (k + 1) % n;
+    const n1 = nrm(poly[j], p), n2 = nrm(p, poly[k]), mx = n1[0] + n2[0], my = n1[1] + n2[1], L = Math.hypot(mx, my);
+    if (L < 1e-6) return [p[0] + n1[0] * d, p[1] + n1[1] * d];
+    const c = Math.max(0.5, (mx * n1[0] + my * n1[1]) / L);
+    return [p[0] + mx / L * d / c, p[1] + my / L * d / c];
+  });
+}
+// A vessel's paint: laid a little past its outline and held to just outside the ink line, so
+// the color meets the wall everywhere and blooms past it by no more than a couple of units.
+const HOLD = 1.6, LAY = 9;
+const held = (w, edge) => ({ ...w, clip: [grow(edge, HOLD)] });
 // A glazed ceramic body: a pale coat of the glaze, the glaze itself laid over all but a sheen
 // down the lit side, deeper on the shadow side and pooled at the foot where glaze runs thick.
 // Composited as exact glazes (the part is `glazed`, artrender.js), so the glaze keeps its hue.
-function ceramicCoat(poly, glazeHex, { sheen = true, pool = true } = {}) {
-  const xs = poly.map(q => q[0]), ys = poly.map(q => q[1]);
+function ceramicCoat(poly0, glazeHex, { sheen = true, pool = true } = {}) {
+  return coatOf(poly0, glazeHex, { sheen, pool }).map(w => held(w, poly0));
+}
+function coatOf(poly0, glazeHex, { sheen = true, pool = true } = {}) {
+  const poly = grow(poly0, LAY), xs = poly0.map(q => q[0]), ys = poly0.map(q => q[1]);
   const x0 = Math.min(...xs), x1 = Math.max(...xs), y1 = Math.max(...ys), w = x1 - x0, hgt = y1 - Math.min(...ys);
-  if (glazeHex === TIKI_GLAZES.ebony) return ebonyCoat(poly, { drips: sheen && pool });
+  if (glazeHex === TIKI_GLAZES.ebony) return ebonyCoat(poly0, { drips: sheen && pool });
   glazeHex = mixHex(glazeHex, '#FFFFFF', 0.12);
   const [h, s, l] = hexHsl(glazeHex);
   const light = hslHex(h, s * 0.8, l + (1 - l) * 0.55), deep = hslHex(h, Math.min(0.95, s + 0.06), l * 0.8);
   const out = [], coat = (pts, target, under, alpha, soft = 0.8) => { if (pts) { const g = glaze(target, under, alpha); out.push({ pts, color: g.color, alpha: g.alpha, soft, grain: 0.14, layers: GLAZE_LAYERS }); } };
   coat(poly, light, '#FFFFFF', 0.06, 0.6);
-  if (sheen) { coat(clipX(poly, x0 - 1, x0 + w * 0.14), glazeHex, light, 0.06); coat(clipX(poly, x0 + w * 0.3, x1 + 1), glazeHex, light, 0.06); }
+  if (sheen) { coat(clipX(poly, x0 - LAY - 2, x0 + w * 0.14), glazeHex, light, 0.06); coat(clipX(poly, x0 + w * 0.3, x1 + LAY + 2), glazeHex, light, 0.06); }
   else coat(poly, glazeHex, light, 0.06);
-  coat(clipX(poly, x0 + w * 0.74, x1 + 1), deep, glazeHex, 0.05, 0.9);
+  coat(clipX(poly, x0 + w * 0.74, x1 + LAY + 2), deep, glazeHex, 0.05, 0.9);
   if (pool) coat(clipHalf(poly, q => q[1] - (y1 - hgt * 0.14)), deep, glazeHex, 0.05, 0.9);
   return out;
 }
@@ -944,7 +970,7 @@ function ebonyCoat(poly, { drips = true } = {}) {
 // glaze must not darken): the polygon's top edge follows the near side of the rim's ellipse.
 const rimCut = (poly, cx, y, hw, tilt) => [...poly, ...ell(cx, y, hw - 6, (hw - 6) * tilt, 0, Math.PI, 16)];
 // The body's washes: a ceramic glaze, or a plain wash of a natural material (wood, sand, bone).
-const bodyCoat = (poly, glazeHex, alpha, opts) => isGlaze(glazeHex) ? ceramicCoat(poly, glazeHex, opts) : [{ pts: poly, color: glazeHex, alpha }];
+const bodyCoat = (poly, glazeHex, alpha, opts) => isGlaze(glazeHex) ? ceramicCoat(poly, glazeHex, opts) : [held({ pts: grow(poly, LAY), color: glazeHex, alpha }, poly)];
 function kuMugVessel({ glaze = PALETTE.wood } = {}) {
   const left = [[90, 180], [92, 310], [94, 436]];
   return {
@@ -1009,8 +1035,7 @@ function barrelMugVessel() {
     ],
     washes: [
       { pts: bodyPoly(left), color: PALETTE.wood, alpha: 0.04 },
-      { pts: [[84, 266], [216, 266], [216, 286], [84, 286]], color: PALETTE.wood, alpha: 0.05, soft: 0.3 },
-      { pts: [[84, 400], [216, 400], [216, 420], [84, 420]], color: PALETTE.wood, alpha: 0.05, soft: 0.3 },
+      ...[[266, 286], [400, 420]].map(([y0, y1]) => ({ pts: [[78, y0], [222, y0], [222, y1], [78, y1]], color: PALETTE.wood, alpha: 0.05, soft: 0.3, clip: [grow(bodyPoly(left), HOLD)] })),
     ],
   };
 }
@@ -1282,7 +1307,10 @@ function glass({ kind = 'collins', glaze, flaming = false, lid = false, front = 
   if (OPAQUE_ART[kind]) {
     if (front === 'only') return { box: [300, 460], strokes: [], washes: [] };
     const art = OPAQUE_ART[kind]({ glaze, flaming, lid });
-    return { box: [300, 460], strokes: art.strokes, washes: art.washes || [], dots: art.dots || [], ...(art.glazed ? { glazed: true } : {}) };
+    // (a plain wash, wood or bone or a painted detail, is laid past its edge and held to it like
+    // a glaze; a vessel's own exact glazes, enamel and lava, keep the edges they were cut to)
+    const washes = (art.washes || []).map(w => w.clip || w.layers ? w : held({ ...w, pts: grow(w.pts, LAY) }, w.pts));
+    return { box: [300, 460], strokes: art.strokes, washes, dots: art.dots || [], ...(art.glazed ? { glazed: true } : {}) };
   }
   return clearGlass(kind, front);
 }
@@ -1347,7 +1375,7 @@ const lean = (h, d) => {
 // is coconut or dairy (an opaque, gouache-like body), café au lait, tan and mocha are milky
 // coffee and cocoa, a straw is a faint green-gold, and teal, turquoise, aqua and seafoam name a
 // hue the painter keeps even when the mixed hex drifts toward green.
-const WORD_HUE = [[/turquoise|\baqua\b/, 186], [/lagoon teal/, 176], [/teal-green/, 170], [/\bteal\b/, 176], [/seafoam|sea-foam/, 156]];
+const WORD_HUE = [[/turquoise|\baqua\b/, 186], [/lagoon teal/, 176], [/teal-green/, 170], [/\bteal\b/, 176], [/seafoam|sea-foam/, 156], [/oxblood/, 8]];
 const bodyWord = w => String(w || '').toLowerCase().split(/ with | under /)[0].trim();
 const toward = (h, at, k) => at + Math.max(-k, Math.min(k, ((h - at + 540) % 360) - 180));
 export function pigment(hex, { opacity = 0.5, clarity = 0.5, layer = false, neon = false, word = '', shift = 0, creamy: cream = null, cafe: coffee = null } = {}) {
@@ -1369,19 +1397,26 @@ export function pigment(hex, { opacity = 0.5, clarity = 0.5, layer = false, neon
     return finish('clear', { surf: body, body, deep: body, foot: hslHex(ch + 4, cs + 0.05, 0.82) }, [hslHex(ch - 12, cs, 0.86), hslHex(ch + 16, cs, 0.86)]);
   }
   if (s < 0.08) { h = 44; s = 0.4; }
-  let kind = 'color', mahogany = false;
+  let kind = 'color', mahogany = false, ivory = false;
   // creamy: the color word says so, or (without one) an opaque, pale-to-mid warm drink
   const creamy = typeof cream === 'boolean' ? cream && opacity >= 0.6 : w ? /^creamy\b/.test(w) : opacity >= 0.85 && l >= 0.55 && h >= 18 && h <= 52;
   // (a named hue is held close: a turquoise that drifts past 195 reads cobalt)
   const named = WORD_HUE.find(([re]) => re.test(w));
   if (named) h = toward(h, named[1], 4);
   if (l >= 0.8 && !cafe) {
-    // Cream and pale straw: warm butter-cream, never grey, mint or lemonade.
+    // Cream and pale straw: warm cream, never grey, mint or lemonade, in the look's own hue and
+    // with its own strength (one colada is not another): a butter-yellow is a lemon-butter, a
+    // mango-gold a deep apricot-gold, an ivory nearly the paper with a cool grey in its shadow.
     kind = 'cream';
-    if (h >= 18 && h <= 64) h += Math.max(-6, Math.min(6, 42 - h));
-    s = Math.min(0.72, Math.max(0.55, s * 0.9));
-    l = Math.min(l, 0.86) - 0.025;
-    if (creamy) { const [hc, sc, lc] = hexHsl(mixHex(hslHex(h, s, l), '#FBF3E0', 0.1)); [h, s, l] = [hc, sc, lc]; }
+    if (/ivory|\bcream\b|white|milk/.test(w) && !/butter|yellow|gold|mango|peach|apricot|pink|blush/.test(w)) {
+      s = Math.min(0.42, s0 * 0.45); l = Math.max(Math.min(l, 0.92), 0.9); ivory = true;
+    } else if (/butter|lemon|yellow|pineapple|banana/.test(w)) {
+      h = Math.max(48, Math.min(54, h + 4)); s = Math.max(0.7, Math.min(0.86, s0 * 1.05)); l = Math.min(l, 0.84);
+    } else if (/mango|apricot|passion|papaya/.test(w)) {
+      h = Math.max(33, Math.min(40, h - 3)); s = Math.max(0.75, Math.min(0.9, s0 * 1.08)); l = Math.min(l, 0.77);
+    } else {
+      s = Math.min(0.8, Math.max(0.45, s0 * 0.95)); l = Math.min(l, 0.86) - 0.025;
+    }
   } else if (creamy || (cafe && l >= 0.4)) {
     // An opaque body, laid like gouache: lifted, even, a tint rather than a full hue. A Painkiller
     // is a warm orange-tan, coconut over blue curaçao a chalky aqua, a mocha a milky cocoa.
@@ -1399,7 +1434,11 @@ export function pigment(hex, { opacity = 0.5, clarity = 0.5, layer = false, neon
     // then a named teal or turquoise keeps its hue (above).
     const electric = !neon && ((h >= 70 && h <= 200) || (h >= 285 && h <= 330));
     const cap = foam ? 0.42 : s0 > 0.72 ? 0.93 : electric ? 0.72 : 0.9;
-    s = s + Math.max(0, cap - s) * (electric ? 0.45 : 0.7);
+    // (a drink the look calls pale is lifted not much more than half as far: a pale amber stays
+    // pale, never an orange)
+    const paleW = /\bpale\b/.test(w);
+    s = s + Math.max(0, cap - s) * (paleW ? 0.45 : electric ? 0.45 : 0.7);
+    if (paleW && l >= 0.55) l = Math.max(l, Math.min(0.74, l + 0.04));
     if (foam) { s = Math.min(s, cap); l = Math.max(l, 0.76); }
     // (a mid-dark copper or amber is lifted half way to the light: it glows, never reads brown)
     if (l < 0.5) l += (0.5 - l) * (l < 0.3 ? 0.22 : 0.5);
@@ -1417,14 +1456,25 @@ export function pigment(hex, { opacity = 0.5, clarity = 0.5, layer = false, neon
     // A dark brown spirit (aged rum and coffee liqueur, a molasses-dark rum) is mahogany, not
     // wine: a browner hue, a little less chroma, and amber light where it runs thin (below).
     if (kind === 'dark' && h >= 4 && h <= 40 && !/oxblood|garnet|ruby|crimson|scarlet|wine|cherry|plum|\bred\b/.test(w)) { h = Math.max(h, 18); s = Math.min(s, 0.56); mahogany = true; }
+    // (and two pours of one dark drink are not stamped from one plate: a pour the painter's hand
+    // turns toward the light has a heart a tenth lighter, a shade more amber in a mahogany)
+    if (kind === 'dark' && shift > 3) { l = Math.min(0.33, l * 1.1); if (mahogany) h += 3; }
     // The painter's hand: one amber leans honey, the next tangerine or copper (a few degrees).
     // (The spec may widen this to a deliberate tilt: red-copper or honey-gold, see artspec.js.)
     // A tilt never argues with the color word: an oxblood or a red is not turned gold, and a
     // honey or a gold only leans half as far toward copper.
     if (kind === 'color' && h >= 15 && h <= 55) {
-      const redWord = /oxblood|garnet|ruby|crimson|scarlet|\bred\b/.test(w), goldWord = /gold|honey|yellow|butter|straw/.test(w);
-      const t = Math.max(-13, Math.min(13, shift)) * (shift > 0 && redWord ? 0 : shift < 0 && goldWord ? 0.5 : 1);
-      h = t > 0 ? Math.min(Math.max(h, 50), h + t) : h + t;
+      // (a copper, tangerine or apricot leans at most half way toward gold, so it is still a
+      // copper; a pale or amber drink at most half way toward red, so it is never an apricot;
+      // and a pale one barely either way: a pale amber is neither a lemon nor an orange)
+      const redWord = /oxblood|garnet|ruby|crimson|scarlet|\bred\b/.test(w), goldWord = /gold|honey|yellow|butter|straw|amber|\bpale\b/.test(w), copperWord = /copper|tangerine|apricot|coral|orange|rust/.test(w);
+      const t = Math.max(-13, Math.min(13, shift)) * (/\bpale\b/.test(w) ? 0.2 : shift > 0 && redWord ? 0 : shift > 0 && copperWord ? 0.5 : shift < 0 && goldWord ? 0.5 : 1);
+      // (and a lean toward red stops short of the next word: a rust-red stays a rust, a copper a
+      // copper, beside the scarlet and the Campari red)
+      const floorH = /rust/.test(w) ? 12 : /copper/.test(w) ? 18 : -Infinity;
+      h = t > 0 ? Math.min(Math.max(h, 50), h + t) : Math.max(Math.min(h, floorH), h + t);
+      // (nor toward gold past the word: a copper is never a golden amber)
+      if (/copper/.test(w)) h = Math.min(h, Math.min(30, Math.max(26, hexHsl(hex)[0])) + 1);
     }
   }
   const T = TONES[kind], S = x => Math.min(0.95, Math.max(0, x)), pale = kind === 'cream' || kind === 'milky' || kind === 'cafe';
@@ -1457,7 +1507,11 @@ export function pigment(hex, { opacity = 0.5, clarity = 0.5, layer = false, neon
   // two analogous blooms, honey-gold and red-copper in a warm drink
   const bl = pale ? Math.max(l, 0.8) : Math.max(0.5, Math.min(0.7, l + 0.1));
   const spread = named ? Math.min(T.spread, 6) : T.spread;
-  return finish(kind, tones, [hslHex(amberBand ? up(spread) : h - (named ? spread : -spread), s, bl), hslHex(h + (named ? spread * 0.6 : -spread), S(s + (pale ? 0 : 0.04)), pale ? bl : bl - 0.06)]);
+  const out = finish(kind, tones, [hslHex(amberBand ? up(spread) : h - (named ? spread : -spread), s, bl), hslHex(h + (named ? spread * 0.6 : -spread), S(s + (pale ? 0 : 0.04)), pale ? bl : bl - 0.06)]);
+  // An ivory is the paper, barely warmed: its shadow is a cool grey (as white china's is), not a
+  // deeper cream, which would turn it butter-yellow. (drinkPaint keeps these as they are.)
+  if (ivory) out.shadow = { deep: hslHex(215, 0.04, l - 0.015), foot: hslHex(215, 0.06, l - 0.035), warm: hslHex(215, 0.03, l - 0.02) };
+  return out;
 }
 // How each kind of drink is graded: how far the surface leans toward gold and lifts toward the
 // light, how much deeper the depths and the foot go, the blooms' hue spread, the bloom strength
@@ -1466,7 +1520,7 @@ export function pigment(hex, { opacity = 0.5, clarity = 0.5, layer = false, neon
 // laid flat and even, like gouache; a dark spirit keeps an amber glow over garnet depths.
 const TONES = {
   clear: { lean: 0, surfS: 1, lift: 0, deep: 1, foot: 1, spread: 0, tint: 0.5, grain: 0.1, zone: 0 },
-  cream: { lean: 3, surfS: 0.9, lift: 0.45, deep: 0.965, foot: 0.97, spread: 6, tint: 0.2, grain: 0.07, zone: 0 },
+  cream: { lean: 3, surfS: 0.9, lift: 0.45, deep: 0.965, foot: 0.97, spread: 4, tint: 0.2, grain: 0.07, zone: 0 },
   milky: { lean: 4, surfS: 0.95, lift: 0.3, deep: 0.95, foot: 0.96, spread: 6, tint: 0.25, grain: 0.08, zone: 2 },
   cafe: { lean: 3, surfS: 0.95, lift: 0.3, deep: 0.94, foot: 0.95, spread: 4, tint: 0.25, grain: 0.1, zone: 0 },
   color: { lean: 16, surfS: 0.95, lift: 0.42, deep: 0.82, foot: 0.86, spread: 18, tint: 0.7, grain: 0.13, zone: 7 },
@@ -1545,7 +1599,7 @@ export function drinkPaint({ color = PALETTE.butter, body = null, layers = [], f
   // (a pale drink, a frappé or a pale honey, keeps its pale foot: a garnet there would be a sink)
   const [bh, , bl] = hexHsl(P.body), warm = (P.kind === 'color' || P.kind === 'dark') && (bh <= 72 || bh >= 340) && bl <= 0.7;
   if (tilt && warm) {
-    const fk = Math.max(0, Math.min(0.7, tilt.footK || 0)), tk = Math.max(0, Math.min(0.7, tilt.topK || 0));
+    const fk = Math.max(0, Math.min(0.7, tilt.footK || 0)), tk = Math.max(0, Math.min(0.7, tilt.topK || 0)) * (/copper|rust/.test(bodyWord(word)) ? 0.4 : 1);
     if (okHex(tilt.foot) && fk) {
       P.foot = crossfade(P.foot, tilt.foot, fk); P.deep = crossfade(P.deep, tilt.foot, fk * 0.45);
       P.warm = crossfade(P.warm, tilt.foot, fk * 0.7); P.blooms = [P.blooms[0], crossfade(P.blooms[1], tilt.foot, fk * 0.5)];
@@ -1563,7 +1617,10 @@ export function drinkPaint({ color = PALETTE.butter, body = null, layers = [], f
   // garnet-brown, never a scarlet; a honeyed amber in a coupe is a lighter amber, never lemon.
   const even = !layers.some(x => x.kind === 'sink');
   if (even && P.kind !== 'clear') {
-    const h0 = hexHsl(pigment(bodyHex, { opacity: bodyOp, clarity: body && Number.isFinite(body.clarity) ? body.clarity : 0.5, neon, word, shift: 0, creamy, cafe }).body)[0];
+    // (the anchor is the body as the painter's hand turned it: the whole glass leans together,
+    // red-copper or honey-gold, so two copper drinks side by side differ, and it is still one
+    // color top to bottom)
+    const h0 = hexHsl(P.body)[0];
     const near = (hex, k) => { const [h, s, l] = hexHsl(hex); return hslHex(toward(h, h0, k), s, l); };
     P.body = near(P.body, 4);
     for (const key of ['deep', 'foot', 'warm']) P[key] = near(P[key], 8);
@@ -1573,6 +1630,12 @@ export function drinkPaint({ color = PALETTE.butter, body = null, layers = [], f
     // (a dark spirit's light is amber where it runs thin: its surface may turn further)
     for (const key of ['surf', 'glow']) P[key] = near(P[key], P.kind === 'dark' ? 16 : 6);
     P.blooms = P.blooms.map(b => near(b, 10));
+    // (however the hand leans it, no tone strays more than 14 degrees from the look's own hue:
+    // the family the color word names)
+    const hl = hexHsl(pigment(bodyHex, { opacity: bodyOp, clarity: body && Number.isFinite(body.clarity) ? body.clarity : 0.5, neon, word, shift: 0, creamy, cafe }).body)[0];
+    const fam = hex => { const [h, s, l] = hexHsl(hex); return hslHex(toward(h, hl, 14), s, l); };
+    for (const key of ['surf', 'body', 'deep', 'foot', 'glow', 'warm']) P[key] = fam(P[key]);
+    P.blooms = P.blooms.map(fam);
     // A pale drink (ginger beer, a pale honey, a pale gold) stays pale all the way down: its
     // depths only a little deeper than its body, never a saturated tangerine at the foot; a
     // mid-light amber deepens a step, a copper or darker the full way.
@@ -1588,7 +1651,15 @@ export function drinkPaint({ color = PALETTE.butter, body = null, layers = [], f
       const [h, s, l] = hexHsl(P[key]);
       P[key] = hslHex(pale ? toward(h, h0, 5) : h, Math.min(s, sb + (pale ? 0 : 0.03)), Math.max(l, lb - steps[k]));
     });
+    // A cream's glazes stay within 4 degrees of its own hue, as strong as it is and no stronger
+    // (a cream's shadow turned 6 degrees warmer and a shade stronger, glaze on glaze, is a peach).
+    if (P.kind === 'cream') {
+      const [hb0, sb0] = hexHsl(P.body);
+      for (const key of ['surf', 'deep', 'foot', 'glow', 'warm']) { const [h, s, l] = hexHsl(P[key]); P[key] = hslHex(toward(h, hb0, 4), Math.min(s, sb0), l); }
+      P.blooms = P.blooms.map(b => { const [h, s, l] = hexHsl(b); return hslHex(toward(h, hb0, 4), Math.min(s, sb0), l); });
+    }
   }
+  if (P.shadow) Object.assign(P, P.shadow);
   // A frosted glass veils the drink, a third less color showing.
   const vc = c => frost ? mixHex(c, PALETTE.paper, 0.3) : c;
   const shown = layers.filter(x => okHex(x.hex) && !(crownOnIce && x.kind === 'crown'))
@@ -1607,31 +1678,35 @@ export function drinkPaint({ color = PALETTE.butter, body = null, layers = [], f
 // toward it (never a dark syrup multiplied through a body of another hue, which is mud). Opaque
 // mugs show only the surface. A bitters crown sits on the ice, so it is painted by its own part
 // (garnish.bitters-crown) when there is a heap.
-// A glaze step whose load sits far round the hue circle from its target (turning a scarlet into
-// a garnet takes a blue load: the red channel must fall faster than the others) is exact only
-// over the tone it was mixed for; where its edge wanders onto a lighter tone it stains violet or
-// grey. Such a step is laid in the target's own hue instead, as strong as it takes to reach the
+// A glaze step whose load sits round the hue circle from its target (turning a scarlet into a
+// garnet takes a magenta or blue load: the red channel must fall faster than the others) is
+// exact only over the tone it was mixed for; where its edge wanders onto a lighter tone it
+// stains violet or grey. Such a step is laid in the target's own hue instead, as strong as it takes to reach the
 // target's lightness over the tone under it: a little more saturated than the exact glaze, never
 // off-hue.
 const lumOf = c => 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
 function safeGlaze(target, under, alpha) {
   const g = glaze(target, under, alpha), [gh, gs] = hexHsl(g.color), [th, ts, tl] = hexHsl(target);
-  const off = Math.abs(((gh - th + 540) % 360) - 180);
-  if (!(gs > 0.25 && ts > 0.25 && off > 75 && lum(under) > lum(target))) return g;
+  // (a load that turns warmer than a warm target, a gold deepening an orange, is harmless where
+  // it wanders; one that turns cooler, toward magenta and violet, is the stain)
+  const d = ((gh - th + 540) % 360) - 180, warm = th >= 330 || th <= 70;
+  if (!(gs > 0.25 && ts > 0.25 && lum(under) > lum(target) && (Math.abs(d) > 75 || (warm && d < -25)))) return g;
   const load = hslHex(th, Math.min(0.92, ts + 0.05), Math.min(0.75, tl + (1 - tl) * 0.3)), u = rgbOf(under), want = lumOf(rgbOf(target));
   let lo = 0.004, hi = 0.5;
   for (let k = 0; k < 24; k++) { const a = (lo + hi) / 2, f = washFactor(load, a); if (lumOf(u.map((c, i) => c * f[i])) > want) lo = a; else hi = a; }
   return { color: load, alpha: (lo + hi) / 2 };
 }
 
-// The inside of a clear glass from just above the surface down to its floor: all the drink may
-// stain. (The walls are the ink line's inner edge; the floor dips a little at the front.)
-function interior(kind, y0, inward = 1.6, wob = null) {
+// The inside of a clear glass from the surface down to its floor: all the drink may stain.
+// (The walls are the ink line's inner edge; the floor dips a little at the front; the top is
+// the back of the surface's ellipse, `ry` above the level `y0`, or flat when ry is 0.)
+function interior(kind, y0, inward = 1.6, wob = null, ry = 0) {
   const G = GLASS_PROFILES[kind] || GLASS_PROFILES.collins, R = rimOf(kind), ys = [];
   for (let y = y0; y < R.bottom; y += 6) ys.push(y);
   ys.push(R.bottom);
-  const w = y => Math.max(1, halfAt(G, y) - inward - (wob ? wob(y) : 0)), wb = w(R.bottom);
-  return [...ys.map(y => [R.cx - w(y), y]), ...ell(R.cx, R.bottom, wb, wb * 0.12, Math.PI, 0, 12).slice(1, -1).map(([x, y]) => [x, Math.max(R.bottom, y)]), ...ys.slice().reverse().map(y => [R.cx + w(y), y])];
+  const w = y => Math.max(1, halfAt(G, y) - inward - (wob ? wob(y) : 0)), wb = w(R.bottom), wt = w(y0);
+  const back = ry ? ell(R.cx, y0, wt, ry, Math.PI, TAU, 16).slice(1, -1) : [];
+  return [...ys.map(y => [R.cx - w(y), y]), ...ell(R.cx, R.bottom, wb, wb * 0.12, Math.PI, 0, 12).slice(1, -1).map(([x, y]) => [x, Math.max(R.bottom, y)]), ...ys.slice().reverse().map(y => [R.cx + w(y), y]), ...back.reverse()];
 }
 
 function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, body = null, layers = [], frozen = false, frost = false, shell = 0, crushed = false, crownOnIce = false, froth = false, seed = 7, neon = false, word = '', creamy = null, cafe = null, tilt = null, block = false } = {}) {
@@ -1663,27 +1738,38 @@ function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, body = 
     const top = frozen ? R.y + 2 : levelOf(kind, fill);
     const inset = y => Math.max(2, halfAt(G, y) - 4 - shell);
     const bottom = R.bottom - 2 - shell * 0.8;
+    // The drink's own washes reach past the walls and the floor and are clipped to the inside of
+    // the glass: a wash that wandered in from a wall left a crack of paper there, one that
+    // wandered out stained the page, and the tones stacked out of order at the walls (a garnet's
+    // foot glaze over the light surface tone is violet). (Inside an ice shell the lining hides it.)
+    const out = shell ? 0 : 12;
+    clip = [frozen ? interior(kind, R.y - 44) : interior(kind, top, 1.6, null, (inset(top) + 4) * G.rimTilt + 1.5)];
     const ysFor = (y0, y1) => { const ys = []; for (let y = y0; y < y1; y += 12) ys.push(y); ys.push(y1); return ys; };
-    const band = (y0, y1, shrink = 0) => {
+    // (`ext` carries a band out past the walls, and past the floor when it reaches it)
+    const band = (y0, y1, shrink = 0, ext = 0) => {
       y0 = Math.max(top, y0); y1 = Math.min(bottom, y1);
       if (y1 - y0 < 3) return null;
+      if (ext && y1 >= bottom - 0.5) y1 = bottom + ext;
       const ys = ysFor(y0, y1);
-      return [...ys.map(y => [R.cx - inset(y) + shrink, y]), ...ys.slice().reverse().map(y => [R.cx + inset(y) - shrink, y])];
+      return [...ys.map(y => [R.cx - inset(y) + shrink - ext, y]), ...ys.slice().reverse().map(y => [R.cx + inset(y) - shrink + ext, y])];
     };
     // A glaze that parts around the streak of transmitted light, a little left of center.
     const LX = -0.42, LW = 0.07;
-    const parted = (y0, y1, shrink = 0) => {
+    const parted = (y0, y1, shrink = 0, ext = 0) => {
       y0 = Math.max(top, y0); y1 = Math.min(bottom, y1);
       if (y1 - y0 < 3) return [];
+      if (inset((y0 + y1) / 2) <= 26) return [band(y0, y1, shrink, ext)];
+      if (ext && y1 >= bottom - 0.5) y1 = bottom + ext;
       const ys = ysFor(y0, y1), gapL = y => R.cx + (LX - LW) * inset(y) - 2, gapR = y => R.cx + (LX + LW) * inset(y) + 2;
-      const left = [...ys.map(y => [R.cx - inset(y) + shrink, y]), ...ys.slice().reverse().map(y => [Math.max(R.cx - inset(y) + shrink + 2, gapL(y)), y])];
-      const right = [...ys.map(y => [gapR(y), y]), ...ys.slice().reverse().map(y => [R.cx + inset(y) - shrink, y])];
-      return inset((y0 + y1) / 2) > 26 ? [left, right] : [band(y0, y1, shrink)];
+      const left = [...ys.map(y => [R.cx - inset(y) + shrink - ext, y]), ...ys.slice().reverse().map(y => [Math.max(R.cx - inset(y) + shrink + 2, gapL(y)), y])];
+      const right = [...ys.map(y => [gapR(y), y]), ...ys.slice().reverse().map(y => [R.cx + inset(y) - shrink + ext, y])];
+      return [left, right];
     };
     const h = R.bottom - top;
     // A sink settles in its own color: the body is painted down to a floor just above it.
     const sink = shown.find(x => x.kind === 'sink');
-    const sT = sink ? Math.min(0.4, Math.max(0.05, sink.frac || 0.08)) * h : 0, sX = sink ? Math.max(14, sT * 0.8) : 0;
+    const farSink = sink ? hueGap(foot, sink.paint) > 75 : false;
+    const sT = sink ? Math.min(0.4, Math.max(0.05, sink.frac || 0.08)) * h : 0, sX = sink ? Math.max(farSink ? 20 : 14, sT * (farSink ? 1 : 0.8)) : 0;
     const floor = sink ? bottom - sT - sX : bottom;
     // A froth stands on the drink in its own pale color: the body is painted from just under it
     // (a glaze can only darken, so a cream head laid over a gold body would vanish into it).
@@ -1692,30 +1778,63 @@ function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, body = 
     // (an opaque fruit body, pineapple and apricot shaken thick, is laid like a creamy one: flat
     // and even under its froth, not a see-through wash with a streak of light and blooms in it)
     const opaqueFruit = P.kind === 'color' && bodyOp >= 0.85 && !sink, tintK = opaqueFruit ? 0.4 : 1;
-    // 1. light through the whole drink
-    if (!clearish) {
+    // (over a sink the body's glazes stop a little into the first strip, which is the body's own
+    // foot: a chartreuse glaze wandering down over the gold in-between color would be olive)
+    const aboveSink = sink ? [[[R.cx - 300, top - 80], [R.cx + 300, top - 80], [R.cx + 300, floor + sX * 0.2], [R.cx - 300, floor + sX * 0.2]]] : null;
+    // the clip a dark heart keeps to (below), for the washes laid inside it
+    let heartClip = null;
+    if (!clearish && P.kind === 'dark' && !frozen) {
+      // A dark spirit (aged rum and coffee stirred down, a Campari and vermouth garnet) is one
+      // continuous dark heart, soft inside, deeper toward the foot. The light comes through it
+      // amber only where its path is short: a hairline just inside each wall (one to three
+      // units, never a stripe) and a brighter crescent at the meniscus. A big stirred block
+      // stands in it as a lighter, warmer window inside its own drawn outline.
+      const ph = r() * TAU, rimW = y => 1 + 1.8 * (0.5 + 0.5 * Math.sin(y * 0.055 + ph));
+      // (the heart covers the surface too, as the drink seen from a little above; the crescent
+      // is a lens of light along the front of the meniscus, thickest at the middle, gone at the
+      // walls)
+      const ry = inset(top) * G.rimTilt, wc = inset(top), lens = [], under = [];
+      for (let k = 0; k <= 16; k++) { const u = (k / 16) * 2 - 1, q = Math.sqrt(Math.max(0, 1 - u * u)), y = top + ry * q; lens.push([R.cx + u * wc, y - (2 + 3 * (0.5 + 0.5 * Math.sin(u * 3 + ph))) * q]); under.push([R.cx + u * wc, y + 1.2 * q]); }
+      const ring = interior(kind, top, 1.6, rimW, (inset(top) + 4) * G.rimTilt + 1.5), crescent = [...lens, ...under.reverse()];
+      // (the block's outline is inked as a curve through its corners, so the window follows the
+      // same curve, a hair inside it)
+      const B = block ? blockCube(kind, fill, seed) : null, cube = B ? spline(B.c, 3).map(([x, y]) => [B.x + (x - B.x) * 0.97, B.y + (y - B.y) * 0.97]) : null;
+      heartClip = cube ? [ring, crescent, cube] : [ring, crescent];
+      const hb = floor - top, light = crossfade(surf, P.glow, 0.6), upTo = pts => pts && pts.map(([x, y]) => [x, y <= top ? top - ry - 14 : y]);
+      glazed(upTo(band(top, floor, 0, out)), light, PALETTE.paper, A * (crushed ? 0.94 : 1), 0.6);
+      glazed(upTo(band(top, floor, 0, out)), mid, PALETTE.paper, A * 0.6, 0.4, heartClip);
+      glazed(band(top + hb * 0.4, floor, 0, out), deep, mid, A * 0.5, 0.9, heartClip);
+      glazed(band(floor - hb * 0.18, floor, 0, out), foot, deep, A * 0.4, 0.9, heartClip);
+      const low = band(floor - hb * 0.35, floor, 0, out);
+      if (low) washes.push({ pts: low, color: vc(P.warm), alpha: A * Gz.tint * 0.8, soft: 1, grain, layers: GLAZE_LAYERS, clip: heartClip });
+      if (cube) {
+        // the window: the drink seen through clear ice, a shorter path, so lighter and warmer,
+        // lit at its top and deepening toward its foot like the drink around it
+        const big = ell(B.x, B.y, B.size, B.size, 0, TAU, 16), win = crossfade(mid, light, 0.24), winLow = crossfade(mid, light, 0.1);
+        glazed(big, win, light, A * 0.55, 0.5, [cube]);
+        // deepening toward its foot and away from the lit corner, wet into wet
+        const lowWin = [[B.x - B.size, B.y - B.size * 0.1], [B.x + B.size, B.y - B.size * 0.3], [B.x + B.size, B.y + B.size], [B.x - B.size, B.y + B.size]];
+        glazed(lowWin, winLow, win, A * 0.45, 1, [cube]);
+      }
+    } else if (!clearish) {
       // 1. light through the whole drink; 2. the body color from just under the surface;
       // 3. the depths, deeper and warmer; 4. the foot
       // A creamy body is opaque: no light comes through it, so no streak; it is laid flat and
       // even, like gouache, with only a little shading toward the foot.
-      const dark = P.kind === 'dark', flat = P.kind === 'milky' || P.kind === 'cafe' || (P.kind === 'cream' && bodyOp >= 0.85) || opaqueFruit;
-      const part = flat ? (y0, y1, k) => [band(y0, y1, k)] : parted;
-      const fall = UP_KINDS.includes(kind) || dark ? 0.08 : flat ? 0.06 : 0.16, deepFrom = dark ? 0.4 : flat ? 0.6 : BULGE.includes(kind) ? 0.45 : UP_KINDS.includes(kind) ? 0.4 : 0.55;
+      const flat = P.kind === 'milky' || P.kind === 'cafe' || (P.kind === 'cream' && bodyOp >= 0.85) || opaqueFruit;
+      const part = flat ? (y0, y1, k, e) => [band(y0, y1, k, e)] : parted;
+      const fall = UP_KINDS.includes(kind) ? 0.08 : flat ? 0.06 : 0.16, deepFrom = flat ? 0.6 : BULGE.includes(kind) ? 0.45 : UP_KINDS.includes(kind) ? 0.4 : 0.55;
       const hb = floor - bt;
-      glazed(band(bt, floor), surf, PALETTE.paper, A * (crushed ? 0.94 : 1));
-      // (a dark spirit's heart stops short of the walls, where the light comes through it amber)
-      // (laid as its own brown over the amber, not as the glaze that turns amber into brown:
-      // that ratio is mostly blue, and where the wash wandered past the amber it showed violet)
-      const wall = dark ? 5 : 0, fl = floor - wall;
-      for (const pts of part(bt + hb * fall, fl, 1 + wall)) glazed(pts, mid, dark ? PALETTE.paper : surf, A * 0.6, 0.9);
-      for (const pts of part(bt + hb * deepFrom, fl - wall * 0.5, 3 + wall * 1.6)) glazed(pts, deep, mid, A * 0.5, 0.9);
-      glazed(band(floor - hb * 0.16, fl - wall, 5 + wall * 1.6), foot, deep, A * 0.4, 0.9);
-      const up = band(bt, bt + hb * 0.4, 6), low = band(floor - hb * 0.32, floor, 6);
+      glazed(band(bt, floor, 0, out), surf, PALETTE.paper, A * (crushed ? 0.94 : 1), 1, aboveSink);
+      for (const pts of part(bt + hb * fall, floor, 1, out)) glazed(pts, mid, surf, A * 0.6, 0.9, aboveSink);
+      for (const pts of part(bt + hb * deepFrom, floor, 3, out)) glazed(pts, deep, mid, A * 0.5, 0.9, aboveSink);
+      glazed(band(floor - hb * 0.16, floor, 5, out), foot, deep, A * 0.4, 0.9, aboveSink);
+      const up = band(bt, bt + hb * 0.4, 6), low = band(floor - hb * 0.32, floor, 6), sc = aboveSink ? { clip: aboveSink } : {};
       if (up) washes.push({ pts: up, color: vc(P.glow), alpha: A * Gz.tint * tintK, soft: 1, grain, layers: GLAZE_LAYERS });
-      if (low) washes.push({ pts: low, color: vc(P.warm), alpha: A * Gz.tint * 0.8 * tintK, soft: 1, grain, layers: GLAZE_LAYERS });
+      if (low) washes.push({ pts: low, color: vc(P.warm), alpha: A * Gz.tint * 0.8 * tintK, soft: 1, grain, layers: GLAZE_LAYERS, ...sc });
     } else {
       // a clear drink: a cool sparkle, a little deeper toward the foot
-      glazed(band(bt, floor), mid, PALETTE.paper, A);
+      glazed(band(bt, floor, 0, out), mid, PALETTE.paper, A);
       glazed(band(bt + (floor - bt) * 0.5, floor, 4), foot, mid, 0.018, 0.9);
     }
     // 4. analogous blooms, wet into wet
@@ -1725,7 +1844,7 @@ function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, body = 
       if (w < 10) continue;
       const cx = R.cx + (r() * 2 - 1) * w * 0.4, rx = w * (0.35 + r() * 0.25), ry = Math.min(h * 0.16, rx * (0.7 + r() * 0.5));
       const pts = ell(cx, cy, rx, ry, 0, TAU, 14).map(([x, y]) => { const yy = Math.max(bt + 3, Math.min(floor - 2, y)), ww = inset(yy) - 3; return [Math.max(R.cx - ww, Math.min(R.cx + ww, x)), yy]; });
-      washes.push({ pts, color: i % 2 ? bloomB : bloomA, alpha: clearish ? 0.03 : A * Gz.tint * tintK, soft: 0.9, grain, layers: GLAZE_LAYERS });
+      washes.push({ pts, color: i % 2 ? bloomB : bloomA, alpha: clearish ? 0.03 : A * Gz.tint * tintK, soft: 0.9, grain, layers: GLAZE_LAYERS, ...(heartClip ? { clip: heartClip } : {}) });
     }
     for (const L of shown) {
       // A near-black float (black rum) reads as a dark, smoky cloud rather than ink.
@@ -1738,46 +1857,57 @@ function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, body = 
         // from the body's foot (abutting strips, so no seam doubles up), the settled layer, and
         // its depths a shade darker at the very bottom.
         // The strips share wavy edges, so they interlock like wet paint running together rather
-        // than stacking as stripes.
+        // than stacking as stripes. (They run out past the walls, clipped to the glass.)
         // A syrup far round the hue circle from the body (a ruby hibiscus under a chartreuse
         // melon) passes through only one in-between color, thin and wet into wet, so the glass
-        // never stacks as a flag of stripes; the ruby blooms up into it at its edge.
-        const far = hueGap(foot, L.paint) > 75;
+        // never stacks as a flag of stripes. The top fifth of the syrup is feathered, a little
+        // lighter and less saturated (syrup diffusing, not a stripe of paint), and rises into
+        // the in-between color in a few irregular tongues.
+        const far = farSink;
         const sa = Math.max(A, 0.06), n = far ? 2 : 4, y1 = bottom - sT, ph = r() * TAU;
+        const wide = y => inset(y) + out;
         const edge = (yb, k) => {
           const amp = k === 0 ? 1 : Math.min(far ? 7 : 5, (y1 - floor) / n * 0.7), pts = [];
-          for (let x = R.cx - inset(yb); x <= R.cx + inset(yb) + 0.1; x += Math.max(4, inset(yb) / 8)) {
+          for (let x = R.cx - wide(yb); x <= R.cx + wide(yb) + 0.1; x += Math.max(4, wide(yb) / 8)) {
             const y = Math.max(top, Math.min(bottom, yb + amp * (Math.sin((x - R.cx) * 0.085 + ph + k * 1.9) + 0.5 * Math.sin((x - R.cx) * 0.21 + ph * 1.3 + k * 2.7))));
-            pts.push([Math.max(R.cx - inset(y), Math.min(R.cx + inset(y), x)), y]);
+            pts.push([Math.max(R.cx - wide(y), Math.min(R.cx + wide(y), x)), y]);
           }
           return pts;
         };
+        const [sh, ss, sl] = hexHsl(L.paint), feather = hslHex(sh + (far ? 4 : 0), ss * 0.84, Math.min(0.6, sl + 0.07));
         const ys = far ? [floor, floor + (y1 - floor) * 0.5, y1 + 2] : [floor, ...[1, 2, 3].map(k => floor + (y1 - floor) * k / n), y1 + 2];
         // (where two deep strips meet they reach 3 units past the shared edge, since a wash wanders
         // a little and paper between them reads as a crack; where either is light they only just
         // meet, since a light yellow doubled over its neighbor darkens to olive. The first strip
         // carries the body's own foot down to meet the crossfade, so where it touches the body it
         // doubles a color with itself, never a complement.)
-        const cols = [...[...Array(n).keys()].map(k => crossfade(foot, L.paint, k / n, 0.1)), L.paint];
+        const cols = [...[...Array(n).keys()].map(k => crossfade(foot, L.paint, k / n, 0.1)), far ? feather : L.paint], last = cols.length - 1;
         // (across the one wide step of a far sink, lime to gold, they do not overlap at all: the
         // two doubled are olive, and the wet edge closes the hairline between them)
-        const lap = k => k > 0 && k <= n && lum(cols[k]) < 0.5 && lum(cols[k - 1]) < 0.5 ? 3 : far ? 0 : 0.5;
-        const strip = (k, last) => { const a = edge(ys[k], k).map(([x, y]) => [x, y - (k ? lap(k) : 0)]), b = last ? [[R.cx + inset(bottom), bottom], [R.cx - inset(bottom), bottom]] : edge(ys[k + 1], k + 1).reverse().map(([x, y]) => [x, y + lap(k + 1)]); return [...a, ...b]; };
-        for (let k = 0; k <= n; k++) glazed(strip(k, k === n), cols[k], PALETTE.paper, sa, far ? 0.95 : 0.7);
+        // (the feathered syrup does run a little into the gold: doubled they are a scarlet)
+        const lap = k => k > 0 && k <= last && lum(cols[k]) < 0.5 && lum(cols[k - 1]) < 0.5 ? 3 : far ? (k === last ? 2.5 : 0) : 0.5;
+        const strip = (k, isLast) => { const a = edge(ys[k], k).map(([x, y]) => [x, y - (k ? lap(k) : 0)]), b = isLast ? [[R.cx + wide(bottom), bottom + out], [R.cx - wide(bottom), bottom + out]] : edge(ys[k + 1], k + 1).reverse().map(([x, y]) => [x, y + lap(k + 1)]); return [...a, ...b]; };
+        for (let k = 0; k <= last; k++) glazed(strip(k, k === last), cols[k], PALETTE.paper, sa, far ? 0.95 : 0.7);
+        // (under a far sink the settled syrup is glazed to its full ruby below a feathered top
+        // fifth, wet into wet, so the lighter top never meets it in a seam)
+        if (far) glazed(band(y1 + 2 + sT * 0.22, bottom, 0, out), L.paint, feather, sa * 0.8, 1);
         if (far) {
-          // the ruby blooming up into the in-between color: soft rounded tongues that stop short
-          // of the body's own color (a ruby over a chartreuse would be olive)
-          const reach = (y1 - ys[1]) * 0.9, tongue = crossfade(cols[1], L.paint, 0.5, 0.12);
-          for (let i = 0; i < 4; i++) {
-            const cx = R.cx + ((i + 0.5) / 4 - 0.5) * 1.3 * inset(y1) + (r() - 0.5) * 8, rw = 6 + r() * 6, lh = reach * (0.5 + r() * 0.5), pts = [];
-            for (let k = 0; k <= 10; k++) { const a = Math.PI + (k / 10) * Math.PI; pts.push([cx + Math.cos(a) * rw, y1 + 3 + Math.sin(a) * lh]); }
-            // (laid as a plain wash of a red half way to the syrup: over the gold it is a lit
-            // scarlet, over the ruby a deeper ruby, never the violet a glaze ratio would leave)
-            washes.push({ pts: pts.map(([x, y]) => [Math.max(R.cx - inset(y) + 3, Math.min(R.cx + inset(y) - 3, x)), y]), color: tongue, alpha: sa * 0.45, soft: 0.8 });
+          // the syrup rising into the in-between color: two or three irregular tongues, wider at
+          // the root, leaning, laid as a plain wash of the feathered syrup (over the gold it is a
+          // lit scarlet, over the syrup a deeper ruby, never the violet a glaze ratio would
+          // leave), stopping short of the body's own color (a ruby over a chartreuse is olive)
+          const nt = 2 + Math.floor(r() * 2), band0 = ys[2] - ys[1], root = y1 + 2 + sT * 0.15, tongue = crossfade(cols[1], feather, 0.6);
+          for (let i = 0; i < nt; i++) {
+            const w0 = wide(y1) - out, cx = R.cx + ((i + 0.5) / nt - 0.5) * 1.4 * w0 + (r() - 0.5) * 12, rw = 8 + r() * 7, lh = band0 * (0.55 + r() * 0.35), lean = (r() - 0.5) * 10, Lp = [], Rp = [];
+            for (let k = 0; k <= 10; k++) {
+              // (a rounded tip: the width falls like a quarter circle, not to a point)
+              const u = k / 10, y = root - u * (root - y1 + lh), w = rw * Math.sqrt(Math.max(0, 1 - u * u)) * (1 + 0.2 * Math.sin(u * 6 + i * 2.3)) + 1, x = cx + lean * u * u + Math.sin(u * 4 + i) * 1.5;
+              Lp.push([x - w, y]); Rp.push([x + w, y]);
+            }
+            washes.push({ pts: [...Lp, ...Rp.reverse()], color: tongue, alpha: sa * 0.32, soft: 0.95 });
           }
         }
-        const [sh, ss, sl] = hexHsl(L.paint);
-        glazed(band(bottom - sT * 0.45, bottom, 3), hslHex(sh, ss, sl * 0.82), L.paint, sa * 0.6, 0.8);
+        glazed(band(bottom - sT * 0.45, bottom, 3, out), hslHex(sh, ss, sl * 0.82), L.paint, sa * 0.6, 0.8);
         // the mixing zone: plumes of the syrup rising and opening into the drink, glazed toward
         // the syrup only as far as stays within reach of the body's own hue (no mud)
         // (a syrup far round the hue circle from the body sends no plumes into it: a glaze can
@@ -1838,7 +1968,7 @@ function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, body = 
     }
   }
   // glazed: the renderer composites these washes as exact glazes (artrender.js glazeLayer)
-  return { box: [300, 460], strokes, washes: washes.filter(w => w.pts), cover, glazed: true };
+  return { box: [300, 460], strokes, washes: washes.filter(w => w.pts), cover, clip, glazed: true };
 }
 
 function pebble(x, y, s, r, round = false) {
@@ -1884,12 +2014,15 @@ function soakWashes(kind, M, hex, r, { cap = 0.07, reach = 0.18, tendrils = 5, o
 export function blockCube(kind, fill, seed) {
   const R = rimOf(kind), r = rng(seed), top = levelOf(kind, fill);
   const a = (r() - 0.5) * 0.7, grow = 0.88 + r() * 0.2, dx = (r() - 0.5) * R.hw * 0.16;
-  const size = Math.min(R.hw * 1.3, 86) * grow, h = size / 2, x = R.cx + dx, y = top + 6 + h;
+  // (about three fifths of the glass across: a block that fills the glass reads as a tile)
+  const G = GLASS_PROFILES[kind] || GLASS_PROFILES.collins, size = Math.min(2 * halfAt(G, top + 24) * 0.6, 76) * (0.94 + (grow - 0.88) * 0.5), h = size / 2, x = R.cx + dx, y = top + 6 + h;
   if (y + h > R.bottom - 4) return null;
   const c = [[-h, -h], [h, -h], [h, h], [-h, h], [-h, -h]].map(([px, py]) => [x + px * Math.cos(a) - py * Math.sin(a), y + px * Math.sin(a) + py * Math.cos(a)]);
   return { x, y, size, a, c };
 }
-function ice({ kind = 'collins', style = 'cubed', fill = 0.84, seed = 5, soak = null, tint = null, sunk = false } = {}) {
+// (a pale gold cap cooled with ice-blue turns mint: a warm drink's heap is cooled with white)
+const warmTint = c => { const [h, s] = hexHsl(c); return s > 0.2 && (h < 75 || h > 330); };
+function ice({ kind = 'collins', style = 'cubed', fill = 0.84, seed = 5, soak = null, tint = null, sunk = false, body: drink = null, edge = null } = {}) {
   const G = GLASS_PROFILES[kind] || GLASS_PROFILES.collins, R = rimOf(kind), r = rng(seed);
   const strokes = [], washes = [], cover = [], dots = [];
   const top = levelOf(kind, fill);
@@ -1916,6 +2049,25 @@ function ice({ kind = 'collins', style = 'cubed', fill = 0.84, seed = 5, soak = 
     const body = [...ell(R.cx, coneTop, wt, wt * 0.24, Math.PI, TAU, 10), [R.cx + wb, foot], [R.cx - wb, foot]];
     // packed snow: paper white, a few soft grain marks, no ice-cube edges
     for (let i = 0; i < 16; i++) { const u = r(), y = coneTop + 10 + u * (foot - coneTop - 16), w = wt + (wb - wt) * u - 6, x = R.cx + (r() * 2 - 1) * w; strokes.push({ pts: ell(x, y, 2.6, 1.1, 0.2, Math.PI - 0.2, 5), tier: 3 }); }
+    // The drink shows through the snow: the part of the cone standing in the glass is washed
+    // two fifths of the way to the drink's own color (a copper grog reads copper through its
+    // ice), less two or three streaks where the light catches it, left paper white, and the
+    // rim at the top, white and bright. (Above the drink the snow is white.)
+    if (okHex(drink) && !G.opaque) {
+      const wet = clipHalf(body, q => q[1] - (levelOf(kind, fill) - 2));
+      const at = (u, y) => { const k = (y - coneTop) / (foot - coneTop), w = wt + (wb - wt) * k; return R.cx + u * w; };
+      const streak = (u, w, y0, y1) => [[at(u - w, y0), y0], [at(u + w, y0), y0], [at(u + w * 0.6, y1), y1], [at(u - w * 0.6, y1), y1]];
+      const sy = foot - coneTop, n = 2 + (r() < 0.5 ? 1 : 0);
+      const streaks = [streak(-0.62, 0.07, coneTop + sy * 0.1, coneTop + sy * (0.8 + r() * 0.12)), streak(-0.3 + r() * 0.06, 0.04, coneTop + sy * 0.22, coneTop + sy * (0.62 + r() * 0.15)), streak(0.48, 0.035, coneTop + sy * 0.3, coneTop + sy * 0.7)].slice(0, n);
+      const rim = ell(R.cx, coneTop, wt + 3, wt * 0.24 + 3, 0, TAU, 20);
+      if (wet) {
+        const g = glaze(mixHex('#FFFFFF', drink, 0.42), '#FFFFFF', 0.06);
+        washes.push({ pts: wet, color: g.color, alpha: g.alpha, soft: 0.5, grain: 0.1, layers: GLAZE_LAYERS, clip: [body, ...streaks, rim] });
+        // (the far side of the cone a shade deeper, wet into wet)
+        const far = clipX(wet, R.cx + wb * 0.25, R.cx + wb + 2);
+        if (far) { const g2 = glaze(mixHex('#FFFFFF', drink, 0.55), mixHex('#FFFFFF', drink, 0.42), 0.05); washes.push({ pts: far, color: g2.color, alpha: g2.alpha, soft: 0.8, grain: 0.1, layers: GLAZE_LAYERS, clip: [body, ...streaks, rim] }); }
+      }
+    }
     cover.push(body);
     return { box: [300, 460], strokes, washes, cover, dots };
   }
@@ -1927,7 +2079,8 @@ function ice({ kind = 'collins', style = 'cubed', fill = 0.84, seed = 5, soak = 
       // crushed ice glows with the drink it is packed in, palest at the crest
       // (in a mug or bowl the heap is all of the drink there is to see: it takes the drink's own
       // color, with no ice-blue in it, which would grey a copper to mauve)
-      else washes.push({ pts: M.poly, color: okHex(tint) ? (G.opaque ? tint : mixHex(tint, PALETTE.ice, 0.3)) : PALETTE.ice, alpha: okHex(tint) ? (G.opaque ? 0.045 : 0.03) : 0.026, soft: 0.6 });
+      else if (okHex(tint) && !G.opaque) { const g = glaze(mixHex('#FFFFFF', mixHex(tint, warmTint(tint) ? '#FFFFFF' : PALETTE.ice, 0.3), 0.6), '#FFFFFF', 0.03); washes.push({ pts: M.poly, color: g.color, alpha: g.alpha, soft: 0.6, layers: GLAZE_LAYERS }); }
+      else washes.push({ pts: M.poly, color: okHex(tint) ? tint : PALETTE.ice, alpha: okHex(tint) ? 0.045 : 0.026, soft: 0.6 });
       cover.push(M.poly);
       if (style === 'shaved') for (let i = 0; i < 10; i++) { const x = R.cx + (r() * 2 - 1) * R.hw * 0.75; strokes.push({ pts: ell(x, capYAt(M.top, x) + 5 + r() * Math.max(2, R.y - capYAt(M.top, x) - 4), 2.2, 1, 0, Math.PI, 5), tier: 3 }); }
       else for (let i = 0; i < 6; i++) { const x = R.cx + (r() * 2 - 1) * R.hw * 0.7, y0 = capYAt(M.top, x); strokes.push({ pts: pebble(x, y0 + 6 + r() * Math.max(2, R.y - y0 - 8), 5 + r() * 3, r, style === 'pebble'), tier: 3 }); }
@@ -1972,14 +2125,35 @@ function ice({ kind = 'collins', style = 'cubed', fill = 0.84, seed = 5, soak = 
       const B = style === 'block' ? blockCube(kind, fill, seed) : null;
       if (style === 'block' && !B) break;
       const c = B ? B.c : [[-h, -h], [h, -h], [h, h], [-h, h], [-h, -h]].map(([px, py]) => [x + px * Math.cos(a) - py * Math.sin(a), y + px * Math.sin(a) + py * Math.cos(a)]);
-      strokes.push({ pts: c, tier: 2 });
-      strokes.push({ pts: [[c[0][0] + (c[1][0] - c[0][0]) * 0.2 + 5, c[0][1] + (c[3][1] - c[0][1]) * 0.2 + 5], [c[0][0] + (c[1][0] - c[0][0]) * 0.2 + 5, c[0][1] + (c[3][1] - c[0][1]) * (style === 'block' ? 0.7 : 0.45) + 5]], tier: 3 });
+      if (B) {
+        // The big block is clear ice, not a tile: inked in a deeper tone of the drink with a
+        // thinner, broken line, and lit along its top and left edges with a cool highlight.
+        const S = spline(c, 3), m = S.length - 1, ink = okHex(edge) ? edge : null, gaps = [0.06 + r() * 0.08, 0.36 + r() * 0.1, 0.62 + r() * 0.1, 0.88 + r() * 0.06];
+        let from = 0;
+        for (const gp of [...gaps, 1.04]) {
+          const to = Math.min(m, Math.round(gp * m)), seg = S.slice(from, to + 1);
+          if (seg.length > 2) strokes.push({ pts: seg, tier: 3, ...(ink ? { color: ink, alpha: 0.9 } : {}) });
+          from = Math.min(m, to + 2);
+        }
+        // the highlight: just inside the top edge and down the left one, toward the middle
+        const inn = (p, k) => [p[0] + (B.x - p[0]) * k, p[1] + (B.y - p[1]) * k];
+        const lit = [inn(c[3], 0.14), inn(c[0], 0.14), inn(c[1], 0.14)].map((p, i, a) => i === 0 ? [p[0] + (a[1][0] - p[0]) * 0.45, p[1] + (a[1][1] - p[1]) * 0.45] : i === 2 ? [a[1][0] + (p[0] - a[1][0]) * 0.7, a[1][1] + (p[1] - a[1][1]) * 0.7] : p);
+        strokes.push({ pts: spline(lit, 4), tier: 2, w: 4.2, color: '#EEF6F7', alpha: 0.8 });
+      } else {
+        strokes.push({ pts: c, tier: 2 });
+        strokes.push({ pts: [[c[0][0] + (c[1][0] - c[0][0]) * 0.2 + 5, c[0][1] + (c[3][1] - c[0][1]) * 0.2 + 5], [c[0][0] + (c[1][0] - c[0][0]) * 0.2 + 5, c[0][1] + (c[3][1] - c[0][1]) * 0.45 + 5]], tier: 3 });
+      }
       // The cube is clear ice in front of the drink: it keeps the paper and only glows with the
       // drink's lightest tone, so the color around it stays vivid instead of greying under it.
       // (A big block in a spirit-forward drink just shows the drink through it.)
       if (style === 'cubed') {
-        const inner = c.slice(0, 4);
-        if (okHex(tint)) { washes.push({ pts: inner, color: tint, alpha: 0.055, soft: 0.4, grain: 0.08 }); cover.push(inner); }
+        // (the outline is inked as a curve through the corners: the cube's paper follows it)
+        const inner = spline(c, 3);
+        // (a pale gold glow in a cube, on the paper, reads lime: a warm one glows toward honey)
+        const glow = okHex(tint) && warmTint(tint) ? (([h, s, l]) => hslHex(h > 40 && h < 75 ? 40 : h, s, l))(hexHsl(tint)) : tint;
+        // (laid as an exact glaze in a few layers: many faint 8-bit layers of a pale cream round
+        // away in red and pile up in blue, and the cube turns lime)
+        if (okHex(tint)) { const g = glaze(glow, '#FFFFFF', 0.06); washes.push({ pts: inner, color: g.color, alpha: g.alpha, soft: 0.4, grain: 0.08, layers: GLAZE_LAYERS }); cover.push(inner); }
         else washes.push({ pts: inner, color: PALETTE.ice, alpha: 0.04, soft: 0.3 });
       }
     }

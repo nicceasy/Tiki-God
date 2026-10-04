@@ -1018,6 +1018,17 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       const cap = Math.min(doseCap(l.id, A.family, !!own), (slot && slot.ozRange ? slot.ozRange[1] : 0.75) + own, l.range ? l.range[1] + own : Infinity, own ? 1 : Infinity);
       if (cap >= l.oz + 0.2) tries.push({ on: l, id: l.id, cost: 0.02, why: `more ${prose(l.id)}, ${why}`, edit: L => { const x = L[lines.indexOf(l)]; if (x) { x.oz = cap; x.oz0 = Math.max(x.oz0 || 0, cap); } } });
     }
+    // A dark brew poured as a backbone or a top (strong black tea in a zero-proof punch) gives a
+    // warm carrier room to show: less of it, down to its slot's floor (never in a hot drink, where
+    // the tea is the drink).
+    if (['gold', 'orange', 'pink', 'red'].includes(lean) && svc.method !== 'hot') for (const l of lines) {
+      const ing = ingMap.get(l.id), o = opticsOf(ing);
+      if (kept(l) || l.garnish || l.float || l.sink || !l.slot || carrierSet.has(l.id) || (ing.abv || 0) > 0 || !(ing.cat === 'soda' || /tea|coffee/.test(l.id))) continue;
+      if (o.tint < 1.2 || (o.scatter || 0) >= 0.5 || hsl(o.hex).l >= 0.5) continue;
+      const slot = slots.find(c => (c.component || c.slot) === l.slot);
+      const lo = Math.max(slot && slot.ozRange ? slot.ozRange[0] : l.oz, l.range ? l.range[0] : 0);
+      if (l.oz >= lo + 0.5) tries.push({ on: l, cost: 0.03, why: `less ${prose(l.id)}, so the ${lean} shows`, edit: L => { const x = L[lines.indexOf(l)]; if (x) { x.oz = lo; x.oz0 = Math.min(x.oz0 || lo, lo); x.held = true; } } });
+    }
     // A drink with no leaning of its own only gets more of the color it already carries.
     if (!own) {
       // Refill a slot with a bottle of that color (passion fruit syrup in place of simple syrup),
@@ -2343,10 +2354,19 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     const worse = (t, b) => (t.colorOk ? 0 : 1) * 10 + t.colorMiss + t.broken * 2 >= (b.colorOk ? 0 : 1) * 10 + b.colorMiss + b.broken * 2 - 0.05;
     if ((!built.colorOk || built.broken) && !riffSrc && !classic && !intent.namedClassic) {
       const ranked = archetypes.map(a => ({ a, s: scoreOf.get(a) })).filter(x => Number.isFinite(x.s) && x.a !== built.A && !skipped.has(x.a) && !(avoid && avoid.has(x.a.id)) && x.s >= (scoreOf.get(built.A) ?? 0) - (built.colorOk ? 4 : 9)).sort((x, y) => y.s - x.s);
-      for (const x of ranked.slice(0, 8)) {
+      // A color the guest demanded that none of the closest frames could pour (a neon prayer's
+      // second idea landing on a Mojito, which never takes melon liqueur): look a little further
+      // down the list, at frames that allow the color's bottle or have a slot for one of its carriers.
+      const canCarry = a => {
+        const lr = LAST_RESORT[intent.color], test = COLOR_TEST[intent.color];
+        if (lr && !(a.forbidden || []).includes(lr.id) && !forbidden(lr.id, intent)) return true;
+        return [...(a.signature || []), ...(a.optional || [])].some(sl => (sl.anyOf || []).some(id => ingMap.has(id) && opticsOf(ingMap.get(id)).tint >= 0.8 && test(hsl(opticsOf(ingMap.get(id)).hex))));
+      };
+      const further = intent.color && !built.colorOk && COLOR_TEST[intent.color] ? ranked.slice(8).filter(x => canCarry(x.a)).slice(0, 6) : [];
+      for (const x of [...ranked.slice(0, 8), ...further]) {
+        if (built.colorOk && !built.broken) break;
         const t = attempt(x.a);
         if (!worse(t, built)) built = t;
-        if (built.colorOk && !built.broken) break;
       }
     }
     const { A, notes, svc } = built;

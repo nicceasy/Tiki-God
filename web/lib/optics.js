@@ -102,6 +102,7 @@ function liquidFloor(c) {
 const NAMED = [
   ['#f5f1e6', 'water-clear'], ['#f4ecd6', 'pale straw'], ['#f2e1a0', 'pale gold'], ['#f0c95a', 'golden'], ['#f2b73a', 'passion-fruit gold'], ['#f2a32e', 'mango gold'],
   ['#e8cc94', 'pale honey'], ['#dcb07a', 'pale amber'], ['#e5b46a', 'honeyed amber'], ['#e6bc74', 'golden amber'], ['#d98a3a', 'amber'], ['#c8804e', 'copper'], ['#b05a26', 'burnished copper'], ['#8f6a32', 'dark amber'], ['#f08a34', 'tangerine'], ['#ea6a30', 'sunset orange'],
+  ['#b8864e', 'tawny'], ['#9c5228', 'russet'], ['#c4664e', 'terracotta'], ['#d2562e', 'blood-orange'], ['#ecbc6c', 'orange-gold'],
   ['#8a4a22', 'mahogany'], ['#86382a', 'oxblood'], ['#5a2e16', 'dark brown'], ['#3e1c0e', 'molasses'], ['#2e1a10', 'near-black'], ['#4a0c2c', 'deep plum'],
   ['#f6c6a0', 'peach'], ['#f2b276', 'apricot'], ['#e9a38c', 'rose gold'], ['#f29a6a', 'coral'], ['#e0563a', 'red-orange'], ['#c8303a', 'red'], ['#9c1e3a', 'ruby'], ['#7a1a1e', 'garnet'],
   ['#f2a8b8', 'pink'], ['#f6d0d8', 'blush'], ['#d65a8c', 'hibiscus pink'], ['#c2185b', 'magenta'], ['#8a4ab0', 'violet'], ['#c8b4e0', 'lavender'], ['#5a3a8a', 'deep purple'],
@@ -133,10 +134,16 @@ const WORD_GUARD = {
   'honeyed amber': c => c.l < 0.62, 'golden amber': c => c.l >= 0.6 && c.h !== null && c.h >= 32 && c.h < 46,
   // Apricot is an orange-gold fruit's color; a light amber Mai Tai with no apricot in it is golden amber.
   apricot: onHue(20, 36),
+  // Tawny is a soft brown-amber (an aged-rum grog), russet a deep red-brown (strong tea, a
+  // bitters-heavy sour), terracotta a rosy clay (hibiscus through grapefruit and dark rum),
+  // blood-orange a deep red-orange; none of them is a pale drink.
+  tawny: c => onHue(26, 38)(c) && c.s < 0.56 && c.l < 0.6, russet: c => onHue(14, 30)(c) && c.l < 0.48,
+  terracotta: c => onHue(6, 20)(c) && c.s >= 0.38 && c.l < 0.62, 'blood-orange': c => onHue(8, 20)(c) && c.s >= 0.5 && c.l < 0.6,
+  'orange-gold': c => onHue(32, 44)(c) && c.s >= 0.6,
 };
 const DARK_ONLY = new Set(['mahogany', 'oxblood', 'dark brown', 'molasses', 'near-black', 'deep plum']);
 // A creamy drink's warm browns are milky (café au lait, tan), not a spirit's amber or copper.
-const CLEAR_WARM = new Set(['pale honey', 'pale amber', 'honeyed amber', 'golden amber', 'amber', 'copper', 'burnished copper']);
+const CLEAR_WARM = new Set(['pale honey', 'pale amber', 'honeyed amber', 'golden amber', 'amber', 'copper', 'burnished copper', 'tawny', 'russet']);
 const lab = hex => {
   const [r, g, b] = lin(hex);
   const X = (0.4124 * r + 0.3576 * g + 0.1805 * b) / 0.95047, Y = 0.2126 * r + 0.7152 * g + 0.0722 * b, Z = (0.0193 * r + 0.1192 * g + 0.9505 * b) / 1.08883;
@@ -240,7 +247,7 @@ export function drinkLook(lines, ingMap, { method, ice, dilutionOz = 0, vessel =
   const hb = hsl(body.hex), shade = id => mixed.filter(l => l.id === id).reduce((t, l) => t + l.oz * (opticsOf(I(l)).tint + (opticsOf(I(l)).scatter || 0)), 0);
   const fruitGold = [['mango-nectar', 'mango-gold'], ['mango', 'mango-gold'], ['passion-fruit-nectar', 'passion-fruit gold'], ['passion-fruit-juice', 'passion-fruit gold'], ['passion-fruit-syrup', 'passion-fruit gold']]
     .map(([id, w]) => ({ w, k: shade(id) })).sort((a, b) => b.k - a.k)[0];
-  if (creamy && !cocoa && fruitGold.k >= 1.5 && /^creamy (tan|orange-tan|pale gold|pale honey)$/.test(bodyWord) && hb.h !== null && hb.h >= 30 && hb.h < 50 && hb.s >= 0.5) bodyWord = `creamy ${fruitGold.w}`;
+  if (creamy && !cocoa && fruitGold.k >= 1.5 && /^creamy (tan|orange-tan|orange-gold|pale gold|pale honey)$/.test(bodyWord) && hb.h !== null && hb.h >= 30 && hb.h < 50 && hb.s >= 0.5) bodyWord = `creamy ${fruitGold.w}`;
   // Stirred with vermouth and rum, Campari deepens to garnet; brightened with lime it stays red.
   const reds = ['campari', 'grenadine', 'hibiscus-syrup', 'raspberry-syrup', 'fassionola', 'cherry-heering', 'pomegranate-juice', 'sloe-gin', 'strawberry'];
   if (/^(cloudy )?(red|garnet)$/.test(bodyWord) && reds.every(id => id === 'campari' || shade(id) < shade('campari') * 0.5) && shade('campari') >= 2.5) {
@@ -255,13 +262,33 @@ export function drinkLook(lines, ingMap, { method, ice, dilutionOz = 0, vessel =
   const yellow = hb.h !== null && hb.h >= 38 && hb.h < 60 && hb.s >= 0.5;
   if (creamy && !cocoa && yellow && pineOz >= 4 && pineOz >= creamOz && /^creamy (ivory|cream|tan|pale gold|pale honey)$/.test(bodyWord)) bodyWord = pineOz >= 2 * creamOz ? 'creamy butter-yellow' : 'creamy pineapple-cream';
   const top = mixed.map(l => ({ id: l.id, k: shade(l.id) })).sort((a, b) => b.k - a.k)[0];
-  if (!creamy && yellow && hb.s >= 0.6 && hb.l >= 0.62 && hb.l < 0.75 && top && top.id === 'pineapple-juice' && /^(opaque |cloudy )?(golden|pale gold|pale honey|pale amber|honeyed amber|golden amber)$/.test(bodyWord)) bodyWord = bodyWord.replace(/[a-z -]+$/, m => (/^(opaque|cloudy) /.test(m) ? m.split(' ')[0] + ' ' : '') + 'pineapple gold');
+  if (!creamy && yellow && hb.s >= 0.6 && hb.l >= 0.62 && hb.l < 0.75 && top && top.id === 'pineapple-juice' && /^(opaque |cloudy )?(golden|pale gold|pale honey|pale amber|honeyed amber|golden amber|orange-gold)$/.test(bodyWord)) bodyWord = bodyWord.replace(/[a-z -]+$/, m => (/^(opaque|cloudy) /.test(m) ? m.split(' ')[0] + ' ' : '') + 'pineapple gold');
   // A copper drink reddened by a red syrup (fassionola, grenadine, hibiscus) is rust-red, as the
   // painting tilts it (artspec.js paintTilt: red carriers at least 5% of the glass and outweighing
   // the gold ones).
   const share = ids => ozOf(ids) / (mixed.reduce((t, l) => t + l.oz, 0) || 1);
   const red = share(RED_TINT), gold = share(GOLD_TINT);
-  if (!creamy && /^(cloudy |opaque )?(burnished copper|copper)$/.test(bodyWord) && hb.h !== null && hb.h >= 15 && hb.h < 24 && hb.s >= 0.5 && red >= 0.05 && red > gold * 1.2) bodyWord = bodyWord.replace(/(burnished copper|copper)$/, 'rust-red');
+  if (!creamy && /^(cloudy |opaque )?(burnished copper|copper|terracotta|russet)$/.test(bodyWord) && hb.h !== null && hb.h >= 15 && hb.h < 24 && hb.s >= 0.5 && red >= 0.05 && red > gold * 1.2) bodyWord = bodyWord.replace(/(burnished copper|copper|terracotta|russet)$/, 'rust-red');
+  // The rum ambers are told apart by what else is in them, so a menu of grogs and Zombies isn't
+  // one copper: a teaspoon of grenadine (with Don's Mix) leaves a Zombie a ruddy amber, as the
+  // 1934 original reads; a grog sweetened with honey is honeyed amber; orange and pineapple
+  // juice make a swizzle an orange-amber, and a glass that is mostly orange juice tangerine.
+  const warmRum = /^(cloudy |opaque )?(copper|tawny|amber)$/;
+  const redShare = (ozOf(RED_TINT) + 0.5 * ozOf(['dons-mix'])) / (mixed.reduce((t, l) => t + l.oz, 0) || 1);
+  const sweeteners = mixed.filter(l => I(l).role === 'sweet' || (I(l).cat === 'syrup' && (I(l).sugar || 0) >= 40));
+  const honeyLed = ozOf(['honey-syrup']) >= 0.75 && sweeteners.every(l => l.id === 'honey-syrup' || l.oz < ozOf(['honey-syrup']));
+  if (!creamy && warmRum.test(bodyWord) && hb.h !== null && hb.h >= 18 && hb.h < 32 && redShare >= 0.02 && red < 0.05) bodyWord = bodyWord.replace(/(copper|tawny|amber)$/, 'ruddy amber');
+  else if (!creamy && warmRum.test(bodyWord) && hb.h !== null && hb.h >= 24 && hb.h < 40 && hb.l < 0.62 && honeyLed) bodyWord = bodyWord.replace(/(copper|tawny|amber)$/, 'honeyed amber');
+  else if (!creamy && warmRum.test(bodyWord) && body.opacity >= 0.45 && hb.h !== null && hb.h >= 24 && hb.h < 38 && ozOf(['orange']) >= 0.75 && ozOf(['orange', 'pineapple-juice']) >= 1.5) bodyWord = bodyWord.replace(/(copper|tawny|amber)$/, hb.s >= 0.75 && hb.l >= 0.56 && top && top.id === 'orange' ? 'tangerine' : 'orange-amber');
+  // Campari and pineapple make coral (the Jungle Bird), however dark the rum leaves it.
+  if (!creamy && /^(cloudy |opaque )?(terracotta|copper|rust-red|red-orange|sunset orange|blood-orange)$/.test(bodyWord) && hb.h !== null && hb.h >= 5 && hb.h < 26 && ozOf(['campari']) >= 0.5 && ozOf(['pineapple-juice']) >= 2) bodyWord = bodyWord.replace(/[a-z-]+( [a-z-]+)?$/, m => (/^(opaque|cloudy) /.test(m) ? m.split(' ')[0] + ' ' : '') + 'coral');
+  // Passion fruit names a clear-to-cloudy gold it colors (tea or a little rum under it), as mango
+  // names a colada.
+  if (!creamy && fruitGold.w === 'passion-fruit gold' && fruitGold.k >= 1.2 && top && /^passion-fruit/.test(top.id) && hb.h !== null && hb.h >= 34 && hb.h < 50 && hb.s >= 0.6 && /^(cloudy |opaque )?(amber|golden amber|honeyed amber|pale amber|tawny|apricot|orange-gold|golden|tangerine|mango gold)$/.test(bodyWord)) bodyWord = bodyWord.replace(/[a-z-]+( [a-z-]+)?$/, m => (/^(opaque|cloudy) /.test(m) ? m.split(' ')[0] + ' ' : '') + 'passion-fruit gold');
+  // Melon liqueur is the green of a neon drink.
+  if (!creamy && top && top.id === 'melon-liqueur' && hb.h !== null && hb.h >= 70 && hb.h < 140 && hb.s >= 0.4 && /^(cloudy |hazy )?(pale green-gold|pale lime|green|leaf green)$/.test(bodyWord)) bodyWord = bodyWord.replace(/(pale green-gold|pale lime|green|leaf green)$/, 'melon green');
+  // Banana blended into a Bushwacker lightens its mocha: a banana café.
+  if (creamy && cocoa && ozOf(['banana']) >= 1 && /^creamy (mocha|café au lait|tan)$/.test(bodyWord)) bodyWord = 'creamy banana-café';
   const words = [bodyWord];
   for (const x of layers) {
     const n = ((ingMap.get(x.id) || {}).name || '').toLowerCase().replace(/\s*\(.*\)/, '');

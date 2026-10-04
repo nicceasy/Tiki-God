@@ -41,7 +41,9 @@ function build(el, i, seed) {
     const t = TIER[st.tier] || TIER[1];
     const w = (st.w ? (st.w / 2.3) * t.w : t.w) * k;
     const rib = ribbon(st.pts.map(T), { w, seed: seedOf(`${seed}:${i}:${j}`), wobble: 0.45 * Math.min(1.4, s), taperIn: 0.12, taperOut: st.tier === 1 ? 0.3 : 0.4, swell: st.tier === 1 ? 0.18 : 0.1 });
-    return { rib, alpha: t.a };
+    // (a stroke may name its own color and strength: a block of ice inked in the drink's own
+    // deeper tone, a cool highlight laid over the drink; otherwise it is the pen's ink)
+    return { rib, alpha: st.alpha ?? t.a, color: st.color || INK };
   });
   const washes = (part.washes || []).map((w, j) => {
     const pts = w.pts.map(T);
@@ -124,13 +126,14 @@ function drawLayer(ctx, layer, alpha = 1, clip = null) {
   ctx.save(); clipTo(ctx, clip); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'multiply'; ctx.globalAlpha = alpha;
   ctx.drawImage(layer, 0, 0); ctx.restore();
 }
-// Clip to the given polygons (spec space, even-odd: a second ring cuts a hole, such as the
-// window of an ice cube in a dark drink). Nothing to clip to leaves the context as it was.
+// Clip to the first polygon (spec space), less each of the others: holes, such as the window of
+// an ice cube in a dark drink, each cut out on its own so two holes that overlap stay holes.
+// Nothing to clip to leaves the context as it was.
 function clipTo(ctx, polys) {
   if (!polys || !polys.length) return;
-  ctx.beginPath();
-  for (const P of polys) { ctx.moveTo(P[0][0], P[0][1]); for (let i = 1; i < P.length; i++) ctx.lineTo(P[i][0], P[i][1]); ctx.closePath(); }
-  ctx.clip('evenodd');
+  const path = P => { ctx.moveTo(P[0][0], P[0][1]); for (let i = 1; i < P.length; i++) ctx.lineTo(P[i][0], P[i][1]); ctx.closePath(); };
+  ctx.beginPath(); path(polys[0]); ctx.clip();
+  for (const P of polys.slice(1)) { ctx.beginPath(); ctx.rect(-1e4, -1e4, 2e4, 2e4); path(P); ctx.clip('evenodd'); }
 }
 function within(ctx, polys, fn) {
   if (!polys || !polys.length) { fn(); return; }
@@ -189,7 +192,7 @@ function drawDots(ctx, dots) {
 // Paint a whole spec at once (reduced motion, resizes, cached variants).
 function paintAll(ctx, items) {
   for (const e of items) occluded(ctx, e, () => {
-    for (const s of e.strokes) drawRibbon(ctx, s.rib, 1, INK, s.alpha);
+    for (const s of e.strokes) drawRibbon(ctx, s.rib, 1, s.color, s.alpha);
     drawDots(ctx, e.dots);
     if (e.glazed) { drawLayer(ctx, glazeLayer(e, ctx), 1, e.clip); return; }
     within(ctx, e.clip, () => {
@@ -276,8 +279,8 @@ export function createArtist(wrap, { reducedMotion = false } = {}) {
           if (t < e.start) continue;
           for (const s of e.strokes) {
             if (s.done) continue;
-            if (t >= s.t1) { occluded(bctx, e, () => drawRibbon(bctx, s.rib, 1, INK, s.alpha)); s.done = true; }
-            else if (t >= s.t0) occluded(lctx, e, () => drawRibbon(lctx, s.rib, (t - s.t0) / Math.max(1e-3, s.t1 - s.t0), INK, s.alpha));
+            if (t >= s.t1) { occluded(bctx, e, () => drawRibbon(bctx, s.rib, 1, s.color, s.alpha)); s.done = true; }
+            else if (t >= s.t0) occluded(lctx, e, () => drawRibbon(lctx, s.rib, (t - s.t0) / Math.max(1e-3, s.t1 - s.t0), s.color, s.alpha));
           }
           if (!e.dotsDone && t >= e.drawEnd) { occluded(bctx, e, () => drawDots(bctx, e.dots)); e.dotsDone = true; }
           if (e.glazed && t >= e.washStart && !e.layerDone) {
