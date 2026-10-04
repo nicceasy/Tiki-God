@@ -139,7 +139,9 @@ export const ICE_SHARE = { cubed: 0.45, crushed: 0.5, pebble: 0.5, shaved: 0.5, 
 export const HEADROOM = 0.5;
 export const CRUSHED_SOLID = 0.55;
 export const BOWL_ROUND_ICE = 16, BOWL_BED = 8;
-const OWN_ICE = (method, ice) => ['swizzle', 'build', 'muddle-build'].includes(method) || (['shake', 'flash-blend'].includes(method) && ['crushed', 'pebble'].includes(ice));
+// (Shaken or flash-blended on crushed, pebble or shaved ice and poured ice and all, as Trader
+// Vic built the Mai Tai: "shake with shaved ice", the lot into the double old fashioned.)
+const OWN_ICE = (method, ice) => ['swizzle', 'build', 'muddle-build'].includes(method) || (['shake', 'flash-blend'].includes(method) && ['crushed', 'pebble', 'shaved'].includes(ice));
 // The ice a flash-blend takes: about 6 oz for one drink, a little less than the liquid for more.
 export const flashIceFor = oz => Math.max(6, oz * 0.9);
 export function fillBudget({ volOz = 0, finalOz = 0 } = {}, v, { method = 'shake', ice = 'cubed', servings = 1, fizz = false, fizzOz = 0 } = {}) {

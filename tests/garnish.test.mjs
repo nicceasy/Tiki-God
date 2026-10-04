@@ -9,7 +9,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createEngine } from '../web/lib/engine.js';
-import { garnishRule } from '../web/lib/artspec.js';
+import { garnishRule, UMBRELLA_ALLOWED } from '../web/lib/artspec.js';
+import { fillBudget, recipeFill } from '../web/lib/vessels.js';
 
 const j = p => JSON.parse(readFileSync(new URL(`../${p}`, import.meta.url), 'utf8'));
 const vessels = j('data/vessels.json');
@@ -65,6 +66,10 @@ test('a fruit garnish shows only fruit that is poured (the Three Dots pick and a
   for (const x of all) for (const g of x.r.garnish) {
     if (/three cherries and a pineapple chunk/.test(g)) { assert.equal(x.r.archetype.id, 'beachcomber-spice-sour', `${id(x)}: the Morse pick claims a Three Dots`); continue; }
     if (g === 'expressed orange peel' && x.r.family.id === 'stirred') continue;
+    // (A classic poured as written wears its own edition's garnish: the Suffering Bastard's orange
+    // slice, the Dark 'n Stormy's lime wedge, whatever is in the glass.)
+    const edition = x.r.method.canon && x.r.method.canon.method === x.r.method.method && (x.r.classic || (x.r.canon && x.r.canon.state === 'as-written')) ? (x.r.method.canon.garnish || []).join(' ').toLowerCase() : '';
+    if (edition && g.split(' ').some(w => w.length > 3 && edition.includes(w))) continue;
     for (const [re, ids] of SIG) if (re.test(g)) assert.ok(has(x.r, ...ids), `${id(x)}: "${g}" without ${ids[0]} (${x.r.lines.map(l => l.id).join(', ')})`);
   }
 });
@@ -129,11 +134,12 @@ test('hot drinks: spice and peel by archetype, nothing from the ice world', () =
 test('the signature serves wear their own garnish', () => {
   const find = (arch, pred = () => true) => all.filter(x => x.r.archetype.id === arch && pred(x.r));
   const every = (arch, fn, pred) => { const xs = find(arch, pred); assert.ok(xs.length, `no ${arch} in the battery`); for (const x of xs) fn(x.r, id(x)); };
-  every('beachcomber-spice-sour', (r, w) => assert.ok(r.garnish.includes('three cherries and a pineapple chunk on a pick'), w), r => !r.lines.some(l => ['cinnamon-syrup', 'dons-spices-2'].includes(l.id)));
+  // (The Morse pick is the Three Dots' own: its honey, orange and allspice; another Don sour wears mint.)
+  every('beachcomber-spice-sour', (r, w) => assert.ok(r.garnish.includes('three cherries and a pineapple chunk on a pick'), w), r => !r.lines.some(l => ['cinnamon-syrup', 'dons-spices-2'].includes(l.id)) && has(r, 'honey-syrup') && has(r, 'orange') && has(r, 'allspice-dram'));
   // A Mai Tai served up (a celebration's sparkling Mai Tai in a flute) wears one small thing instead.
   every('mai-tai', (r, w) => { if (!isUp(r)) assert.ok(r.garnish.includes('spent lime shell'), w); assert.ok(!r.garnish.some(g => /cherr|umbrella|flag/.test(g)), w); });
   every('navy-grog', (r, w) => { assert.ok(r.garnish.includes('mint sprig') && r.garnish.includes('spent lime shell'), w); if (r.method.ice === 'ice-cone') assert.ok(r.garnish.includes('straw through the ice cone'), w); });
-  every('painkiller', (r, w) => { assert.ok(r.garnish.includes('heavy nutmeg cap'), w); if (has(r, 'orange') && !(engine.parse(r.prompt).avoidTags.orange >= 1)) assert.ok(r.garnish.includes('orange wheel') && r.garnish.includes('cherry'), w); });
+  every('painkiller', (r, w) => { assert.ok(r.garnish.includes('heavy nutmeg cap'), w); if (has(r, 'orange') && !(engine.parse(r.prompt).avoidTags.orange >= 1)) assert.ok(r.garnish.includes('orange wheel') && r.garnish.some(g => /^cherry/.test(g)), w); });
   every('trinidad-swizzle', (r, w) => assert.ok(r.garnish.includes('mint sprig') && r.garnish.includes('swizzle stick left in'), w));
   every('zombie', (r, w) => { assert.equal(r.garnish[0], 'mint sprig', w); if (has(r, 'pineapple-juice') && !(engine.parse(r.prompt).avoidTags.pineapple >= 1)) assert.ok(r.garnish.includes('pineapple frond'), w); });
   // A Hurricane batched into a punch bowl floats its fruit instead of wearing a flag.
@@ -197,6 +203,8 @@ test('blender ice follows the liquid (about 1–1¼×); a flash-blend takes abou
       if (ice === null || !/^(Blend|Flash-blend|Add everything[^.]* to a blender)/.test(s)) continue;
       const mix = mixOz(s) ?? liquid;
       if (/Flash-blend|blender cup/.test(s)) assert.ok(ice >= 5.5 && ice <= Math.max(7, mix * 1.4), `${id(x)}: ${ice} oz of ice for ${mix} oz flash-blended`);
+      // (Ice cream is half the frost already: about 4 oz of ice and a short blend.)
+      else if (has(r, 'vanilla-ice-cream')) assert.ok(ice >= 3 && ice <= 5 && /briefly/.test(steps(r)), `${id(x)}: ${ice} oz of ice with ice cream ("${s}")`);
       else { blends++; assert.ok(ice >= mix * 0.85 && ice <= mix * 1.45, `${id(x)}: ${ice} oz of ice for ${mix} oz blended ("${s}")`); }
     }
     if (r.method.method === 'blend') assert.ok(!/1 cup \(8 oz\) of ice/.test(steps(r)) || Math.abs(liquid - 7.3) < 1.5, `${id(x)}: the fixed cup of ice`);
@@ -264,19 +272,38 @@ for (const p of prompts) for (const seed of [0, 1]) served.push({ p, seed, r: ru
 for (const p of SERVICE_EXTRA) for (const seed of [0, 1]) served.push({ p, seed, r: ruled.generate(p, { seed }) });
 const battery = served.filter(x => prompts.includes(x.p));
 
-test('capacity on every path: ice and all is half the vessel, frozen mounds under the rim, small drinks in small vessels, up drinks in stemmed glasses', () => {
+test('capacity on every path: the liquid, the ice it is served on and headroom fit the vessel (one model with the engine and the linter)', () => {
   for (const x of served) {
     const r = x.r, v = vesselById[r.vessel.id];
-    if (isBowl(r) || r.vessel.why === 'asked' || r.classic) continue;
-    const open = ['crushed', 'pebble'].includes(r.method.ice) && ['shake', 'flash-blend', 'swizzle'].includes(r.method.method) && !isUp(r);
-    if (open) assert.ok(r.stats.volOz <= v.capacity * 0.55 + 0.15, `${id(x)}: ${r.stats.volOz} oz poured ice and all into ${v.capacity} oz`);
-    if (r.method.method === 'blend') {
-      assert.ok(r.stats.finalOz <= v.capacity * 0.92 + 0.15, `${id(x)}: ${r.stats.finalOz} oz frozen in ${v.capacity} oz`);
-      assert.ok(r.stats.finalOz >= v.capacity * 0.45, `${id(x)}: ${r.stats.finalOz} oz frozen lost in a ${v.capacity} oz ${v.id}`);
-    }
+    const f = recipeFill(r, v);
+    // (A drink the guest's own vessel had to be scaled into fits it too.)
+    assert.ok(f.oz <= f.hi + 0.06, `${id(x)}: ${f.kind} ${f.oz.toFixed(2)} oz (${f.open ? 'poured' : 'finished'}) + ${f.ice.toFixed(1)} oz of ice in a ${v.capacity} oz ${v.id}; it holds ${f.hi.toFixed(2)}`);
+    if (!['frozen', 'bowl'].includes(f.kind)) assert.ok(f.need <= v.capacity + 0.06, `${id(x)}: needs ${f.need.toFixed(2)} oz of a ${v.capacity} oz ${v.id}`);
     if (r.method.ice === 'none' && ['shake', 'stir'].includes(r.method.method)) assert.ok(v.serve.includes('up'), `${id(x)}: strained with no ice into an empty ${v.id}`);
-    if (isUp(r) && r.method.method !== 'blend') assert.ok(r.stats.finalOz <= v.capacity * 0.95 + 0.1, `${id(x)}: ${r.stats.finalOz} oz up in ${v.capacity} oz`);
+    if (r.method.method === 'blend' && !isBowl(r) && r.vessel.why !== 'asked') assert.ok(r.stats.finalOz >= v.capacity * 0.45, `${id(x)}: ${r.stats.finalOz} oz frozen lost in a ${v.capacity} oz ${v.id}`);
   }
+});
+
+test('the budget itself: cubes take 45% of the glass, packed crushed 50%, a shell 30% of a coupe, up drinks 80% (85% with bubbles), bowls count their ice in its voids', () => {
+  const V = id => vesselById[id];
+  // Strained over fresh cubes: the finished liquid plus 45% ice plus headroom (a 13 oz collins holds 6.65 oz finished).
+  assert.ok(Math.abs(fillBudget({ volOz: 5, finalOz: 7 }, V('collins'), { method: 'shake', ice: 'cubed' }).hi - 6.65) < 0.01);
+  // Ice and all: the poured liquid plus the glass's own ice (the 1934 Zombie's 6 oz fits its chimney).
+  const z = fillBudget({ volOz: 5.96, finalOz: 10.8 }, V('chimney'), { method: 'flash-blend', ice: 'crushed' });
+  assert.ok(z.open && z.oz <= z.hi, `Zombie ${z.oz} > ${z.hi}`);
+  // The round-3 overflows no longer fit: the Painkiller's 10.9 oz over cubes in its tin, the 6.4 oz in a shell-lined coupe, 10.4 oz over cubes in a collins.
+  assert.ok(fillBudget({ volOz: 8, finalOz: 10.9 }, V('enamel-tin'), { method: 'shake', ice: 'cubed' }).oz > fillBudget({ volOz: 8, finalOz: 10.9 }, V('enamel-tin'), { method: 'shake', ice: 'cubed' }).hi);
+  const shell = fillBudget({ volOz: 3.77, finalOz: 6.4 }, V('coupe'), { method: 'flash-blend', ice: 'shaved' });
+  assert.equal(shell.kind, 'shell'); assert.ok(shell.oz > shell.hi && shell.hi < 4.5);
+  assert.ok(fillBudget({ volOz: 7.25, finalOz: 10.4 }, V('collins'), { method: 'shake', ice: 'cubed' }).oz > 6.65);
+  // Up: 5–5½ oz finished in a 7 oz coupe; a flute with bubbles to 85%.
+  assert.ok(Math.abs(fillBudget({ volOz: 3.5, finalOz: 5 }, V('coupe'), { method: 'shake', ice: 'cubed' }).hi - 5.6) < 0.01);
+  assert.ok(Math.abs(fillBudget({ volOz: 4, finalOz: 6 }, V('flute'), { method: 'shake', ice: 'cubed', fizz: true }).hi - 5.95) < 0.01);
+  // A topper is never on the shaker's ice: only the shaken part is diluted.
+  assert.ok(fillBudget({ volOz: 6, finalOz: 8 }, V('collins'), { method: 'shake', ice: 'cubed', fizzOz: 3 }).oz < 7.05);
+  // Bowls: two serves shaken on 2 cups of ice over a 1-cup bed sit in the volcano bowl's 40 oz with the ice's voids holding the mix.
+  const vb = fillBudget({ volOz: 7, finalOz: 10.4 }, V('volcano-bowl'), { method: 'shake', ice: 'crushed', servings: 2 });
+  assert.ok(vb.oz <= vb.hi && vb.need <= 40, `${vb.need}`);
 });
 
 test('the shaker ice for an open pour is sized to the glass, and a bowl gets rounds of two over a modest bed', () => {
@@ -289,7 +316,8 @@ test('the shaker ice for an open pour is sized to the glass, and a bowl gets rou
 
 test('a named classic is served the way its canon serves it, or the card records what the prayer waived', () => {
   const by = p => served.find(x => x.p === p && x.seed === 0).r;
-  assert.ok(vesselById[by('hemingway daiquiri').vessel.id].serve.includes('up'), 'a Hemingway goes up');
+  // (Up in a coupe, or the Papa Doble's goblet when the shell can't hold it.)
+  assert.ok(vesselById[by('hemingway daiquiri').vessel.id].serve.includes('up') || by('hemingway daiquiri').vessel.id === 'goblet', 'a Hemingway goes up, or in its goblet');
   assert.equal(by("missionary's downfall").method.method, 'blend', "Missionary's Downfall is blended");
   assert.equal(by('painkiller').vessel.id, 'enamel-tin', "the Painkiller comes in the Pusser's tin");
   assert.ok(by('gin-gin mule').lines.some(l => l.id === 'mint' && l.muddled), 'the Gin-Gin Mule keeps its mint');
@@ -323,8 +351,10 @@ test('fire agrees with the vessel and keeps its clearance: a lit volcano bowl ha
 });
 
 test('the vessel library: glass is a hazard by the pool, on the beach and on a boat; a celebration with bubbles goes up; no vessel takes over the battery', () => {
-  for (const x of served) if (/\b(pool|beach|boat)\b/.test(x.p) && !isBowl(x.r) && !isUp(x.r) && x.r.method.method !== 'hot') assert.equal(x.r.vessel.id, 'acrylic-tumbler', id(x));
-  for (const x of served) if (/promotion/.test(x.p) && !isBowl(x.r) && x.r.lines.some(l => l.id === 'sparkling-wine')) assert.ok(['flute', 'coupe'].includes(x.r.vessel.id), id(x));
+  for (const x of served) if (/\b(pool|beach|boat)\b/.test(x.p) && !isBowl(x.r) && !isUp(x.r) && x.r.method.method !== 'hot') assert.equal(vesselById[x.r.vessel.id].kind, 'acrylic', id(x));
+  // Acrylic is for where glass is the hazard.
+  for (const x of served) if (vesselById[x.r.vessel.id].kind === 'acrylic' && x.r.vessel.why !== 'asked') assert.ok(/\b(pool|beach|boat|poolside|swim)\b/i.test(x.p) || x.r.vessel.why === 'occasion', `${id(x)}: acrylic without a hazard`);
+  for (const x of served) if (/promotion/.test(x.p) && !isBowl(x.r) && x.r.lines.some(l => l.id === 'sparkling-wine')) assert.ok(['flute', 'coupe', 'saucer'].includes(x.r.vessel.id), id(x));
   const count = {};
   for (const x of battery) count[x.r.vessel.id] = (count[x.r.vessel.id] || 0) + 1;
   for (const [v, n] of Object.entries(count)) assert.ok(n <= battery.length * 0.22, `${v} holds ${n} of ${battery.length}`);
@@ -353,4 +383,75 @@ test('the linter catches what the service rules forbid', () => {
   assert.ok(ids(phantom).includes('phantom-muddle'));
   const sweep = { ...base, vessel: { id: 'hot-mug' }, lines: [L('rum-white-column', 1.5), L('rum-demerara-overproof', 0.25, { float: true }), L('hot-water', 5)], method: { method: 'hot', ice: 'none', steps: ['Add the rest except the hot water and stir.', 'Top with steaming hot water.', 'Float the Demerara 151 overproof rum on top: pour it gently over the back of a bar spoon.'] } };
   assert.ok(ids(sweep).includes('rest-sweeps-float'));
+});
+
+// ---------- round 3: capacity everywhere, canonical service, steps and garnish truth (round-3 critique §1, §5, §6, §8) ----------
+// Prayers from outside the review battery, so the capacity model is not tuned to it.
+const WIDE = ['a pirate wedding', 'something for my mom on mothers day', 'vegan and nut free mai tai', 'spicy mango', 'a drink for a mermaid', 'hawaiian sunset with pineapple', 'gin and coconut', 'a tiki drink for a hot summer day', 'whiskey sour but tiki', 'something purple', 'rum and coke but fancy', 'christmas morning', 'lychee and rose', 'a negroni for the beach', 'a smoky old fashioned', 'banana bread', 'cinnamon and apple, warm', 'something sour and refreshing', 'a margarita gone tiki', 'zombie for two', 'a hurricane in new orleans', 'pina colada but frozen with strawberries', 'anniversary dinner', 'the beach at midnight', 'ice cream float', 'tea party', 'a drink that glows', 'birthday party for 10', 'chartreuse swizzle', 'navy grog for a crowd', 'no rum please', 'just pineapple and rum', 'a strong dark rum drink', 'something with egg white', 'mezcal mai tai', 'a fog cutter', 'grapefruit and honey', 'tropical sangria', 'a coffee nightcap', 'something blue and creamy'];
+const wide = [];
+for (const p of WIDE) for (const seed of [0, 1]) wide.push({ p, seed, r: ruled.generate(p, { seed }) });
+
+test('the capacity model holds on the battery and on 80 prayers from outside it: liquid + ice + headroom never past the vessel', () => {
+  for (const x of [...battery, ...wide]) {
+    const v = vesselById[x.r.vessel.id], f = recipeFill(x.r, v);
+    assert.ok(f.oz <= f.hi + 0.06, `${id(x)}: ${f.kind} ${f.oz.toFixed(2)} oz + ${f.ice.toFixed(1)} oz ice in a ${v.capacity} oz ${v.id} (holds ${f.hi.toFixed(2)})`);
+  }
+});
+
+test('canonical service: the archetype\'s own vessel and its garnish rules', () => {
+  for (const x of [...served, ...wide]) {
+    const r = x.r, st = r.method.steps.join(' ');
+    // A Bermuda swizzle stirs its bitters in: no crown, no mint (its archetype's garnish.never).
+    if (r.archetype.id === 'bermuda-rum-swizzle') {
+      assert.ok(!/to form a crown/.test(st) && !r.garnish.some(g => /mint/.test(g)), `${id(x)}: ${r.garnish.join(', ')} / ${st}`);
+    }
+    // A Tom and Jerry: its milk-glass mug, the batter loosened with the spirits (never melted),
+    // the hot water whisked in so it foams.
+    if (r.archetype.id === 'tom-and-jerry' && r.vessel.why !== 'asked' && r.servings === 1) {
+      assert.equal(r.vessel.id, 'tom-and-jerry-mug', id(x));
+      assert.ok(/stir to loosen the batter/.test(st) && /whisking as you pour/.test(st) && !/until it melts/.test(st), `${id(x)}: ${st}`);
+    }
+    // A service feature is never listed as a garnish.
+    assert.ok(!r.garnish.some(g => /shell lining|ice shell/.test(g)), `${id(x)}: ${r.garnish.join(', ')}`);
+  }
+  const hot = {};
+  for (const x of served) if (x.r.method.method === 'hot' && x.r.servings === 1) (hot[x.r.archetype.id] = hot[x.r.archetype.id] || new Set()).add(x.r.vessel.id);
+  if (hot['hot-grog']) assert.ok([...hot['hot-grog']].some(v => vesselById[v].kind === 'glass'), 'a hot grog goes in a glass toddy');
+});
+
+test('garnish truth: a Three Dots pick only on a Three Dots or with pineapple, a cinnamon stick only with cinnamon, heat or flame, an umbrella only where it is drawn', () => {
+  const ALL = [...all, ...served, ...wide];
+  for (const x of ALL) {
+    const r = x.r, st = r.method.steps.join(' ');
+    if (r.garnish.includes('three cherries and a pineapple chunk on a pick'))
+      assert.ok(has(r, 'pineapple-juice', 'rum-pineapple', 'pineapple-syrup') || (has(r, 'honey-syrup') && has(r, 'orange')), `${id(x)}: the Morse pick on a drink that isn't a Three Dots`);
+    if (r.garnish.includes('cinnamon stick'))
+      assert.ok(r.method.method === 'hot' || /light it/.test(st) || has(r, 'cinnamon-syrup', 'cinnamon', 'dons-spices-2', 'hot-buttered-rum-batter', 'tom-and-jerry-batter', 'rum-spiced'), `${id(x)}: a cinnamon stick with no cinnamon`);
+    if (r.garnish.includes('paper umbrella')) assert.ok(UMBRELLA_ALLOWED.includes(r.archetype.id), `${id(x)}: the painter won't draw this umbrella`);
+  }
+  const zombie = served.find(x => x.p === 'zombie' && x.seed === 0) || all.find(x => x.p === 'zombie' && x.seed === 0);
+  if (zombie && zombie.r.classic) assert.ok(!zombie.r.garnish.some(g => /cherr/.test(g)), 'Berry\'s Zombie wears only its mint');
+});
+
+test('steps from the method: fire keeps straws and mint clear, zero-proof shakes short, a frappé takes a cup of shaved ice, the swizzle\'s ice word is its own', () => {
+  for (const x of [...all, ...served, ...wide]) {
+    const r = x.r, st = r.method.steps.join(' ');
+    if (/Fire, last and carefully/.test(st)) {
+      if (r.garnish.some(g => /long straws/.test(g))) assert.ok(/until the flame is out/.test(st), `${id(x)}: straws by the flame`);
+      if (r.garnish.some(g => /\bmint\b/.test(g))) assert.ok(/far rim/.test(st), `${id(x)}: mint by the flame`);
+    }
+    if (r.style.zeroProof && /^Shake/m.test(r.method.steps.join('\n'))) assert.ok(/5–6 seconds/.test(st) && !/10–12 seconds/.test(st), `${id(x)}: ${st}`);
+    if (r.method.method === 'blend' && isUp(r) && !isBowl(r) && r.servings === 1) assert.ok(/of shaved ice/.test(st) && /heap/.test(st), `${id(x)}: frappé ${st}`);
+    if (r.method.method === 'swizzle' && ['shaved', 'pebble'].includes(r.method.ice)) assert.ok(new RegExp(`two-thirds with ${r.method.ice} ice`).test(st), `${id(x)}: ${st}`);
+  }
+});
+
+test('the vessel library: the stories say what is true, and the new vessels are complete', () => {
+  const moai = vesselById['moai-mug'].story, ku = vesselById['ku-mug'].story;
+  assert.ok(/Aku-Aku/.test(moai) && !/Kon-Tiki/.test(moai), moai);
+  assert.ok(/four great akua/.test(ku) && /Kūkāʻilimoku/.test(ku) && !/god of war\b(?!.*Kamehameha)/.test(ku.split('Kūkāʻilimoku')[0]), ku);
+  for (const id of ['tom-and-jerry-mug', 'toddy-glass', 'acrylic-ribbed', 'wine-glass']) {
+    const v = vesselById[id];
+    assert.ok(v && v.capacity > 0 && v.serve.length && v.story && (v.sources || []).length && v.drawAs, `${id} incomplete`);
+  }
 });

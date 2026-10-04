@@ -146,6 +146,13 @@ export function sugarBand(ctx = {}, bands = DEFAULT_BANDS) {
 // whatever its acid; "tart and bracing" needs real acid (0.9 g) and restrained sugar (9 g); a
 // frozen drink's words sit a gram higher (cold mutes sugar); a hot drink with no citrus is soft
 // and round, not "barely tart".
+// "Bracing" is one test, shared by the tasting's balance sentence and the tagline's voice word
+// (copy.js): real acid (0.9 g per 100 ml or more), restrained sugar (9 g, a gram more frozen), and
+// never cream of coconut, which it cuts instead.
+export function isBracing(stats = {}, { method = '', creamy = false } = {}) {
+  const sugar = stats.sugarConc || 0, acid = stats.acidConc || 0;
+  return !creamy && acid >= 0.9 && sugar <= 9 + (method === 'blend' ? 1 : 0) && !(method === 'hot');
+}
 export function balanceWord(stats = {}, { method = '', creamy = false, buttery = false, askedTart = false } = {}) {
   const sugar = stats.sugarConc || 0, acid = stats.acidConc || 0;
   const shift = method === 'blend' ? 1 : 0;
@@ -153,10 +160,15 @@ export function balanceWord(stats = {}, { method = '', creamy = false, buttery =
   if (sugar > 12) return acid >= 0.6 ? 'Sweet, with enough acid to keep it bright.' : 'Sweet and round.';
   if (acid < 0.2) return creamy || buttery ? 'Rich and round, barely tart.' : sugar > 6 ? 'Soft and round, with almost no sourness.' : 'Dry and spirit-forward.';
   if (creamy && acid < 0.4) return 'Rich and round, barely tart.';
-  if (acid >= 0.9 && sugar <= 9 + shift) return 'Tart and bracing.';
+  if (isBracing(stats, { method })) return 'Tart and bracing.';
   if (creamy) return 'Rich, with a citrus edge to cut it.';
   if ((acid >= 0.8 || (askedTart && acid >= 0.65)) && sugar <= 10 + shift) return 'Balanced, leaning tart.';
   if (sugar >= 10.5 + shift) return acid < 0.45 ? 'On the sweet side, barely tart.' : 'Balanced, leaning rich.';
   if (acid < 0.45 && sugar > 8 + shift) return 'On the sweet side, barely tart.';
+  // The balanced middle, said by where it sits (round 3: one sentence 47 times is no description).
+  if (acid < 0.45) return 'Light and soft, easy on the citrus.';
+  if (sugar <= 8 + shift && acid >= 0.6) return 'Bright and dry-edged, the sour a step ahead.';
+  if (sugar >= 9.5 + shift && acid >= 0.6) return 'Round and juicy, the sweet a step ahead.';
+  if (acid < 0.6) return 'Soft and even, easy on the citrus.';
   return 'Sweet and sour in balance.';
 }

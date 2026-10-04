@@ -85,6 +85,14 @@ The shallow champagne saucer of the 1660s (not, whatever the legend says, modell
 - In the catalogue: 302 drinks (e.g. Daiquiri, Missionary's Downfall, Frozen Margarita)
 - Sources: <https://apollo-magazine.com/history-of-the-champagne-coupe/> · <https://www.snopes.com/fact-check/palace-coupe/> · <https://kindredcocktails.com/cocktail/beachcombers-gold>
 
+**Champagne coupe** · about 9 oz · takes up, frozen
+
+The big, shallow champagne coupe (the saucer) of mid-century hotel bars, a size up from the cocktail coupe: room for a generous daiquiri served up, a frappé heaped over its rim, or bubbles over a shaken base. Don the Beachcomber lined one with a shell of shaved ice for his Beachcomber's Gold.
+
+- Classics: Beachcomber's Gold, Hemingway Daiquiri, Champagne cocktails
+- In the catalogue: 0 drinks
+- Sources: <https://apollo-magazine.com/history-of-the-champagne-coupe/> · <https://kindredcocktails.com/cocktail/beachcombers-gold>
+
 **Nick & Nora glass** · about 5 oz · takes up
 
 A small, deep 1930s bowl sold as the "Little Martini". Dale DeGroff revived it at the Rainbow Room in 1987 and named it after Nick and Nora Charles of The Thin Man.
@@ -191,11 +199,19 @@ The tall, stemmed sling glass. Raffles in Singapore serves Ngiam Tong Boon's Sin
 
 **Goblet** · about 12 oz · takes crushed, frozen, rocks
 
-A generic stemmed glass with a deep round bowl and a sturdy stem: the fallback for frozen drinks. No tiki classic belongs to it by right.
+A stemmed glass with a deep round bowl and a sturdy stem: the Papa Doble's glass at the Floridita, and the fallback for frozen drinks.
 
 - Classics: frozen daiquiris
 - In the catalogue: 14 drinks (e.g. Piña Colada, Scorpion, Banzai Washout)
 - Sources: <https://en.wikipedia.org/wiki/List_of_glassware>
+
+**Wine glass** · about 18 oz · takes rocks, up
+
+A large-bowled wine glass, the brunch and spritz glass: room for ice, bubbles and the nose of a low, long drink. Sherry cobblers and wine punches went into stemware long before tiki; a fino or Lillet spritz still does.
+
+- Classics: Sherry Cobbler, spritzes
+- In the catalogue: 0 drinks
+- Sources: <https://en.wikipedia.org/wiki/Wine_glass>
 
 **Champagne flute** · about 7 oz · takes up
 
@@ -213,6 +229,24 @@ The Buena Vista in San Francisco has served Irish Coffee since 1952 in Libbey's 
 - In the catalogue: 6 drinks (e.g. Hot Buttered Rum, Coffee Grog, Spontaneous Rumbustion)
 - Sources: <https://www.sfgate.com/news/article/The-Irish-coffee-miracle-A-San-Francisco-story-2354499.php> · <https://en.wikipedia.org/wiki/Hot_buttered_rum>
 
+**Glass toddy mug** · about 10 oz · takes hot
+
+A handled, heatproof glass mug: the clear toddy glass, so a hot grog shows its amber and the clove-studded lemon floating in it. Preheat it with hot water before the drink goes in.
+
+- Classics: Hot Toddy, Hot Grog
+- In the catalogue: 0 drinks
+- Sources: <https://en.wikipedia.org/wiki/Hot_toddy>
+
+### Milk glass
+
+**Tom and Jerry mug** · about 9 oz · takes hot
+
+The white milk-glass mug with "Tom & Jerry" in red or gold script, sold in sets with a matching punch bowl by Hazel-Atlas, McKee and Anchor Hocking from the 1940s to the 1960s. Midwestern families still bring them out every December for the batter-and-hot-water drink Jerry Thomas made famous.
+
+- Classics: Tom & Jerry
+- In the catalogue: 0 drinks
+- Sources: <https://punchdrink.com/articles/about-those-tom-and-jerry-drink-recipe-bowls/> · <https://en.wikipedia.org/wiki/Tom_and_Jerry_(drink)>
+
 ### Unbreakable
 
 **Acrylic tumbler** · about 16 oz · takes rocks, crushed, frozen
@@ -222,6 +256,14 @@ Clear, shatterproof acrylic for wherever glass is a hazard: the pool deck, the s
 - Classics: Painkiller (Soggy Dollar Bar), poolside frozen drinks
 - In the catalogue: 0 drinks
 - Sources: <https://en.wikipedia.org/wiki/Poly(methyl_methacrylate)> · <https://en.wikipedia.org/wiki/Tervis> · <https://en.wikipedia.org/wiki/Painkiller_(cocktail)>
+
+**Ribbed acrylic tumbler** · about 12 oz · takes rocks, crushed, frozen
+
+The poolside tumbler's smaller, tinted cousin: moulded ribs for a wet grip and a sea-glass tint, unbreakable on the deck. Molded acrylic drinkware followed Plexiglas into resort bars from the 1950s.
+
+- Classics: poolside frozen daiquiris
+- In the catalogue: 0 drinks
+- Sources: <https://en.wikipedia.org/wiki/Poly(methyl_methacrylate)>
 
 ### Metal
 
@@ -241,19 +283,19 @@ The Moscow Mule's mug, from the Cock 'n' Bull in Los Angeles, 1941. Who brought 
 - In the catalogue: 1 drink (e.g. Jamaican Mule)
 - Sources: <https://en.wikipedia.org/wiki/Moscow_mule>
 
-**Enamel tin mug** · about 12 oz · takes crushed, rocks
+**Enamel tin mug** · about 14 oz · takes crushed, rocks
 
-The Soggy Dollar Bar on Jost Van Dyke served the first Painkillers in plastic cups. Pusser's Rum, which trademarked the drink in 1989, made it the white enamel mug with the navy rim, a nod to the Royal Navy's rum ration.
+The Soggy Dollar Bar on Jost Van Dyke served the first Painkillers in plastic cups. Pusser's Rum, which trademarked the drink in 1989, made it the white enamel mug with the navy rim (about 14 oz), a nod to the Royal Navy's rum ration.
 
 - Classics: Painkiller
 - In the catalogue: 1 drink (e.g. Painkiller)
-- Sources: <https://pussersrum.com/products/pussers-rum-tin-mug> · <https://en.wikipedia.org/wiki/Painkiller_(cocktail)>
+- Sources: <https://pussersrum.com/products/pussers-rum-tin-mug> · <https://en.wikipedia.org/wiki/Painkiller_(cocktail)> · <https://www.ebay.de/itm/164812145959>
 
 ### Tiki ceramics
 
 **Tiki mug** · about 14 oz · takes crushed, frozen
 
-The classic Ku mug: heavy brow, huge eyes and a grin full of square teeth, after Kū, the Hawaiian god of war. Orchids of Hawaii's R-71 and Otagiri's versions filled tiki bars from the late 1950s; Tiki Farm reissues the form today. When a recipe just says "tiki mug", this is the one.
+The classic Ku mug: heavy brow, huge eyes and a grin full of square teeth. It is named for Kū, one of the four great akua (gods) of Hawaiʻi, and its face echoes carved images of Kūkāʻilimoku, the war god of Kamehameha I. Orchids of Hawaii's R-71 and Otagiri's versions filled tiki bars from the late 1950s; Tiki Farm reissues the form today. When a recipe just says "tiki mug", this is the one.
 
 - Classics: Cobra's Fang, Donga Punch, Lapu Lapu
 - In the catalogue: 67 drinks (e.g. Pina Colada, Rum Runner, Cobra's Fang)
@@ -261,7 +303,7 @@ The classic Ku mug: heavy brow, huge eyes and a grin full of square teeth, after
 
 **Moai mug** · about 16 oz · takes crushed, frozen
 
-The Easter Island head, one of the most common tiki mugs, carried in on Thor Heyerdahl's Kon-Tiki (1947) and Aku-Aku (1957). Orchids of Hawaii's R-72 is tan with coffee-bean eyes; the Kahiki's Mug No. 1 is a brown moai.
+The Easter Island head, one of the most common tiki mugs. Thor Heyerdahl's Aku-Aku (1957), his account of the Easter Island expedition, made the moai a household image just as the tiki bars were booming. Orchids of Hawaii's R-72 is tan with coffee-bean eyes; the Kahiki's Mug No. 1 is a brown moai.
 
 - Classics: Kahiki house drinks
 - In the catalogue: 0 drinks
@@ -293,7 +335,7 @@ One of Trader Vic's first ceramics, pictured in Life in 1944: a tall, slightly w
 
 **Bird-shaped ceramic** · about 12 oz · takes rocks, crushed
 
-Jeffrey Ong created the Jungle Bird at the Kuala Lumpur Hilton's Aviary Bar in 1973 and served it in a ceramic bird. Craft bars pour it over a big cube in a rocks glass now; the bird is the original.
+The Jungle Bird is attributed to Jeffrey Ong at the Aviary Bar of the Kuala Lumpur Hilton, which opened in 1973, and it was served in a ceramic bird. Craft bars pour it over a big cube in a rocks glass now; the bird is the original.
 
 - Classics: Jungle Bird (1973), Potted Parrot
 - In the catalogue: 2 drinks (e.g. Jungle Bird, Potted Parrot)
@@ -307,9 +349,9 @@ The canchánchara (aguardiente, honey and lime) goes back to Cuba's independence
 - In the catalogue: 1 drink (e.g. Canchánchara)
 - Sources: <https://oncubanews.com/en/cuba/society-cuba/cuban-history/canchanchara-scrubland-cocktail/>
 
-**Toddy mug** · about 10 oz · takes hot
+**Stoneware mug** · about 10 oz · takes hot
 
-The handled mug for hot drinks, descended from the milk-glass Tom & Jerry mugs of the 1940s–60s. Preheat it with boiling water so the drink stays hot.
+The heavy handled stoneware mug for hot drinks: it holds the heat, so a Hot Buttered Rum or a hot punch stays hot to the last sip. Preheat it with boiling water first.
 
 - Classics: Hot Buttered Rum, Hot Rum Punch, Tom & Jerry
 - In the catalogue: 4 drinks (e.g. Hot Buttered Rum, Hot Grog, Hot Rum Punch)

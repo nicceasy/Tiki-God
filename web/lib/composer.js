@@ -37,6 +37,20 @@ const NOT_A_FLAVOR = new Set(['sweet', 'tart', 'light', 'crisp', 'dry', 'rich', 
 export function createComposer({ archetypes, ingMap, model }) {
   const byId = Object.fromEntries(archetypes.map(a => [a.id, a]));
   const roleOf = id => (ingMap.get(id) || {}).role;
+  // Like for like (riff discipline): a sweetener swapped for another pours the old one's sugar, so
+  // the reference's proportions survive (honey for falernum is a teaspoon, not a quarter-ounce of
+  // twice the sugar; passion fruit syrup for the rock candy is the rock candy's sugar), never
+  // under a teaspoon you can taste, never past the new bottle's cap.
+  const sugarOfId = id => (ingMap.get(id) || {}).sugar || 0;
+  function matchSugar(l, fromId, toId, family, floor = 1 / 6) {
+    // (A juice swapped for a much sharper one, passion fruit purée for nectar, pours the old one's acid.)
+    const acidOf = id => (ingMap.get(id) || {}).acid || 0;
+    if (roleOf(toId) === 'juice' && acidOf(toId) > acidOf(fromId) * 1.5 && acidOf(toId) >= 1 && l.oz > 0.5) l.oz = Math.max(0.5, l.oz * Math.max(acidOf(fromId), 0.5) / acidOf(toId));
+    const a = sugarOfId(fromId), b = sugarOfId(toId);
+    if (a < 20 || b < 20 || roleOf(toId) === 'base' || !(l.oz > 0)) return;
+    l.oz = Math.min(doseCap(toId, family, true), Math.max(floor, l.oz * a / b));
+    l.sugarSwap = true;
+  }
 
   const lerp = (r, t) => r[0] + (r[1] - r[0]) * Math.max(0, Math.min(1, t));
   const knob = (intent, role) => {
@@ -353,7 +367,8 @@ export function createComposer({ archetypes, ingMap, model }) {
       const syrup = pool.find(i => i.role === 'sweet');
       if (plain && syrup) {
         notes.push(`${shortName(syrup.id)} in place of the ${shortName(plain.id)} for ${tag.replace('-', ' ')}`);
-        plain.id = syrup.id; plain.req = true; plain.oz = Math.max(plain.oz, 0.5); plain.range = null;
+        matchSugar(plain, plain.id, syrup.id, a.family, 0.25);
+        plain.id = syrup.id; plain.req = true; plain.range = null;
       } else if (pool[0]) placeIngredient(a, lines, pool[0].id, intent, ctx, notes);
     }
     // A flavor the guest leaned on hard ("smoky", "funky") and the drink only hints at gets a
@@ -778,7 +793,8 @@ export function createComposer({ archetypes, ingMap, model }) {
       // A flavored syrup takes the plain syrup's job, so the balance holds.
       const plain = lines.find(l => PLAIN_SYRUPS.has(l.id) && !l.req);
       notes.push(`${shortName(id)} in place of the ${shortName(plain.id)}`);
-      plain.id = id; plain.req = true; plain.oz = Math.max(plain.oz, 0.5); plain.range = null;
+      matchSugar(plain, plain.id, id, a.family, 0.25);
+      plain.id = id; plain.req = true; plain.range = null;
     } else if (['modifier', 'sweet', 'accent', 'rich'].includes(role)) {
       const oz = role === 'accent' ? 0.06 : role === 'rich' ? 0.75 : 0.5;
       lines.push({ id, role, oz, slot: 'asked', range: null, req: true });
@@ -854,6 +870,7 @@ export function createComposer({ archetypes, ingMap, model }) {
       const alt = slot.anyOf.filter(id => ingMap.has(id) && !ctx.forbidden(id, intent) && !others.includes(id) && !ctx.conflicts(id, others) && ((ctx.ingVec[id] || {})[tag] || 0) >= 0.55 && keepsJob(id) && sameKind(l.id, id))[0];
       if (!alt) continue;
       const was = ingMap.get(l.id).name.toLowerCase().replace(/\s*\(.*\)/, '');
+      matchSugar(l, l.id, alt, a.family);
       l.id = alt; l.role = roleOf(alt); l.req = true; l.swapped = true;
       if (l.oz > doseCap(alt, a.family)) l.oz = doseCap(alt, a.family);
       if (l.range) l.range = rangeOf(a, alt) || l.range;
@@ -951,6 +968,7 @@ export function createComposer({ archetypes, ingMap, model }) {
     if (!pick) return null;
     const was = ingMap.get(victim.id).name.toLowerCase().replace(/\s*\(.*\)/, '');
     victim.was = [...(victim.was || []), victim.id];
+    matchSugar(victim, victim.id, pick, a.family);
     victim.id = pick; victim.role = roleOf(pick); victim.swapped = true;
     const cap = doseCap(pick, a.family);
     if (victim.oz > cap) victim.oz = cap;
@@ -969,7 +987,7 @@ export function createComposer({ archetypes, ingMap, model }) {
     const waivedC = isForbidden ? absent.filter(c => c.anyOf.every(id => isForbidden(id))) : [];
     const missing = absent.filter(c => !waivedC.includes(c)).map(c => c.component);
     const banned = [...ids].filter(id => archForbids(a, id) && !((asked[id] || 0) >= 1.5));
-    const underdosed = doses ? coreMinimums(a, lines).filter(m => m.min !== undefined && (m.line.oz || 0) < (m.line.min !== undefined ? Math.min(m.min, m.line.min) : m.min) - 0.02).map(m => `${m.line.id} under ${m.min} oz (${m.why})`) : [];
+    const underdosed = doses ? coreMinimums(a, lines).filter(m => m.min !== undefined && (m.line.oz || 0) < (m.line.min !== undefined && !m.firm ? Math.min(m.min, m.line.min) : m.min) - 0.02).map(m => `${m.line.id} under ${m.min} oz (${m.why})`) : [];
     return { ok: !missing.length && !banned.length && !underdosed.length, missing, banned, underdosed, waived: waivedC.map(c => c.component) };
   }
 
@@ -982,7 +1000,8 @@ export function createComposer({ archetypes, ingMap, model }) {
     const has = id => live.find(l => l.id === id);
     const out = [];
     const orgeat = has('orgeat');
-    if (orgeat && (a.family === 'mai-tai' || a.id === 'hawaiian-mai-tai')) out.push({ line: orgeat, min: 0.5, why: "a Mai Tai's orgeat" });
+    // (Firm: the Mai Tai's half-ounce of orgeat holds even over Vic's own quarter-ounce editions.)
+    if (orgeat && (a.family === 'mai-tai' || a.id === 'hawaiian-mai-tai')) out.push({ line: orgeat, min: 0.5, why: "a Mai Tai's orgeat", firm: true });
     const batter = has('hot-buttered-rum-batter');
     // (Half an ounce, Smuggler's Cove's three teaspoons: a minimum never past a reference's own dose.)
     if (batter) out.push({ line: batter, min: 0.5, why: 'the butter batter is the drink' });
@@ -1007,7 +1026,8 @@ export function createComposer({ archetypes, ingMap, model }) {
     if (ts && a.id === 'bermuda-rum-swizzle') out.push({ line: ts, min: 0.5, why: "a Bermuda swizzle's orange liqueur" });
     // A Daiquiri No. 4 is the Floridita's frappé: a teaspoon to a third of an ounce of sugar.
     const rich = has('rich-simple') || has('simple-syrup');
-    if (rich && a.id === 'frozen-daiquiri' && has('maraschino') && !live.some(l => ['strawberry', 'banana', 'mango', 'pineapple-juice'].includes(l.id))) out.push({ line: rich, max: 1 / 3, why: "a Daiquiri No. 4's teaspoon of sugar" });
+    // (Only the No. 4 itself: rum, lime, maraschino and the sugar, nothing else poured.)
+    if (rich && a.id === 'frozen-daiquiri' && has('maraschino') && live.every(l => l === rich || l.id === 'maraschino' || l.muddled || ['base', 'sour', 'aromatic'].includes(roleOf(l.id)))) out.push({ line: rich, max: 1 / 3, why: "a Daiquiri No. 4's teaspoon of sugar" });
     return out;
   }
 

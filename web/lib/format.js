@@ -16,8 +16,11 @@ export function fracString(x) {
 export function snap(oz, ing, role) {
   const cat = ing.cat;
   if (role === 'aromatic') return { amount: null, unit: 'garnish', oz: 0 };
+  // Whole fruit by the piece: halves for one or less (half a banana), whole pieces past two
+  // (four strawberries, never three and a half).
   if (ing.oz_per_piece) {
-    const pieces = Math.max(0.5, Math.round((oz / ing.oz_per_piece) * 2) / 2);
+    const n = oz / ing.oz_per_piece;
+    const pieces = n >= 1.75 ? Math.max(2, Math.round(n)) : Math.max(0.5, Math.round(n * 2) / 2);
     return { amount: pieces, unit: 'piece', oz: pieces * ing.oz_per_piece };
   }
   // Bitters as a base (a Trinidad Sour's ounce and a half of Angostura) are poured, not dashed.
@@ -38,6 +41,12 @@ export function snap(oz, ing, role) {
   }
   if (role === 'lengthener') {
     const v = Math.max(1, Math.round(oz * 2) / 2);
+    return { amount: v, unit: 'oz', oz: v };
+  }
+  // Long components snap to the half-ounce a bartender pours them by: juices past an ounce and a
+  // half, creams past an ounce (no 3¾ oz of pineapple, no 3¼ oz of orange).
+  if ((role === 'juice' && oz > 1.5 + 1e-6) || (role === 'rich' && oz > 1 + 1e-6)) {
+    const v = Math.round(oz * 2) / 2;
     return { amount: v, unit: 'oz', oz: v };
   }
   if (oz >= 0.375) {
