@@ -302,7 +302,7 @@ test('canon contract: three states, each in its own words', () => {
     assert.ok(r.check.canon && r.check.canon.state === cn.state, `${tagOf(x)}: recipe.check carries the canon state`);
     // No stamp a drink doesn't earn: the old stamps are retired, and "as written" is said only of
     // a drink that is the edition (no move, no dose, no service change the prayer didn't fix).
-    assert.ok(!/as the gods pour it|poured as the canon has it/.test(`${built} ${whyText(r)}`), `${tagOf(x)}: retired stamp in "${built}"`);
+    assert.ok(!/as the gods pour it|poured as the canon has it/.test(`${built} ${whyText(r)} ${r.tagline}`), `${tagOf(x)}: retired stamp in "${built}"`);
     if (/poured as written/.test(built)) assert.equal(cn.state, 'as-written', `${tagOf(x)}: "${built}"`);
     if (cn.state === 'as-written') {
       assert.ok(!r.explanation.reading.moves.some(m => /twist/.test(m)), `${tagOf(x)}: a twist removes the canon stamp`);

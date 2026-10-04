@@ -174,8 +174,12 @@ test('absolute bands: the praised canon pours keep their spec', () => {
   assert.equal(qps.name, "Queen's Park Swizzle");
   assert.ok(Math.abs(qps.stats.sugarConc - 4.4) <= 0.3, `the 1946 QPS moved to ${qps.stats.sugarConc} g`);
   assert.equal(qps.lines.find(l => l.id === 'rum-demerara').oz, 3, 'the QPS keeps its three ounces of Demerara');
-  const tart = engine.generate('not too sweet, very tart', { seed: 1 });
-  assert.ok(tart.stats.sugarConc <= 4.6 && tart.stats.acidConc >= 1.05, `very tart moved to ${tart.stats.sugarConc} g / ${tart.stats.acidConc}`);
+  // "Not too sweet, very tart" at every seed: restrained sugar, real acid, never past the tart ceiling
+  // (the praised Riptide Sour sat at 4.1 g / 1.11; which frame answers moves with the canon's spread).
+  for (const seed of [0, 1]) {
+    const tart = engine.generate('not too sweet, very tart', { seed });
+    assert.ok(tart.stats.sugarConc <= 6 && tart.stats.acidConc >= 1.05 && tart.stats.acidConc <= 1.45, `very tart [${seed}] ${tart.name} moved to ${tart.stats.sugarConc} g / ${tart.stats.acidConc}`);
+  }
   const scorpion = engine.generate('scorpion bowl for 4', { seed: 0 });
   assert.ok(Math.abs(scorpion.stats.sugarConc - 5.0) <= 0.3, `the Scorpion moved to ${scorpion.stats.sugarConc} g`);
 });
@@ -255,4 +259,91 @@ test('a low-ABV prayer is light: at or under 7% and about a standard drink', () 
     assert.ok(r.stats.abv <= 7.05 && r.stats.standardDrinks <= 1.1, `low abv [${seed}] ${r.name}: ${r.stats.abv}% / ${r.stats.standardDrinks} sd`);
     assert.ok(!/normal cocktail/.test(r.explanation.tasting), `low abv [${seed}]: ${r.explanation.tasting}`);
   }
+});
+
+// ---------- integration of the round-2 lanes (balance × service × canon × copy × looks) ----------
+import { createLinter } from '../web/lib/lint.js';
+
+test('integration: a blender spec poured as written still clears the frozen floor, and a trimmed pour never claims a full one', () => {
+  const r = engine.generate('a frozen banana drink', { seed: 0 });
+  if (r.method.method === 'blend' && !r.classic) assert.ok(r.stats.sugarConc >= 8.1, `${r.name}: frozen at ${r.stats.sugarConc} g`);
+  for (const p of ['a frozen banana drink', 'a pina colada by the pool', 'celebrating a promotion']) for (const seed of [0, 1]) {
+    const x = engine.generate(p, { seed });
+    const body = x.lines.filter(l => l.role === 'base' && !l.float && !l.sink && !l.garnish).reduce((t, l) => t + l.oz, 0);
+    for (const n of x.notes) { const m = /^a full (\d)(½|¼|¾)? oz of spirit/.exec(n); if (m) assert.ok(body >= +m[1] + ({ '¼': 0.25, '½': 0.5, '¾': 0.75 }[m[2]] || 0) - 0.05, `${p} [${seed}] ${x.name}: "${n}" over ${body} oz`); }
+  }
+});
+
+test('integration: a low-ABV prayer is never served up in a flute it cannot fit at 7%, and gets a glass that holds it whole', () => {
+  for (const seed of [0, 1, 2]) {
+    const r = engine.generate('low abv for brunch', { seed });
+    assert.ok(!r.notes.some(n => /served up and topped with bubbles/.test(n)), `low abv [${seed}] ${r.name}: served up`);
+    assert.ok(!r.notes.some(n => /^scaled to fit/.test(n)), `low abv [${seed}] ${r.name}: trimmed to fit (${r.notes.join(' | ')})`);
+  }
+});
+
+test('integration: a full flute still fits after the band pass, and the band pass makes room in the spirit rather than leave a sour thin', () => {
+  for (const seed of [0, 1, 2]) {
+    const r = engine.generate('celebrating a promotion', { seed });
+    if (r.vessel.id !== 'flute') continue;
+    assert.ok(r.stats.finalOz <= 7 * 0.95 + 0.1, `promotion [${seed}] ${r.name}: ${r.stats.finalOz} oz in a 7 oz flute`);
+    // (Inside the shaken sour's band, whose floor sits lower for the drier families: never the 2.6 g it was.)
+    assert.ok(r.stats.sugarConc >= 6, `promotion [${seed}] ${r.name}: ${r.stats.sugarConc} g in a shaken sour`);
+  }
+});
+
+test('integration: the color carrier the guest demanded survives the line budget, the band and the spirit budget', () => {
+  for (const seed of [0, 1, 2]) {
+    const r = engine.generate('Tokyo neon', { seed });
+    assert.ok(!r.notes.some(n => /left out the (melon liqueur|green chartreuse)/i.test(n)), `Tokyo neon [${seed}] ${r.name}: ${r.notes.join(' | ')}`);
+    const g = engine.generate('green like the jungle', { seed });
+    const eq = g.lines.filter(l => !l.float && !l.sink && !l.garnish && (l.role === 'base' || (l.role === 'modifier' && ingMap.get(l.id).abv >= 45))).reduce((t, l) => t + l.oz * (l.role === 'base' ? 1 : ingMap.get(l.id).abv / 40), 0);
+    assert.ok(eq <= 2.55, `green [${seed}] ${g.name}: ${eq.toFixed(2)} oz of spirit-equivalent`);
+  }
+});
+
+test('integration: a blended Lava Flow pours its strawberry first so it streaks, in the lines, the steps and the look', () => {
+  let seen = 0;
+  for (const p of ['a pina colada by the pool', 'a colada for a lazy sunday', 'lava flow']) for (const seed of [0, 1]) {
+    const r = engine.generate(p, { seed });
+    const s = r.lines.find(l => l.id === 'strawberry');
+    if (!s || r.method.method !== 'blend' || !/lava flow/i.test(`${(r.method.canon || {}).name || ''} ${r.notes.join(' ')}`)) continue;
+    seen++;
+    assert.ok(s.streak, `${p} [${seed}] ${r.name}: strawberry not marked to streak`);
+    assert.ok(r.method.steps.some(x => /purée into the bottom/.test(x)) && r.method.steps.some(x => /streaks up/.test(x)), `${p} [${seed}]: ${r.method.steps.join(' / ')}`);
+    assert.ok(!r.method.steps.some(x => /^Add everything/.test(x) && !/except/.test(x)), `${p} [${seed}]: the strawberry goes in the blender`);
+    assert.ok((r.look.layers || []).some(x => x.kind === 'streak'), `${p} [${seed}]: no streak in the look`);
+  }
+  assert.ok(seen >= 1, 'a Lava Flow was poured');
+});
+
+test('integration: Bananas Foster is the frozen dessert on the first prayer and the stirred Foster on the second, never a colada', () => {
+  const r0 = engine.generate('bananas foster in a glass', { seed: 0 });
+  assert.equal(r0.archetype.id, 'bananas-foster');
+  for (const id of ['banana', 'banana-liqueur', 'hot-buttered-rum-batter', 'vanilla-ice-cream']) assert.ok(r0.lines.some(l => l.id === id), `${r0.name}: no ${id}`);
+  assert.ok(!r0.lines.some(l => ['coconut-cream', 'coconut-milk', 'pineapple-juice', 'lime', 'lemon'].includes(l.id)), `${r0.name}: ${r0.lines.map(l => l.id).join(', ')}`);
+  assert.equal(r0.method.method, 'blend');
+  assert.ok(!/colada/i.test(`${r0.name} ${r0.tagline}`), `${r0.name}: ${r0.tagline}`);
+  const r1 = engine.generate('bananas foster in a glass', { seed: 1 });
+  assert.ok(r1.lines.some(l => l.id === 'banana-liqueur'), `${r1.name}: the second Foster keeps its banana`);
+});
+
+test("integration: Smuggler's Cove pours Don's Mix two to one, and the hotel's 1956 Mai Tai is shaken", () => {
+  const A = read('data/archetypes.json').archetypes;
+  const sc = A.find(a => a.id === 'zombie').canonicalSpecs.find(sp => /Smuggler's Cove/.test(sp.name));
+  const gf = sc.lines.find(l => l.id === 'grapefruit').oz, cin = sc.lines.find(l => l.id === 'cinnamon-syrup').oz;
+  assert.ok(Math.abs(gf / cin - 2) < 0.01 && Math.abs(gf + cin - 0.5) < 0.01, `${gf} + ${cin}`);
+  assert.equal(A.find(a => a.id === 'mai-tai').canonicalSpecs.find(sp => /Royal Hawaiian Mai Tai \(1956/.test(sp.name)).method, 'shake');
+});
+
+test('integration: the critic exempts what it asked for (a promised Mai Tai float, a Mai Tai Royale up, one floated flower up)', () => {
+  const { lint } = createLinter({ rules: read('data/technique-rules.json'), vocab: read('data/ingredients.json'), vessels: read('data/vessels.json') });
+  const r = engine.generate('celebrating a promotion', { seed: 0 });
+  if (r.family.id === 'mai-tai') {
+    const ids = lint(r, { intent: engine.parse('celebrating a promotion') }).map(f => f.id);
+    assert.ok(!ids.includes('mai-tai-float-or-sink'), `${r.name}: the promised float flagged`);
+    if (r.vessel.id === 'flute') assert.ok(!ids.includes('garnish-missing-aroma'), `${r.name}: a Royale asked for a lime shell and mint`);
+  }
+  const f = engine.generate('something floral and elegant', { seed: 1 });
+  if (f.garnish.length === 1 && /edible flower/.test(f.garnish[0])) assert.ok(!lint(f, { intent: engine.parse('something floral and elegant') }).some(x => x.id === 'garnish-heavy-on-up'), `${f.name}: one flower flagged`);
 });

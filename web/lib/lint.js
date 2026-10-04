@@ -807,13 +807,18 @@ export function createLinter({ rules, vocab, vessels } = {}) {
       else add('family-underdosed', 'major', `${isZombieProper(C) ? 'A Zombie' : 'A Zombie-family heavyweight'} short of the full Beachcomber stack: it wants ${list(gaps.map(g => g.what))}.`);
       return;
     }
+    // The frozen dessert drinks file under the colada family but are, by their own definition,
+    // never coladas (the Bushwacker's chocolate and coconut, a frozen Bananas Foster's ice cream):
+    // the colada's pineapple-and-coconut rule isn't theirs. (A card that calls one a colada is still
+    // caught below, by the copy check.)
+    if (fam === 'colada' && ['bushwacker', 'bananas-foster'].includes(C.archId)) return;
     if (fam === 'colada' || fam === 'mai-tai') {
       // Cousins by definition: the Bushwacker (chocolate and coconut, no pineapple), the Miami
       // Vice's two halves, and Vic's own spirit swaps on the Mai Tai (the Honi Honi's bourbon).
       // And a drink whose missing part the guest ruled out (orgeat in a nut-free Mai Tai) is
       // honestly a cousin; the engine says so on the card.
       const waived = ((C.recipe.check || {}).waived || []).length > 0;
-      const cousin = waived || (fam === 'colada' && ['bushwacker', 'miami-vice'].includes(C.archId)) || (fam === 'mai-tai' && C.archId === 'vic-mai-tai-riff');
+      const cousin = waived || (fam === 'colada' && ['miami-vice'].includes(C.archId)) || (fam === 'mai-tai' && C.archId === 'vic-mai-tai-riff');
       if (absent.length && cousin) { add('family-requirement', 'major', `${cap(an(label))} cousin without ${list(absent)}.`); short(); return; }
       if (absent.length) add(fam === 'colada' ? 'colada-no-coconut-or-pineapple' : 'mai-tai-incomplete', 'fatal', fam === 'colada'
         ? `A colada without ${list(absent)}: colada means pineapple and coconut cream${C.anyIn(S('coconutSources')).length && !C.anyIn(S('coconutBody')).length ? ' (coconut rum alone is thin and sweet, with no body)' : ''}.`
@@ -869,7 +874,9 @@ export function createLinter({ rules, vocab, vessels } = {}) {
       add('zombie-red-or-creamy', proper ? 'fatal' : 'major', `${oz(C.ozOf('grenadine'))} of grenadine in a ${proper ? 'Zombie' : 'Zombie-family heavyweight'}: the grenadine is a teaspoon of seasoning, not colour.`, { lines: ['grenadine'] });
     }
     if (fam === 'mai-tai') {
-      const bad = C.poured.filter(l => (l.float && S('rums').has(l.id)) || l.sink);
+      // (A float the prayer's reading promised, the promotion's Demerara 151, is the guest's.)
+      const promisedFloat = new Set(((C.intent && C.intent.promises) || []).flatMap(pr => pr.float || []));
+      const bad = C.poured.filter(l => ((l.float && S('rums').has(l.id)) || l.sink) && !(l.float && promisedFloat.has(l.id)));
       if (bad.length) add('mai-tai-float-or-sink', 'major', `A ${list(bad.map(l => l.float ? `${nameOf(l.id)} float` : `${nameOf(l.id)} sink`))} on a Mai Tai is resort corruption; finish it with the lime shell and mint instead.`, { lines: bad.map(l => l.id) });
     }
     if (fam === 'colada' && C.has('coconut-milk') && !C.has('coconut-cream')) {
@@ -1033,7 +1040,10 @@ export function createLinter({ rules, vocab, vessels } = {}) {
     if (liqOz > 1.5 + EPS && !(fam === 'resort-punch' || ['resort-liqueur-punch', 'herbal-swizzle'].includes(C.archId) || /rum runner|chartreuse/i.test(C.name)))
       add('liqueur-cloy', 'major', `${oz(liqOz)} of sweet liqueur (${names(sweetLiq.map(l => l.id))}) is cloying; trim it to 1½ oz and lean on fresh acid.`, { lines: sweetLiq.map(l => l.id) });
     // Balance.
-    const win = W[fam] || {};
+    // (A blended drink's window runs sweeter at the top: cold mutes sugar.)
+    const boost = ((((R.styleOverrides || {}).frozen || {}).sugarBoostVsShaken) || [1, 1.3])[1];
+    const win0 = W[fam] || {};
+    const win = win0.sugarToAcid && C.method === 'blend' ? { ...win0, sugarToAcid: [win0.sugarToAcid[0], +(win0.sugarToAcid[1] * boost).toFixed(1)] } : win0;
     const r = C.stats.sweetSour;
     if (win.sugarToAcid && r !== null && r !== undefined && C.stats.acidConc >= 0.1) {
       const [lo, hi] = win.sugarToAcid;
@@ -1058,7 +1068,12 @@ export function createLinter({ rules, vocab, vessels } = {}) {
       add('angostura-brown-wash', 'minor', `${oz(C.ozIn(['angostura']))} of Angostura stirred into a pale drink turns it beige; crown it on top instead, or keep it to 1–2 dashes.`, { lines: ['angostura'] });
     // Tasting words against the numbers (lower third of the window is tart, upper third sweet).
     if (win.sugarToAcid && r !== null && r !== undefined && C.tasting) {
-      const [lo, hi] = win.sugarToAcid, p = (r - lo) / (hi - lo), t = fold(C.tasting + ' ' + C.tagline);
+      const [lo, hi] = win.sugarToAcid, p = (r - lo) / (hi - lo);
+      // The balance sentence chem.balanceWord writes from the absolute numbers is the card's own
+      // measure (9½ g with 0.9 acid is "leaning tart" whatever the ratio's place in the window):
+      // only the rest of the copy is held to the window.
+      const bw = balanceWord(C.stats, { method: C.method });
+      const t = fold(`${String(C.tasting || '').split(bw).join(' ')} ${C.tagline}`);
       if (['tart', 'bracing', 'puckering'].some(w => mentions(t, w).pos) && p > 0.75) add('tasting-contradicts-numbers', 'major', `The copy calls it tart, but at ${r2(r)}:1 sugar to acid it sits at the sweet end of the ${FAM_LABEL[fam] || fam} window.`);
       else if (['lush', 'cloying', 'on the sweet side', 'dessert-sweet'].some(w => mentions(t, w).pos) && p < 0.25) add('tasting-contradicts-numbers', 'major', `The copy calls it lush, but at ${r2(r)}:1 sugar to acid it sits at the tart end of the ${FAM_LABEL[fam] || fam} window.`);
     }
@@ -1156,7 +1171,10 @@ export function createLinter({ rules, vocab, vessels } = {}) {
     if (spare) max = Math.min(max ?? 1, 1);
     // Up: one small thing, nothing that needs an ice dome, no straws.
     if (svc === 'up') {
-      const heavy = gs.filter(g => (G.forbiddenOnUp || []).some(item => !/\+/.test(item) && garnishMatches(g, item)) || /\bstraws?\b|umbrella/i.test(g));
+      // (One small edible flower floated on the surface, as the glass's only garnish, is the up
+      // drink's one small thing: a floral prayer's promise, not a heap.)
+      const loneFlower = g => gs.length === 1 && /\bedible flower\b/i.test(g);
+      const heavy = gs.filter(g => ((G.forbiddenOnUp || []).some(item => !/\+/.test(item) && garnishMatches(g, item)) && !loneFlower(g)) || /\bstraws?\b|umbrella/i.test(g));
       if (gs.some(g => garnishMatches(g, 'orchid')) && gs.some(g => garnishMatches(g, 'cherry'))) heavy.push('orchid and cherry');
       if (/\bstraws?\b/.test(C.stepsText) && !heavy.some(h => /straw/i.test(h))) heavy.push('a straw');
       if (heavy.length) add('garnish-heavy-on-up', 'major', `${cap(list(heavy))} on a ${vName(C) || 'drink served up'}: an up glass takes one small garnish (a wheel, a twist, a cherry on a pick) or none.`);
@@ -1171,7 +1189,10 @@ export function createLinter({ rules, vocab, vessels } = {}) {
     // Required aroma.
     const ar = aromaRequired(C);
     const fam = (G.byFamily || {})[C.fam] || {};
-    const required = ar ? ar.items : fam.required || [];
+    // (A sparkling Mai Tai served up in a flute or coupe, the Mai Tai Royale, takes the up glass's
+    // one small garnish: no lime shell and mint bouquet on a stem.)
+    const royale = svc === 'up' && C.fam === 'mai-tai' && C.has('sparkling-wine');
+    const required = royale ? [] : ar ? ar.items : fam.required || [];
     const missing = required.filter(item => {
       if (C.garnishAll.some(g => garnishMatches(g, item))) return false;
       if (/swizzle stick/i.test(item) && C.method === 'swizzle') return false; // the stick that swizzled it stays in

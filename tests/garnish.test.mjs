@@ -189,7 +189,8 @@ test('blender ice follows the liquid (about 1–1¼×); a flash-blend takes abou
   const mixOz = s => { const m = /about (\d*)([¼½¾]?) oz of the mix/.exec(s); return m ? Number(m[1] || 0) + ({ '¼': 0.25, '½': 0.5, '¾': 0.75 }[m[2]] || 0) : null; };
   let blends = 0;
   for (const x of all) {
-    const r = x.r, held = l => l.float || l.sink || FIZZY.includes(l.id);
+    // (A Lava Flow's strawberry purée is spooned into the glass first, not blended.)
+    const r = x.r, held = l => l.float || l.sink || l.streak || FIZZY.includes(l.id);
     const liquid = r.lines.filter(l => !l.garnish && !held(l)).reduce((t, l) => t + (l.oz || 0), 0);
     for (const s of r.method.steps) {
       const ice = iceOz(s);

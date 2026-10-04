@@ -935,7 +935,8 @@ export function createCopywriter({ ingMap, ingVec }) {
     const m = mood && facts && moodOk(mood, facts) ? `, ${mood.replace(/^with\s+/i, '')}` : '';
     return polish(asWritten
       ? `The ${name}${credit ? ` (${credit})` : ''}, poured as written. Pray again and the gods will riff on it.`
-      : `The ${name}${credit ? ` (${credit})` : ''}, as the gods pour it${m}.`);
+      // (The old "as the gods pour it" stamp is retired: the canon contract says what it is.)
+      : `The ${name}${credit ? ` (${credit})` : ''}, the classic itself${m}.`);
   }
 
   // ---------------------------------------------------------------------------------------

@@ -65,6 +65,45 @@ const NOUN_BY_ID = {
   'scorpion-bowl': 'scorpion bowl', 'volcano-bowl': 'volcano bowl', 'zero-proof-tiki': 'zero-proof tropical',
 };
 
+// Frames the critic asked for that the research didn't file. Written in the research's own shape
+// and compiled like the rest; once in data/archetypes.json, the committed copy wins (idempotent).
+const ADDED = [
+  {
+    id: 'bananas-foster', name: 'Bananas Foster (frozen dessert drink)', family: 'colada', noun: 'frozen Bananas Foster',
+    nameNouns: ['Foster', 'Sundae'],
+    definition: "Brennan's 1951 New Orleans dessert as a frozen drink: aged rum and banana liqueur blended with ripe banana, hot buttered rum batter (the skillet's butter, brown sugar and cinnamon) and vanilla ice cream. It sits with the frozen dessert drinks but has no coconut and no pineapple, which is why it is never called a colada.",
+    // (No classics list: "bananas foster" names the dessert, not a drink to pour as written.)
+    classics: [],
+    creamy: true, long: false, bowl: false, layered: false, flaming: false,
+    signature: [
+      { component: 'aged rum', required: true, anyOf: ['rum-jamaican-aged', 'rum-jamaican-dark', 'rum-aged-column', 'rum-gold-column', 'rum-barbados'], ozRange: [1.5, 2], note: 'Aged Jamaican, as the skillet is flamed with rum.' },
+      { component: 'banana liqueur', required: true, anyOf: ['banana-liqueur'], ozRange: [0.5, 0.75], note: 'Brennan\'s flames the bananas with banana liqueur and rum.' },
+      { component: 'butter and brown sugar', required: true, anyOf: ['hot-buttered-rum-batter'], ozRange: [0.5, 1], note: 'The batter is the skillet: butter, brown sugar and cinnamon.' },
+      { component: 'ice cream', required: true, anyOf: ['vanilla-ice-cream', 'heavy-cream'], ozRange: [2, 4], note: 'The dessert is spooned over vanilla ice cream.' },
+    ],
+    // (The ripe banana is in every spec, but optional in the signature: a whole fruit is only
+    // pourable once the blender is chosen, and the banana liqueur already carries the banana.)
+    optional: [{ slot: 'banana', anyOf: ['banana'], ozRange: [1.75, 3.5], maxCount: 1, note: 'Half a ripe banana, blended.' }, { slot: 'spice', anyOf: ['cinnamon-syrup'], ozRange: [0.25, 0.5], maxCount: 1, note: 'More cinnamon, if the prayer wants it.' }],
+    forbidden: ['lime', 'lemon', 'grapefruit', 'orange', 'pineapple-juice', 'coconut-cream', 'coconut-milk', 'coconut-rum', 'soda-water', 'ginger-beer', 'tonic', 'egg-white', 'blue-curacao', 'campari', 'grenadine', 'cat:citrus'],
+    canonicalSpecs: [
+      {
+        name: "Bananas Foster (frozen, after Brennan's)", source: "After the dessert created at Brennan's, New Orleans, 1951 (Paul Blangé, for Owen Brennan); amounts are a house reconstruction for the glass", confidence: 'low',
+        lines: [{ id: 'rum-jamaican-aged', oz: 1.5, unit: 'oz' }, { id: 'banana-liqueur', oz: 0.5, unit: 'oz' }, { id: 'banana', oz: 1.75, unit: 'piece', amount: 0.5 }, { id: 'hot-buttered-rum-batter', oz: 0.75, unit: 'oz' }, { id: 'vanilla-ice-cream', oz: 3, unit: 'oz' }],
+        method: 'blend', ice: 'blended', vessel: 'poco-grande', garnish: ['brûléed banana coin on a pick', 'a dusting of cinnamon'],
+      },
+    ],
+    ratios: { baseOz: [1.5, 2], abvAfterDilution: [6, 12], notes: 'A dessert: sweeter than any sour, and no acid at all.' },
+    methods: ['blend'], ice: ['blended'], vessels: ['poco-grande', 'hurricane', 'goblet'],
+    garnish: { required: ['brûléed banana coin on a pick'], typical: ['a dusting of cinnamon', 'freshly grated nutmeg'], never: ['umbrella', 'pineapple wedge', 'lime wheel', 'mint sprig', 'cherry'] },
+    look: 'An opaque caramel-cream frozen drink, dusted with cinnamon, with a brûléed banana coin on a pick.',
+    flavorProfile: ['banana', 'caramel', 'vanilla', 'cinnamon', 'buttery', 'creamy'],
+    taglineWords: ['New Orleans', 'skillet', 'dessert'],
+    substitutions: ['demerara syrup and a pinch of cinnamon for the batter', 'heavy cream for the ice cream (thinner)'],
+    redFlags: ['Pineapple or coconut (it becomes a banana colada)', 'Citrus (it curdles the ice cream)'],
+    prayerFit: ['dessert', 'New Orleans', 'banana', 'indulgence'],
+  },
+];
+
 // Corrections the research asked for once the missing ingredients existed (it had to use
 // proxies): the real Tom & Jerry batter, fassionola in the Hurricane and Cobra's Fang, cane
 // syrup in a Ti' Punch, the right sherries on a Fog Cutter.
@@ -119,6 +158,17 @@ const OVERRIDES = {
     swapIn(a, 'cane syrup', ['cane-syrup']);
     for (const sp of a.canonicalSpecs) sp.lines = sp.lines.map(l => l.id === 'rich-simple' ? { ...l, id: 'cane-syrup' } : l);
   },
+  // Smuggler's Cove pours Don's Mix, two of grapefruit to one of cinnamon syrup: half an ounce of
+  // the mix is a third of grapefruit and a sixth of cinnamon, not a quarter of each.
+  zombie: a => {
+    const sc = a.canonicalSpecs.find(sp => /Smuggler's Cove/.test(sp.name));
+    if (sc) sc.lines = sc.lines.map(l => l.id === 'grapefruit' ? { ...l, oz: 1 / 3, amount: 1 / 3 } : l.id === 'cinnamon-syrup' ? { ...l, oz: 1 / 6, unit: 'tsp', amount: 1 } : l);
+  },
+  // The hotel's 1956 Mai Tai is shaken over crushed ice like Vic's, not stirred.
+  'mai-tai': a => {
+    const rh = a.canonicalSpecs.find(sp => /Royal Hawaiian Mai Tai \(1956/.test(sp.name));
+    if (rh && rh.method === 'stir') rh.method = 'shake';
+  },
   'fog-cutter': a => {
     swapIn(a, 'sherry float', ['cream-sherry', 'oloroso-sherry']);
     for (const sp of a.canonicalSpecs) {
@@ -154,7 +204,7 @@ const SIBLINGS = {
   zombie: ['pilot', 'cobras-fang', 'beachcombers-gold', 'tortuga'], pilot: ['zombie', 'cobras-fang', 'beachcomber-spice-sour'], 'cobras-fang': ['pilot', 'zombie', 'port-au-prince'], tortuga: ['zombie', 'pilot'],
   'mai-tai': ['vic-mai-tai-riff', 'hawaiian-mai-tai'], 'vic-mai-tai-riff': ['mai-tai', 'hawaiian-mai-tai'], 'hawaiian-mai-tai': ['mai-tai', 'tropical-itch', 'resort-liqueur-punch'],
   'pina-colada': ['painkiller', 'fruit-colada', 'coconut-daiquiri', 'bushwacker'], 'fruit-colada': ['pina-colada', 'painkiller', 'miami-vice', 'coconut-daiquiri'], painkiller: ['pina-colada', 'fruit-colada', 'coconut-daiquiri'],
-  bushwacker: ['pina-colada', 'fruit-colada'], 'coconut-daiquiri': ['pina-colada', 'painkiller', 'fruit-daiquiri'], 'miami-vice': ['fruit-colada', 'frozen-daiquiri'],
+  bushwacker: ['pina-colada', 'fruit-colada', 'bananas-foster'], 'bananas-foster': ['bushwacker', 'rum-old-fashioned'], 'coconut-daiquiri': ['pina-colada', 'painkiller', 'fruit-daiquiri'], 'miami-vice': ['fruit-colada', 'frozen-daiquiri'],
   'planters-punch': ['navy-grog', 'grog', 'bowl-punch', 'ti-punch'], 'navy-grog': ['grog', 'planters-punch', 'volcano-bowl'], grog: ['navy-grog', 'planters-punch'],
   daiquiri: ['hemingway-daiquiri', 'frozen-daiquiri', 'fruit-daiquiri', 'beachcombers-gold', 'caipirinha'], 'fruit-daiquiri': ['frozen-daiquiri', 'daiquiri', 'missionarys-downfall', 'coconut-daiquiri'],
   'frozen-daiquiri': ['fruit-daiquiri', 'missionarys-downfall', 'daiquiri'], 'hemingway-daiquiri': ['daiquiri', 'nuclear-daiquiri', 'beachcombers-gold'], 'nuclear-daiquiri': ['hemingway-daiquiri', 'herbal-swizzle'],
@@ -179,7 +229,7 @@ const KIN = {
   'missionarys-downfall': "the Missionary's Downfall", 'mai-tai': 'the Mai Tai', 'vic-mai-tai-riff': "Trader Vic's Mai Tai variations", scorpion: 'the Scorpion', 'fog-cutter': 'the Fog Cutter',
   tortuga: 'the Tortuga', 'passion-sour': 'the passion fruit sours', 'bitter-tiki-sour': 'the bitter tiki sours', 'bitters-base-sour': 'the bitters-as-base sours',
   'tropical-stirred': 'the tropical Old Fashioneds and Negronis', 'pina-colada': 'the Piña Colada', painkiller: 'the Painkiller', 'fruit-colada': 'the fruit coladas',
-  bushwacker: 'the frozen dessert drinks', 'coconut-daiquiri': 'the coconut daiquiris', 'miami-vice': 'the Miami Vice', 'blue-hawaii': 'the Blue Hawaii', hurricane: 'the Hurricane',
+  bushwacker: 'the frozen dessert drinks', 'bananas-foster': 'the frozen dessert drinks', 'coconut-daiquiri': 'the coconut daiquiris', 'miami-vice': 'the Miami Vice', 'blue-hawaii': 'the Blue Hawaii', hurricane: 'the Hurricane',
   'resort-liqueur-punch': 'the resort rum punches', 'hawaiian-mai-tai': 'the Hawaiian Mai Tai', 'tropical-itch': 'the Tropical Itch', 'pineapple-shell': 'the pineapple-shell punches',
   'sunrise-float': 'the sunrise drinks', 'scorpion-bowl': 'the Scorpion bowls', 'volcano-bowl': 'the volcano bowls', 'zero-proof-tiki': 'the zero-proof tiki drinks',
 };
@@ -569,6 +619,10 @@ const CREDITS = {
     drinks: { 'Mystery Drink': O("the Mai-Kai's gong-announced bowl", null, ATTR) },
   },
   'zero-proof-tiki': { origin: O('', null, { drink: 'Zero-Proof Tiki' }) },
+  'bananas-foster': {
+    origin: O("Brennan's, New Orleans, 1951: the dessert, by Paul Blangé for Owen Brennan", 1951, { drink: 'Bananas Foster' }),
+    specs: { "Bananas Foster (frozen, after Brennan's)": { drink: 'Bananas Foster', edition: "a frozen glass after Brennan's dessert" } },
+  },
 };
 // Writes a's origin, its other classics' origins, each spec's drink and edition, and corrected
 // classic labels. Additive to OVERRIDES and safe to run on the committed file.
@@ -590,9 +644,11 @@ function applyCredits(a) {
 }
 
 const seen = new Map();
-for (const f of files) {
+for (const [fi, f] of files.entries()) {
   const data = read(f);
-  for (const a0 of data.archetypes || []) {
+  // (The frames added here go in once, after the last research file, unless a file already has them.)
+  const extra = fi === files.length - 1 ? ADDED.filter(x => !files.some(g => (read(g).archetypes || []).some(a => a.id === x.id))) : [];
+  for (const a0 of [...(data.archetypes || []), ...extra]) {
     const a = JSON.parse(JSON.stringify(a0));
     if (OVERRIDES[a.id]) OVERRIDES[a.id](a);
     applyCredits(a);

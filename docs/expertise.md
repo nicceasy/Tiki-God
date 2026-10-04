@@ -11,7 +11,7 @@ The expert research behind it lives in [`docs/research/`](research/):
 
 The researched data itself is:
 
-- `data/archetypes.json`: 59 archetypes.
+- `data/archetypes.json`: 60 archetypes.
 - `data/concepts.json`: 618 prayer concepts covering 5,669 phrases.
 - The `optics` field of every ingredient in `data/ingredients.json`.
 
@@ -46,6 +46,8 @@ The research had to use proxies for a few ingredients the pantry lacked. Once th
 5. **Trim** to the family's ceiling from the research (a daiquiri is five things, a colada six), never below what the archetype's own canonical specs pour, and never the last sweetener or the last acid.
 6. **Cap** every accent at the researched maximum dose.
 
+**The canon contract.** Every card carries `recipe.canon` in one of three states: *as written* (lines, method, ice, vessel and required garnish match a named edition, with its date), a *house riff* (every change listed, including "blended instead of shaken" and doses), or a *cousin* below 0.4 sameness, named only by its family. Identity cores can't be dropped under a classic's name (the Tortuga's two overproofs, the Lava Flow's strawberry, the Jungle Bird's pineapple, the Navy Grog's honey or allspice). Praying again must change the frame, the temperature, the vessel class or the edition, and share under 60% of the bottles.
+
 A bare classic name ("zombie", "navy grog", "a tom and jerry") pours the classic as written and credits its creator. Praying again riffs on it with one signed change. "X but Y" changes exactly Y.
 
 `composer.satisfies()` checks the finished drink against its archetype. Components the guest ruled out (orgeat in a nut-free Mai Tai) are *waived*, and the card says the drink is a cousin, not the real thing.
@@ -69,6 +71,18 @@ Before balancing, `structure()` makes the build one a bartender would pour witho
 - The spirit moves only for a stronger or gentler ask, and never past the archetype's spirit range.
 - A low-ABV prayer lands at or under 7%: liqueurs come down first, then the spirit, then the drink is lengthened with juice or soda, never with more wine.
 
+**Absolute bands.** A ratio can't see a 26-gram punch (26.4 g to 1.38 g of acid is a fine ratio), so every built or riffed drink is also held inside an absolute sugar and acid band for how it is made (`absoluteBands` in `data/technique-rules.json`, applied by `chem.js sugarBand()` and `engine.bandPass()`):
+
+- shaken sours 8–11 g of sugar per 100 ml; frozen drinks 8.5–12 g with 0.55–0.85 g of acid; a punch over a block 9–11 g; stirred drinks under 10 g; hot drinks 3–7 g (creamy hot 3–10 g);
+- a ceiling of about 13 g for anything that isn't dessert (15 g for dessert), and an acid ceiling of 1.2 g (1.45 g for a tart ask);
+- a directional ask ("very tart", "less sweet") moves the band rather than being overridden; canon poured as written keeps its spec (the 1934 Zombie at 3.6 g, the Queen's Park Swizzle at 4.3 g), except that a blender spec still has to clear the frozen floor, because cold mutes sugar.
+
+The band pass runs after the balance, color and leaning passes, again after the vessel fit, and once more after the last proportional trim, told never to grow past the glass. Over the ceiling, the plain syrup goes first, then flavored syrups, liqueurs, nectars and finally the cream of coconut. Under the floor, the plain syrup comes up; with none, rich simple or demerara goes in; at the seven-line ceiling a small fruit pour with a syrup twin (passion fruit, pineapple, guava) comes as the syrup instead. In a glass already full, sugar goes in denser (rich simple for simple, cream of coconut for dairy), and room is made in a juice nobody promised or, last, the spirit (never under the frame's smallest pour, two ounces for a frozen drink).
+
+**One sweetener per job.** A plain syrup folds into a flavored syrup of a quarter-ounce or more, or into a ginger beer or cola top of two ounces (checked again after the vessel fit, since a highball's top can grow); two token flavored syrups become one; a batter is the butter and the sugar.
+
+**Doses you can taste, and budgets.** A named flavor is at least half an ounce in a drink of 12 oz or more and a quarter-ounce in a short one (a teaspoon for potent bottles, a quarter-ounce of Islay); the floor follows the drink's current size. At most seven poured lines (ten for the Zombie line): seasonings go first, a fourth spirit folds into the lead before any promise is given up, and the bottle that pours a demanded color is never the one left out. The spirit budget is 2½ oz (3 for the Zombie line), with high-proof liqueurs such as Chartreuse counted toward it, also through color moves. Identity cores carry minimum doses (a Mai Tai's half-ounce of orgeat, a Hot Buttered Rum's three-quarters of batter, Don's Mix two to one).
+
 After balance, `floors()` enforces real pours: 1½ oz of spirit (2 for coladas and frozen drinks), at most 2½ (3 for heavyweights, 2 per bowl cup, about 1½ standard drinks per party cup), ¾ oz for each spirit in a split, mezcal at ¾ oz unless asked, and minimum doses by role (no teaspoon of gin, no half-teaspoon of syrup). `settle()` then nudges one sweetener or citrus a bar measure at a time, so rounding to quarter ounces and teaspoons doesn't undo the balance.
 
 `fixTechnique()` and `steps()` keep the method honest:
@@ -85,6 +99,10 @@ Servings and vessels follow the drink:
 - A number in the prayer is the number. A party with no number is a batch for eight in a punch bowl; a bowl drink asked for one serves two; nothing is poured into a bowl for one, and a punch bowl is only for six or more.
 - The archetype's own glassware comes first, chosen by the research's fill ranges (a Zombie's six ounces belong in a chimney). Colors, sinks and floats go in clear glass; a swizzle goes in a glass with straight sides.
 - A vessel the guest asked for gets a drink scaled to fit it (a colada in a coconut is about eleven ounces).
+- One capacity model (`needOf`) decides every vessel and every trim: up and hot drinks fill 55–95% of the glass, frozen drinks 55–90% of it finished, a crushed-ice drink poured ice and all at most about half, a drink over cubes 40–68%. `fitVessel` trims the long pours or grows a drink that would look lost; the last word scales every line together, then the band pass sets the balance back without growing it.
+- A low-ABV drink is never trimmed to fit (its half-ounce pours can't come down a bar measure, so a trim would only make it stronger) and is never served up in a flute: it gets a glass that holds it whole.
+- Canonical service: a drink built from a proven spec, or whose lines turn out to be a classic, takes that classic's method, ice and vessel (the Daiquiri No. 4 frappé, a Hemingway up in a coupe, the Painkiller's tin). What the prayer overrides is recorded (`recipe.method.waived`).
+- Occasions fix the vessel where glass is the hazard (an acrylic tumbler by the pool, on the beach and on a boat, trimmed harder to fit if it must) or where the occasion is the point (a celebration with bubbles goes up in a flute).
 
 ## 3. Color: computed from what's poured
 
@@ -97,6 +115,8 @@ Servings and vessels follow the drink:
 `tests/optics.test.mjs` checks 43 catalogued classics against their reference colors.
 
 A color the guest asks for is a demand. The engine first tries to refill a slot with a bottle of that color. Next it opens a slot for one, lightens bottles that muddy it (dark rum under blue curaçao), or pours the classic carrier for that color (a grenadine sunrise for red). If the archetype still can't show the color, it tries the next archetype. The drink goes in a clear glass, never an opaque mug. A concept's color, such as "promotion" leaning gold, is only a preference.
+
+A Lava Flow is built around its strawberry purée, spooned into the glass first with the colada blended and poured over it: the line is marked `streak`, the steps say so, and the look carries a streak layer instead of mixing the red into the body.
 
 ## 4. Copy that tells the truth
 
@@ -138,7 +158,7 @@ A color the guest asks for is a demand. The engine first tries to refill a slot 
 - name words and tagline moods;
 - a reading the Shrine says back.
 
-**Promises.** Each reading names a hero (dad's bourbon, Tokyo's Japanese whisky and yuzu, a dragon's mezcal and chile) or a service (a first date served up). Frames that can keep the promise score higher, the hero is poured, and a build that breaks a promise tries the next frame.
+**Promises.** Each reading names a hero (dad's bourbon, Tokyo's Japanese whisky and yuzu, a dragon's mezcal and chile) or a service (a first date served up). Readings compile into promises (`promise` in `data/concepts.json`): the bottles to pour with their doses, the service, a float, an ABV ceiling, bottles to keep out and the frames that can keep it. Frames that can keep the promise score higher, the promised lines are held through later passes, and a build that breaks a promise tries the next frame. The Shrine says the reading back in the guest's voice, replacing only a sentence the drink truly can't keep. A dish the prayer names gets its own frame where one exists (Bananas Foster is a frozen dessert of aged rum, banana liqueur, banana, batter and vanilla ice cream, and praying again gives the stirred Foster Old Fashioned).
 
 **The hand-tuned lexicon** handles explicit asks: spirits, bottles, flavors, styles, colors, negation and diets. A color word is a demand; a mood that only suggests a color ("romantic") is a leaning. A flavor named outright beats a concept's soft avoid (coffee liqueur in "a coffee nightcap").
 

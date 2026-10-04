@@ -26,7 +26,7 @@ test('every drink is what its archetype says it is', () => {
 test('a colada is a colada and a Mai Tai cousin is no fruit punch', () => {
   for (const { p, seed, r } of all) {
     const fam = r.family.id;
-    if (fam === 'colada' && !r.style.zeroProof && !/bushwacker|miami-vice/.test(r.archetype.id)) {
+    if (fam === 'colada' && !r.style.zeroProof && !/bushwacker|miami-vice|bananas-foster/.test(r.archetype.id)) {
       assert.ok(oz(r, 'coconut-cream', 'coconut-milk') >= 0.5, `${p} [${seed}] ${r.name}: a colada without coconut`);
       assert.ok(has(r, 'pineapple-juice') || r.archetype.id === 'coconut-daiquiri', `${p} [${seed}] ${r.name}: a colada without pineapple`);
     }

@@ -197,7 +197,9 @@ test('the look hex is a contract: the painted body keeps its hue, lightness and 
     assert.ok(s - s0 <= CONTRACT.ds + 0.01, `${at}: saturation ${s.toFixed(2)} past the look's ${s0.toFixed(2)} + ${CONTRACT.ds}`);
     assert.ok(Math.abs(l - l0) <= CONTRACT.dl + 0.01, `${at}: lightness ${l.toFixed(2)} off the look's ${l0.toFixed(2)}`);
     // (a clear or cloudy color is painted at least as strong as the look: vivid, never duller)
-    if (P.kind === 'color') assert.ok(s >= Math.min(s0, 0.97) - 0.005, `${at}: painted duller than the look`);
+    // (at the edge of the gamut a pale, nearly pure yellow loses a hundredth of saturation to the
+    // hex's 1/255 steps alone)
+    if (P.kind === 'color') assert.ok(s >= Math.min(s0, 0.97) - (s0 > 0.9 && l0 > 0.7 ? 0.015 : 0.005), `${at}: painted duller than the look`);
     // the median pixel of the drawn body (in a mug with a float or a crown on it, the top layer
     // is what the guest sees, and the surface is judged against that layer)
     const top = GLASS_PROFILES[liq.kind].opaque && (recipe.look.layers || []).find(x => x.kind === 'float' || x.kind === 'crown');
