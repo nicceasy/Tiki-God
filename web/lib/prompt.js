@@ -317,6 +317,8 @@ export function normalizeText(s) {
     .toLowerCase()
     .normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/[’`]/g, "'")
+    // A year is its decade: "Havana 1957" is 1950s Havana.
+    .replace(/\b(19[2-9])\d\b/g, '$10s')
     // A comma, semicolon or full stop ends a clause: "not too sweet, very tart" negates only "sweet".
     .replace(/\s*[,;.!?]+\s*/g, ' | ')
     .replace(/[^a-z0-9' &|-]+/g, ' ')
@@ -363,7 +365,7 @@ export function stem(w) {
     .replace(/(ing|ings)$/, '')
     .replace(/(ed)$/, '')
     .replace(/(ation|ations)$/, 'ate')
-    .replace(/(ness|ful|ly)$/, '')
+    .replace(/(ness|ly)$/, '')
     .replace(/([^s])s$/, '$1')
     .replace(/e$/, '');
 }
@@ -422,6 +424,8 @@ function applyConcepts(text, intent, index) {
     const n = e.stems.length;
     for (let i = 0; i + n <= stems.length; i++) {
       if (used.slice(i, i + n).some(Boolean)) continue;
+      // A word that carries no wish ("tastes", "drink") never triggers a concept on its own.
+      if (n === 1 && FILLER.has(words[i])) continue;
       let ok = true;
       for (let k = 0; k < n; k++) if (stems[i + k] !== e.stems[k]) { ok = false; break; }
       // "a night in Tahiti" is a night spent somewhere, not a cozy night in.
@@ -476,6 +480,15 @@ function applyConcept(intent, c, sign) {
     intent.nameWords.push(...(c.nameWords || []));
     intent.taglineWords.push(...(c.taglineWords || []));
     intent.concepts.push(c.id);
+    // What the reading promises the guest: its hero bottles (not the lime every sour has), and
+    // the service it names. The engine checks the finished drink keeps at least one.
+    // The promise is the reading's hero: its top bottle (and any within a hair of it), never the
+    // lime every sour has, and a rum only if the reading leans on it hard.
+    const GENERIC = new Set(['lime', 'lemon', 'simple-syrup', 'rich-simple', 'angostura', 'nutmeg', 'mint', 'soda-water', 'saline']);
+    const cand = Object.entries(c.ings || {}).filter(([id, w]) => w >= 0.8 && !GENERIC.has(id) && !(/^rum-/.test(id) && w < 1.4)).sort((a, b) => b[1] - a[1]);
+    const ids = cand.filter(([, w]) => w >= cand[0]?.[1] - 0.2).slice(0, 3).map(([id]) => id);
+    const up = Math.max(...['coupe', 'nick-nora', 'cocktail-glass'].map(v => (c.vessels || {})[v] || 0)) >= 1.5;
+    if (ids.length || up || st.flaming || st.layered) intent.promises.push({ concept: c.id, ids, up, flaming: !!st.flaming, layered: !!st.layered });
   }
 }
 
@@ -499,7 +512,7 @@ export function buildNameIndex(drinks) {
   const idx = [];
   const seen = new Map();
   for (const d of drinks) {
-    for (const n of [d.name, ...(d.aka || [])]) {
+    for (const n of [d.name, ...(d.aka || []), ...[d.name, ...(d.aka || [])].filter(x => /'/.test(x)).map(x => x.replace(/'/g, ''))]) {
       const key = normalizeText(n).trim();
       if (key.length < 4 || GENERIC_NAMES.has(key) || lexPhrases().has(key)) continue;
       const prev = seen.get(key);
@@ -532,7 +545,7 @@ export function parsePrompt(raw, { nameIndex = [], familyIds = [], concepts = nu
     raw,
     tags: {}, avoidTags: {}, ings: {}, avoidIngs: new Set(), spirits: [], avoidSpirits: new Set(),
     fam: {}, strength: 0, sweetness: 0, tartness: 0, complexity: 0,
-    style: {}, color: null, servings: 1, riffOf: null, riffName: null, vessel: null,
+    style: {}, color: null, servings: 1, riffOf: null, riffName: null, vessel: null, promises: [],
     matched: [], diets: [],
     readings: [], concepts: [], archetypes: {}, vesselAffinity: {}, softAvoid: {}, garnishIdeas: [], nameWords: [], taglineWords: [],
     prefer: {}, conceptTags: {},
@@ -583,7 +596,7 @@ export function parsePrompt(raw, { nameIndex = [], familyIds = [], concepts = nu
   if (m) {
     const w = m[1].replace('a ', '');
     const n = NUMBER_WORDS[w] || parseInt(w, 10) || (w === 'crowd' || w === 'group' ? 6 : 2);
-    if (n > 1) { intent.servings = Math.min(n, 12); intent.style.bowl = n >= 3; }
+    if (n > 1) { intent.servings = Math.min(n, 12); intent.style.bowl = n >= 3; intent.servingsAsked = true; }
   }
 
   // How many rums: "three rums", "a blend of rums", "two rums". Don's signature move.
@@ -673,7 +686,8 @@ function applyEffect(intent, e, sign, soft, scale = 1) {
   // Negated "sweet" means drier; negated "strong" means lighter, and so on.
   for (const key of ['strength', 'sweetness', 'tartness', 'complexity']) if (e[key]) intent[key] += sign * e[key] * scale;
   if (e.style) for (const [s, v] of Object.entries(e.style)) {
-    if (sign > 0) intent.style[s] = v;
+    // What the guest said outright ("frozen", "hot") outranks what a concept only leans toward.
+    if (sign > 0) { intent.style[s] = v; (intent.askedStyle = intent.askedStyle || {})[s] = v; }
     else if (s === 'creamy' || s === 'long' || s === 'bitter' || s === 'frozen' || s === 'hot' || s === 'flaming') intent.style[s] = false;
   }
   if (e.color && sign > 0) intent.color = e.color;

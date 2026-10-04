@@ -87,6 +87,25 @@ const OVERRIDES = {
     const don = a.canonicalSpecs.find(sp => sp.name === "Cobra's Fang");
     if (don) don.lines = don.lines.map(l => l.id === 'passion-fruit-syrup' ? { ...l, id: 'fassionola' } : l);
   },
+  // A Hot Buttered Rum is its batter (butter, dark brown sugar and spice, a heaping tablespoon);
+  // the Coffee Grog and Jerry Thomas's butter-and-sugar toddy are other drinks.
+  'hot-buttered-rum': a => {
+    const batter = a.signature.find(c => /batter/.test(c.component));
+    if (batter) { batter.anyOf = ['hot-buttered-rum-batter']; batter.ozRange = [0.5, 1]; }
+    a.canonicalSpecs = a.canonicalSpecs.filter(sp => /Hot Buttered Rum/.test(sp.name)).map(sp => ({ ...sp, lines: sp.lines.map(l => l.id === 'hot-buttered-rum-batter' ? { ...l, oz: 0.75, ozEq: 0.75, unit: 'oz', amount: 0.75 } : l) }));
+    a.optional = (a.optional || []).filter(o => o.slot !== 'sugar');
+    if (a.garnish) a.garnish.typical = (a.garnish.typical || []).filter(g => !/Coffee Grog/.test(g));
+  },
+  // Vic's Scorpion is a brandy-and-rum orgeat punch: half an ounce of brandy and of orgeat per
+  // guest, not a teaspoon.
+  'scorpion-bowl': a => {
+    for (const c of a.signature) {
+      if (/brandy/.test(c.component)) c.ozRange = [0.5, 1];
+      if (/orgeat/.test(c.component)) c.ozRange = [0.5, 1];
+    }
+    const sp = a.canonicalSpecs.find(x => /three or four/.test(x.name));
+    if (sp) sp.lines = [{ id: 'rum-white-column', oz: 1.5, unit: 'oz' }, { id: 'brandy', oz: 0.5, unit: 'oz' }, { id: 'gin', oz: 0.25, unit: 'oz' }, { id: 'orange', oz: 1.5, unit: 'oz' }, { id: 'lemon', oz: 1, unit: 'oz' }, { id: 'orgeat', oz: 0.5, unit: 'oz' }];
+  },
   'ti-punch': a => {
     swapIn(a, 'cane syrup', ['cane-syrup']);
     for (const sp of a.canonicalSpecs) sp.lines = sp.lines.map(l => l.id === 'rich-simple' ? { ...l, id: 'cane-syrup' } : l);

@@ -37,10 +37,13 @@ const issues = [];
 const PATCH = {
   'japan-tokyo': { ings: { 'japanese-whisky': 1.6, sake: 0.5 }, vessels: { highball: 1 } },
   neon: { ings: { 'melon-liqueur': 0.8 }, color: 'green' },
-  dragon: { ings: { 'pitaya-puree': 0.8 } },
+  dragon: { ings: { 'pitaya-puree': 0.8 }, style: { flaming: true } },
   pele: { style: { flaming: true } },
   'hurricane-new-orleans': { ings: { fassionola: 1 } },
 };
+// Phrases the research gave to the wrong concept: "garden" alone is flowers and herbs, not a
+// garden party with a punch bowl.
+const MOVE = { garden: 'spring', gardens: 'spring', elegant: 'sophisticated', classy: 'sophisticated', 'havana 1950s': 'havana-nights', 'street party': 'party', 'block party': 'party' };
 const num = (x, lo, hi) => typeof x === 'number' && Number.isFinite(x) ? Math.max(lo, Math.min(hi, x)) : null;
 const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9' -]+/g, ' ').replace(/\s+/g, ' ').trim();
 
@@ -62,6 +65,7 @@ for (const x of all) {
 // Function words are never a wish ("and" is not Peru).
 const FUNCTION_WORDS = new Set(['and', 'the', 'for', 'with', 'you', 'our', 'but', 'not', 'too', 'are', 'was', 'has', 'had', 'get', 'got', 'its', 'his', 'her', 'him', 'she', 'they', 'them', 'this', 'that', 'from', 'into', 'onto', 'over', 'very', 'just', 'some', 'any', 'all', 'one', 'two', 'few', 'lot', 'out', 'off', 'way', 'who', 'why', 'how', 'what', 'when', 'where', 'can', 'may', 'will', 'like', 'make', 'made', 'more', 'less', 'much', 'drink', 'drinks', 'something']);
 const owner = new Map();
+for (const [n, id] of Object.entries(MOVE)) { const x = all.find(x => x.c.id === id && !x.dup); if (x && !x.c.phrases.includes(n)) x.c.phrases.push(n); }
 const claimScore = (x, n) => (slug(x.c.id) === slug(n) ? 100 : slug(x.c.id).includes(slug(n)) || slug(n).includes(slug(x.c.id)) ? 50 : 0) - x.c.phrases.length * 0.1;
 for (const x of all) {
   if (x.dup || !x.c.id || !Array.isArray(x.c.phrases)) continue;
@@ -69,6 +73,7 @@ for (const x of all) {
     const n = norm(p);
     if (!n || n.length < 3 || FUNCTION_WORDS.has(n)) continue;
     const cur = owner.get(n);
+    if (MOVE[n]) { if (x.c.id === MOVE[n]) owner.set(n, x); continue; }
     if (!cur || claimScore(x, n) > claimScore(cur, n)) owner.set(n, x);
   }
 }
