@@ -97,7 +97,8 @@ const IMPLIES_ING = {
 // Never in a name: sacred figures, colonial and caricature terms modern tiki has left behind.
 // Hawaiian and other Polynesian words used as decoration (makuakāne, hoʻomaikaʻi) are out;
 // a word carrying an ʻokina is treated the same way. The Mai Tai's own phrase stays for its riffs.
-const POLY = /[ʻ]|\b(makuakane|hoomaikai|ho'omaika'i|keiki|tutu|kupuna|lani|nani|wikiwiki|pau|hauoli|mele|kalikimaka|lūʻau|luau|haole|kanaka|menehune|ono|pupule)\b/i;
+// Hawaiian words often arrive spelled with plain apostrophes for the ʻokina (Ho'olaule'a).
+export const POLY = /[ʻ]|[a-z]'[aeiou][a-z]*'[aeiou]|\b(ho'?olaule'?a|hula|lu'?au|kama'?aina|makuakane|hoomaikai|ho'omaika'i|keiki|tutu|kupuna|lani|nani|wikiwiki|pau|hauoli|mele|kalikimaka|lūʻau|luau|haole|kanaka|menehune|ono|pupule)\b/i;
 const BANNED = /\b(pele|ku|kū|lono|kane|kāne|kanaloa|maui|māui|kahuna|moai|tiki|ohana|ʻohana|aloha|mahalo|savage|cannibal|headhunter|witch ?doctor|native|plantation|planter|voodoo|hoodoo|wahine|hula|island girl|dusky|coolie|oriental|geisha|shanghai'?d|kapu|tapu|mana|idol|tribal|primitive|heathen|squaw|shrunken|tsantsa|conquistador|colonial|missionary|overseer|samoan|tahitian|maori|chief|bongo|ooga|booga|jungle princess)\b/i;
 // Places only for spirits with a strong sense of place (a light column rum is from anywhere).
 const PLACE_OK = new Set(['rum-demerara', 'rum-demerara-overproof', 'rum-jamaican-aged', 'rum-jamaican-pot', 'rum-jamaican-dark', 'rum-jamaican-white-overproof', 'rum-agricole-blanc', 'rum-agricole-vieux', 'rum-barbados', 'rum-haitian', 'rum-navy', 'rum-black-blended', 'rum-cachaca', 'mezcal', 'tequila-blanco', 'tequila-reposado', 'pisco', 'aquavit', 'batavia-arrack', 'scotch-islay']);

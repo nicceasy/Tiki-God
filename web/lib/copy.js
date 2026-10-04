@@ -1,4 +1,5 @@
 import { showsColor } from './optics.js';
+import { POLY } from './names.js';
 
 // Menu copy that tells the truth. Every flavor a tagline or tasting note names must be carried
 // by an ingredient at a dose you can taste; the drink's type word comes from its archetype
@@ -245,7 +246,8 @@ export function createCopywriter({ ingMap, ingVec }) {
     // A mood line that names a color ("red all the way through") is said only if the glass shows it.
     const MOOD_COLOR = { red: 'red', ruby: 'red', crimson: 'red', scarlet: 'red', blue: 'blue', turquoise: 'blue', green: 'green', jade: 'green', gold: 'gold', golden: 'gold', pink: 'pink', purple: 'purple', violet: 'purple', black: 'dark', orange: 'orange' };
     const moodOk = m => !Object.entries(MOOD_COLOR).some(([w, c]) => new RegExp(`\\b${w}\\b`, 'i').test(m) && !(look && showsColor({ body: look.body, layers: [] }, c)));
-    const mood = (intent.taglineWords || []).find(m => m && moodOk(m));
+    // Hawaiian and other Polynesian words are never decoration on the menu either.
+    const mood = (intent.taglineWords || []).find(m => m && moodOk(m) && !POLY.test(m));
     const riff = riffOf ? `, a riff on the ${riffOf}` : '';
     const heroWords = heroes.map(w => colorPart && w.startsWith(colorPart + ' ') ? w.slice(colorPart.length + 1) : w);
     const withPart = heroWords.length ? ` with ${list(heroWords)}` : '';

@@ -203,6 +203,14 @@ export function createComposer({ archetypes, ingMap, model }) {
       if (w < 1 || lines.some(l => l.id === id) || !ingMap.has(id) || ctx.forbidden(id, intent) || (ingMap.get(id).role === 'base')) continue;
       placeIngredient(a, lines, id, intent, ctx, notes);
     }
+    // A concept's hero bottle (weighted to be seen: Tokyo's Japanese whisky, a dragon's pitaya)
+    // goes in like an ask, up to two of them, if the frame can hold it without breaking.
+    const heroes = Object.entries(intent.prefer || {}).filter(([id, w]) => w >= 1.25 && ingMap.has(id) && !lines.some(l => l.id === id) && !ctx.forbidden(id, intent) && !archForbids(a, id))
+      .sort((x, y) => y[1] - x[1]).slice(0, 2);
+    for (const [id] of heroes) {
+      if (roleOf(id) === 'base') { if (!intent.spirits.includes(id)) swapInSpirits(a, lines, { ...intent, spirits: [id], avoidSpirits: new Set() }, ctx, notes); }
+      else placeIngredient(a, lines, id, intent, ctx, notes);
+    }
     // Requested flavors still uncarried: swap a slot's filling, else open an optional slot.
     for (const [tag, w] of Object.entries(intent.tags).sort((x, y) => y[1] - x[1])) {
       if (w < 1.2 || NOT_A_FLAVOR.has(tag) || carried(lines, tag, ctx)) continue;
@@ -439,6 +447,11 @@ export function createComposer({ archetypes, ingMap, model }) {
   function placeIngredient(a, lines, id, intent, ctx, notes) {
     const slot = slotFor(a, id);
     const others = lines.map(l => l.id);
+    // One fizzy top is plenty: a new lengthener takes the old one's place.
+    if (roleOf(id) === 'lengthener') {
+      const old = lines.find(l => l.role === 'lengthener' && !l.req && !l.float && !l.sink);
+      if (old) { notes.push(`${shortName(id)} in place of ${shortName(old.id)}`); old.id = id; old.req = true; return; }
+    }
     if (slot) {
       const occupant = lines.find(l => l.slot === (slot.component || slot.slot) && !l.req);
       if (occupant && (slot.maxCount || 1) <= lines.filter(l => l.slot === occupant.slot).length) {
