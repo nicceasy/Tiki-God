@@ -39,6 +39,7 @@ export function createComposer({ archetypes, ingMap, model }) {
       // Without the spirit, a drink needs juice, coconut or spice to stand on.
       if (['stirred'].includes(a.family) || a.id === 'ti-punch' || /overproof|nuclear|bitters-base/.test(a.id)) s -= 6;
       if (a.creamy || a.long || ['colada', 'resort-punch', 'punch', 'orgeat-punch', 'buck'].includes(a.family)) s += 2;
+      if (a.zeroProof === true || /zero-proof/.test(a.id)) s += 3;
     }
     const has = m => (a.methods || []).includes(m);
     if (st.hot && !has('hot')) return { a, s: -Infinity, why: ['not a hot drink'] };

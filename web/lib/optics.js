@@ -124,3 +124,33 @@ export function drinkLook(lines, ingMap, { method, ice, dilutionOz = 0 } = {}) {
   }
   return { body, layers, description: words.join(' ').replace(/^./, c => c.toUpperCase()) };
 }
+
+// Hue, saturation and lightness of a hex color (hue in degrees, null for greys).
+export function hsl(hex) {
+  const [r, g, b] = hexToRgb(hex).map(v => v / 255);
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn, l = (mx + mn) / 2;
+  if (d < 0.06) return { h: null, s: 0, l };
+  const h = mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return { h: h * 60, s: d / (1 - Math.abs(2 * l - 1) || 1), l };
+}
+// Whether a color reads as what a guest means by a color word.
+export const COLOR_TEST = {
+  blue: c => c.h !== null && c.h >= 165 && c.h <= 255 && c.s > 0.2,
+  green: c => c.h !== null && c.h >= 70 && c.h < 165 && c.s > 0.2,
+  red: c => c.h !== null && (c.h >= 340 || c.h < 14) && c.s > 0.35 && c.l < 0.62,
+  pink: c => c.h !== null && (c.h >= 315 || c.h < 22) && c.l >= 0.55,
+  orange: c => c.h !== null && c.h >= 14 && c.h < 40 && c.s > 0.45,
+  gold: c => c.h !== null && c.h >= 36 && c.h < 62 && c.s > 0.35 && c.l > 0.35,
+  purple: c => c.h !== null && c.h >= 255 && c.h < 315 && c.s > 0.15,
+  dark: c => c.l < 0.3,
+  white: c => c.l > 0.82 && c.s < 0.45,
+  clear: c => c.l > 0.85 && c.s < 0.3,
+};
+// Does the finished drink (its body, or a layer at least a tenth of the glass) show this color?
+export function showsColor(look, color) {
+  const test = COLOR_TEST[color];
+  if (!test || !look) return true;
+  if (color === 'clear') return look.body.opacity < 0.2 && test(hsl(look.body.hex));
+  if (color === 'white') return look.body.opacity >= 0.6 && test(hsl(look.body.hex));
+  return [look.body, ...(look.layers || []).filter(x => x.kind !== 'foam' && (x.frac || 0) >= 0.08)].some(x => x && x.hex && test(hsl(x.hex)));
+}

@@ -1,3 +1,5 @@
+import { showsColor } from './optics.js';
+
 // Menu copy that tells the truth. Every flavor a tagline or tasting note names must be carried
 // by an ingredient at a dose you can taste; the drink's type word comes from its archetype
 // (which the composer guarantees it satisfies); the prayer contributes the mood, never fake
@@ -122,21 +124,7 @@ export function createCopywriter({ ingMap, ingVec }) {
   // a dash of bitters isn't worth naming unless it was asked for.
   const BASE_ADJ = { smoky: 'smoky', funky: 'funky', grassy: 'grassy', molasses: 'dark', agave: 'agave-bright', juniper: 'piney', oaky: 'oak-aged' };
   const SPICES = new Set(['cinnamon', 'clove', 'allspice', 'nutmeg', 'ginger', 'pepper', 'chili']);
-  const hueOf = hex => {
-    const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255);
-    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
-    if (d < 0.08) return { h: null, s: 0, l: (mx + mn) / 2 };
-    const h = mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
-    return { h: h * 60, s: d / (1 - Math.abs(mx + mn - 1) || 1), l: (mx + mn) / 2 };
-  };
-  // Does the drink actually show the color the guest asked for (in its body or a layer)?
-  const COLOR_TEST = {
-    blue: c => c.h !== null && c.h >= 170 && c.h <= 250, green: c => c.h !== null && c.h >= 75 && c.h < 170,
-    red: c => c.h !== null && (c.h >= 340 || c.h < 15) && c.s > 0.35, pink: c => c.h !== null && (c.h >= 320 || c.h < 20) && c.l > 0.6,
-    gold: c => c.h !== null && c.h >= 30 && c.h < 60 && c.s > 0.3, purple: c => c.h !== null && c.h >= 250 && c.h < 320, dark: c => c.l < 0.3,
-    orange: c => c.h !== null && c.h >= 15 && c.h < 40 && c.s > 0.4,
-  };
-  const COLOR_WORD = { blue: 'blue', green: 'green', red: 'ruby-red', pink: 'pink', gold: 'golden', purple: 'violet', dark: 'dark', orange: 'sunset-orange' };
+  const COLOR_WORD = { blue: 'blue', green: 'green', red: 'ruby-red', pink: 'pink', gold: 'golden', purple: 'violet', dark: 'dark', orange: 'sunset-orange', white: 'snow-white', clear: 'crystal-clear' };
   function tagline({ lines, archetype, intent, riffOf, riffIds = null, look = null }) {
     const isBase = id => (ingMap.get(id) || {}).role === 'base';
     // The tagline describes what is in the glass; garnish aromas (a mint sprig) aren't flavors of the drink.
@@ -169,10 +157,7 @@ export function createCopywriter({ ingMap, ingVec }) {
     const adj = baseAdj ? `${BASE_ADJ[baseAdj]} ` : '';
     // A color the guest asked for, named only if the drink really shows it.
     let colorPart = '';
-    if (intent.color && look && COLOR_TEST[intent.color]) {
-      const shows = [look.body, ...(look.layers || [])].some(x => x && x.hex && COLOR_TEST[intent.color](hueOf(x.hex)));
-      if (shows) colorPart = `${COLOR_WORD[intent.color]} `;
-    }
+    if (intent.color && look && COLOR_WORD[intent.color] && showsColor(look, intent.color)) colorPart = `${COLOR_WORD[intent.color]} `;
     const withPart = flav.length ? ` with ${list(flav)}` : '';
     const moodPart = mood ? (/^(for|to|with|on|in|under|at|from|like)\b/i.test(mood) ? ` ${mood}` : `, ${mood}`) : '';
     const lead = [colorPart.trim(), texture.trim(), adj.trim()].filter(Boolean);

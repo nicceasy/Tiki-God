@@ -55,6 +55,10 @@ const NOUN_BY_ID = {
   'beachcomber-spice-sour': 'Beachcomber sour', 'pearl-diver': 'Pearl Diver-style punch', 'port-au-prince': 'Beachcomber sour', 'beachcombers-gold': 'Beachcomber daiquiri',
   'missionarys-downfall': 'mint-and-pineapple frappé', scorpion: 'orgeat punch', 'fog-cutter': 'orgeat punch', 'passion-sour': 'passion fruit sour',
   'bitter-tiki-sour': 'bitter tiki sour', 'bitters-base-sour': 'bitters sour', 'tropical-stirred': 'tropical old fashioned',
+  'pina-colada': 'colada', 'fruit-colada': 'fruit colada', bushwacker: 'frozen dessert colada', 'coconut-daiquiri': 'coconut daiquiri',
+  'miami-vice': 'two-tone frozen swirl', 'blue-hawaii': 'Blue Hawaii-style punch', hurricane: 'Hurricane-style punch', 'resort-liqueur-punch': 'resort punch',
+  'hawaiian-mai-tai': 'Hawaiian-style Mai Tai', 'tropical-itch': 'resort punch', 'pineapple-shell': 'pineapple punch', 'sunrise-float': 'sunrise',
+  'scorpion-bowl': 'scorpion bowl', 'volcano-bowl': 'volcano bowl', 'zero-proof-tiki': 'zero-proof tropical',
 };
 
 const seen = new Map();
@@ -77,7 +81,14 @@ for (const f of files) {
       const counted = l.unit && l.unit !== 'oz';
       return { ...rest, oz: ozEq, ...(counted ? { amount: l.amount ?? l.oz } : {}) };
     };
-    const specs = (a.canonicalSpecs || []).map(sp => ({ ...sp, lines: (sp.lines || []).filter(l => ing.has(l.id)).map(normLine), vessel: vesselIds.has(sp.vessel) ? sp.vessel : undefined })).filter(sp => sp.lines.length);
+    // Bowl specs are written for the whole bowl ("Scorpion Punch, for twelve"); the composer
+    // works per drink, so they are divided down and keep `batchOf` for the record.
+    const perDrink = (l, n) => n > 1 ? { ...l, oz: Math.round(l.oz / n * 1000) / 1000, ...(l.amount !== undefined && l.unit !== 'oz' ? { amount: Math.max(1, Math.round(l.amount / n)) } : {}) } : l;
+    const specs = (a.canonicalSpecs || []).map(sp => {
+      const n = sp.servings > 1 ? sp.servings : 1;
+      const { servings, ...rest } = sp;
+      return { ...rest, ...(n > 1 ? { batchOf: n } : {}), lines: (sp.lines || []).filter(l => ing.has(l.id)).map(normLine).map(l => perDrink(l, n)), vessel: vesselIds.has(sp.vessel) ? sp.vessel : undefined };
+    }).filter(sp => sp.lines.length);
     const vessels = (a.vessels || []).filter(v => vesselIds.has(v));
     const allIds = new Set([...sig, ...opt].flatMap(c => c.anyOf));
     const garnishText = [...((a.garnish || {}).required || []), ...((a.garnish || {}).typical || [])].join(' ').toLowerCase();
