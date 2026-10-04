@@ -10,6 +10,7 @@ import { serviceOf, SERVICE_FITS } from './vessels.js';
 import { createComposer, doseCap } from './composer.js';
 import { createCopywriter } from './copy.js';
 import { drinkLook, showsColor, colorDistance, opticsOf, hsl, COLOR_TEST } from './optics.js';
+import { createLinter } from './lint.js';
 
 const PLAIN = new Set(['simple-syrup', 'rich-simple', 'demerara-syrup', 'cane-syrup', 'agave-syrup']);
 const ROLE_ORDER = ['base', 'sour', 'juice', 'sweet', 'modifier', 'rich', 'accent', 'lengthener'];
@@ -103,7 +104,13 @@ function interpQ(q, s) {
   return q.median;
 }
 
-export function createEngine({ vocab, families, drinks, model, vessels = { vessels: [] }, archetypes: archetypeData = { archetypes: [] }, concepts: conceptData = { concepts: [] } }) {
+export function createEngine({ vocab, families, drinks, model, vessels = { vessels: [] }, archetypes: archetypeData = { archetypes: [] }, concepts: conceptData = { concepts: [] }, rules = null }) {
+  // The technique research's family windows (data/technique-rules.json), when supplied: balance
+  // aims inside both the archetype's own band and the family's.
+  const famWin = fam => ((rules || {}).familyWindows || {})[fam] || {};
+  // How much liquid (before ice) each vessel wants: too little looks like a mistake at the bottom
+  // of the glass, too much crowds it.
+  const fillRange = id => (((rules || {}).vesselFit || {}).ranges || {})[id] || null;
   const archetypes = archetypeData.archetypes || [];
   const concepts = conceptData.concepts || [];
   const vesselList = vessels.vessels || [];
@@ -697,6 +704,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     const poured = pour.reduce((t, l) => t + l.oz, 0);
     if (baseCap && poured > baseCap * 1.05) for (const l of pour) l.oz *= baseCap / poured;
     const sweet = Math.max(-2, Math.min(2, intent.sweetness || 0)), tart = Math.max(-2, Math.min(2, intent.tartness || 0));
+    let finalR = null;
     const bodyOf = L => L.filter(l => !l.sink && !l.float);
     const chemBody = () => chemOf(bodyOf(lines), svc.method, svc.ice);
     const refChem = ref && ref.length ? chemOf(bodyOf(ref), refMethod || svc.method, svc.ice) : null;
@@ -733,6 +741,14 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       R *= Math.exp(0.22 * sweet - 0.14 * tart);
       if (frozenNow && !frozenRef) R *= 1.3;
       if (band) R = Math.max(band[0] * (sweet < 0 || tart > 0 ? 0.7 : 0.9), Math.min(band[1] * (sweet > 0 || frozenNow ? 1.35 : 1.1), R));
+      // Inside the family's window too, where it overlaps the archetype's (a Hemingway stays
+      // tart, a Mai Tai doesn't drift sharp), unless the guest asked to move it.
+      const W = famWin(A.family).sugarToAcid;
+      if (W && Math.abs(sweet) < 0.6 && Math.abs(tart) < 0.6 && !frozenNow) {
+        const lo = band ? Math.max(band[0], W[0]) : W[0], hi = band ? Math.min(band[1], W[1]) : W[1];
+        if (lo <= hi) R = Math.max(lo * 1.03, Math.min(hi * 0.97, R));
+      }
+      finalR = R;
       for (let iter = 0; iter < 30; iter++) {
         const c = chemBody();
         if (c.acidG < 0.05) break;
@@ -747,7 +763,20 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
         if (snapOz() === before) break;
       }
       // A frozen drink under 8 g of sugar per 100 ml tastes like sour shaved ice.
-      if (frozenNow) for (let iter = 0; iter < 12 && chemBody().sugarConc < 8; iter++) if (!move(sweetAll.length ? sweetAll : sweetening, 1.12)) break;
+      if (frozenNow) for (let iter = 0; iter < 12 && chemBody().sugarConc < 8.6; iter++) if (!move(sweetAll.length ? sweetAll : sweetening, 1.12)) break;
+      // And a sour is sour: at least half a gram of acid per 100 ml (0.55 frozen), the citrus
+      // raised to as much as an ounce and a quarter.
+      const acidFloor = frozenNow ? 0.55 : 0.5;
+      if (band && band[1] < 30 && !sour.length && chemBody().acidConc < acidFloor && ingMap.has('lime') && !forbidden('lime', intent) && !(A.forbidden || []).includes('lime')) {
+        const l = { id: 'lime', role: 'sour', oz: 0.5, oz0: 0.5, slot: 'citrus', req: true };
+        lines.push(l); live.push(l); sour.push(l);
+        notes.push('½ oz of lime, so it drinks like a punch and not a glass of juice');
+      }
+      if (band && band[1] < 30) for (let iter = 0; iter < 10 && chemBody().acidConc < acidFloor; iter++) {
+        const before = snapOz();
+        for (const l of sour) { l.oz = Math.min(Math.max(1.25, l.oz0), l.oz * 1.12); }
+        if (snapOz() === before) break;
+      }
     } else {
       // No acid to balance against (a hot buttered rum, a stirred drink): hold the sugar near the
       // reference's, or near what the research says a hot drink wants (3–7 g per 100 ml).
@@ -768,6 +797,37 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     if (sweet < 0 && less.length) notes.push(`less ${list(less.map(l => prose(l.id)))}, so it's less sweet`);
     if (tart > 0 && more.length) notes.push(`more ${list(more.map(l => prose(l.id)))}, so it's tarter`);
     if (frozenNow && !frozenRef && changed(sweetening, 1).length) notes.push('a little more sugar, because a frozen drink tastes less sweet');
+    return finalR;
+  }
+
+  // Rounding to bar measures (quarter ounces, teaspoons) can undo a balance: nudge one sweetener
+  // or citrus a measure at a time toward the target ratio while that gets closer.
+  function settle(lines, T, A, intent, svc) {
+    if (!T) return;
+    const I = l => ingMap.get(l.id);
+    const levers = lines.filter(l => !l.garnish && !l.float && !l.sink && !l.muddled && l.role !== 'aromatic' && l.unit !== 'piece'
+      && ((l.role === 'sweet' && I(l).sugar >= 20) || (l.role === 'sour' && I(l).acid >= 2)));
+    const err = () => { const c = chemOf(lines.filter(l => !l.sink && !l.float), svc.method, svc.ice); return c.acidG > 0.05 ? Math.abs(Math.log(c.sugarG / c.acidG / T)) : 0; };
+    const stirred = svc.method === 'stir';
+    for (let k = 0; k < 4; k++) {
+      const e0 = err();
+      if (e0 < 0.07) return;
+      let best = null;
+      for (const l of levers) for (const d of [1, -1]) {
+        const keep = { oz: l.oz, amount: l.amount, unit: l.unit };
+        const step = l.oz >= 0.5 || (d > 0 && l.oz >= 0.33) ? 0.25 : 1 / 12;
+        const floor = l.role === 'sour' ? 0.25 : stirred ? 1 / 12 : 0.25;
+        const cap = Math.min(doseCap(l.id, A.family, (intent.ings[l.id] || 0) >= 1), l.range ? l.range[1] * 1.25 : Infinity, l.role === 'sour' ? (svc.method === 'hot' ? 0.5 : 1.5) : Infinity);
+        const next = l.oz + d * step;
+        if (next < floor - 0.01 || next > cap + 0.01) continue;
+        l.oz = next; finalizeAmounts([l]);
+        const e1 = err();
+        if (e1 < e0 - 0.03 && (!best || e1 < best.e)) best = { l, oz: l.oz, amount: l.amount, unit: l.unit, e: e1 };
+        Object.assign(l, keep);
+      }
+      if (!best) return;
+      Object.assign(best.l, { oz: best.oz, amount: best.amount, unit: best.unit });
+    }
   }
 
   // A color the guest asked for has to be in the glass. Try, in order: refill a slot with a
@@ -817,9 +877,12 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       }
     }
     const muddy = lines.filter(l => !l.req && l.slot && opticsOf(ingMap.get(l.id)).tint >= 1 && !isCarrier(l.id));
+    // A lighter stand-in must do the same job: a juice for a juice, never a second soda.
+    const fizzy = lines.some(l => FIZZ.has(l.id));
+    const sameJob = (from, to) => ingMap.get(to).role === ingMap.get(from).role && OVER(to) === OVER(from) && !(FIZZ.has(to) && fizzy && !FIZZ.has(from));
     for (const l of muddy) {
       const slot = slots.find(c => (c.component || c.slot) === l.slot);
-      const clear = slot && slot.anyOf.filter(id => ok(id) && !lines.some(x => x.id === id) && opticsOf(ingMap.get(id)).tint < opticsOf(ingMap.get(l.id)).tint * 0.7).sort((x, y) => opticsOf(ingMap.get(x)).tint - opticsOf(ingMap.get(y)).tint);
+      const clear = slot && slot.anyOf.filter(id => ok(id) && sameJob(l.id, id) && !lines.some(x => x.id === id) && opticsOf(ingMap.get(id)).tint < opticsOf(ingMap.get(l.id)).tint * 0.7).sort((x, y) => opticsOf(ingMap.get(x)).tint - opticsOf(ingMap.get(y)).tint);
       for (const alt of (clear || []).slice(0, 3)) tries.push({ why: `${prose(alt)} in place of ${prose(l.id)} so the color stays true`, edit: L => { const x = L[lines.indexOf(l)]; if (!x) return; x.id = alt; x.role = ingMap.get(alt).role; }, muddy: true });
     }
     // A dark float over a light color is mud on top: drop it.
@@ -978,6 +1041,14 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       const total = body().reduce((t, l) => t + l.oz, 0);
       if (total > cap + 0.05) { const k = cap / total; for (const l of body()) l.oz *= k; }
     }
+    // Overproof is a seasoning: an ounce beside other spirits, an ounce and a half as the only
+    // one (a Cobra's Fang), two if the guest asked for it by name.
+    for (const l of body()) if (OVER(l.id)) {
+      const cap = asked(l) ? 2 : body().length > 1 ? 1 : 1.5;
+      if (l.oz > cap + 0.01) { const other = body().filter(x => x !== l && !OVER(x.id)).sort((x, y) => y.oz - x.oz)[0]; if (other) other.oz += Math.min(l.oz - cap, 0.5); l.oz = cap; }
+    }
+    // Hot drinks take citrus as a whisper: half an ounce at most (more splits the butter).
+    if (svc.method === 'hot') for (const l of live().filter(l => l.role === 'sour' && l.oz > 0.5)) l.oz = 0.5;
     // Smoke is a seasoning in a split: mezcal at three-quarters of an ounce, an ounce if asked.
     for (const l of body()) if (SMOKE.has(l.id) && body().length > 1) {
       const cap = asked(l) ? 1 : 0.75;
@@ -1063,8 +1134,17 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     const fitOf = v => {
       const r = needFor(v) / v.capacity;
       if (v.serve.includes('bowl')) return r > 1.12 ? 0 : 1;
-      if (r > 1.12) return 0;
-      return r >= 0.5 ? 1 : Math.pow(r / 0.5, 1.5);
+      // A drink with no ice in it (up, hot) needs room at the rim; ice can mound above it.
+      const noIce = service === 'hot' || (v.serve.includes('up') && service === 'shaken');
+      if (r > (noIce ? 0.95 : 1.12)) return 0;
+      let f = r >= 0.5 ? 1 : Math.pow(r / 0.5, 1.5);
+      const range = fillRange(v.id);
+      if (range) {
+        const vol = chem.volOz * (bowl ? servings : 1);
+        if (vol < range[0]) f *= Math.pow(vol / range[0], 3);
+        else if (vol > range[1] * 1.15) f *= 0.15;
+      }
+      return f;
     };
     const asked = intent.vessel && vesselById[intent.vessel];
     if (asked) return { v: asked, why: 'asked' };
@@ -1420,7 +1500,10 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
   const conceptIndex = indexConcepts(concepts);
   const ctx = {
     // A concept's soft avoid never blocks the bottle that makes the color the guest asked for.
-    forbidden: (id, intent) => forbidden(id, intent) || (intent.softAvoid && intent.softAvoid[id] >= 1 && !intent.ings[id] && !(intent.color && (ingMap.get(id) || {}).color === intent.color)),
+    // Nor one that leads with a flavor the guest named outright (coffee liqueur in "a coffee
+    // nightcap", though the nightcap concept steers away from coffee).
+    forbidden: (id, intent) => forbidden(id, intent) || (intent.softAvoid && intent.softAvoid[id] >= 1 && !intent.ings[id] && !(intent.color && (ingMap.get(id) || {}).color === intent.color)
+      && !(((ingMap.get(id) || {}).flavors || [])[0] && (intent.tags[ingMap.get(id).flavors[0]] || 0) - ((intent.conceptTags || {})[ingMap.get(id).flavors[0]] || 0) >= 1.5)),
     intentMatch, compat, conflicts, softPick, ingVec, naSwap: NA_SWAP,
   };
   const linesOf = d => d.ingredients.filter(l => ingMap.has(l.id)).map(l => ({ id: l.id, role: roleOf(l, ingMap.get(l.id)), oz: lineOz(l, ingMap.get(l.id), units) / (d.servings || 1), float: !!l.float, garnish: !!l.garnish }));
@@ -1439,9 +1522,12 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
   // A riff on a drink no archetype covers keeps the source drink itself as its frame: its own
   // family, service and vessel, and nothing else claimed for it.
   function adHocArchetype(d) {
-    const kin = archetypes.find(a => a.family === d.family);
+    // Its type word comes from a kin archetype only if the drink is one (a Cuba Libre has no
+    // ginger beer, so it isn't a "ginger beer highball"); otherwise the family's plain word.
+    const kin = archetypes.find(a => a.family === d.family && composer.satisfies(a, linesOf(d)).ok);
+    const PLAIN_NOUN = { punch: 'rum punch', grog: 'grog', daiquiri: 'sour', swizzle: 'swizzle', zombie: 'heavyweight', 'beachcomber-sour': 'Beachcomber sour', 'mai-tai': 'Mai Tai cousin', 'orgeat-punch': 'orgeat punch', colada: 'colada', buck: 'highball', 'resort-punch': 'resort punch', 'bitter-tiki': 'bitter tiki sour', stirred: 'stirred drink', hot: 'hot drink' };
     return {
-      id: `riff:${d.id}`, name: d.name, family: d.family, noun: kin ? kin.noun : famById[d.family].name.toLowerCase(),
+      id: `riff:${d.id}`, name: d.name, family: d.family, noun: kin ? kin.noun : PLAIN_NOUN[d.family] || famById[d.family].name.toLowerCase(),
       definition: '', signature: [], optional: [], forbidden: [], canonicalSpecs: [], ratios: {},
       methods: [d.method || 'shake'], ice: [d.ice || 'crushed'], vessels: d.vessel ? [d.vessel] : [], garnish: { typical: [] }, flavorProfile: [], aromatics: [],
     };
@@ -1457,7 +1543,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     if (red && !avoid('grenadine') && !intent.style.creamy) {
       lines.push({ id: 'grenadine', role: 'sweet', oz: 0.5, sink: true, slot: 'sink', req: true });
       notes.push('grenadine poured last so it sinks into a sunrise');
-    } else if (rumBased && !avoid('rum-jamaican-dark')) {
+    } else if (rumBased && !avoid('rum-jamaican-dark') && !['blue', 'green', 'purple', 'white', 'clear'].includes(intent.color)) {
       lines.push({ id: 'rum-jamaican-dark', role: 'base', oz: 0.5, float: true, slot: 'float', req: true });
       notes.push('a dark rum float for a layered top');
     }
@@ -1470,15 +1556,31 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     if (service === 'frozen') return c.finalOz * 1.1;
     return (v.serve.includes('up') && service === 'shaken') || service === 'hot' ? c.finalOz : c.finalOz * 1.35;
   }
-  function fitVessel(lines, svc, v, notes) {
+  function fitVessel(lines, svc, v, notes, A = {}) {
     const service = serviceOf(svc.method, svc.ice);
     let c = chemOf(lines, svc.method, svc.ice);
-    if (needOf(c, v, service) <= v.capacity * 1.05) return false;
+    const noIce = service === 'hot' || (v.serve.includes('up') && service === 'shaken');
+    const room = v.capacity * (noIce ? 0.95 : 1.05);
     const live = lines.filter(l => !l.garnish && !l.muddled && l.role !== 'aromatic' && l.oz > 0);
     const base = live.filter(l => l.role === 'base' && !l.float && !l.sink);
     const baseTotal = base.reduce((t, l) => t + l.oz, 0);
-    for (let i = 0; i < 30 && needOf(c, v, service) > v.capacity; i++) {
-      const k = Math.max(0.85, Math.min(0.97, v.capacity / needOf(c, v, service)));
+    // Too little for the glass the guest asked for: a little more of everything, up to a third.
+    const range = fillRange(v.id);
+    // Never for a heavyweight (a Zombie is already all the rum a guest should have); the spirit
+    // and the accents keep their pours, the juices and sweeteners grow.
+    const spirit = lines.filter(l => l.role === 'base' && !l.float && !l.sink).reduce((t, l) => t + (l.oz || 0), 0);
+    if (needOf(c, v, service) <= room && range && c.volOz < range[0] * 0.95 && A.family !== 'zombie' && spirit <= 2.25) {
+      const grow = lines.filter(l => !l.garnish && !l.muddled && ['juice', 'sour', 'sweet', 'rich', 'lengthener'].includes(l.role) && !POTENT.has(l.id) && !['dash', 'drop'].includes(l.unit));
+      const growOz = grow.reduce((t, l) => t + l.oz, 0);
+      const k = growOz > 0 ? Math.min(1.5, 1 + (range[0] - c.volOz) / growOz) : 1;
+      for (const l of grow) l.oz *= k;
+      finalizeAmounts(lines);
+      notes.push(`a bigger pour so it fills ${/^[aeiou]/i.test(v.name) ? 'an' : 'a'} ${v.name}`);
+      return true;
+    }
+    if (needOf(c, v, service) <= room) return false;
+    for (let i = 0; i < 30 && needOf(c, v, service) > room; i++) {
+      const k = Math.max(0.85, Math.min(0.97, room / needOf(c, v, service)));
       const baseNow = base.reduce((t, l) => t + l.oz, 0);
       for (const l of live) {
         if (l.role === 'base' && !l.float && !l.sink && baseNow * k < Math.min(1.5, baseTotal)) continue;
@@ -1502,7 +1604,28 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
   }
   classicIndex.sort((x, y) => y.key.length - x.key.length);
 
-  function generate(prompt, { seed = 0 } = {}) {
+  // The internal critic: a build the technique linter calls fatal (a colada with no coconut, an
+  // overflowing glass, an overproof pour) is rebuilt on the next frame that answers the prayer,
+  // up to three times, and the build with the fewest fatal findings is served.
+  const linter = rules ? createLinter({ rules, vocab, vessels }) : null;
+  function generate(prompt, opts = {}) {
+    const first = generateOnce(prompt, opts);
+    if (!linter || first.classic) return first;
+    const fatal = r => { try { return linter.lint(r, { intent: parsePrompt(prompt, { nameIndex, concepts: conceptIndex }) }).filter(f => f.sev === 'fatal'); } catch { return []; } };
+    let best = first, bestF = fatal(first);
+    const avoid = new Set([first.archetype.id]);
+    for (let i = 0; bestF.length && i < 3; i++) {
+      const t = generateOnce(prompt, { ...opts, avoid });
+      if (avoid.has(t.archetype.id)) break;
+      avoid.add(t.archetype.id);
+      const f = fatal(t);
+      if (f.length < bestF.length) { best = t; bestF = f; }
+    }
+    best.critic = { fatal: bestF.map(f => f.id), rebuilt: best !== first };
+    return best;
+  }
+
+  function generateOnce(prompt, { seed = 0, avoid = null } = {}) {
     swappedOut.clear();
     const intent = parsePrompt(prompt, { nameIndex, concepts: conceptIndex });
     if (!intent.riffOf) {
@@ -1545,6 +1668,12 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     }
     if (!intent.style.hot && Object.entries(intent.ings).some(([id, w]) => w >= 1.5 && (ingMap.get(id) || {}).oz_per_piece && id !== 'egg-white')) intent.style.frozen = true;
     blenderContext = !!intent.style.frozen || (riffSrc && riffSrc.method === 'blend');
+    // A fruit-named frozen drink has the fruit in the blender, not only its liqueur.
+    if (intent.style.frozen && !intent.style.hot) for (const ing of ingMap.values()) {
+      if (!ing.oz_per_piece || forbidden(ing.id, intent)) continue;
+      const lead = (ing.flavors || [])[0];
+      if (lead && (intent.tags[lead] || 0) - ((intent.conceptTags || {})[lead] || 0) >= 1.5 && !(intent.ings[ing.id] >= 1.5)) intent.ings[ing.id] = 1.5;
+    }
 
     const blank = !Object.keys(intent.tags).length && !intent.spirits.length && !Object.keys(intent.ings).length && !Object.keys(intent.style).length && !Object.keys(intent.fam).length && !intent.concepts.length;
     // One build on one archetype. A color prayer the build can't honor tries the next-best
@@ -1573,8 +1702,12 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
         } else if (real) {
           // Praying again on a named drink takes the other historical branch where there is one
           // (Vic's Navy Grog against Don's), then makes the same asked change.
-          const branches = (A.canonicalSpecs || []).length;
-          lines = seed > 0 && branches > 1 ? composer.compose(A, intent, ctx, rng, greedy, notes, null, seed) : composer.compose(A, intent, ctx, rng, greedy, notes, { lines: srcLines });
+          // Only a branch that keeps what the drink's name promises (a Chartreuse Swizzle's
+          // chartreuse) counts.
+          const STOPW = new Set(['fresh', 'juice', 'syrup', 'liqueur', 'rum', 'aged', 'light', 'dark', 'white', 'blended', 'style', 'simple', 'rich', 'sweet', 'bitters']);
+          const named = srcLines.filter(l => ingMap.get(l.id).name.toLowerCase().split(/[^a-z']+/).some(w => w.length >= 4 && !STOPW.has(w) && riffSrc.name.toLowerCase().includes(w)));
+          const branch = (A.canonicalSpecs || []).filter(sp => named.every(n => sp.lines.some(x => x.id === n.id)));
+          lines = seed > 0 && branch.length > 1 ? composer.compose(A, intent, ctx, rng, greedy, notes, null, seed) : composer.compose(A, intent, ctx, rng, greedy, notes, { lines: srcLines });
           // Bare names and repeat prayers get one signed change of their own.
           if (bare || seed > 0) { const v = composer.twist(A, lines, intent, ctx, rng, false) || composer.vary(A, lines, intent, ctx, rng, false); if (v) notes.push(v); }
         } else {
@@ -1609,7 +1742,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
         }
       }
       if (!A) {
-        let scored = archetypes.map(a => composer.scoreArchetype(a, intent, ctx)).filter(x => Number.isFinite(x.s));
+        let scored = archetypes.map(a => composer.scoreArchetype(a, intent, ctx)).filter(x => Number.isFinite(x.s) && !(avoid && avoid.has(x.a.id)));
         const firstChoice = scored.length ? [...scored].sort((x, y) => y.s - x.s)[0].a : null;
         // Praying again should bring a different idea, not the same drink a quarter ounce off:
         // each later seed sets aside the frames earlier seeds would have chosen, as long as
@@ -1695,7 +1828,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       const ref = riffSrc ? linesOf(riffSrc).filter(l => !l.garnish) : spec ? spec.lines.filter(l => ingMap.has(l.id)).map(l => ({ id: l.id, oz: l.oz, role: ingMap.get(l.id).role })) : null;
       if (!classic) structure(lines, A, intent, notes);
       const refMethod = riffSrc ? riffSrc.method : spec ? (spec.method || (A.methods || [])[0]) : null;
-      if (!classic) balanceTo(lines, ref, A, intent, svc, notes, refMethod);
+      const target = classic ? null : balanceTo(lines, ref, A, intent, svc, notes, refMethod);
       if (!classic && (intent.strength || 0) <= -1.5 && !intent.style.zeroProof) gentle(lines, A, intent, svc, notes);
       if (!classic) {
         // Balance and color moves never push an accent past its cap (2 oz of blue curaçao is dye, not a drink).
@@ -1703,6 +1836,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
         floors(lines, A, intent, svc, notes);
       }
       finalizeAmounts(lines);
+      if (!classic) settle(lines, target, A, intent, svc);
       const colorOk = intent.color ? colorPass(lines, A, intent, svc, notes) : true;
       const c = chemOf(lines, svc.method, svc.ice);
       const colorMiss = colorOk ? 0 : colorDistance(drinkLook(lines, ingMap, { method: svc.method, ice: svc.ice, dilutionOz: c.finalOz - c.volOz }), intent.color);
@@ -1722,7 +1856,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     let built = attempt(null);
     const worse = (t, b) => (t.colorOk ? 0 : 1) * 10 + t.colorMiss + t.broken * 2 >= (b.colorOk ? 0 : 1) * 10 + b.colorMiss + b.broken * 2 - 0.05;
     if ((!built.colorOk || built.broken) && !riffSrc && !classic && !intent.namedClassic) {
-      const ranked = archetypes.map(a => ({ a, s: scoreOf.get(a) })).filter(x => Number.isFinite(x.s) && x.a !== built.A && !skipped.has(x.a) && x.s >= (scoreOf.get(built.A) ?? 0) - 4).sort((x, y) => y.s - x.s);
+      const ranked = archetypes.map(a => ({ a, s: scoreOf.get(a) })).filter(x => Number.isFinite(x.s) && x.a !== built.A && !skipped.has(x.a) && !(avoid && avoid.has(x.a.id)) && x.s >= (scoreOf.get(built.A) ?? 0) - 4).sort((x, y) => y.s - x.s);
       for (const x of ranked.slice(0, 8)) {
         const t = attempt(x.a);
         if (!worse(t, built)) built = t;
@@ -1763,7 +1897,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     const pick = chooseVessel(famId, intent, svc, chem, riffSrc, rngFrom(`${prompt}::${seed}::vessel`), greedy, A, lines.filter(l => l.float || l.sink || l.crown));
     if (pick) { svc.glass = pick.v.name; svc.vessel = pick.v.id; svc.up = pick.v.serve.includes('up') && serviceOf(svc.method, svc.ice) === 'shaken'; }
     // A vessel the guest asked for (a coconut holds twelve ounces) gets a drink scaled to fit it.
-    if (pick && !pick.v.serve.includes('bowl') && fitVessel(lines, svc, pick.v, notes)) chem = chemOf(lines, svc.method, svc.ice);
+    if (pick && !pick.v.serve.includes('bowl') && (!classic || pick.why === 'asked') && fitVessel(lines, svc, pick.v, notes, A)) chem = chemOf(lines, svc.method, svc.ice);
     const garnish = chooseGarnish(A, intent, lines, flavorTop, svc, pick ? pick.v : null);
     const look = drinkLook(lines, ingMap, { method: svc.method, ice: svc.ice, dilutionOz: Math.max(0, chem.finalOz - chem.volOz), vessel: svc.vessel });
     const heads = copy.headline(lines);

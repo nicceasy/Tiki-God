@@ -690,6 +690,9 @@ export function createLinter({ rules, vocab, vessels } = {}) {
     if (C.zeroProof && so.zeroProof) return [so.zeroProof.abv, 'zero-proof drink'];
     if (C.lowAbv && so.lowAbv) return [so.lowAbv.abv, 'low-ABV drink'];
     if (C.strongest && so.strongest) return [so.strongest.abv, '"strongest" request'];
+    // A blended colada is mostly pineapple, coconut and ice: by the frozen dilution model
+    // (water about equal to the poured volume) a 2 oz Caribe Hilton lands near 4–5%.
+    if (C.method === 'blend' && so.frozen && C.fam === 'colada') return [[4, so.frozen.abv[1]], 'frozen colada'];
     if (C.method === 'blend' && so.frozen) return [so.frozen.abv, 'frozen drink'];
     if (C.isBowlVessel && so.bowl) return [so.bowl.abv, 'bowl'];
     return [W[C.fam] && W[C.fam].abv, FAM_LABEL[C.fam] || C.fam];
@@ -799,6 +802,13 @@ export function createLinter({ rules, vocab, vessels } = {}) {
       return;
     }
     if (fam === 'colada' || fam === 'mai-tai') {
+      // Cousins by definition: the Bushwacker (chocolate and coconut, no pineapple), the Miami
+      // Vice's two halves, and Vic's own spirit swaps on the Mai Tai (the Honi Honi's bourbon).
+      // And a drink whose missing part the guest ruled out (orgeat in a nut-free Mai Tai) is
+      // honestly a cousin; the engine says so on the card.
+      const waived = ((C.recipe.check || {}).waived || []).length > 0;
+      const cousin = waived || (fam === 'colada' && ['bushwacker', 'miami-vice'].includes(C.archId)) || (fam === 'mai-tai' && C.archId === 'vic-mai-tai-riff');
+      if (absent.length && cousin) { add('family-requirement', 'major', `${cap(an(label))} cousin without ${list(absent)}.`); short(); return; }
       if (absent.length) add(fam === 'colada' ? 'colada-no-coconut-or-pineapple' : 'mai-tai-incomplete', 'fatal', fam === 'colada'
         ? `A colada without ${list(absent)}: colada means pineapple and coconut cream${C.anyIn(S('coconutSources')).length && !C.anyIn(S('coconutBody')).length ? ' (coconut rum alone is thin and sweet, with no body)' : ''}.`
         : `A Mai Tai without ${list(absent)}: the 1944 template is aged rum, lime, orange curaçao, orgeat and rich syrup.`);

@@ -10,7 +10,7 @@ import { showsColor } from '../web/lib/optics.js';
 const j = p => JSON.parse(readFileSync(new URL(`../${p}`, import.meta.url), 'utf8'));
 const engine = createEngine({
   vocab: j('data/ingredients.json'), families: j('data/families.json'), drinks: j('data/drinks.json'), model: j('data/model.json'),
-  vessels: j('data/vessels.json'), archetypes: j('data/archetypes.json'), concepts: j('data/concepts.json'),
+  vessels: j('data/vessels.json'), archetypes: j('data/archetypes.json'), concepts: j('data/concepts.json'), rules: j('data/technique-rules.json'),
 });
 const { prompts } = j('scripts/review/battery.json');
 const SEEDS = [0, 1, 2];

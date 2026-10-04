@@ -223,7 +223,7 @@ test('steps agree with the service', () => {
 });
 
 // ---------- real drinks ----------
-const engine = createEngine({ vocab, families: read('data/families.json'), drinks, model: read('data/model.json'), vessels, archetypes: read('data/archetypes.json'), concepts: read('data/concepts.json') });
+const engine = createEngine({ vocab, families: read('data/families.json'), drinks, model: read('data/model.json'), vessels, archetypes: read('data/archetypes.json'), concepts: read('data/concepts.json'), rules: read('data/technique-rules.json') });
 const vById = Object.fromEntries(vessels.vessels.map(v => [v.id, v]));
 const AROMA = { mint: 'mint sprig', nutmeg: 'freshly grated nutmeg', cinnamon: 'cinnamon stick' };
 const CLASSICS = ['zombie', 'mai tai', 'painkiller', 'navy grog'];

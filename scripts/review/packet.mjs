@@ -12,7 +12,7 @@ const read = p => JSON.parse(readFileSync(join(root, p), 'utf8'));
 const out = process.argv[2] || join(root, 'review-out');
 const seeds = (process.argv[3] || '0,1').split(',').map(Number);
 mkdirSync(out, { recursive: true });
-const engine = createEngine({ vocab: read('data/ingredients.json'), families: read('data/families.json'), drinks: read('data/drinks.json'), model: read('data/model.json'), vessels: read('data/vessels.json'), archetypes: read('data/archetypes.json'), concepts: read('data/concepts.json') });
+const engine = createEngine({ vocab: read('data/ingredients.json'), families: read('data/families.json'), drinks: read('data/drinks.json'), model: read('data/model.json'), vessels: read('data/vessels.json'), archetypes: read('data/archetypes.json'), concepts: read('data/concepts.json'), rules: read('data/technique-rules.json') });
 const { prompts } = read('scripts/review/battery.json');
 const recs = [];
 let md = '# Review packet\n';

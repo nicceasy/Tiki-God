@@ -123,7 +123,7 @@ export const LEXICON = [
   { k: ['mint', 'minty', 'spearmint'], tags: { mint: 2 }, label: 'mint' },
   { k: ['basil'], ings: { basil: 2 }, tags: { herbal: 1 }, label: 'basil' },
   { k: ['cucumber'], ings: { cucumber: 2 }, label: 'cucumber' },
-  { k: ['herbal', 'herby', 'herbs', 'botanical', 'garden'], tags: { herbal: 2 }, label: 'herbal' },
+  { k: ['herbal', 'herby', 'herbs', 'botanical'], tags: { herbal: 2 }, label: 'herbal' },
   { k: ['floral', 'flower', 'flowers', 'blossom', 'perfumed'], tags: { floral: 2 }, label: 'floral' },
   { k: ['hibiscus', 'sorrel', 'jamaica flower'], ings: { 'hibiscus-syrup': 3 }, tags: { floral: 1 }, label: 'hibiscus' },
   { k: ['orange blossom', 'orange flower'], ings: { 'orange-flower-water': 2 }, tags: { floral: 1 }, label: 'orange blossom' },
@@ -690,5 +690,10 @@ function applyEffect(intent, e, sign, soft, scale = 1) {
     if (sign > 0) { intent.style[s] = v; (intent.askedStyle = intent.askedStyle || {})[s] = v; }
     else if (s === 'creamy' || s === 'long' || s === 'bitter' || s === 'frozen' || s === 'hot' || s === 'flaming') intent.style[s] = false;
   }
-  if (e.color && sign > 0) intent.color = e.color;
+  // A color word is a demand; a mood that only suggests a color (romantic pink, volcanic red,
+  // spooky black) is a leaning.
+  if (e.color && sign > 0) {
+    if (!['romantic', 'volcanic'].includes(e.label) && !(e.fam && e.fam.zombie)) intent.color = e.color;
+    else if (!intent.colorLean) intent.colorLean = e.color;
+  }
 }

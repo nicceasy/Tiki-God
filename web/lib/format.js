@@ -44,6 +44,9 @@ export function snap(oz, ing, role) {
     const v = Math.round(oz * 4) / 4;
     return { amount: v, unit: 'oz', oz: v };
   }
+  // Between a quarter and three-eighths, two teaspoons: rounding a balanced third of an ounce
+  // down to a quarter undoes the balance.
+  if (oz >= 0.3) return { amount: 2, unit: 'tsp', oz: 1 / 3 };
   if (oz >= 0.21) return { amount: 0.25, unit: 'oz', oz: 0.25 };
   if (oz >= 0.125) return { amount: 1, unit: 'tsp', oz: 1 / 6 };
   if (oz >= 0.06) return { amount: 0.5, unit: 'tsp', oz: 1 / 12 };

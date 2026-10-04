@@ -17,7 +17,7 @@ const vocab = read('data/ingredients.json');
 const vessels = read('data/vessels.json');
 const engine = createEngine({
   vocab, vessels, families: read('data/families.json'), drinks: read('data/drinks.json'), model: read('data/model.json'),
-  archetypes: read('data/archetypes.json'), concepts: read('data/concepts.json'),
+  archetypes: read('data/archetypes.json'), concepts: read('data/concepts.json'), rules: read('data/technique-rules.json'),
 });
 const { lint } = createLinter({ rules: read('data/technique-rules.json'), vocab, vessels });
 

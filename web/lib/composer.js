@@ -285,7 +285,10 @@ export function createComposer({ archetypes, ingMap, model }) {
       const ids = lines.map(l => l.id);
       const pool = [...ingMap.values()].filter(i => i.role !== 'base' && i.role !== 'aromatic' && leads(i.id, tag) && ['common', 'specialty', 'homemade'].includes(i.avail)
         && !ctx.forbidden(i.id, intent) && !archForbids(a, i.id) && !ids.includes(i.id) && !ctx.conflicts(i.id, ids));
-      const rank = i => (i.avail === 'common' ? 1 : 0) + (i.role === 'juice' ? 0.5 : 0) + (i.role === 'sweet' ? 0.3 : 0);
+      // A short or stirred drink takes a flavor as a liqueur or syrup, never as a lengthener
+      // (coffee liqueur in a nightcap, not six ounces of cold coffee).
+      const long = a.long || lines.some(l => l.role === 'lengthener');
+      const rank = i => (i.avail === 'common' ? 1 : 0) + (i.role === 'juice' ? 0.5 : 0) + (i.role === 'sweet' ? 0.3 : 0) + (i.role === 'modifier' && !long ? 0.6 : 0) - (i.role === 'lengthener' && !long ? 3 : 0);
       pool.sort((x, y) => rank(y) - rank(x));
       // Best of all: a flavored syrup takes the plain syrup's job (passion fruit syrup for the
       // rock candy in a Mai Tai), so the balance holds and nothing is bolted on.

@@ -47,11 +47,11 @@ async function loadData() {
   if (window.__TIKI_DATA__) return window.__TIKI_DATA__;
   const get = p => fetch(p).then(r => { if (!r.ok) throw new Error(p); return r.json(); });
   const text = p => fetch(p).then(r => (r.ok ? r.text() : '')).catch(() => '');
-  const [vocab, families, drinks, model, vessels, archetypes, concepts, timeline, history, conceptsDoc, methodology] = await Promise.all([
+  const [vocab, families, drinks, model, vessels, archetypes, concepts, timeline, history, conceptsDoc, methodology, rules] = await Promise.all([
     get('../data/ingredients.json'), get('../data/families.json'), get('../data/drinks.json'), get('../data/model.json'), get('../data/vessels.json'), get('../data/archetypes.json'), get('../data/concepts.json'),
-    get('../docs/timeline.json').catch(() => []), text('../docs/history.md'), text('../docs/concepts.md'), text('../docs/methodology.md'),
+    get('../docs/timeline.json').catch(() => []), text('../docs/history.md'), text('../docs/concepts.md'), text('../docs/methodology.md'), get('../data/technique-rules.json').catch(() => null),
   ]);
-  return { vocab, families, drinks, model, vessels, archetypes, concepts, timeline, docs: { history: markdownToHtml(history), concepts: markdownToHtml(conceptsDoc), methodology: markdownToHtml(methodology) } };
+  return { vocab, families, drinks, model, vessels, archetypes, concepts, rules, timeline, docs: { history: markdownToHtml(history), concepts: markdownToHtml(conceptsDoc), methodology: markdownToHtml(methodology) } };
 }
 
 const state = { units: store.get('units', 'oz'), seed: 0, prompt: '', current: null, canonSel: null };

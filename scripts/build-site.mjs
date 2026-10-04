@@ -38,6 +38,7 @@ const core = {
   vessels: readJson('data/vessels.json'),
   archetypes: readJson('data/archetypes.json'),
   concepts: readJson('data/concepts.json'),
+  rules: readJson('data/technique-rules.json'),
 };
 const full = {
   ...core,
