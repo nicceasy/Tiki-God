@@ -1078,6 +1078,8 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       const cap = asked(l) ? 2 : body().length > 1 ? 1 : 1.5;
       if (l.oz > cap + 0.01) { const other = body().filter(x => x !== l && !OVER(x.id)).sort((x, y) => y.oz - x.oz)[0]; if (other) other.oz += Math.min(l.oz - cap, 0.5); l.oz = cap; }
     }
+    // A stirred drink takes its syrup by the barspoon: half an ounce at most.
+    if (A.family === 'stirred' || svc.method === 'stir') for (const l of live().filter(l => l.role === 'sweet' && l.oz > 0.5 && !asked(l))) l.oz = 0.5;
     // Hot drinks take citrus as a whisper: half an ounce at most (more splits the butter).
     if (svc.method === 'hot') for (const l of live().filter(l => l.role === 'sour' && l.oz > 0.5)) l.oz = 0.5;
     // A party cup is about a standard drink and a half, whatever the frame.

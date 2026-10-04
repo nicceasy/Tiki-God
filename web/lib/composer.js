@@ -289,7 +289,9 @@ export function createComposer({ archetypes, ingMap, model }) {
     // Requested flavors still uncarried: swap a slot's filling, else open an optional slot.
     for (const [tag, w] of Object.entries(intent.tags).sort((x, y) => y[1] - x[1])) {
       if (w < 1.2 || NOT_A_FLAVOR.has(tag) || carried(lines, tag, ctx)) continue;
-      const swap = trySwap(a, lines, tag, intent, ctx) || openFor(a, lines, tag, intent, ctx) || ((intent.tags[tag] || 0) - ((intent.conceptTags || {})[tag] || 0) >= 1.2 ? splitBase(a, lines, tag, intent, ctx) : null);
+      // (A split base for a flavor comes later, only if no liqueur or syrup can carry it: a
+      // floral prayer gets elderflower before it gets pisco.)
+      const swap = trySwap(a, lines, tag, intent, ctx) || openFor(a, lines, tag, intent, ctx);
       if (swap) notes.push(swap);
     }
     // A flavor asked for plainly ("with mango") that no slot could carry: pour the bottle that
