@@ -698,9 +698,12 @@ test('garnish sprites: a banana coin is a cream disc on a pick, lemon is pale an
   const chunk = CATALOG['garnish.pick']({ items: ['chunk'] }).cover.find(c => c.length >= 6), xs = chunk.map(q => q[0]), ys = chunk.map(q => q[1]);
   const w = Math.max(...xs) - Math.min(...xs), h = Math.max(...ys) - Math.min(...ys);
   assert.ok(w / h < 1.4 && w / h > 0.7, `a pineapple chunk ${w.toFixed(0)} by ${h.toFixed(0)} is a cigar`);
-  // a cinnamon quill is thin: about a third of an inch
-  const cin = CATALOG['garnish.cinnamon']({}).cover[0].map(q => q[0]);
-  assert.ok(Math.max(...cin) - Math.min(...cin) <= 9, 'a cinnamon stick as thick as a cigar');
+  // a cinnamon quill is about a third of an inch across (38 units to the inch): fat enough that
+  // it never reads as a straw, thinner than a cigar, and short, a stub of bark, not straw length
+  const cinS = CATALOG['garnish.cinnamon']({}), cin = cinS.cover[0].map(q => q[0]), cinW = Math.max(...cin) - Math.min(...cin);
+  assert.ok(cinW <= 16, 'a cinnamon stick as thick as a cigar');
+  assert.ok(cinW >= 11, 'a cinnamon stick as thin as a straw');
+  assert.ok(cinS.box[1] <= 80, 'a cinnamon stick as long as a straw');
   // wheels floating on a punch: three to five small wheels on the surface
   assert.equal(garnishRule('orange wheels floating').id, 'floating-wheels');
   const punch = { ...engine.generate('a punch bowl for a party of 8', { seed: 0 }), seed: 0 };

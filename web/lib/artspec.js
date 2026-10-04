@@ -502,8 +502,11 @@ export function drinkSpec(recipe, ingMap, _opts = {}) {
         const foot = clear && !hot ? Math.min(R.bottom - 12, capAt(x) + 60) : inMug(capAt(x) + 16);
         put('garnish.sugarcane', { len: Math.min(200, foot - 10) }, x, foot, { rot: lean, from, z: 31 });
       } else {
-        const foot = hot && clear ? level + 24 : inMug(capAt(x) + 34);
-        put('garnish.cinnamon', { len: Math.min(132 - (capAt(x) + 34 - foot), foot - 10) }, x, foot, { rot: lean + 0.1, from, z: 34 });
+        // A quill about 3½ in long: dipped in the drink, leaning on the rim at a good slant, about
+        // an inch and a half of it showing above the rim (never standing up like a straw).
+        const foot = hot && clear ? Math.min(level + 24, capAt(x) + 70) : inMug(capAt(x) + 34);
+        const tilt = (x < R.cx ? -1 : 1) * 0.5;
+        put('garnish.cinnamon', { len: Math.max(48, Math.min(132, foot - (capAt(x) - 56))) }, x, foot, { rot: tilt, from, z: 34 });
       }
     } else if (id === 'floating-wheels') {
       // three to five small wheels floating flat on the surface (or the cap of ice), spread across it

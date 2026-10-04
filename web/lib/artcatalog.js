@@ -595,15 +595,37 @@ function umbrella() {
   return { box: [120, H + 6], strokes, washes, cover: [[...canopy, ...edge.slice().reverse()]] };
 }
 
-// A cinnamon quill: rolled bark with its scroll showing at the top.
-function cinnamon({ len = 132 } = {}) {
-  // a quill: a thin roll of bark, about a third of an inch across, its scroll showing at the top
-  const L = [[-3.4, 0], [-3.6, -len * 0.5], [-3.4, -len]], Rt = [[3.4, 0], [3.6, -len * 0.5], [3.4, -len]];
+// A cinnamon quill: a stub of rolled bark about half an inch across, warm red-brown, its two
+// scrolls curling in at the cut top and long, uneven bark grain down its length. It is short and
+// fat and leans on the rim, so it never reads as a straw (a straw is long, thin and striped).
+function cinnamon({ len = 70 } = {}) {
+  const w = 6.6;
+  const L = [[-w + 0.4, 0], [-w - 0.3, -len * 0.3], [-w + 0.2, -len * 0.62], [-w - 0.2, -len]];
+  const Rt = [[w - 0.3, 0], [w + 0.2, -len * 0.34], [w - 0.2, -len * 0.7], [w + 0.1, -len]];
+  const body = [...L, ...Rt.slice().reverse()];
+  const strokes = [
+    { pts: L, tier: 1 }, { pts: Rt, tier: 1 },
+    // the cut top: two rolls of bark scrolled in toward the seam
+    { pts: ell(-w / 2, -len, w / 2, 2.1, 0, TAU, 12), tier: 1 },
+    { pts: ell(w / 2, -len, w / 2, 2.1, 0, TAU, 12), tier: 1 },
+    { pts: ell(-w / 2 + 0.5, -len + 0.2, w / 4.2, 1.1, Math.PI * 0.2, TAU * 0.9, 9), tier: 3 },
+    { pts: ell(w / 2 - 0.5, -len + 0.2, w / 4.2, 1.1, Math.PI * 1.2, TAU * 1.9, 9), tier: 3 },
+    // the seam where the two scrolls meet, and the bark's grain
+    { pts: [[0.2, -len + 2], [-0.2, -len * 0.55]], tier: 2 },
+    { pts: [[-3.6, -len * 0.08], [-3.1, -len * 0.4], [-3.7, -len * 0.7]], tier: 3 },
+    { pts: [[2.4, -len * 0.18], [2.9, -len * 0.5], [2.2, -len * 0.82]], tier: 3 },
+    { pts: [[4.6, -len * 0.05], [4.2, -len * 0.28]], tier: 3 },
+  ];
   return {
-    box: [10, len + 4],
-    strokes: [{ pts: L, tier: 1 }, { pts: Rt, tier: 1 }, { pts: ell(0, -len, 3.4, 1.6, 0, TAU, 12), tier: 2 }, { pts: ell(0.8, -len + 0.3, 1.6, 0.8, 0, TAU * 0.8, 8), tier: 3 }, { pts: [[1, -6], [1.2, -len + 3]], tier: 3 }],
-    washes: [{ pts: [...L, ...Rt.slice().reverse()], color: '#9A5A2E', alpha: 0.1, soft: 0.3 }],
-    cover: [[...L, ...Rt.slice().reverse()]],
+    box: [2 * w + 4, len + 6],
+    strokes,
+    washes: [
+      { pts: body, color: '#B8703D', alpha: 0.085, soft: 0.3 },
+      // the turned side in shadow, and the paler cut end
+      { pts: [[w * 0.25, 0], [w * 0.3, -len], [w, -len], [w, 0]], color: '#8B4A2B', alpha: 0.05, soft: 0.3 },
+      { pts: ell(0, -len, w, 2.4, 0, TAU, 14), color: '#D9A274', alpha: 0.08, soft: 0.3 },
+    ],
+    cover: [body, ell(0, -len, w, 2.4, 0, TAU, 14)],
   };
 }
 

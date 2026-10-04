@@ -14,6 +14,23 @@ const PRAYERS = [
   'a Mai Tai with a twist',
   'bitter and refreshing',
 ];
+// What the page opens on: a different prayer each visit, already answered.
+const OPENINGS = [
+  'something smoky and spicy for a cold night',
+  'something blue for the pool',
+  'a Mai Tai with a twist',
+  'bananas Foster in a glass',
+  'a night in Tahiti',
+  'a swizzle',
+  'heartbreak, but make it tropical',
+  'bitter and refreshing',
+  'navy grog',
+  'a hurricane',
+  'a coconut daiquiri',
+  'hot buttered rum for a snowy night',
+  'a scorpion bowl for 4',
+];
+const pick = list => list[Math.floor(Math.random() * list.length)];
 const ORACLES = ['Your prayer was heard', 'The gods abide', 'Poured from the smoke', 'The idols have conferred', 'Written in the ice'];
 
 const $ = s => document.querySelector(s);
@@ -176,7 +193,9 @@ async function main() {
   const data = await loadData();
   engine = createEngine(data);
   $('#foot-note').textContent = `Every recipe is balanced against ${data.drinks.length.toLocaleString('en-US')} catalogued drinks and built only from bottles you can buy today.`;
-  $('#tries').innerHTML = PRAYERS.slice(0, 4).map(p => `<button type="button">${esc(p)}</button>`).join('');
+  $('#prayer').value = pick(OPENINGS);
+  const tries = PRAYERS.filter(p => p !== $('#prayer').value).sort(() => Math.random() - 0.5).slice(0, 4);
+  $('#tries').innerHTML = tries.map(p => `<button type="button">${esc(p)}</button>`).join('');
   $('#tries').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { $('#prayer').value = b.textContent; submit(); }));
   $('#prayer-form').addEventListener('submit', e => { e.preventDefault(); submit(); });
   // The field opens holding an example prayer, which is what the first
