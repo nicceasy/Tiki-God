@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { indexIngredients, analyzeLines, lineOz } from '../web/lib/chem.js';
-import { drinkLook, hexToRgb, showsColor, hsl } from '../web/lib/optics.js';
+import { drinkLook, hexToRgb, showsColor, hsl, colorWord } from '../web/lib/optics.js';
 
 const j = p => JSON.parse(readFileSync(new URL(`../${p}`, import.meta.url), 'utf8'));
 const vocab = j('data/ingredients.json');
@@ -68,7 +68,7 @@ test('warm drinks get warm words: milky browns only for creamy drinks, dark brow
 
 test('color words sit on the right hue', () => {
   const near = (hex, lo, hi) => { const h = hsl(hex).h; return h !== null && (lo < hi ? h >= lo && h < hi : h >= lo || h < hi); };
-  const cases = { tangerine: [18, 40], 'sunset orange': [10, 30], 'mango gold': [30, 46], 'passion-fruit gold': [34, 50], 'hibiscus pink': [315, 2], 'rose gold': [0, 30], copper: [5, 36], ruby: [330, 12] };
+  const cases = { tangerine: [18, 40], 'sunset orange': [10, 30], 'mango gold': [30, 46], 'mango-gold': [30, 50], 'campari red': [340, 12], oxblood: [0, 20], 'passion-fruit gold': [34, 50], 'hibiscus pink': [315, 2], 'rose gold': [0, 30], copper: [5, 36], ruby: [330, 12] };
   for (const d of drinks) {
     const look = lookOf(d);
     const w = look.description.split(' with ')[0].split(' under ')[0].toLowerCase().replace(/^(creamy|opaque|cloudy|hazy) /, '');
@@ -105,4 +105,50 @@ test('butterfly pea turns violet with citrus and pink in a sour; a Blue Lagoon s
   assert.ok(neat.h >= 200 && neat.h < 250, `butterfly pea and soda at hue ${neat.h}`);
   const lagoon = hsl(look([['vodka', 1.5], ['blue-curacao', 1], ['lemon', 0.5], ['lemon-lime-soda', 4]]).body.hex);
   assert.ok(lagoon.h >= 195 && lagoon.h <= 215 && lagoon.s >= 0.6, `Blue Lagoon at hue ${lagoon.h}`);
+});
+
+test('the bottle that colors the glass can name it: mango-gold colada, Campari red, a plum cassis sink, a sparkle', () => {
+  const look = (spec, o) => drinkLook(spec.map(([id, oz, x]) => ({ id, oz, role: ingMap.get(id).role, ...(x || {}) })), ingMap, o);
+  // Mango nectar in a colada is mango-gold, not tan.
+  const riptide = look([['rum-white-column', 2], ['mango-nectar', 2], ['pineapple-juice', 2], ['banana', 1.75], ['coconut-rum', 1], ['coconut-cream', 1.75]], { method: 'blend', ice: 'blended', dilutionOz: 2 });
+  assert.match(riptide.description, /^Creamy mango-gold$/);
+  // An ounce of Campari over Demerara rum is a clear red (its dye is calibrated on the Jungle Bird).
+  const swizzle = look([['rum-demerara', 1.75], ['lime', 1], ['simple-syrup', 0.5], ['campari', 1], ['angostura', 0.12, { crown: true }]], { method: 'swizzle', ice: 'crushed', dilutionOz: 1.5 });
+  const h = hsl(swizzle.body.hex).h;
+  assert.match(swizzle.description, /^Campari red\b/);
+  assert.ok(h >= 345 || h < 8, `Campari swizzle at hue ${h}`);
+  // Cassis sinks plum, not brick.
+  const sunrise = look([['rum-gold-column', 1], ['lime', 0.25], ['orange', 4.5], ['creme-de-cassis', 0.5, { sink: true }], ['sparkling-wine', 2]], { method: 'build', ice: 'cubed', dilutionOz: 1 });
+  const sink = sunrise.layers.find(x => x.kind === 'sink');
+  assert.ok(sink && hsl(sink.hex).h >= 300 && hsl(sink.hex).h < 335, `cassis sink ${sink && sink.hex}`);
+  assert.match(sunrise.description, /cassis settling deep plum/);
+  // A Mai Tai under Champagne is no pale honey: it is a mid amber, and it sparkles.
+  const lanai = look([['rum-agricole-vieux', 1.25], ['rum-aged-column', 1], ['lime', 1], ['orgeat', 0.333], ['rich-simple', 0.25], ['orange-curacao', 0.5], ['sparkling-wine', 2]], { method: 'shake', ice: 'crushed', dilutionOz: 1.5 });
+  assert.match(lanai.description, /amber with a sparkle$/);
+  assert.doesNotMatch(lanai.description, /pale honey/i);
+});
+
+test('dark drinks keep their hue; pineapple, Campari and fassionola name the glass they color', () => {
+  const look = (spec, o) => drinkLook(spec.map(([id, oz, x]) => ({ id, oz, role: ingMap.get(id).role, ...(x || {}) })), ingMap, o);
+  // Coffee liqueur stirred into aged rum is coffee brown, not claret: the dim floor that keeps a
+  // dark drink liquid greys it at its own hue rather than lifting only the blue.
+  const coffee = look([['rum-aged-column', 2], ['demerara-syrup', 0.167], ['coffee-liqueur', 0.5], ['angostura', 0.06]], { method: 'stir', ice: 'cubed', dilutionOz: 1.1 });
+  const c = hsl(coffee.body.hex);
+  assert.ok(c.h >= 18 && c.h <= 30 && c.s <= 0.5 && c.l < 0.3, `coffee and rum at ${coffee.body.hex}`);
+  assert.match(coffee.description, /^Dark brown$/);
+  // A Piña Colada that is mostly pineapple is butter-yellow; ivory is for cream alone.
+  const colada = look([['rum-white-column', 2], ['pineapple-juice', 6], ['coconut-cream', 1.5], ['heavy-cream', 1]], { method: 'blend', ice: 'blended', dilutionOz: 2 });
+  assert.match(colada.description, /^Creamy (butter-yellow|pineapple-cream)$/);
+  const coconutSour = look([['rum-white-column', 2], ['lime', 1], ['coconut-cream', 1]], { method: 'shake', dilutionOz: 1 });
+  assert.doesNotMatch(coconutSour.description, /butter|pineapple/);
+  // A light pineapple sour is pineapple gold; honeyed amber is kept for a deep honey (L < 0.62).
+  const sour = look([['rum-gold-column', 2], ['lime', 0.75], ['pineapple-juice', 2], ['rich-simple', 0.5], ['apricot-liqueur', 0.25]], { method: 'shake', ice: 'cubed', dilutionOz: 1.25 });
+  assert.match(sour.description, /^Opaque pineapple gold with a pale froth$/);
+  for (const hex of ['#eccd77', '#e0c188', '#ebba7c']) assert.ok(!/honeyed amber/.test(colorWord(hex, 0.5, { creamy: false })), `${hex} is too light for honeyed amber`);
+  // Campari stirred with vermouth and rum deepens to garnet; with lime it stays Campari red.
+  const stirred = look([['rum-jamaican-pot', 0.75], ['batavia-arrack', 0.75], ['li-hing-mui-syrup', 0.5], ['campari', 1], ['sweet-vermouth', 1]], { method: 'stir', ice: 'cubed', dilutionOz: 1 });
+  assert.match(stirred.description, /^Deep Campari garnet$/);
+  // Fassionola reddens a copper Zombie-style sour to rust-red (as the painting tilts it).
+  const rust = look([['rum-demerara-overproof', 0.75], ['mezcal', 0.75], ['rum-jamaican-dark', 0.75], ['lime', 0.5], ['orange', 0.5], ['fassionola', 0.5], ['velvet-falernum', 0.25]], { method: 'shake', ice: 'crushed', dilutionOz: 1.5 });
+  assert.match(rust.description, /^Cloudy rust-red$/);
 });

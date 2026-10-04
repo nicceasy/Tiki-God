@@ -4,7 +4,7 @@
 //   { v: 1, box: [w, h], seed, elements: [{ part, params?, x, y, s?, rot?, anchor?: [ax, ay], from? }] }
 // (x, y) is where the part's anchor lands; the part is scaled by s and turned by rot about it.
 // A garnish element says which garnish phrase on the card it draws (`from`).
-import { CATALOG, PALETTE, rimOf, levelOf, GLASS_PROFILES, halfAt, capMound, capYAt, pigment, hexHsl, TIKI_GLAZES } from './artcatalog.js';
+import { CATALOG, PALETTE, rimOf, levelOf, GLASS_PROFILES, halfAt, capMound, capYAt, pigment, hexHsl, hslHex, TIKI_GLAZES, glazeFamily, glazeFamilies } from './artcatalog.js';
 import { rng, seedOf } from './ink.js';
 import { vesselForDrink } from './vessels.js';
 import { drinkLook, opticsOf } from './optics.js';
@@ -147,7 +147,45 @@ function lookFor(recipe, ingMap, crowned) {
   return { look, crown };
 }
 
-export function drinkSpec(recipe, ingMap) {
+// The drink's own secondary colors, for the painting (artcatalog.js drinkPaint): a copper or
+// amber body is tilted toward red-copper when something red is in it (grenadine, hibiscus,
+// Campari, a berry), its foot charged with that syrup's own garnet or ruby; toward honey-gold
+// when passion fruit, pineapple, mango or honey carry it, its light charged with their gold.
+// A drink with too little of either to tell (a teaspoon of grenadine in a Zombie) takes the
+// painter's choice by seed, so two pours of one prayer, and the copper drinks beside each
+// other, read as a spread rather than one note. The tilt stays within the hue family (about
+// ten degrees); nothing is added that the recipe does not have.
+const RED_CARRIERS = new Set(['grenadine', 'hibiscus-syrup', 'raspberry-syrup', 'raspberry-liqueur', 'cherry-heering', 'campari', 'sloe-gin', 'cranberry-juice', 'pomegranate-juice', 'fassionola', 'strawberry', 'creme-de-cassis', 'guava-syrup', 'guava-nectar', 'watermelon-juice']);
+const GOLD_CARRIERS = new Set(['passion-fruit-syrup', 'passion-fruit-juice', 'passion-fruit-nectar', 'passion-fruit-liqueur', 'pineapple-juice', 'pineapple-syrup', 'mango-nectar', 'honey-syrup', 'apricot-nectar', 'apricot-liqueur', 'banana-liqueur', 'yellow-chartreuse']);
+const GARNET = '#8E1426', HONEY = '#F2B42E';
+export function paintTilt(recipe, ingMap, seed) {
+  const lines = (recipe.lines || []).filter(l => !l.garnish && !l.float && !l.sink && Number.isFinite(l.oz) && l.oz > 0);
+  const total = lines.reduce((a, l) => a + l.oz, 0) || 1;
+  const share = set => lines.filter(l => set.has(l.id)).reduce((a, l) => a + l.oz, 0) / total;
+  const strongest = set => lines.filter(l => set.has(l.id)).sort((a, b) => b.oz - a.oz)[0];
+  const red = share(RED_CARRIERS), gold = share(GOLD_CARRIERS);
+  const paintOf = l => { const ing = l && ingMap && ingMap.get(l.id); return ing ? opticsOf(ing).hex : null; };
+  const jitter = ((seed >>> 0) % 5) - 2;
+  const dir = red >= 0.05 && red > gold * 1.2 ? -1 : gold >= 0.12 && gold > red * 2 ? 1 : ((recipe.seed ?? 0) & 1 ? 1 : -1);
+  if (dir < 0) {
+    // the syrup's own red, pushed like a sink (a garnet, a ruby), or a garnet
+    // (only a drink with something red in it gets a red foot; otherwise just the lean)
+    const own = paintOf(strongest(RED_CARRIERS));
+    return red > 0 ? { shift: -5 + jitter, foot: own ? pigment(own, { opacity: 1, layer: true }).body : GARNET, footK: Math.min(0.6, 0.35 + red * 4) } : { shift: -5 + jitter };
+  }
+  const own = paintOf(strongest(GOLD_CARRIERS)), oh = own && hexHsl(own);
+  const top = oh && oh[0] >= 36 && oh[0] <= 58 && oh[1] > 0.35 ? hslHex(oh[0], Math.min(0.9, oh[1] * 1.3), 0.58) : HONEY;
+  return { shift: 12 + jitter, top, topK: Math.min(0.6, 0.3 + gold * 1.5) };
+}
+
+// The glaze a drawn drink's vessel wears, or null for a glass or a natural vessel (coconut,
+// barrel, pineapple): what a neighbor passes as `avoid` to drinkSpec.
+export function glazeOf(spec) {
+  const g = spec && spec.elements.find(e => e.part === 'glass');
+  return g && glazeFamily(g.params.glaze) && CATALOG.glass(g.params).glazed ? g.params.glaze : null;
+}
+
+export function drinkSpec(recipe, ingMap, opts = {}) {
   const seed = seedOf(`${recipe.name}|${recipe.seed ?? 0}`);
   const r = rng(seed);
   const kind = pickVessel(recipe);
@@ -188,9 +226,27 @@ export function drinkSpec(recipe, ingMap) {
   const paint = pigment(look.body.hex, { opacity: look.body.opacity, clarity: look.body.clarity, neon, word, creamy, cafe });
   r(); // (the draw that once chose a wood tone, kept so the garnish falls where it did)
   // (the prayer picks the glaze, and its other pour takes the glaze across the shelf from it)
-  const glazes = Object.values(TIKI_GLAZES), g0 = ((seedOf(recipe.prompt || recipe.name) >>> 3) + 3 * ((recipe.seed ?? 0) & 1)) % glazes.length;
-  const [dh, ds] = hexHsl(paint.surf), clash = c => { const [gh] = hexHsl(c), d = Math.abs(((gh - dh + 540) % 360) - 180); return ds > 0.2 && d < 22; };
-  const glaze = [0, 1, 2, 3, 4, 5].map(k => glazes[(g0 + k) % glazes.length]).find(c => !clash(c)) || glazes[g0];
+  // (a glaze within 30 degrees of the drink is skipped: an oxblood mug round a copper drink
+  // loses the drink at the rim)
+  // A chile-hot drink asks for the oxblood (sang-de-boeuf) when it stands clear of the drink.
+  // (ebony, a black glaze, never clashes with a drink)
+  // Drawn beside other ceramics (`avoid`: their glazes, nearest first, e.g. the card to the left
+  // and the one above), the mug keeps clear of their glaze families, so a shelf reads as a spread
+  // of glazes rather than three teals in a row; when that leaves nothing, the farthest neighbors
+  // are let go first.
+  const glazes = Object.values(TIKI_GLAZES), g0 = (seedOf(recipe.prompt || recipe.name) + 3 * ((recipe.seed ?? 0) & 1)) % glazes.length;
+  const [dh, ds] = hexHsl(paint.surf), gap = c => { const [gh] = hexHsl(c); return Math.abs(((gh - dh + 540) % 360) - 180); };
+  const clash = c => ds > 0.2 && hexHsl(c)[1] > 0.12 && gap(c) < 30;
+  const spicy = (recipe.lines || []).some(l => /chile|ancho|pepper|habanero|jalape|cayenne/.test(l.id) && !l.garnish);
+  // (a prayer for something dark, a skull or midnight, asks for black with turquoise drips)
+  const gloom = /\b(dark|black|midnight|skull)\b/i.test(recipe.prompt || '');
+  const prefer = [...(spicy && !(ds > 0.2 && gap(TIKI_GLAZES.oxblood) < 25) ? [TIKI_GLAZES.oxblood] : []), ...(gloom ? [TIKI_GLAZES.ebony] : [])];
+  const around = (opts.avoid || []).filter(Boolean).map(glazeFamilies);
+  // (the black is kept for those prayers: it is too heavy a glaze to come round by chance)
+  const order = [...prefer, ...glazes.map((_, k) => glazes[(g0 + k) % glazes.length]).filter(c => !clash(c) && c !== TIKI_GLAZES.ebony)];
+  let glaze = null;
+  for (let k = around.length; k >= 0 && !glaze; k--) glaze = order.find(c => !around.slice(0, k).some(fs => fs.some(f => glazeFamilies(c).includes(f))));
+  glaze = glaze || order[0] || glazes[g0];
   const swizzled = method === 'swizzle';
   const frosted = !hot && (swizzled || kind === 'julep-cup' || iceStyle === 'shaved');
   const frostAmount = swizzled || kind === 'julep-cup' ? 1 : 0.45;
@@ -457,9 +513,17 @@ export function drinkSpec(recipe, ingMap) {
     }
   }
 
+  // Mint muddled and then shaken or blended through the drink leaves torn bits of leaf in it
+  // (through a clear glass; fine flecks through a blended drink, a few fragments through a
+  // shaken one), unless the leaves are already drawn pressed at the bottom of the glass.
+  const muddledMint = (recipe.lines || []).find(l => l.id === 'mint' && !l.garnish && l.muddled && (l.amount || 0) >= 6);
+  if (muddledMint && clear && !UP && !hot && !garnishEls.some(e => e.part === 'garnish.mint-leaves') && look.body.opacity < 0.95) {
+    full('garnish.mint-leaves', { kind, fill, seed: iceSeed + 4, bits: true, frozen, n: frozen ? 16 : Math.min(7, 3 + Math.round(muddledMint.amount / 4)) }, '(steps) muddled mint', 6);
+  }
+
   // ---- assemble, back to front: glass, drink, ice, what is inside the glass, then the garnish
   els.push({ part: 'glass', params: { kind, glaze, flaming: flaming && kind === 'volcano-bowl' && !(shell && cupUp), lid: !!get('crown-lid') && kind === 'pineapple', front: clear ? 'without' : 'with' }, x: 0, y: 0 });
-  els.push({ part: 'liquid', params: { kind, fill, body: look.body, layers: look.layers, frozen, frost: frosted, shell: iceStyle === 'ice-shell' ? 9 : 0, crushed: heaped, crownOnIce: crowned && heaped, froth: UP && !frozen && (method === 'shake' || method === 'flash-blend'), seed: iceSeed, neon, word, creamy, cafe }, x: 0, y: 0 });
+  els.push({ part: 'liquid', params: { kind, fill, body: look.body, layers: look.layers, frozen, frost: frosted, shell: iceStyle === 'ice-shell' ? 9 : 0, crushed: heaped, crownOnIce: crowned && heaped, froth: UP && !frozen && (method === 'shake' || method === 'flash-blend'), seed: iceSeed, neon, word, creamy, cafe, tilt: paintTilt(recipe, ingMap, seed) }, x: 0, y: 0 });
   // Bubbles rise only through a drink with something carbonated in it (and behind the ice).
   if (!hot && (recipe.lines || []).some(l => FIZZ.has(l.id))) els.push({ part: 'fizz', params: { kind, fill, seed: seed % 991 }, x: 0, y: 0 });
   if (iceStyle !== 'none' && iceStyle !== 'blended') {

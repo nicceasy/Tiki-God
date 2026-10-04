@@ -199,6 +199,7 @@ export function createComposer({ archetypes, ingMap, model }) {
         for (const l of sp.lines) if (ingMap.has(l.id)) s += 0.8 * Math.max(-2, Math.min(2, ctx.intentMatch(l.id, intent))) - (ctx.forbidden(l.id, intent) ? 1.5 : 0);
         // A spec whose look is a loud color (Blue Hawaiian blue, Midori green) answers only a prayer for it.
         for (const l of sp.lines) { const c = (ingMap.get(l.id) || {}).color; if (['blue', 'green'].includes(c) && intent.color !== c) s -= 2; }
+        s += brightness(sp, intent);
         return { item: sp, s };
       });
       // A repeat prayer on the same frame starts from a different proven spec.
@@ -361,6 +362,33 @@ export function createComposer({ archetypes, ingMap, model }) {
       if ((l.oz || 0) > cap) { l.oz = cap; if (l.range) l.range = [Math.min(l.range[0], cap), Math.min(l.range[1], cap)]; }
     }
   }
+
+  // A prayer that leans a bright color (a promotion's gold, a dragon's red, a floral pink) starts,
+  // in a near-tie, from the proven spec that already pours that color: the Bitter Mai Tai's ounce
+  // and a half of Campari, a Tropical Itch's passion fruit. A colorant is judged by its optics (a
+  // saturated bottle of that hue that really dyes a drink), not by name. Never more than a nudge.
+  const LEAN_HUE = { gold: [34, 62], orange: [15, 40], red: [340, 15], pink: [315, 20], purple: [255, 330] };
+  function brightness(sp, intent) {
+    const lean = intent.color ? null : intent.colorLean || intent.hueLean;
+    const range = LEAN_HUE[lean];
+    if (!range) return 0;
+    let s = 0;
+    for (const l of sp.lines) {
+      const ing = ingMap.get(l.id), o = (ing && ing.optics) || {};
+      if (!ing || l.garnish || !((o.tint || 0) >= 0.8) || ing.cat === 'rum' || (ing.role === 'base' && (ing.abv || 0) >= 30)) continue;
+      const c = hueSat(o.hex);
+      if (c && c.s >= 0.55 && c.l >= 0.25 && c.l <= 0.72 && (range[0] < range[1] ? c.h >= range[0] && c.h < range[1] : c.h >= range[0] || c.h < range[1])) s += 0.3 * Math.min(1, l.oz || 0);
+    }
+    return Math.min(0.6, s);
+  }
+  const hueSat = hex => {
+    if (!/^#[0-9a-f]{6}$/i.test(hex || '')) return null;
+    const n = parseInt(hex.slice(1), 16), [r, g, b] = [n >> 16 & 255, n >> 8 & 255, n & 255].map(v => v / 255);
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn, l = (mx + mn) / 2;
+    if (d < 0.06) return null;
+    const h = mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    return { h: h * 60, s: d / (1 - Math.abs(2 * l - 1) || 1), l };
+  };
 
   // A canonical spec that doesn't carry the archetype's own signature is a variant (a modern
   // bar's rewrite); building from it would mean bolting the missing parts back on, so the

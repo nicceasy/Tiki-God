@@ -113,3 +113,17 @@ test('a Blue Hawaii for a blue prayer is aqua-turquoise, not pineapple-green', (
     assert.ok(oz(r, 'blue-curacao') <= 1, `${p} [${seed}]: ${oz(r, 'blue-curacao')} oz of curaçao is dye, not a drink`);
   }
 });
+
+test('the color words say what the glass is: fruit and bottle words only with that fruit or bottle, brown words only for brown drinks', () => {
+  const HUE = { 'mango-gold': [30, 50], 'passion-fruit gold': [30, 50], 'campari red': [340, 12], oxblood: [0, 20], 'hibiscus pink': [315, 2], ruby: [330, 12], garnet: [330, 15], tangerine: [18, 40], coral: [5, 30] };
+  const on = (h, [lo, hi]) => h !== null && (lo < hi ? h >= lo && h < hi : h >= lo || h < hi);
+  for (const { p, seed, r } of all) {
+    const w = r.look.description.split(/ with | under /)[0].toLowerCase().replace(/^(creamy|opaque|cloudy|hazy) /, '');
+    const c = hsl(r.look.body.hex);
+    if (HUE[w]) assert.ok(on(c.h, HUE[w]), `${p} [${seed}] ${r.name}: "${w}" for ${r.look.body.hex} (hue ${c.h && c.h.toFixed(0)})`);
+    if (w === 'mango-gold') assert.ok(has(r, 'mango-nectar', 'mango'), `${p} [${seed}] ${r.name}: mango-gold without mango`);
+    if (w === 'campari red') assert.ok(has(r, 'campari'), `${p} [${seed}] ${r.name}: Campari red without Campari`);
+    if (/^(tan|café au lait|mahogany|oxblood|dark brown)$/.test(w)) assert.ok(/^creamy |^cloudy café/i.test(r.look.description) || c.l < 0.4, `${p} [${seed}] ${r.name}: "${w}" for a drink that is neither creamy nor dark (${r.look.body.hex})`);
+    if (/with a sparkle/.test(r.look.description)) assert.ok(has(r, 'sparkling-wine'), `${p} [${seed}] ${r.name}: sparkles without a sparkling top`);
+  }
+});
