@@ -1696,7 +1696,10 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
   // recipe. The Zombie line's heavyweights may run to ten, as Don's and Smuggler's Cove's do. What goes first is what
   // the guest didn't ask for and the frame doesn't need: a seasoning, then the smallest pour.
   function lineBudget(lines, A, intent, notes) {
-    const max = A.family === 'zombie' ? 10 : 7;
+    // (Riff discipline: a Zombie-line riff is its reference and two or three changes, nine lines at
+    // most, not ten of teaspoons and dashes; a layer the prayer asked for, a sunrise's sink, is the
+    // one line past seven a drink may pour.)
+    const max = (A.family === 'zombie' ? 9 : 7) + (intent.style.layered && lines.some(l => (l.sink || l.float) && !l.garnish) ? 1 : 0);
     const asked = l => (intent.ings[l.id] || 0) >= 1 || (intent.spirits || []).includes(l.id);
     const sig = (A.signature || []).filter(c => c.required);
     const sole = l => sig.some(c => c.anyOf.includes(l.id) && lines.filter(x => !x.garnish && c.anyOf.includes(x.id)).length === 1);
@@ -1729,7 +1732,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       // A float over a drink that already layers with its sink (a sunrise needs no dark cap)
       // joins the body's lead pour.
       if (!cands.length && poured().some(l => l.sink)) {
-        const fl = poured().find(l => l.float && l.role === 'base' && !asked(l) && !OVER(l.id));
+        const fl = poured().find(l => l.float && l.role === 'base' && !asked(l) && !OVER(l.id) && !sole(l));
         const lead = poured().filter(l => l.role === 'base' && !l.float && !l.sink && (ingMap.get(l.id).abv || 0) > 0).sort((x, y) => y.oz - x.oz)[0];
         if (fl && lead) { lead.oz += fl.oz; lead.oz0 = (lead.oz0 || lead.oz) + fl.oz; lines.splice(lines.indexOf(fl), 1); notes.push(`no ${prose(fl.id)} float: the sink is the layer, and the rum joins the ${prose(lead.id)}`); continue; }
       }
@@ -1907,7 +1910,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       const lessSweet = (intent.sweetness || 0) <= -0.6 && !(chemOf(lines, svc.method, svc.ice).sugarConc < B.sugar[0] - 0.15);
       const count = lines.filter(l => !l.garnish && (l.role !== 'aromatic' || l.muddled)).length;
       // At the line ceiling, a seasoning nobody asked for (saline drops) makes room for the sugar.
-      const maxN = A.family === 'zombie' ? 10 : 7;
+      const maxN = A.family === 'zombie' ? 9 : 7;
       if (!hasPlain && count >= maxN && !lessSweet) {
         const sea = lines.find(l => !l.garnish && SEASONING.has(l.id) && !asked(l) && !sole(l) && !l.twist && !l.swapped);
         if (sea) { lines.splice(lines.indexOf(sea), 1); said.push(`left out the ${prose(sea.id)}`); }

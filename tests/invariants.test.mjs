@@ -190,8 +190,11 @@ test('a named flavor is a dose you can taste, and a recipe is at most seven line
       const floor = l.id === 'scotch-islay' ? 0.25 : POTENT.has(l.id) ? potent : named;
       assert.ok(l.oz >= floor - 0.09, `${label(x)}: ${l.oz} oz of ${l.id} in ${fin} oz is a token`);
     }
+    // Riff discipline: a Zombie-line build is nine lines at most (the 1934 classic poured as written
+    // keeps its own); a layer the prayer asked for (a sunrise's sink) is the one line past seven.
     const n = r.lines.filter(l => !l.garnish).length;
-    assert.ok(n <= (r.family.id === 'zombie' ? 10 : 7), `${label(x)}: ${n} poured lines`);
+    const layer = r.style && r.style.layered && r.lines.some(l => l.sink || l.float) ? 1 : 0;
+    assert.ok(n <= (r.family.id === 'zombie' ? (r.classic ? 11 : 9) : 7) + layer, `${label(x)}: ${n} poured lines`);
   }
 });
 
