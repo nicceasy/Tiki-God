@@ -340,7 +340,8 @@ function negationBefore(text, pos) {
   // Stop at a clause boundary word: "no coconut but pineapple" must not negate pineapple.
   const boundary = before.lastIndexOf('but') > before.lastIndexOf('no') ? before.lastIndexOf('but') : -1;
   const window = boundary >= 0 ? before.slice(boundary + 1) : before;
-  const neg = window.some(w => NEGATORS.includes(w));
+  // "zero proof", "zero sugar": "zero" there names a style, not a refusal of what follows.
+  const neg = window.some((w, i) => NEGATORS.includes(w) && !(w === 'zero' && /^(proof|abv|alcohol|sugar|booze)/.test(window[i + 1] || '')));
   const soft = window.some(w => SOFTENERS.includes(w)) || / not (too|as|so) $/.test(' ' + window.join(' ') + ' ');
   return { neg, soft };
 }
@@ -548,6 +549,14 @@ export function parsePrompt(raw, { nameIndex = [], familyIds = [], concepts = nu
     const w = m[1].replace('a ', '');
     const n = NUMBER_WORDS[w] || parseInt(w, 10) || (w === 'crowd' || w === 'group' ? 6 : 2);
     if (n > 1) { intent.servings = Math.min(n, 12); intent.style.bowl = n >= 3; }
+  }
+
+  // How many rums: "three rums", "a blend of rums", "two rums". Don's signature move.
+  const rc = text.match(/ (two|three|four|five|2|3|4|5|multiple|several|many|lots of|a blend of) (?:different )?rums? /);
+  if (rc) {
+    intent.rumCount = NUMBER_WORDS[rc[1]] || parseInt(rc[1], 10) || 3;
+    intent.matched.push({ phrase: rc[0].trim(), label: `${intent.rumCount} rums` });
+    intent.complexity += 0.5;
   }
 
   // Family words.

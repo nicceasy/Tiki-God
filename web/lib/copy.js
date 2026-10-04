@@ -14,9 +14,9 @@ const WORD = {
   apricot: 'apricot', peach: 'peach', 'stone-fruit': 'stone fruit', pomegranate: 'pomegranate', apple: 'apple', melon: 'melon', lychee: 'lychee',
   'dried-fruit': 'dried fruit', almond: 'almond', nutty: 'toasted nuts', vanilla: 'vanilla', cinnamon: 'cinnamon', allspice: 'allspice',
   clove: 'clove', nutmeg: 'nutmeg', ginger: 'ginger', 'baking-spice': 'baking spice', anise: 'anise', chili: 'chili heat', pepper: 'pepper',
-  herbal: 'herbs', mint: 'mint', floral: 'flowers', honey: 'honey', caramel: 'caramel', molasses: 'molasses', maple: 'maple', buttery: 'butter',
+  herbal: 'herbal notes', mint: 'mint', floral: 'floral notes', honey: 'honey', caramel: 'caramel', molasses: 'molasses', maple: 'maple', buttery: 'butter',
   chocolate: 'chocolate', coffee: 'coffee', tea: 'tea', funky: 'rum funk', grassy: 'green cane', vegetal: 'green agave', smoky: 'smoke',
-  oaky: 'oak', bitter: 'bitter orange peel', salty: 'salt', earthy: 'earth', agave: 'agave', juniper: 'juniper',
+  oaky: 'oak', bitter: 'a bitter edge', salty: 'salt', earthy: 'earth', agave: 'agave', juniper: 'juniper',
 };
 // The voice of each base spirit in a tasting note.
 const SPIRIT_VOICE = {
@@ -36,7 +36,7 @@ const strip = n => n.replace(/\s*\(.*?\)\s*/g, ' ').replace(/\s+/g, ' ').trim();
 
 export function createCopywriter({ ingMap, ingVec }) {
   // Which flavors a drink really carries: tag → { score, carriers }.
-  function presence(lines) {
+  function presence(lines, floor = 0.05) {
     const total = lines.filter(l => !l.garnish).reduce((s, l) => s + (l.oz || 0), 0) || 1;
     const out = {};
     for (const l of lines) {
@@ -47,10 +47,10 @@ export function createCopywriter({ ingMap, ingVec }) {
         const v = w * k;
         if (!out[t]) out[t] = { tag: t, score: 0, carriers: [] };
         out[t].score += v;
-        if (v >= 0.04) out[t].carriers.push(l.id);
+        if (v >= Math.min(0.04, floor * 0.8)) out[t].carriers.push(l.id);
       }
     }
-    return Object.values(out).filter(x => x.score >= 0.05 && x.carriers.length).sort((a, b) => b.score - a.score);
+    return Object.values(out).filter(x => x.score >= floor && x.carriers.length).sort((a, b) => b.score - a.score);
   }
 
   const named = pres => pres.filter(x => !STRUCTURAL.has(x.tag) && WORD[x.tag]);
@@ -116,30 +116,68 @@ export function createCopywriter({ ingMap, ingVec }) {
     return 'Strong. Don the Beachcomber limited his Zombie to two per guest, and the same goes here.';
   }
 
-  // "A creamy pineapple-and-coconut colada for a slow Sunday."
+  // "A creamy colada with mango and lime, for a slow Sunday."
   // Base spirits lend one adjective at most ("smoky", "funky"); the named flavors come from
-  // what was added to the spirit.
+  // what was added to the spirit, the ones the guest asked for first. A flavor carried only by
+  // a dash of bitters isn't worth naming unless it was asked for.
   const BASE_ADJ = { smoky: 'smoky', funky: 'funky', grassy: 'grassy', molasses: 'dark', agave: 'agave-bright', juniper: 'piney', oaky: 'oak-aged' };
-  function tagline({ lines, archetype, intent, riffOf }) {
+  const SPICES = new Set(['cinnamon', 'clove', 'allspice', 'nutmeg', 'ginger', 'pepper', 'chili']);
+  const hueOf = hex => {
+    const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255);
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+    if (d < 0.08) return { h: null, s: 0, l: (mx + mn) / 2 };
+    const h = mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    return { h: h * 60, s: d / (1 - Math.abs(mx + mn - 1) || 1), l: (mx + mn) / 2 };
+  };
+  // Does the drink actually show the color the guest asked for (in its body or a layer)?
+  const COLOR_TEST = {
+    blue: c => c.h !== null && c.h >= 170 && c.h <= 250, green: c => c.h !== null && c.h >= 75 && c.h < 170,
+    red: c => c.h !== null && (c.h >= 340 || c.h < 15) && c.s > 0.35, pink: c => c.h !== null && (c.h >= 320 || c.h < 20) && c.l > 0.6,
+    gold: c => c.h !== null && c.h >= 30 && c.h < 60 && c.s > 0.3, purple: c => c.h !== null && c.h >= 250 && c.h < 320, dark: c => c.l < 0.3,
+    orange: c => c.h !== null && c.h >= 15 && c.h < 40 && c.s > 0.4,
+  };
+  const COLOR_WORD = { blue: 'blue', green: 'green', red: 'ruby-red', pink: 'pink', gold: 'golden', purple: 'violet', dark: 'dark', orange: 'sunset-orange' };
+  function tagline({ lines, archetype, intent, riffOf, riffIds = null, look = null }) {
     const isBase = id => (ingMap.get(id) || {}).role === 'base';
-    const pres = named(presence(lines)).filter(x => !(archetype.taglineSkip || []).includes(x.tag) && x.carriers.some(id => !isBase(id)));
+    // The tagline describes what is in the glass; garnish aromas (a mint sprig) aren't flavors of the drink.
+    lines = lines.filter(l => !l.garnish && (ingMap.get(l.id) || {}).role !== 'aromatic');
+    const ozOf = id => lines.filter(l => l.id === id).reduce((s, l) => s + (l.oz || 0), 0);
+    const askedIng = new Set(Object.entries(intent.ings || {}).filter(([, w]) => w >= 1).map(([id]) => id));
+    const changed = riffIds ? new Set(lines.map(l => l.id).filter(id => !riffIds.includes(id))) : new Set();
+    const asked = t => (intent.tags[t] || 0) >= 1 || lines.some(l => (askedIng.has(l.id) || changed.has(l.id)) && ((ingVec[l.id] || {})[t] || 0) >= 0.5);
+    const pres = named(presence(lines)).filter(x => !(archetype.taglineSkip || []).includes(x.tag) && x.carriers.some(id => !isBase(id))
+      && (asked(x.tag) || x.carriers.some(id => !isBase(id) && ozOf(id) >= 0.2)));
     const baseTags = named(presence(lines.filter(l => isBase(l.id) && !l.float)));
-    const baseAdj = (baseTags.find(x => BASE_ADJ[x.tag]) || {}).tag;
-    const typeWord = (archetype.noun || archetype.name || 'tropical drink').toLowerCase();
+    const askedBase = baseTags.find(x => BASE_ADJ[x.tag] && asked(x.tag));
+    const baseAdj = (askedBase || baseTags.find(x => BASE_ADJ[x.tag]) || {}).tag;
+    const typeWord = archetype.noun || (archetype.name || 'tropical drink').toLowerCase();
     // Name what makes this one different; the flavors every drink of its type has go unsaid
-    // unless there is nothing else to say.
+    // unless the guest asked for them or there is nothing else to say.
     const defining = new Set(archetype.flavorProfile || []);
-    const distinct = pres.filter(x => !typeWord.includes(WORD[x.tag]) && !defining.has(x.tag));
-    const notInType = distinct.length ? distinct : pres.filter(x => !typeWord.includes(WORD[x.tag]));
-    const flav = notInType.slice(0, 2).map(x => WORD[x.tag]);
-    const texture = lines.some(l => ['coconut-cream', 'heavy-cream', 'vanilla-ice-cream'].includes(l.id) && (l.oz || 0) >= 0.75) ? 'creamy ' : '';
-    const flavorPart = flav.length === 2 ? `${flav[0]}-and-${flav[1]} ` : flav.length ? `${flav[0]} ` : '';
+    const inType = x => typeWord.toLowerCase().includes(WORD[x.tag]);
+    const order = [...pres.filter(x => asked(x.tag) && !inType(x)), ...pres.filter(x => !asked(x.tag) && !inType(x) && !defining.has(x.tag))];
+    // A flavor the guest asked for is named even when it's a supporting note.
+    const faint = named(presence(lines, 0.015)).filter(x => asked(x.tag) && !inType(x) && !order.some(o => o.tag === x.tag) && x.carriers.some(id => !isBase(id)));
+    const pool = order.length || faint.length ? [...order.filter(x => asked(x.tag)), ...faint, ...order.filter(x => !asked(x.tag))] : pres.filter(x => !inType(x));
+    let words = [...new Set(pool.map(x => x.tag))];
+    if (words.some(t => SPICES.has(t))) words = words.filter(t => t !== 'baking-spice');
+    if (baseAdj) words = words.filter(t => t !== baseAdj);
+    const flav = words.slice(0, 2).map(t => WORD[t]);
+    const texture = lines.some(l => ['coconut-cream', 'coconut-milk', 'heavy-cream', 'vanilla-ice-cream'].includes(l.id) && (l.oz || 0) >= 0.75) && !/colada|cream/.test(typeWord) ? 'creamy ' : '';
     const mood = (intent.taglineWords || []).find(Boolean);
     const riff = riffOf ? `, a riff on the ${riffOf}` : '';
-    const adj = baseAdj && !texture ? `${BASE_ADJ[baseAdj]}, ` : '';
+    const adj = baseAdj ? `${BASE_ADJ[baseAdj]} ` : '';
+    // A color the guest asked for, named only if the drink really shows it.
+    let colorPart = '';
+    if (intent.color && look && COLOR_TEST[intent.color]) {
+      const shows = [look.body, ...(look.layers || [])].some(x => x && x.hex && COLOR_TEST[intent.color](hueOf(x.hex)));
+      if (shows) colorPart = `${COLOR_WORD[intent.color]} `;
+    }
+    const withPart = flav.length ? ` with ${list(flav)}` : '';
     const moodPart = mood ? (/^(for|to|with|on|in|under|at|from|like)\b/i.test(mood) ? ` ${mood}` : `, ${mood}`) : '';
-    const phrase = `${texture}${adj}${flavorPart}${typeWord}${riff}${moodPart}`;
-    return `${/^[aeiou]/i.test(phrase) ? 'An' : 'A'} ${phrase.trim()}.`;
+    const lead = [colorPart.trim(), texture.trim(), adj.trim()].filter(Boolean);
+    const phrase = `${lead.length > 1 ? lead.slice(0, -1).join(', ') + ', ' + lead[lead.length - 1] : lead[0] || ''} ${typeWord}${withPart}${riff}${moodPart}`.replace(/\s+/g, ' ').trim();
+    return `${/^[aeiou]/i.test(phrase) ? 'An' : 'A'} ${phrase}.`;
   }
 
   return { presence, named, tastingNote, tagline, WORD, SPIRIT_VOICE };

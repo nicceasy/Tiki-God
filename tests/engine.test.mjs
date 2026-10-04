@@ -158,5 +158,5 @@ test('asking for a vessel gets you that vessel, served the way it holds a drink'
     const r = engine.generate(p);
     assert.equal(r.vessel.id, id, p);
   }
-  assert.equal(engine.generate('mezcal in a coconut').method.ice, 'crushed', 'a coconut is packed with crushed ice');
+  assert.ok(['crushed', 'blended'].includes(engine.generate('mezcal in a coconut').method.ice), 'a coconut is packed with crushed ice or filled with a frozen drink');
 });

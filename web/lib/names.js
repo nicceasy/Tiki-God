@@ -29,7 +29,7 @@ const ADJ = {
   pineapple: ['Sun-Struck', 'Golden'],
   berry: ['Crimson', 'Bramble'],
   cherry: ['Scarlet', 'Ruby'],
-  banana: ['Plantation', 'Banana-Boat'],
+  banana: ['Banana-Leaf', 'Banana-Boat'],
   mango: ['Monsoon', 'Sunset'],
   guava: ['Pink-Sand', 'Rosy'],
   orange: ['Sundown', 'Tangerine'],

@@ -563,7 +563,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     }
     // Keep each role near the family's typical total.
     for (const role of ['sour', 'juice', 'sweet', 'modifier', 'rich']) {
-      const rl = lines.filter(l => l.role === role && !l.range);
+      const rl = lines.filter(l => l.role === role && !l.range && !l.fromSpec);
       if (!rl.length) continue;
       const q = F.roleOz[role];
       if (!q || !q.median) continue;
@@ -665,6 +665,49 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       const trimVol = trim.reduce((a, l) => a + l.oz, 0);
       const excess = c2.volOz - T.vol.p90 * 1.1;
       if (trimVol > 0) trim.forEach(l => { l.oz = Math.max(l.oz0 * 0.5, l.oz - excess * (l.oz / trimVol)); });
+    }
+  }
+
+  // Balance against a proven reference (the canonical spec the build started from, or the drink
+  // being riffed): its sugar-to-acid ratio, nudged by the prayer and kept inside the archetype's
+  // band. Only sweeteners and citrus move; spirits move only for a stronger or gentler ask;
+  // liqueurs, juices and modifiers keep their spec doses, so the drink stays the drink.
+  function balanceTo(lines, ref, A, intent, svc) {
+    const I = l => ingMap.get(l.id);
+    const live = lines.filter(l => l.role !== 'aromatic' && !l.garnish);
+    const edge = (l, lo, hi) => {
+      let a = lo, b = hi;
+      if (l.range) { a = Math.max(a, l.range[0] * 0.85); b = Math.min(b, l.range[1] * 1.15); }
+      l.oz = Math.max(Math.min(a, b), Math.min(b, l.oz));
+    };
+    const k = Math.max(-2, Math.min(2, intent.strength || 0));
+    if (k && !intent.style.zeroProof) for (const l of live.filter(l => l.role === 'base' && !l.float)) { l.oz *= 1 + 0.12 * k; edge(l, l.oz0 * 0.75, l.oz0 * 1.3); }
+    // Never past the archetype's own spirit range: a Zombie is already as strong as a drink should be.
+    const baseCap = ((A.ratios || {}).baseOz || [])[1];
+    const pour = live.filter(l => l.role === 'base' && !l.float && !l.sink);
+    const poured = pour.reduce((t, l) => t + l.oz, 0);
+    if (baseCap && poured > baseCap * 1.05) for (const l of pour) l.oz *= baseCap / poured;
+    const refChem = ref && ref.length ? chemOf(ref, svc.method, svc.ice) : null;
+    const band = (A.ratios || {}).sugarToAcid;
+    let R = refChem && refChem.sweetSour ? refChem.sweetSour : band ? (band[0] + band[1]) / 2 : null;
+    if (!R) return;
+    R *= 1 + 0.12 * (intent.sweetness || 0) - 0.1 * (intent.tartness || 0);
+    if (band) R = Math.max(band[0] * 0.9, Math.min(band[1] * 1.1, R));
+    const sweet = live.filter(l => l.role === 'sweet' && I(l).sugar >= 20 && !l.sink && !l.float);
+    const sour = live.filter(l => l.role === 'sour' && I(l).acid >= 2);
+    for (let iter = 0; iter < 24; iter++) {
+      const c = chemOf(lines, svc.method, svc.ice);
+      if (c.acidG < 0.05) return;
+      const r = c.sugarG / c.acidG;
+      if (Math.abs(r / R - 1) < 0.04) return;
+      const before = live.map(l => l.oz).join();
+      const f = Math.max(0.85, Math.min(1.18, (R / r) ** 0.8));
+      for (const l of sweet) { l.oz *= f; edge(l, Math.max(0.1, l.oz0 * 0.5), Math.max(0.25, l.oz0 * 1.6)); }
+      if (live.map(l => l.oz).join() === before) {
+        const g = Math.max(0.9, Math.min(1.1, (r / R) ** 0.8));
+        for (const l of sour) { l.oz *= g; edge(l, l.oz0 * 0.75, l.oz0 * 1.25); }
+        if (live.map(l => l.oz).join() === before) return;
+      }
     }
   }
 
@@ -1004,7 +1047,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
   const conceptIndex = indexConcepts(concepts);
   const ctx = {
     forbidden: (id, intent) => forbidden(id, intent) || (intent.softAvoid && intent.softAvoid[id] >= 1 && !intent.ings[id]),
-    intentMatch, compat, conflicts, softPick, ingVec,
+    intentMatch, compat, conflicts, softPick, ingVec, naSwap: NA_SWAP,
   };
   const linesOf = d => d.ingredients.filter(l => ingMap.has(l.id)).map(l => ({ id: l.id, role: roleOf(l, ingMap.get(l.id)), oz: lineOz(l, ingMap.get(l.id), units) / (d.servings || 1), float: !!l.float, garnish: !!l.garnish }));
 
@@ -1017,6 +1060,17 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     const fits = named.find(a => composer.satisfies(a, L).ok);
     if (fits) return fits;
     return archetypes.find(a => a.family === d.family && composer.satisfies(a, L).ok) || named[0] || null;
+  }
+
+  // A riff on a drink no archetype covers keeps the source drink itself as its frame: its own
+  // family, service and vessel, and nothing else claimed for it.
+  function adHocArchetype(d) {
+    const kin = archetypes.find(a => a.family === d.family);
+    return {
+      id: `riff:${d.id}`, name: d.name, family: d.family, noun: kin ? kin.noun : famById[d.family].name.toLowerCase(),
+      definition: '', signature: [], optional: [], forbidden: [], canonicalSpecs: [], ratios: {},
+      methods: [d.method || 'shake'], ice: [d.ice || 'crushed'], vessels: d.vessel ? [d.vessel] : [], garnish: { typical: [] }, flavorProfile: [], aromatics: [],
+    };
   }
 
   // Layered presentation: the prayer asked for it, or the archetype traditionally floats or sinks.
@@ -1048,14 +1102,27 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     let A = null, lines;
     const blank = !Object.keys(intent.tags).length && !intent.spirits.length && !Object.keys(intent.ings).length && !Object.keys(intent.style).length && !Object.keys(intent.fam).length && !intent.concepts.length;
     if (riffSrc && !(intent.style.hot && riffSrc.family !== 'hot')) {
-      A = archetypeForDrink(riffSrc);
+      A = archetypeForDrink(riffSrc) || adHocArchetype(riffSrc);
       lines = buildRiff(riffSrc, intent, rng, greedy, notes);
       for (const l of lines) l.slot = A ? composer.slotOf(A, l.id) : null;
       if (A) composer.repair(A, lines, intent, ctx, rng, notes);
+      // A riff keeps its source's spirit budget: a requested spirit and a repaired base share
+      // the pour instead of doubling it (Mai Tai with mezcal is 1 + 1, not 2 + 2).
+      const srcBase = linesOf(riffSrc).filter(l => l.role === 'base' && !l.float && !l.garnish).reduce((t, l) => t + l.oz, 0);
+      const bases = lines.filter(l => l.role === 'base' && !l.float && !l.sink);
+      const total = bases.reduce((t, l) => t + (l.oz || 0), 0);
+      if (srcBase && total > srcBase * 1.15) {
+        const k = srcBase / total;
+        for (const b of bases) { b.oz = Math.max(0.5, Math.round(b.oz * k * 4) / 4); b.oz0 = b.oz; }
+        notes.push(`split the ${Math.round(srcBase * 4) / 4} oz of spirit between ${bases.length} bottles`);
+      }
     }
     if (!A) {
       const scored = archetypes.map(a => composer.scoreArchetype(a, intent, ctx)).filter(x => Number.isFinite(x.s));
-      A = softPick(rng, scored.map(x => ({ item: x.a, s: x.s })), blank ? 2.5 : 0.8, greedy && !blank);
+      A = softPick(rng, scored.map(x => ({ item: x.a, s: x.s })), blank ? 2.5 : 0.8, greedy && !blank)
+        // Nothing can be built as asked (every archetype needs something the guest ruled out):
+        // fall back to the most forgiving frame, a planter's punch.
+        || composer.byId['planters-punch'] || archetypes[0];
       lines = composer.compose(A, intent, ctx, rng, greedy, notes);
       if (blank) intent.complexity = Math.max(intent.complexity, 0.4);
       // A fresh build that lands on top of an existing recipe isn't new: swap one filling.
@@ -1094,18 +1161,20 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     // Doses: the composer set them inside the archetype's ranges; balance pulls sugar, acid and
     // strength onto the archetype's targets without leaving those ranges.
     initialDoses(lines, famId, intent);
-    const T = riffSrc && A === archetypeForDrink(riffSrc) ? riffTargets(riffSrc, famId, intent, svc) : targetsForArchetype(A, famId, intent, svc);
-    balance(lines, T);
+    const specName = (notes.find(n => n.startsWith('spec:')) || '').slice(5);
+    const spec = specName && (A.canonicalSpecs || []).find(sp => sp.name === specName);
+    const ref = riffSrc ? linesOf(riffSrc).filter(l => !l.garnish) : spec ? spec.lines.filter(l => ingMap.has(l.id)).map(l => ({ id: l.id, oz: l.oz, role: ingMap.get(l.id).role })) : null;
+    balanceTo(lines, ref, A, intent, svc);
     finalizeAmounts(lines);
     lines.sort((a, b) => ROLE_ORDER.concat(['aromatic']).indexOf(a.role) - ROLE_ORDER.concat(['aromatic']).indexOf(b.role) || b.oz - a.oz);
 
     const chem = chemOf(lines, svc.method, svc.ice);
     const profile = profileOf(lines.map(l => ({ id: l.id, amount: l.oz, unit: 'oz', garnish: l.role === 'aromatic' })), 1, svc.method, svc.ice);
-    const flavorTop = copy.named(copy.presence(lines)).map(x => x.tag).slice(0, 5);
+    const flavorTop = copy.named(copy.presence(lines.filter(l => l.role !== 'aromatic'))).map(x => x.tag).slice(0, 5);
     const garnish = garnishForArchetype(A, intent, lines, flavorTop);
     // Aromatic garnishes (mint, nutmeg, cinnamon) are part of the garnish, said once.
     const AROMA_WORD = { mint: 'mint sprig', nutmeg: 'freshly grated nutmeg', cinnamon: 'cinnamon stick', clove: 'clove-studded orange peel', basil: 'basil sprig', 'ginger-fresh': 'ginger coin' };
-    for (const l of lines) if (l.role === 'aromatic' && AROMA_WORD[l.id] && !garnish.some(g => g.toLowerCase().includes(l.id.split('-')[0]))) garnish.push(AROMA_WORD[l.id]);
+    for (const l of lines) if (l.role === 'aromatic' && AROMA_WORD[l.id] && !garnish.some(g => garnishKey(g) === garnishKey(AROMA_WORD[l.id]))) garnish.push(AROMA_WORD[l.id]);
     const pick = chooseVessel(famId, intent, svc, chem, riffSrc, rngFrom(`${prompt}::${seed}::vessel`), greedy, A);
     if (pick) { svc.glass = pick.v.name; svc.vessel = pick.v.id; svc.up = pick.v.serve.includes('up') && serviceOf(svc.method, svc.ice) === 'shaken'; }
     const look = drinkLook(lines, ingMap, { method: svc.method, ice: svc.ice, dilutionOz: Math.max(0, chem.finalOz - chem.volOz) });
@@ -1139,11 +1208,11 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     };
     recipe.style = { ...intent.style };
     recipe.notes = notes.filter(n => n !== 'split-base').map(n => n.replace(/^riff:/, ''));
-    recipe.tagline = copy.tagline({ lines, archetype: A, intent, riffOf: riffSrc ? riffSrc.name : null });
+    recipe.tagline = copy.tagline({ lines, archetype: A, intent, riffOf: riffSrc ? riffSrc.name : null, riffIds: riffSrc ? riffSrc.ingredients.map(l => l.id) : null, look });
     recipe.explanation = explain(recipe, profile, famId, intent, riffSrc, notes);
     recipe.explanation.tasting = copy.tastingNote({ lines, stats: recipe.stats, archetype: A, look, method: svc.method, ice: svc.ice, rng });
     recipe.explanation.prayer = intent.readings.filter(r => !r.negated).map(r => ({ phrase: r.phrase, reading: r.reading }));
-    recipe.check = composer.satisfies(A, lines);
+    recipe.check = composer.satisfies(A, lines, intent.ings, id => forbidden(id, intent));
     return recipe;
   }
 
@@ -1163,15 +1232,25 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     return base;
   }
 
+  // Research garnish notes read like "flaming lime shell (later mug service)" or "orchid or
+  // pineapple frond"; the menu gets one plain garnish per idea, nothing marked as later or optional.
+  function cleanGarnish(t) {
+    if (!t || /\b(later|optional|modern|sometimes|occasionally|if available)\b/i.test(t.replace(/\(.*?\)/g, ''))) return null;
+    const s = t.replace(/\s*\(.*?\)\s*/g, ' ').split(/\s+or\s+|\s*\/\s*|;/)[0].replace(/\s+/g, ' ').trim().toLowerCase();
+    return s || null;
+  }
+  const garnishKey = g => (g.match(/mint|pineapple|lime|orange|lemon|cherr|orchid|flower|umbrella|cinnamon|nutmeg|coffee|banana|grapefruit|cucumber|basil|ginger|sugar cane|shell/i) || [g])[0].toLowerCase();
   function garnishForArchetype(A, intent, lines, flavorTop) {
     const g = A.garnish || {};
-    const out = [...(g.required || [])];
     const never = (g.never || []).map(x => x.toLowerCase());
-    const ok = x => !never.some(n => x.toLowerCase().includes(n));
-    for (const idea of intent.garnishIdeas || []) if (out.length < 3 && ok(idea) && DRAWABLE_GARNISH.test(idea)) out.push(idea);
-    for (const t of g.typical || []) if (out.length < 3 && ok(t)) out.push(t);
-    if (!out.length) out.push(...garnishFor(A.family, intent, lines, flavorTop));
-    return [...new Set(out)].slice(0, 3);
+    const ok = x => x && !never.some(n => x.includes(n));
+    const out = [];
+    const add = x => { const c = cleanGarnish(x); if (ok(c) && out.length < 3 && !out.some(o => garnishKey(o) === garnishKey(c))) out.push(c); };
+    for (const r of g.required || []) add(r);
+    for (const idea of intent.garnishIdeas || []) if (DRAWABLE_GARNISH.test(idea)) add(idea);
+    for (const t of g.typical || []) add(t);
+    if (!out.length) for (const t of garnishFor(A.family, intent, lines, flavorTop)) add(t);
+    return out;
   }
   const DRAWABLE_GARNISH = /mint|pineapple|lime|orange|cherr|orchid|flower|umbrella|cinnamon|nutmeg|coffee bean|peel|twist|shell/i;
 
@@ -1206,8 +1285,12 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     };
   }
 
-  const debugScores = intent => ['rum-white-column', 'rum-gold-column', 'rum-agricole-blanc', 'rum-jamaican-aged'].map(id => `${id}: match ${intentMatch(id, intent).toFixed(2)} compat ${compat(id, ['pineapple-juice']).toFixed(2)} forb ${ctx.forbidden(id, intent)}`).join('\n');
-  return { debugScores, generate, describeDrink, parse: p => parsePrompt(p, { nameIndex, concepts: conceptIndex }), ingMap, famById, drinkById, archetypes, composer, archetypeForDrink };
+  // How every archetype scores for a prayer, best first (for review tooling and tests).
+  const scoreArchetypes = prompt => {
+    const intent = parsePrompt(prompt, { nameIndex, concepts: conceptIndex });
+    return archetypes.map(a => composer.scoreArchetype(a, intent, ctx)).map(x => ({ id: x.a.id, s: x.s, why: x.why })).sort((a, b) => b.s - a.s);
+  };
+  return { scoreArchetypes, generate, describeDrink, parse: p => parsePrompt(p, { nameIndex, concepts: conceptIndex }), ingMap, famById, drinkById, archetypes, composer, archetypeForDrink };
 }
 
 function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }

@@ -14,7 +14,7 @@ const read = p => JSON.parse(readFileSync(p.startsWith('/') ? p : join(root, p),
 const args = process.argv.slice(2);
 const outAt = args.indexOf('--out');
 const out = outAt >= 0 ? args[outAt + 1] : join(root, 'data/archetypes.json');
-const files = args.filter((a, i) => !a.startsWith('--') && i !== outAt + 1);
+const files = args.filter((a, i) => !a.startsWith('--') && !(outAt >= 0 && i === outAt + 1));
 
 const vocab = read('data/ingredients.json');
 const ing = new Map(vocab.ingredients.map(i => [i.id, i]));
@@ -40,6 +40,23 @@ const NOUN = {
   'bitter-tiki': 'bitter tiki sour', stirred: 'tropical old fashioned', hot: 'hot drink',
 };
 
+// The type word a menu uses for an original drink built on each archetype ("A smoky
+// Zombie-style heavyweight with passion fruit"). Naming the classic it descends from is honest
+// and tells an aficionado exactly what to expect; drink *names* never borrow it.
+const NOUN_BY_ID = {
+  colada: 'colada', painkiller: 'Painkiller-style colada', daiquiri: 'daiquiri', 'mai-tai': 'Mai Tai cousin', 'vic-mai-tai-riff': 'Mai Tai cousin',
+  'planters-punch': "planter's punch", 'bowl-punch': 'bowl punch', 'ti-punch': "ti' punch", grog: 'grog', 'navy-grog': 'grog',
+  'trinidad-swizzle': 'swizzle', 'bermuda-rum-swizzle': 'rum swizzle', 'overproof-swizzle': 'overproof swizzle', 'herbal-swizzle': 'herbal swizzle',
+  'dark-n-stormy': 'ginger beer highball', mule: 'mule', 'suffering-bastard': 'ginger beer highball',
+  'hemingway-daiquiri': 'Hemingway-style daiquiri', 'frozen-daiquiri': 'frozen daiquiri', 'fruit-daiquiri': 'fruit daiquiri', 'nuclear-daiquiri': 'overproof daiquiri',
+  caipirinha: 'caipirinha', mojito: 'mojito', 'rum-old-fashioned': 'rum old fashioned', 'kingston-negroni': 'rum negroni', 'corn-n-oil': 'falernum sipper',
+  'hot-buttered-rum': 'hot buttered rum', 'tom-and-jerry': 'Tom and Jerry', 'hot-grog': 'hot grog', 'hot-rum-punch': 'hot punch',
+  zombie: 'Zombie-style heavyweight', pilot: 'short Beachcomber heavyweight', 'cobras-fang': "Cobra's Fang-style heavyweight", tortuga: 'overproof heavyweight',
+  'beachcomber-spice-sour': 'Beachcomber sour', 'pearl-diver': 'Pearl Diver-style punch', 'port-au-prince': 'Beachcomber sour', 'beachcombers-gold': 'Beachcomber daiquiri',
+  'missionarys-downfall': 'mint-and-pineapple frappé', scorpion: 'orgeat punch', 'fog-cutter': 'orgeat punch', 'passion-sour': 'passion fruit sour',
+  'bitter-tiki-sour': 'bitter tiki sour', 'bitters-base-sour': 'bitters sour', 'tropical-stirred': 'tropical old fashioned',
+};
+
 const seen = new Map();
 for (const f of files) {
   const data = read(f);
@@ -52,14 +69,22 @@ for (const f of files) {
     const lost = (a.signature || []).filter(c => c.required && !keepIds(c.anyOf, '').length);
     if (lost.length) issues.push(`${where}: REVIEW required component(s) with no known ingredient, dropped: ${lost.map(c => `${c.component} [${(c.anyOf || []).join(', ')}]`).join('; ')}`);
     const opt = (a.optional || []).map(o => ({ ...o, anyOf: keepIds(o.anyOf, `${where}.optional.${o.slot}`) })).filter(o => o.anyOf.length);
-    const specs = (a.canonicalSpecs || []).map(sp => ({ ...sp, lines: (sp.lines || []).filter(l => ing.has(l.id)), vessel: vesselIds.has(sp.vessel) ? sp.vessel : undefined })).filter(sp => sp.lines.length);
+    // Spec lines carry volume in oz; some research files put the count in `oz` and the volume in
+    // `ozEq` ("2 tsp" as oz: 2, ozEq: 0.333). Normalize to oz = volume, amount = count.
+    const normLine = l => {
+      const { ozEq, ...rest } = l;
+      if (ozEq === undefined) return rest;
+      const counted = l.unit && l.unit !== 'oz';
+      return { ...rest, oz: ozEq, ...(counted ? { amount: l.amount ?? l.oz } : {}) };
+    };
+    const specs = (a.canonicalSpecs || []).map(sp => ({ ...sp, lines: (sp.lines || []).filter(l => ing.has(l.id)).map(normLine), vessel: vesselIds.has(sp.vessel) ? sp.vessel : undefined })).filter(sp => sp.lines.length);
     const vessels = (a.vessels || []).filter(v => vesselIds.has(v));
     const allIds = new Set([...sig, ...opt].flatMap(c => c.anyOf));
     const garnishText = [...((a.garnish || {}).required || []), ...((a.garnish || {}).typical || [])].join(' ').toLowerCase();
     const reqIds = new Set(sig.filter(c => c.required).flatMap(c => c.anyOf));
     const weight = Math.max(1, ...(a.classics || []).map(c => popByName.get(norm(c)) || 0));
     const rec = {
-      id: a.id, name: a.name, family: a.family, noun: a.noun || NOUN[a.family] || a.name.toLowerCase(),
+      id: a.id, name: a.name, family: a.family, noun: a.noun || NOUN_BY_ID[a.id] || NOUN[a.family] || a.name.toLowerCase(),
       nameNouns: a.nameNouns, definition: a.definition, classics: a.classics || [], weight,
       creamy: a.creamy ?? sig.some(c => c.required && c.anyOf.some(id => ['cream'].includes((ing.get(id) || {}).cat))),
       long: a.long ?? sig.some(c => c.required && c.anyOf.some(id => (ing.get(id) || {}).role === 'lengthener')),
