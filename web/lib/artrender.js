@@ -2,6 +2,9 @@
 // order at pen speed, then its washes bloom layer by layer, then the page goes still.
 // Two stacked canvases: `base` keeps everything finished (washes accumulate there directly,
 // since translucent layers are order-free); `live` holds only the strokes still being drawn.
+// Occlusion: a part may name `cover` polygons, the area it hides. Everything an earlier element
+// draws, whenever it draws it, is clipped out of the covers of the elements after it, so a lime
+// wheel slotted on the rim hides the glass behind it and the ice heap hides the back of the rim.
 import { ribbon, drawRibbon, makeWash, drawWashLayers, finishWash, makePaper, seedOf, INK, TAU } from './ink.js';
 import { CATALOG } from './artcatalog.js';
 import { validateSpec } from './artspec.js';
@@ -39,8 +42,30 @@ function build(el, i, seed) {
     const pts = w.pts.map(T);
     return { pts, color: w.color, alpha: w.alpha ?? 0.055, soft: w.soft ?? 1, seed: seedOf(`${seed}:${i}:w${j}`), verts: Math.max(6, Math.min(14, Math.round(perimeter(pts) / 30))), off: 1.5 + 2 * Math.min(1, s), wash: null, drawn: 0, done: false };
   });
-  const dots = (part.dots || []).map(d => { const [x, y] = T([d.x, d.y]); return { x, y, r: d.r * Math.pow(s, 0.85), color: d.color || INK, alpha: d.color ? 1 : (TIER[d.tier || 1] || TIER[1]).a }; });
-  return { strokes, washes, dots };
+  const all = (part.dots || []).map(d => { const [x, y] = T([d.x, d.y]); return { x, y, r: d.r * Math.pow(s, 0.85), color: d.color || INK, alpha: d.color ? 1 : (TIER[d.tier || 1] || TIER[1]).a, top: !!d.top }; });
+  // Highlights and flecks marked `top` (a glint on a cherry, frost) go on after every wash.
+  const dots = all.filter(d => !d.top), topDots = all.filter(d => d.top);
+  const covers = (part.cover || []).filter(c => c.length > 2).map(c => c.map(T));
+  return { strokes, washes, dots, topDots, covers };
+}
+
+// Clip out each later element's covers (successive clips intersect: outside all of them).
+function clipOut(ctx, polys) {
+  for (const P of polys) {
+    ctx.beginPath();
+    ctx.rect(-1e4, -1e4, 2e4, 2e4);
+    ctx.moveTo(P[0][0], P[0][1]);
+    for (let i = 1; i < P.length; i++) ctx.lineTo(P[i][0], P[i][1]);
+    ctx.closePath();
+    ctx.clip('evenodd');
+  }
+}
+function occluded(ctx, e, fn) {
+  if (!e.occ.length) { fn(); return; }
+  ctx.save();
+  clipOut(ctx, e.occ);
+  fn();
+  ctx.restore();
 }
 
 function schedule(items) {
@@ -75,7 +100,7 @@ function drawDots(ctx, dots) {
 
 // Paint a whole spec at once (reduced motion, resizes, cached variants).
 function paintAll(ctx, items) {
-  for (const e of items) {
+  for (const e of items) occluded(ctx, e, () => {
     for (const s of e.strokes) drawRibbon(ctx, s.rib, 1, INK, s.alpha);
     drawDots(ctx, e.dots);
     for (const w of e.washes) {
@@ -83,7 +108,8 @@ function paintAll(ctx, items) {
       drawWashLayers(ctx, W, 0, W.paths.length, w.color, w.alpha);
       finishWash(ctx, W, w.color, { paper: paper() });
     }
-  }
+  });
+  for (const e of items) if (e.topDots.length) occluded(ctx, e, () => drawDots(ctx, e.topDots));
 }
 
 function makeCanvas(wrap, cls) {
@@ -127,7 +153,10 @@ export function createArtist(wrap, { reducedMotion = false } = {}) {
   function prepare(spec) {
     const { elements, errors } = validateSpec(spec);
     if (errors.length && typeof console !== 'undefined') console.warn('art spec:', errors.join('; '));
-    return elements.map((el, i) => ({ ...build(el, i, spec.seed ?? 1), maxDraw: el.part === 'ice' || el.part === 'fizz' ? 0.7 : 1.15 }));
+    const items = elements.map((el, i) => ({ ...build(el, i, spec.seed ?? 1), maxDraw: el.part === 'ice' || el.part === 'fizz' ? 0.7 : 1.15 }));
+    let later = [];
+    for (let i = items.length - 1; i >= 0; i--) { items[i].occ = later; later = later.concat(items[i].covers); }
+    return items;
   }
 
   function stop() { cancelAnimationFrame(raf); raf = 0; if (run) { run.resolve(); run = null; } }
@@ -145,6 +174,7 @@ export function createArtist(wrap, { reducedMotion = false } = {}) {
     const items = prepare(spec);
     fit(spec, items);
     const total = schedule(items);
+    let topDone = false;
     return new Promise(resolve => {
       run = { resolve };
       const t0 = performance.now();
@@ -155,18 +185,19 @@ export function createArtist(wrap, { reducedMotion = false } = {}) {
           if (t < e.start) continue;
           for (const s of e.strokes) {
             if (s.done) continue;
-            if (t >= s.t1) { drawRibbon(bctx, s.rib, 1, INK, s.alpha); s.done = true; }
-            else if (t >= s.t0) drawRibbon(lctx, s.rib, (t - s.t0) / Math.max(1e-3, s.t1 - s.t0), INK, s.alpha);
+            if (t >= s.t1) { occluded(bctx, e, () => drawRibbon(bctx, s.rib, 1, INK, s.alpha)); s.done = true; }
+            else if (t >= s.t0) occluded(lctx, e, () => drawRibbon(lctx, s.rib, (t - s.t0) / Math.max(1e-3, s.t1 - s.t0), INK, s.alpha));
           }
-          if (!e.dotsDone && t >= e.drawEnd) { drawDots(bctx, e.dots); e.dotsDone = true; }
+          if (!e.dotsDone && t >= e.drawEnd) { occluded(bctx, e, () => drawDots(bctx, e.dots)); e.dotsDone = true; }
           if (t >= e.washStart) for (const w of e.washes) {
             if (w.done) continue;
             const W = ensureWash(w);
             const n = Math.min(W.paths.length, Math.ceil(W.paths.length * Math.min(1, (t - e.washStart) / BLOOM)));
-            if (n > w.drawn) { drawWashLayers(bctx, W, w.drawn, n, w.color, w.alpha); w.drawn = n; }
-            if (n >= W.paths.length) { finishWash(bctx, W, w.color, { paper: paper() }); w.done = true; }
+            if (n > w.drawn) { occluded(bctx, e, () => drawWashLayers(bctx, W, w.drawn, n, w.color, w.alpha)); w.drawn = n; }
+            if (n >= W.paths.length) { occluded(bctx, e, () => finishWash(bctx, W, w.color, { paper: paper() })); w.done = true; }
           }
         }
+        if (!topDone && t >= total) { for (const e of items) if (e.topDots.length) occluded(bctx, e, () => drawDots(bctx, e.topDots)); topDone = true; }
         if (t < total + 0.05) raf = requestAnimationFrame(frame);
         else { raf = 0; const r = run; run = null; if (r) r.resolve(); }
       };
