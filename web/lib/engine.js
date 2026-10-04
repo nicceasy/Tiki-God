@@ -1465,7 +1465,8 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       ? `The ${classic.name}${recipe.classic.credit ? ` (${recipe.classic.credit})` : ''}, poured as written. Pray again and the gods will riff on it.`
       : copy.tagline({ lines, archetype: A, intent, riffOf: riffSrc ? riffSrc.name : null, riffIds: riffSrc ? riffSrc.ingredients.map(l => l.id) : null, look, stats: recipe.stats, method: svc.method, ice: svc.ice, garnish, rng: rngFrom(`${prompt}::${seed}::tag`) });
     recipe.explanation = explain(recipe, profile, famId, intent, riffSrc, notes);
-    recipe.explanation.tasting = copy.tastingNote({ lines, stats: recipe.stats, archetype: A, look, method: svc.method, ice: svc.ice, rng });
+    recipe.stats.standardDrinks = round(chem.alcMl / 17.74, 1);
+    recipe.explanation.tasting = copy.tastingNote({ lines, stats: recipe.stats, archetype: A, look, method: svc.method, ice: svc.ice, garnish, rng });
     recipe.explanation.prayer = intent.readings.filter(r => !r.negated).map(r => ({ phrase: r.phrase, reading: r.reading }));
     recipe.check = composer.satisfies(A, lines, intent.ings, id => forbidden(id, intent));
     recipe.explanation.reading = readPrayer(intent, A, notes, recipe);

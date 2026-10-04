@@ -75,33 +75,39 @@ export function createCopywriter({ ingMap, ingVec }) {
     return [...out.entries()].sort((a, b) => b[1] - a[1]).map(([t]) => t);
   }
 
-  function tastingNote({ lines, stats, archetype, look, method, ice, rng }) {
-    const pres = named(presence(lines));
-    const used = new Set();
-    const take = (pred, n) => {
-      const out = [];
-      for (const x of pres) if (!used.has(x.tag) && pred(x) && out.length < n) { out.push(WORD[x.tag]); used.add(x.tag); }
-      return out;
-    };
-    const carriedBy = roles => x => x.carriers.some(id => roles.includes((ingMap.get(id) || {}).role));
-    const bases = lines.filter(l => (ingMap.get(l.id) || {}).role === 'base' && !l.float && (l.oz || 0) >= 0.4).sort((a, b) => b.oz - a.oz);
-    for (const b of bases) for (const t of Object.keys(ingVec[b.id] || {})) used.add(t);
-    const open = take(carriedBy(['sour', 'juice', 'lengthener']), 2);
-    const middle = take(carriedBy(['sweet', 'modifier', 'rich']), 2);
-    const finish = take(carriedBy(['accent', 'aromatic', 'modifier']), 2);
-    const voices = bases.slice(0, 2).map(b => SPIRIT_VOICE[b.id] || strip(ingMap.get(b.id).name).toLowerCase());
-    const floats = lines.filter(l => l.float);
+  // The tasting note, in the order a drinker meets it: the nose (an aroma garnish or a float),
+  // the palate (the citrus and fruit up front, the spirit's voice in the middle, the modifiers
+  // named by what they are), the finish (spice, bitters, anise), then texture, balance and
+  // strength. Only lead flavors, never a secondary note a bottle merely hints at.
+  const NOSE = { mint: 'Fresh mint on the nose', nutmeg: 'Fresh nutmeg on the nose', cinnamon: 'A whiff of cinnamon stick', 'orange peel': 'Orange oil on the nose', lemon: 'Lemon oil on the nose', orchid: '' };
+  const FINISH_IDS = { angostura: 'Angostura spice', 'tiki-bitters': 'bitter spice', 'orange-bitters': 'bitter orange', absinthe: 'a whisper of anise', pastis: 'a whisper of anise', 'allspice-dram': 'allspice', 'velvet-falernum': 'falernum spice', 'falernum-syrup': 'falernum spice', 'cinnamon-syrup': 'cinnamon', 'ginger-syrup': 'ginger heat', campari: 'Campari bitterness', aperol: 'gentle orange bitterness', amaro: 'herbal bitterness', 'ancho-reyes': 'a slow chile burn', 'dons-mix': 'cinnamon', 'five-spice-syrup': 'five-spice', 'mole-bitters': 'chocolate bitterness' };
+  function tastingNote({ lines, stats, archetype, look, method, ice, garnish = [], rng }) {
+    const ing = id => ingMap.get(id) || {};
+    const poured = lines.filter(l => !l.garnish || l.muddled);
+    const floats = poured.filter(l => l.float);
     const bits = [];
-    if (open.length) bits.push(`${cap(list(open))} up front`);
-    if (voices.length) bits.push(`${bits.length ? 'then ' : ''}${list(voices)} ${voices.length > 1 ? 'carry' : 'carries'} the middle${middle.length ? `, with ${list(middle)}` : ''}`);
-    else if (middle.length) bits.push(`${bits.length ? 'then ' : ''}${list(middle)} in the middle`);
+    // Nose.
+    const g = garnish.join(' ').toLowerCase();
+    const nose = /mint/.test(g) ? NOSE.mint : /nutmeg/.test(g) ? NOSE.nutmeg : /cinnamon/.test(g) ? NOSE.cinnamon : /orange (peel|twist)|expressed/.test(g) ? NOSE['orange peel'] : /lemon (peel|twist)/.test(g) ? NOSE.lemon : '';
+    if (floats.length) bits.push(`The ${list(floats.map(f => strip(ing(f.id).name).toLowerCase()))} float meets you first`);
+    else if (nose) bits.push(nose);
+    // Palate: up front, the citrus and fruit you can taste, by name.
+    const front = [...new Set(poured.filter(l => ['sour', 'juice'].includes(ing(l.id).role) && !floats.includes(l) && ((l.oz || 0) >= 0.25 || l.muddled)).sort((a, b) => b.oz - a.oz).map(l => MENU[l.id] || strip(ing(l.id).name).toLowerCase()))].slice(0, 2);
+    const bases = poured.filter(l => ing(l.id).role === 'base' && !l.float && (l.oz || 0) >= 0.4).sort((a, b) => b.oz - a.oz);
+    const voices = bases.slice(0, 2).map(b => SPIRIT_VOICE[b.id] || strip(ing(b.id).name).toLowerCase());
+    const mids = [...new Set(poured.filter(l => ['sweet', 'modifier', 'rich'].includes(ing(l.id).role) && !FINISH_IDS[l.id] && ((l.oz || 0) >= 0.2 || (ing(l.id).cat === 'liqueur' && (l.oz || 0) >= 0.16)) && !['simple-syrup', 'rich-simple', 'demerara-syrup', 'cane-syrup'].includes(l.id)).sort((a, b) => b.oz - a.oz).map(l => MENU[l.id] || strip(ing(l.id).name).toLowerCase()))].slice(0, 2);
+    const finish = [...new Set(poured.filter(l => FINISH_IDS[l.id]).sort((a, b) => b.oz - a.oz).map(l => FINISH_IDS[l.id]))].slice(0, 2);
+    const palate = [];
+    if (front.length) palate.push(`${list(front)} up front`);
+    if (voices.length) palate.push(`${list(voices)} ${voices.length > 1 ? 'carry' : 'carries'} the middle${mids.length ? ` with ${list(mids)}` : ''}`);
+    else if (mids.length) palate.push(`${list(mids)} in the middle`);
+    if (palate.length) bits.push(palate.join(', then '));
     if (finish.length) bits.push(`it finishes on ${list(finish)}`);
     let s = bits.length ? `${cap(bits.join('; '))}.` : '';
-    if (floats.length) s += ` The ${list(floats.map(f => strip(ingMap.get(f.id).name).toLowerCase()))} float hits first, then sinks into the rest.`;
     const texture = textureLine(lines, method, ice);
     if (texture) s += ` ${texture}`;
-    s += ` ${balanceLine(stats, archetype, lines)} ${strengthLine(stats.abv, rng)}`;
-    return s.trim();
+    s += ` ${balanceLine(stats, archetype, lines)} ${strengthLine(stats, method)}`;
+    return s.replace(/\s+/g, ' ').trim();
   }
 
   function textureLine(lines, method, ice) {
@@ -118,22 +124,25 @@ export function createCopywriter({ ingMap, ingVec }) {
 
   function balanceLine(stats, archetype, lines) {
     const r = stats.sweetSour;
-    const creamy = lines.some(l => ['coconut-cream', 'heavy-cream', 'vanilla-ice-cream'].includes(l.id) && (l.oz || 0) >= 0.75);
-    if (stats.acidConc < 0.2) return creamy ? 'Rich and round rather than tart.' : 'Soft and round, with almost no sourness.';
+    const creamy = lines.some(l => ['coconut-cream', 'heavy-cream', 'vanilla-ice-cream', 'tom-and-jerry-batter', 'whole-milk'].includes(l.id) && (l.oz || 0) >= 0.75);
+    const buttery = lines.some(l => ['hot-buttered-rum-batter', 'butter', 'gardenia-mix', 'tom-and-jerry-batter'].includes(l.id));
+    if (stats.acidConc < 0.2) return creamy || buttery ? 'Rich and round rather than tart.' : stats.sugarConc > 6 ? 'Soft and round, with almost no sourness.' : 'Dry and spirit-forward.';
     const band = archetype && archetype.ratios && archetype.ratios.sugarToAcid;
     const lo = band ? band[0] : 8, hi = band ? band[1] : 14;
     if (r === null) return '';
-    if (r < lo * 0.9) return 'Tart and bracing.';
-    if (r > hi * 1.1) return 'On the lush side, with just enough acid to stay bright.';
-    return 'Sweet and sour in balance.';
+    if (r < lo * 0.9 || stats.acidConc > 1.1) return 'Tart and bracing.';
+    if (r > hi * 1.1 || stats.sugarConc > 11) return 'On the sweet side, with just enough acid to stay bright.';
+    return stats.sugarConc > 9 ? 'Lush, but the citrus keeps it in balance.' : 'Sweet and sour in balance.';
   }
 
-  function strengthLine(abv, rng) {
+  function strengthLine(stats, method) {
+    const abv = stats.abv, sd = stats.standardDrinks;
     if (abv <= 0.5) return 'No alcohol at all, but all of the ritual.';
+    if (method === 'hot') return sd >= 2 ? 'It warms all the way down; one is plenty.' : 'It warms all the way down.';
     if (abv < 8) return 'Light enough for a long afternoon.';
-    if (abv < 13) return 'Easy-drinking strength.';
-    if (abv < 17) return 'It has some muscle; the ice is part of the recipe.';
-    return 'Strong. Don the Beachcomber limited his Zombie to two per guest, and the same goes here.';
+    if (abv < 13) return sd >= 2 ? 'Easy-drinking, but there is a good measure of rum in it.' : 'Easy-drinking strength.';
+    if (abv < 17) return method === 'stir' || method === 'build' ? 'It has some muscle; sip it slowly.' : 'It has some muscle; the ice is part of the recipe.';
+    return sd >= 2.5 ? 'Strong. Don the Beachcomber limited his Zombie to two per guest, and the same goes here.' : 'Strong and short: sip it.';
   }
 
   // "A creamy colada with mango and lime, for a slow Sunday."
