@@ -43,21 +43,33 @@ The research had to use proxies for a few ingredients the pantry lacked. Once th
    - Zero-proof drinks swap each spirit for tea or juice and each liqueur for its alcohol-free twin.
    - Celebrations get topped with bubbles.
 4. **Repair**: any signature component that went missing goes back in.
-5. **Trim** to at most seven poured ingredients (ten for the Beachcomber heavyweights and bowls).
+5. **Trim** to the family's ceiling from the research (a daiquiri is five things, a colada six), never below what the archetype's own canonical specs pour, and never the last sweetener or the last acid.
 6. **Cap** every accent at the researched maximum dose.
 
 A bare classic name ("zombie", "navy grog", "a tom and jerry") pours the classic as written and credits its creator. Praying again riffs on it with one signed change. "X but Y" changes exactly Y.
 
 `composer.satisfies()` checks the finished drink against its archetype. Components the guest ruled out (orgeat in a nut-free Mai Tai) are *waived*, and the card says the drink is a cousin, not the real thing.
 
-## 2. Balance and technique
+## 2. Construction, balance and technique
 
-`balanceTo()` in `web/lib/engine.js` balances against a proven reference: the canonical spec the build started from, or the drink being riffed. It aims at that reference's sugar-to-acid ratio, nudged by the prayer and kept inside the archetype's window.
+Before balancing, `structure()` makes the build one a bartender would pour without adjusting:
 
-- Only sweeteners and citrus move. Plain syrups move before flavored ones.
-- Liqueurs and juices keep their spec doses.
+- Same-origin spirits pour as one line (2½ oz Jamaican and ½ oz Jamaican pot still is one pour).
+- One overproof in the body, at most three spirits and two citruses, one fizzy top.
+- A float is a float: half an ounce of overproof, three-quarters of anything else. The Dark 'n Stormy's cloud stays black rum.
+- A batter already is the butter and the sugar.
+
+`balanceTo()` in `web/lib/engine.js` balances against a proven reference: the canonical spec the build started from, or the drink being riffed.
+
+- It aims at that reference's sugar-to-acid ratio, kept inside both the archetype's band and the research's family window (`data/technique-rules.json`).
+- "Less sweet", "very tart" and a frozen build are numeric targets, so the card tastes different from the reference. A sweet drink with no acid, asked to be less sweet, gets half an ounce of lime.
+- The body is balanced without its sink: the grenadine blooms into a drink that is already right.
+- Only sweeteners and citrus move. Plain syrups move before flavored ones. Liqueurs and juices keep their spec doses.
+- Sours keep at least 0.5 g of acid per 100 ml (0.55 frozen); frozen drinks reach about 8.6 g of sugar; hot drinks hold 3–7 g and at most half an ounce of citrus.
 - The spirit moves only for a stronger or gentler ask, and never past the archetype's spirit range.
-- A low-ABV prayer lands at or under about 7%: the spirit is trimmed, and the drink is lengthened with juice or soda, never with more wine.
+- A low-ABV prayer lands at or under 7%: liqueurs come down first, then the spirit, then the drink is lengthened with juice or soda, never with more wine.
+
+After balance, `floors()` enforces real pours: 1½ oz of spirit (2 for coladas and frozen drinks), at most 2½ (3 for heavyweights, 2 per bowl cup, about 1½ standard drinks per party cup), ¾ oz for each spirit in a split, mezcal at ¾ oz unless asked, and minimum doses by role (no teaspoon of gin, no half-teaspoon of syrup). `settle()` then nudges one sweetener or citrus a bar measure at a time, so rounding to quarter ounces and teaspoons doesn't undo the balance.
 
 `fixTechnique()` and `steps()` keep the method honest:
 
@@ -66,8 +78,13 @@ A bare classic name ("zombie", "navy grog", "a tom and jerry") pours the classic
 - Carbonation is held back and topped.
 - Each kind of ice gets its own service: an up drink is double-strained into a chilled glass, the Navy Grog's ice cone is described, shaved ice is packed.
 - Fire comes with safety lines.
-- A batch for a group gives totals and a pitcher method.
-- A bowl drink asked for one person serves two.
+- A batch for a group gives totals and a method for its vessel: shaken in rounds for a Scorpion or tiki bowl, stirred with cold water over a block frozen the night before for a punch bowl.
+
+Servings and vessels follow the drink:
+
+- A number in the prayer is the number. A party with no number is a batch for eight in a punch bowl; a bowl drink asked for one serves two; nothing is poured into a bowl for one, and a punch bowl is only for six or more.
+- The archetype's own glassware comes first, chosen by the research's fill ranges (a Zombie's six ounces belong in a chimney). Colors, sinks and floats go in clear glass; a swizzle goes in a glass with straight sides.
+- A vessel the guest asked for gets a drink scaled to fit it (a colada in a coconut is about eleven ounces).
 
 ## 3. Color: computed from what's poured
 
@@ -96,7 +113,11 @@ A color the guest asks for is a demand. The engine first tries to refill a slot 
   - Sacred, colonial and caricature terms are never used, including Hawaiian words as decoration.
 - **Garnish.** It is aroma first, then one piece of theater, and it never lies. A fruit garnish shows only a fruit that's in the drink, and never one the guest refused. An up drink gets one pick or peel. A hot drink gets nothing from the ice world. The count fits the vessel.
 
-## 5. Hearing the prayer
+## 5. The internal critic
+
+`web/lib/lint.js` encodes the technique research as rules: dose caps, exclusive groups, incompatibilities, method and vessel rules, family requirements, garnish truth and copy checks. `generate()` lints every build that isn't a classic poured as written. If anything is fatal (a colada with no coconut, an overproof pour, an overflowing glass), it rebuilds on the next frame that answers the prayer, up to three times, and serves the build with the fewest fatal findings. `node scripts/lint-battery.mjs` runs it over the review battery.
+
+## 6. Hearing the prayer
 
 `web/lib/prompt.js` reads a prayer the way a bartender would.
 
@@ -117,7 +138,9 @@ A color the guest asks for is a demand. The engine first tries to refill a slot 
 - name words and tagline moods;
 - a reading the Shrine says back.
 
-**The hand-tuned lexicon** handles explicit asks: spirits, bottles, flavors, styles, colors, negation and diets.
+**Promises.** Each reading names a hero (dad's bourbon, Tokyo's Japanese whisky and yuzu, a dragon's mezcal and chile) or a service (a first date served up). Frames that can keep the promise score higher, the hero is poured, and a build that breaks a promise tries the next frame.
+
+**The hand-tuned lexicon** handles explicit asks: spirits, bottles, flavors, styles, colors, negation and diets. A color word is a demand; a mood that only suggests a color ("romantic") is a leaning. A flavor named outright beats a concept's soft avoid (coffee liqueur in "a coffee nightcap").
 
 - Negation stops at a comma ("not too sweet, very tart").
 - Intensifiers turn the next wish up ("extra smoky").
@@ -131,7 +154,7 @@ The Shrine's **How the gods heard you** section shows the full reading:
 - anything the guest ruled out;
 - any words nobody caught.
 
-## 6. The author/critic loop
+## 7. The author/critic loop
 
 The drinks were reviewed in rounds by an aficionado critic. That persona knows the canon, drinkware, construction, history and aesthetics, and cares that tiki stays accessible, fun and respectful. The critic is a workflow of four lens reviewers plus a lead critic who scores every drink on the round-0 rubric and rules on the packet-level gates.
 
