@@ -57,6 +57,24 @@ export function createCopywriter({ ingMap, ingVec }) {
 
   const named = pres => pres.filter(x => !STRUCTURAL.has(x.tag) && WORD[x.tag]);
 
+  // Flavors that may headline a name or tagline: the lead flavor of an ingredient poured at a
+  // dose you can taste (a quarter ounce, a teaspoon of something loud, or mint worked into the
+  // drink). Secondary notes (the banana in Jamaican rum's funk) never headline.
+  const LOUD = new Set(['liqueur', 'syrup', 'fortified']);
+  function headline(lines) {
+    const out = new Map();
+    for (const l of lines) {
+      const ing = ingMap.get(l.id);
+      if (!ing || (l.garnish && !l.muddled)) continue;
+      const lead = (ing.flavors || []).find(t => !STRUCTURAL.has(t) && WORD[t]);
+      if (!lead) continue;
+      const ok = l.muddled || (l.oz || 0) >= 0.25 || (LOUD.has(ing.cat) && (l.oz || 0) >= 0.16);
+      if (!ok || ing.cat === 'bitters') continue;
+      out.set(lead, (out.get(lead) || 0) + (l.oz || 0.5) * (INTENSITY[ing.cat] ?? 1));
+    }
+    return [...out.entries()].sort((a, b) => b[1] - a[1]).map(([t]) => t);
+  }
+
   function tastingNote({ lines, stats, archetype, look, method, ice, rng }) {
     const pres = named(presence(lines));
     const used = new Set();
@@ -125,51 +143,107 @@ export function createCopywriter({ ingMap, ingVec }) {
   const BASE_ADJ = { smoky: 'smoky', funky: 'funky', grassy: 'grassy', molasses: 'dark', agave: 'agave-bright', juniper: 'piney', oaky: 'oak-aged' };
   const SPICES = new Set(['cinnamon', 'clove', 'allspice', 'nutmeg', 'ginger', 'pepper', 'chili']);
   const COLOR_WORD = { blue: 'blue', green: 'green', red: 'ruby-red', pink: 'pink', gold: 'golden', purple: 'violet', dark: 'dark', orange: 'sunset-orange', white: 'snow-white', clear: 'crystal-clear' };
-  function tagline({ lines, archetype, intent, riffOf, riffIds = null, look = null }) {
-    const isBase = id => (ingMap.get(id) || {}).role === 'base';
-    // The tagline describes what is in the glass; garnish aromas (a mint sprig) aren't flavors of the drink.
-    lines = lines.filter(l => l.muddled || (!l.garnish && (ingMap.get(l.id) || {}).role !== 'aromatic'));
-    const ozOf = id => lines.filter(l => l.id === id).reduce((s, l) => s + (l.oz || 0), 0);
-    const askedIng = new Set(Object.entries(intent.ings || {}).filter(([, w]) => w >= 1).map(([id]) => id));
-    const changed = riffIds ? new Set(lines.map(l => l.id).filter(id => !riffIds.includes(id))) : new Set();
-    const asked = t => (intent.tags[t] || 0) >= 1 || lines.some(l => (askedIng.has(l.id) || changed.has(l.id)) && ((ingVec[l.id] || {})[t] || 0) >= 0.5);
-    // What makes this one different from every drink of its type: flavors carried by bottles
-    // outside the archetype's signature (the falernum in a Mai Tai cousin, not its orgeat).
-    const sigIds = new Set((archetype.signature || []).filter(c => c.required).flatMap(c => c.anyOf));
-    const extra = id => !isBase(id) && !sigIds.has(id);
-    const pres = named(presence(lines)).filter(x => !(archetype.taglineSkip || []).includes(x.tag) && x.carriers.some(id => !isBase(id))
-      && (asked(x.tag) || x.carriers.some(id => extra(id) && ozOf(id) >= 0.2)));
-    const baseTags = named(presence(lines.filter(l => isBase(l.id) && !l.float)));
-    const askedBase = baseTags.find(x => BASE_ADJ[x.tag] && asked(x.tag));
-    const baseAdj = (askedBase || baseTags.find(x => BASE_ADJ[x.tag]) || {}).tag;
-    const typeWord = archetype.noun || (archetype.name || 'tropical drink').toLowerCase();
-    // Name what makes this one different; the flavors every drink of its type has go unsaid
-    // unless the guest asked for them or there is nothing else to say.
-    const defining = new Set(archetype.flavorProfile || []);
-    const inType = x => typeWord.toLowerCase().includes(WORD[x.tag]);
-    const order = [...pres.filter(x => asked(x.tag) && !inType(x)), ...pres.filter(x => !asked(x.tag) && !inType(x) && !defining.has(x.tag))];
-    // A flavor the guest asked for is named even when it's a supporting note.
-    const faint = named(presence(lines, 0.015)).filter(x => asked(x.tag) && !inType(x) && !order.some(o => o.tag === x.tag) && x.carriers.some(id => !isBase(id)));
-    const pool = [...order.filter(x => asked(x.tag)), ...faint, ...order.filter(x => !asked(x.tag))];
-    let words = [...new Set(pool.map(x => x.tag))];
-    if (words.some(t => SPICES.has(t))) words = words.filter(t => t !== 'baking-spice');
-    if (baseAdj) words = words.filter(t => t !== baseAdj);
-    const flav = words.slice(0, 2).map(t => WORD[t]);
-    const texture = lines.some(l => ['coconut-cream', 'coconut-milk', 'heavy-cream', 'vanilla-ice-cream'].includes(l.id) && (l.oz || 0) >= 0.75) && !/colada|cream/.test(typeWord) ? 'creamy ' : '';
-    const mood = (intent.taglineWords || []).find(Boolean);
-    const riff = riffOf ? `, a riff on the ${riffOf}` : '';
-    const adj = baseAdj ? `${BASE_ADJ[baseAdj]} ` : '';
-    // A color the guest asked for, named only if the drink really shows it.
-    let colorPart = '';
-    if (intent.color && look && COLOR_WORD[intent.color] && showsColor(look, intent.color)) colorPart = `${COLOR_WORD[intent.color]} `;
-    const withPart = flav.length ? ` with ${list(flav)}` : '';
-    const moodPart = mood ? (/^(for|to|with|on|in|under|at|from|like)\b/i.test(mood) ? ` ${mood}` : `, ${mood}`) : '';
-    const lead = [colorPart.trim(), texture.trim(), adj.trim()].filter(Boolean);
-    const phrase = `${lead.length > 1 ? lead.slice(0, -1).join(', ') + ', ' + lead[lead.length - 1] : lead[0] || ''} ${typeWord}${withPart}${riff}${moodPart}`.replace(/\s+/g, ' ').trim();
-    return `${/^[aeiou]/i.test(phrase) ? 'An' : 'A'} ${phrase}.`;
+  const NOUN_IMPLIES = {
+    colada: ['pineapple', 'coconut', 'creamy'], 'mai tai': ['almond', 'orange', 'lime'], grog: ['lime', 'grapefruit', 'honey'], daiquiri: ['lime'],
+    swizzle: ['lime', 'mint'], 'passion fruit': ['passion-fruit', 'lemon'], 'orgeat punch': ['almond', 'orange', 'lemon'], 'falernum': ['lime', 'clove', 'almond'],
+    'beachcomber sour': ['lime', 'honey', 'allspice'], zombie: ['lime', 'grapefruit', 'cinnamon', 'anise'], 'ginger beer': ['ginger'], mule: ['ginger', 'lime'],
+    mojito: ['mint', 'lime'], caipirinha: ['lime'], 'bitter tiki': ['bitter', 'pineapple'], 'old fashioned': [], negroni: ['bitter'], 'hot buttered rum': ['buttery', 'baking-spice'],
+    painkiller: ['pineapple', 'coconut', 'orange', 'nutmeg'], hurricane: ['passion-fruit'], 'blue hawaii': ['pineapple'], 'scorpion': ['almond', 'orange'], sunrise: ['orange', 'pomegranate'],
+  };
+  // How a menu names a bottle in a tagline: the thing you taste, not the label.
+  const MENU = {
+    'pineapple-juice': 'pineapple', 'coconut-cream': 'coconut', 'coconut-milk': 'coconut', 'coconut-water': 'coconut water', 'coconut-rum': 'coconut',
+    orange: 'orange', lime: 'lime', lemon: 'lemon', grapefruit: 'grapefruit', 'passion-fruit-syrup': 'passion fruit', 'passion-fruit-juice': 'passion fruit',
+    'passion-fruit-nectar': 'passion fruit', 'passion-fruit-liqueur': 'passion fruit', 'guava-nectar': 'guava', 'guava-syrup': 'guava', 'mango-nectar': 'mango',
+    'papaya-nectar': 'papaya', banana: 'banana', strawberry: 'strawberry', 'banana-liqueur': 'banana', 'velvet-falernum': 'falernum', 'falernum-syrup': 'falernum', 'allspice-dram': 'allspice',
+    'cinnamon-syrup': 'cinnamon', 'ginger-syrup': 'ginger', 'ginger-beer': 'ginger beer', 'ginger-liqueur': 'ginger', 'honey-syrup': 'honey', 'orgeat': 'orgeat',
+    grenadine: 'grenadine', 'hibiscus-syrup': 'hibiscus', maraschino: 'maraschino', 'blue-curacao': 'blue curaçao', 'orange-curacao': 'curaçao', campari: 'Campari',
+    aperol: 'Aperol', 'green-chartreuse': 'green Chartreuse', 'yellow-chartreuse': 'yellow Chartreuse', 'coffee-liqueur': 'coffee', coffee: 'coffee',
+    'creme-de-cacao': 'chocolate', 'vanilla-syrup': 'vanilla', 'vanilla-ice-cream': 'vanilla ice cream', 'heavy-cream': 'cream', 'half-and-half': 'cream',
+    'dons-mix': "Don's Mix", 'gardenia-mix': 'Gardenia Mix', 'hot-buttered-rum-batter': 'spiced butter', 'peach-liqueur': 'peach', 'apricot-liqueur': 'apricot',
+    'cherry-heering': 'cherry', 'lychee-syrup': 'lychee', 'lychee-liqueur': 'lychee', 'melon-liqueur': 'melon', 'sparkling-wine': 'bubbles', 'soda-water': 'soda',
+    'black-tea': 'black tea', 'li-hing-mui-syrup': 'li hing mui', 'five-spice-syrup': 'five-spice', 'yuzu-juice': 'yuzu', 'pomegranate-juice': 'pomegranate',
+    'raspberry-syrup': 'raspberry', 'elderflower-liqueur': 'elderflower', absinthe: 'absinthe', pastis: 'anise', angostura: 'Angostura', mint: 'mint',
+    mezcal: 'mezcal', 'scotch-islay': 'Islay Scotch', 'rum-jamaican-pot': 'Jamaican funk', 'rum-demerara-overproof': '151', 'rum-agricole-blanc': 'agricole',
+    'rum-agricole-vieux': 'aged agricole', 'tequila-blanco': 'tequila', 'tequila-reposado': 'reposado', gin: 'gin', bourbon: 'bourbon', rye: 'rye', brandy: 'brandy',
+    pisco: 'pisco', 'rum-cachaca': 'cachaça', 'batavia-arrack': 'arrack', aquavit: 'aquavit',
+  };
+  // Voice adjectives a menu may lean on, each with what the drink must have to earn it.
+  const VOICE = {
+    clean: () => true, crisp: d => d.acid >= 0.5 && !d.creamy, bright: d => d.acid >= 0.6, bracing: d => d.acid >= 0.8,
+    frosty: d => d.frozen || d.crushed, snowy: d => d.frozen, silky: d => d.creamy, velvet: d => d.creamy, plush: d => d.creamy, smooth: () => true,
+    sunny: () => true, 'sun-drenched': () => true, breezy: d => d.abv <= 12, lazy: d => d.abv <= 12, easy: d => d.abv <= 12, gentle: d => d.abv <= 12, soothing: d => d.abv <= 12,
+    potent: d => d.abv >= 15, fierce: d => d.abv >= 17, spiced: d => d.spice, honeyed: d => d.has('honey-syrup', 'gardenia-mix'), minty: d => d.has('mint'),
+    'nutmeg-dusted': d => d.nutmeg, steaming: d => d.hot, cozy: d => d.hot || d.creamy, slow: d => d.stirred || d.hot, contemplative: d => d.stirred,
+    elegant: d => !d.long, polished: d => !d.long, decadent: d => d.creamy, indulgent: d => d.creamy, daring: () => true, audacious: () => true,
+    bittersweet: d => d.bitter, wild: () => true, stormy: d => d.dark, restless: () => true, glowing: d => d.layered, swirling: d => d.layered, molten: d => d.layered && d.red,
+    electric: d => d.blue, technicolor: d => d.layered, 'deceptively smooth': d => d.abv >= 15, 'sun-warmed': () => true, 'barefoot': d => d.abv <= 12,
+  };
+  function voiceAdj(archetype, d, rng) {
+    const ok = (archetype.taglineWords || []).map(w => String(w).toLowerCase()).filter(w => VOICE[w] && VOICE[w](d));
+    return ok.length ? ok[Math.floor(rng() * ok.length)] : null;
   }
 
-  return { presence, named, tastingNote, tagline, WORD, SPIRIT_VOICE };
+  // "A frosty colada with mango and lime, for a slow Sunday." The type word is the archetype's;
+  // the heroes are the bottles that set this drink apart (asked for, changed, or outside the
+  // archetype's signature), named the way a menu would; the prayer contributes the mood.
+  function tagline({ lines, archetype, intent, riffOf, riffIds = null, look = null, stats = null, method = '', ice = '', garnish = [], rng = Math.random }) {
+    lines = lines.filter(l => l.muddled || (!l.garnish && (ingMap.get(l.id) || {}).role !== 'aromatic'));
+    const isBase = id => (ingMap.get(id) || {}).role === 'base';
+    const askedIng = new Set(Object.entries(intent.ings || {}).filter(([, w]) => w >= 1).map(([id]) => id));
+    const changed = riffIds ? new Set(lines.map(l => l.id).filter(id => !riffIds.includes(id))) : new Set();
+    const sigIds = new Set((archetype.signature || []).filter(c => c.required).flatMap(c => c.anyOf));
+    const askedTag = id => Object.entries(intent.tags || {}).some(([t, w]) => w >= 1 && ((ingVec[id] || {})[t] || 0) >= 0.5);
+    const typeWord = archetype.noun || (archetype.name || 'tropical drink').toLowerCase();
+    const inType = w => typeWord.toLowerCase().includes(w.toLowerCase());
+    const tasteable = l => l.muddled || (l.oz || 0) >= 0.2 || ((ingMap.get(l.id) || {}).cat === 'liqueur' && (l.oz || 0) >= 0.16) || askedIng.has(l.id);
+    const rank = l => (askedIng.has(l.id) ? 4 : 0) + (changed.has(l.id) ? 3 : 0) + (askedTag(l.id) ? 2 : 0) + (!sigIds.has(l.id) ? 1 : 0) + Math.min(1, (l.oz || 0) / 2);
+    // Flavors the type word already promises go unsaid ("colada" says pineapple and coconut);
+    // the rest of the archetype's profile (a Lava Flow's strawberry) is worth naming.
+    const implied = new Set(Object.entries(NOUN_IMPLIES).filter(([k]) => typeWord.toLowerCase().includes(k)).flatMap(([, v]) => v));
+    const profile = implied;
+    const leadOf = id => ((ingMap.get(id) || {}).flavors || [])[0];
+    const heroes = [];
+    const cands = [...lines].filter(l => !isBase(l.id) && MENU[l.id] && tasteable(l)).sort((a, b) => rank(b) - rank(a));
+    for (const l of cands) {
+      const w = MENU[l.id];
+      const mustSay = askedIng.has(l.id) || changed.has(l.id) || askedTag(l.id);
+      if (rank(l) < 1 || inType(w) || heroes.includes(w)) continue;
+      if (!mustSay && profile.has(leadOf(l.id))) continue;
+      if (heroes.length < 2) heroes.push(w);
+    }
+    // Nothing sets it apart? Then say what it is made of.
+    if (!heroes.length) for (const l of cands) { const w = MENU[l.id]; if (!inType(w) && !heroes.includes(w) && heroes.length < 2 && !['lime', 'lemon', 'soda'].includes(w)) heroes.push(w); }
+    // Base adjective: a spirit the guest asked for or a split base speaks first ("smoky", "funky").
+    const baseTags = named(presence(lines.filter(l => isBase(l.id) && !l.float)));
+    const askedBase = baseTags.find(x => BASE_ADJ[x.tag] && (intent.tags[x.tag] || 0) >= 1);
+    const baseAdj = (askedBase || baseTags.find(x => BASE_ADJ[x.tag]) || {}).tag;
+    const texture = lines.some(l => ['coconut-cream', 'coconut-milk', 'heavy-cream', 'vanilla-ice-cream'].includes(l.id) && (l.oz || 0) >= 0.75) && !/colada|cream/.test(typeWord) ? 'creamy' : null;
+    let colorPart = null;
+    if (intent.color && look && COLOR_WORD[intent.color] && showsColor(look, intent.color)) colorPart = COLOR_WORD[intent.color];
+    const has = (...ids) => lines.some(l => ids.includes(l.id));
+    const facts = {
+      abv: stats ? stats.abv : 12, acid: stats ? stats.acidConc : 0.5, creamy: !!texture || /colada|cream/.test(typeWord) && has('coconut-cream', 'coconut-milk', 'heavy-cream'),
+      frozen: method === 'blend', crushed: ['crushed', 'pebble', 'shaved', 'ice-cone'].includes(ice), hot: method === 'hot', stirred: method === 'stir',
+      long: lines.reduce((t, l) => t + (l.oz || 0), 0) > 5, spice: has('allspice-dram', 'cinnamon-syrup', 'velvet-falernum', 'falernum-syrup', 'dons-mix', 'ginger-syrup', 'angostura', 'hot-buttered-rum-batter'),
+      bitter: has('campari', 'aperol', 'amaro', 'cynar', 'fernet') || lines.some(l => l.id === 'angostura' && (l.oz || 0) >= 0.5), nutmeg: garnish.some(g => /nutmeg/i.test(g)),
+      layered: !!(look && (look.layers || []).some(x => x.kind === 'sink' || x.kind === 'float')), red: !!(look && showsColor(look, 'red')), blue: !!(look && showsColor(look, 'blue')),
+      dark: !!(look && showsColor(look, 'dark')), has,
+    };
+    const voice = !colorPart ? voiceAdj(archetype, facts, rng) : null;
+    const lead = [colorPart, texture, voice, baseAdj ? BASE_ADJ[baseAdj] : null].filter(Boolean).filter((w, i, a) => a.indexOf(w) === i && !(w === 'silky' && texture) && !(w === 'dark' && voice === 'stormy')).slice(0, 2);
+    const mood = (intent.taglineWords || []).find(Boolean);
+    const riff = riffOf ? `, a riff on the ${riffOf}` : '';
+    const heroWords = heroes.map(w => colorPart && w.startsWith(colorPart + ' ') ? w.slice(colorPart.length + 1) : w);
+    const withPart = heroWords.length ? ` with ${list(heroWords)}` : '';
+    const moodPart = mood ? (/^(for|to|with|on|in|under|at|from|like|and)\b/i.test(mood) ? ` ${mood}` : `, ${mood}`) : '';
+    const phrase = `${lead.join(', ')} ${typeWord}${withPart}${riff}${moodPart}`.replace(/\s+/g, ' ').replace(/\s,/g, ',').trim();
+    let out = `${/^[aeiou]/i.test(phrase) ? 'An' : 'A'} ${phrase}.`;
+    // No word twice in a row ("bitter bitter tiki sour").
+    return out.replace(/\b(\w+)\s+\1\b/gi, '$1').replace(/\s+([,.])/g, '$1');
+  }
+
+  return { presence, named, headline, tastingNote, tagline, WORD, SPIRIT_VOICE };
 }
 
 function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }

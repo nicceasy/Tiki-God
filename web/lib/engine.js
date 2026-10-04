@@ -693,16 +693,24 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     if (!R) return;
     R *= 1 + 0.12 * (intent.sweetness || 0) - 0.1 * (intent.tartness || 0);
     if (band) R = Math.max(band[0] * 0.9, Math.min(band[1] * 1.1, R));
-    const sweet = live.filter(l => l.role === 'sweet' && I(l).sugar >= 20 && !l.sink && !l.float);
+    // Plain syrups move first (they only carry sugar); flavored sweeteners only if that isn't
+    // enough; a sweetener the guest asked for never drops below what they'd taste.
+    const PLAIN = new Set(['simple-syrup', 'rich-simple', 'demerara-syrup', 'cane-syrup', 'agave-syrup']);
+    const sweetAll = live.filter(l => l.role === 'sweet' && I(l).sugar >= 20 && !l.sink && !l.float);
+    const tiers = [sweetAll.filter(l => PLAIN.has(l.id) && !l.req), sweetAll.filter(l => !PLAIN.has(l.id) && !l.req), sweetAll.filter(l => l.req)];
     const sour = live.filter(l => l.role === 'sour' && I(l).acid >= 2);
-    for (let iter = 0; iter < 24; iter++) {
+    for (let iter = 0; iter < 30; iter++) {
       const c = chemOf(lines, svc.method, svc.ice);
       if (c.acidG < 0.05) return;
       const r = c.sugarG / c.acidG;
       if (Math.abs(r / R - 1) < 0.04) return;
       const before = live.map(l => l.oz).join();
       const f = Math.max(0.85, Math.min(1.18, (R / r) ** 0.8));
-      for (const l of sweet) { l.oz *= f; edge(l, Math.max(0.1, l.oz0 * 0.5), Math.max(0.25, l.oz0 * 1.6)); }
+      for (const tier of tiers) {
+        const snap0 = live.map(l => l.oz).join();
+        for (const l of tier) { l.oz *= f; edge(l, l.req ? l.oz0 * 0.85 : Math.max(0.1, l.oz0 * 0.5), Math.max(0.25, l.oz0 * 1.6)); }
+        if (live.map(l => l.oz).join() !== snap0) break;
+      }
       if (live.map(l => l.oz).join() === before) {
         const g = Math.max(0.9, Math.min(1.1, (r / R) ** 0.8));
         for (const l of sour) { l.oz *= g; edge(l, l.oz0 * 0.75, l.oz0 * 1.25); }
@@ -1221,6 +1229,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     // One build on one archetype. A color prayer the build can't honor tries the next-best
     // archetypes (a Blue Hawaii-shaped drink rather than a dark rum swizzle dyed blue).
     let classic = null;
+    let skipped = new Set();
     const attempt = forced => {
       const notes = [];
       let A = null, lines;
@@ -1260,11 +1269,22 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
         }
       }
       if (!A) {
-        const scored = archetypes.map(a => composer.scoreArchetype(a, intent, ctx)).filter(x => Number.isFinite(x.s));
-        A = forced || softPick(rng, scored.map(x => ({ item: x.a, s: x.s })), blank ? 2.5 : 0.8, greedy && !blank)
+        let scored = archetypes.map(a => composer.scoreArchetype(a, intent, ctx)).filter(x => Number.isFinite(x.s));
+        // Praying again should bring a different idea, not the same drink a quarter ounce off:
+        // each later seed sets aside the frames earlier seeds would have chosen, as long as
+        // something else still answers the prayer nearly as well.
+        if (seed > 0 && !blank && scored.length > 1) {
+          const ranked = [...scored].sort((x, y) => y.s - x.s);
+          const best = ranked[0].s;
+          const near = ranked.filter(x => x.s >= best - 3.5);
+          const skip = new Set(near.slice(0, Math.min(seed, near.length - 1)).map(x => x.a));
+          if (near.length > 1) { scored = near.filter(x => !skip.has(x.a)); skipped = skip; }
+        }
+        A = forced || softPick(rng, scored.map(x => ({ item: x.a, s: x.s })), blank ? 2.5 : 0.8, (greedy || seed > 0) && !blank)
           // Nothing can be built as asked (every archetype needs something the guest ruled out):
           // fall back to the most forgiving frame, a planter's punch.
           || composer.byId['planters-punch'] || archetypes[0];
+        if ((A.methods || [])[0] === 'blend') blenderContext = true;
         lines = composer.compose(A, intent, ctx, rng, greedy, notes);
         if (blank) intent.complexity = Math.max(intent.complexity, 0.4);
         // A fresh build that lands on top of an existing recipe isn't new: swap one filling.
@@ -1320,7 +1340,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     };
     let built = attempt(null);
     if (!built.colorOk && !riffSrc) {
-      const ranked = archetypes.map(a => composer.scoreArchetype(a, intent, ctx)).filter(x => Number.isFinite(x.s) && x.a !== built.A).sort((x, y) => y.s - x.s);
+      const ranked = archetypes.map(a => composer.scoreArchetype(a, intent, ctx)).filter(x => Number.isFinite(x.s) && x.a !== built.A && !skipped.has(x.a)).sort((x, y) => y.s - x.s);
       for (const x of ranked.slice(0, 8)) {
         const t = attempt(x.a);
         if (t.colorOk) { built = t; break; }
@@ -1342,8 +1362,14 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     const pick = chooseVessel(famId, intent, svc, chem, riffSrc, rngFrom(`${prompt}::${seed}::vessel`), greedy, A);
     if (pick) { svc.glass = pick.v.name; svc.vessel = pick.v.id; svc.up = pick.v.serve.includes('up') && serviceOf(svc.method, svc.ice) === 'shaken'; }
     const look = drinkLook(lines, ingMap, { method: svc.method, ice: svc.ice, dilutionOz: Math.max(0, chem.finalOz - chem.volOz) });
+    const heads = copy.headline(lines);
+    const srcIds = riffSrc ? new Set(riffSrc.ingredients.map(l => l.id)) : null;
     const name = makeName(rngFrom(`${prompt}::${seed}::name`), {
-      archetype: A, family: famId, intent, flavorTags: flavorTop, color: intent.color,
+      variant: seed, archetype: A, family: famId, intent, flavorTags: heads,
+      askedTags: heads.filter(t => (intent.tags[t] || 0) >= 1),
+      changeTags: srcIds ? copy.headline(lines.filter(l => !srcIds.has(l.id))) : [],
+      color: intent.color && showsColor(look, intent.color) ? intent.color : null,
+      shows: c => showsColor(look, c), poured: new Set(lines.filter(l => !l.garnish || l.muddled).map(l => l.id)),
       baseIds: lines.filter(l => l.role === 'base').map(l => l.id), riffOf: riffSrc ? riffSrc.name : null, taken: takenNames,
     });
     const credit = d => [d.creator, d.venue].filter(Boolean).join(', ') + (d.year ? `${d.creator || d.venue ? ', ' : ''}${d.circa ? 'c. ' : ''}${d.year}` : '');
@@ -1377,7 +1403,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     recipe.notes = notes.filter(n => n !== 'split-base').map(n => n.replace(/^riff:/, ''));
     recipe.tagline = classic
       ? `The ${classic.name}${recipe.classic.credit ? ` (${recipe.classic.credit})` : ''}, poured as written. Pray again and the gods will riff on it.`
-      : copy.tagline({ lines, archetype: A, intent, riffOf: riffSrc ? riffSrc.name : null, riffIds: riffSrc ? riffSrc.ingredients.map(l => l.id) : null, look });
+      : copy.tagline({ lines, archetype: A, intent, riffOf: riffSrc ? riffSrc.name : null, riffIds: riffSrc ? riffSrc.ingredients.map(l => l.id) : null, look, stats: recipe.stats, method: svc.method, ice: svc.ice, garnish, rng: rngFrom(`${prompt}::${seed}::tag`) });
     recipe.explanation = explain(recipe, profile, famId, intent, riffSrc, notes);
     recipe.explanation.tasting = copy.tastingNote({ lines, stats: recipe.stats, archetype: A, look, method: svc.method, ice: svc.ice, rng });
     recipe.explanation.prayer = intent.readings.filter(r => !r.negated).map(r => ({ phrase: r.phrase, reading: r.reading }));
