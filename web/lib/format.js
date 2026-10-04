@@ -20,6 +20,8 @@ export function snap(oz, ing, role) {
     const pieces = Math.max(0.5, Math.round((oz / ing.oz_per_piece) * 2) / 2);
     return { amount: pieces, unit: 'piece', oz: pieces * ing.oz_per_piece };
   }
+  // Bitters as a base (a Trinidad Sour's ounce and a half of Angostura) are poured, not dashed.
+  if (cat === 'bitters' && oz >= 0.3) { const v = Math.round(oz * 4) / 4; return { amount: v, unit: 'oz', oz: v }; }
   if (cat === 'bitters') {
     const dashes = Math.max(1, Math.min(8, Math.round(oz / 0.03)));
     return { amount: dashes, unit: 'dash', oz: dashes * 0.03 };

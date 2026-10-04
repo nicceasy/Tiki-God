@@ -437,10 +437,12 @@ function applyConcept(intent, c, sign) {
   const add = (obj, k, v) => { obj[k] = (obj[k] || 0) + v; };
   const k = 0.9 * sign;
   for (const [t, w] of Object.entries(c.tags || {})) {
-    if (w * sign > 0) add(intent.tags, t, w * k * Math.sign(sign));
+    if (w * sign > 0) { add(intent.tags, t, w * k * Math.sign(sign)); add(intent.conceptTags, t, w * k * Math.sign(sign)); }
     else add(intent.avoidTags, t, Math.abs(w) * 0.6);
   }
-  if (sign > 0) for (const [id, w] of Object.entries(c.ings || {})) add(intent.ings, id, w * 0.8);
+  // A concept's bottles are leanings, not orders: "lazy Sunday" leans toward coconut, while
+  // "with coconut" (an explicit ask) is placed no matter what.
+  if (sign > 0) for (const [id, w] of Object.entries(c.ings || {})) add(intent.prefer, id, w * 0.8);
   if (sign > 0) for (const id of c.avoid || []) add(intent.softAvoid, id, 1);
   const st = c.style || {};
   for (const key of ['strength', 'sweetness', 'tartness', 'complexity']) if (typeof st[key] === 'number') intent[key] += st[key] * 0.8 * sign;
@@ -449,7 +451,9 @@ function applyConcept(intent, c, sign) {
     if (st[key] === true && sign < 0) intent.style[key] = false;
   }
   if (sign > 0) {
-    if (c.color && !intent.color) intent.color = c.color;
+    // A concept's color is a leaning (a promotion leans gold); only a color word the guest
+    // said is a demand the drink must meet.
+    if (c.color && !intent.colorLean) intent.colorLean = c.color;
     for (const [f, w] of Object.entries(c.families || {})) add(intent.fam, f, w * 0.8);
     for (const [a, w] of Object.entries(c.archetypes || {})) add(intent.archetypes, a, w);
     for (const [v, w] of Object.entries(c.vessels || {})) add(intent.vesselAffinity, v, w);
@@ -504,6 +508,7 @@ export function parsePrompt(raw, { nameIndex = [], familyIds = [], concepts = nu
     style: {}, color: null, servings: 1, riffOf: null, riffName: null, vessel: null,
     matched: [], diets: [],
     readings: [], concepts: [], archetypes: {}, vesselAffinity: {}, softAvoid: {}, garnishIdeas: [], nameWords: [], taglineWords: [],
+    prefer: {}, conceptTags: {},
   };
   const add = (obj, k, v) => { obj[k] = (obj[k] || 0) + v; };
 

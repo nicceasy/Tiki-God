@@ -36,12 +36,39 @@ const issues = [];
 const num = (x, lo, hi) => typeof x === 'number' && Number.isFinite(x) ? Math.max(lo, Math.min(hi, x)) : null;
 const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9' -]+/g, ' ').replace(/\s+/g, ' ').trim();
 
+// A phrase two concepts both claim goes to the one that names it most directly: the concept
+// whose id is the phrase ("dreamsicle") beats a broad one that lists it ("childhood"); then the
+// one with fewer phrases (more specific); then the first.
+const slug = s => norm(s).replace(/['\s]+/g, '-');
+const all = [];
+for (const f of files) for (const c of read(f).concepts || []) all.push({ c, f });
+const seenIds = new Map();
+for (const x of all) {
+  if (!x.c.id || !Array.isArray(x.c.phrases)) continue;
+  // The same concept id twice (a research script's duplicate): keep the richer one.
+  const prev = seenIds.get(x.c.id);
+  if (prev && (prev.c.phrases || []).length >= x.c.phrases.length) { x.dup = true; issues.push(`${x.c.id}: duplicate concept dropped`); continue; }
+  if (prev) prev.dup = true;
+  seenIds.set(x.c.id, x);
+}
+const owner = new Map();
+const claimScore = (x, n) => (slug(x.c.id) === slug(n) ? 100 : slug(x.c.id).includes(slug(n)) || slug(n).includes(slug(x.c.id)) ? 50 : 0) - x.c.phrases.length * 0.1;
+for (const x of all) {
+  if (x.dup || !x.c.id || !Array.isArray(x.c.phrases)) continue;
+  for (const p of x.c.phrases) {
+    const n = norm(p);
+    if (!n || n.length < 3) continue;
+    const cur = owner.get(n);
+    if (!cur || claimScore(x, n) > claimScore(cur, n)) owner.set(n, x);
+  }
+}
 const claimed = new Map();
 const concepts = [];
 const ids = new Set();
-for (const f of files) {
-  const data = read(f);
-  for (const c of data.concepts || []) {
+for (const x of all) {
+  const { c, f } = x;
+  if (x.dup) continue;
+  {
     const where = `${f.split('/').pop()}:${c.id}`;
     if (!c.id || !Array.isArray(c.phrases)) { issues.push(`${where}: no id/phrases`); continue; }
     let id = c.id;
@@ -50,11 +77,10 @@ for (const f of files) {
     const phrases = [];
     for (const p of c.phrases) {
       const n = norm(p);
-      if (!n || n.length < 3) continue;
-      if (claimed.has(n)) { issues.push(`${where}: phrase "${n}" already claimed by ${claimed.get(n)}`); continue; }
+      if (!n || n.length < 3 || owner.get(n) !== x || claimed.has(n)) continue;
       claimed.set(n, id); phrases.push(n);
     }
-    if (!phrases.length) { issues.push(`${where}: every phrase was a duplicate`); continue; }
+    if (!phrases.length) { issues.push(`${where}: every phrase belongs to a more specific concept`); continue; }
     const tags = {};
     for (const [t, w] of Object.entries(c.tags || {})) {
       const v = num(w, -2, 2);
@@ -84,7 +110,7 @@ for (const f of files) {
       if (x) vessels[v] = x;
     }
     const color = c.color ? COLOR[norm(c.color).split(' ')[0]] || null : null;
-    if (c.color && !color) issues.push(`${where}: unknown color ${c.color}`);
+    if (c.color && !color && !['pale', 'tan', 'beige', 'amber-pale'].includes(norm(c.color))) issues.push(`${where}: unknown color ${c.color}`);
     const rec = { id, phrases, domain: c.domain || '', reading: c.reading || '' };
     if (Object.keys(tags).length) rec.tags = tags;
     if (Object.keys(ings).length) rec.ings = ings;

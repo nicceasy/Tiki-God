@@ -34,7 +34,6 @@ const ADJ = {
   guava: ['Pink-Sand', 'Rosy'],
   orange: ['Sundown', 'Tangerine'],
   grapefruit: ['Sunrise', 'Pink'],
-  almond: ['Marzipan'],
   warm: ['Fireside', 'Hearth'],
   effervescent: ['Sparkling', 'Bubbling'],
 };
@@ -88,7 +87,7 @@ const IMPLIES_COLOR = {
 // Words that promise an ingredient: used only if it is poured.
 const IMPLIES_ING = {
   Hibiscus: ['hibiscus-syrup'], Orchid: [], Plantain: ['banana', 'banana-liqueur'], 'Banana-Leaf': ['banana', 'banana-liqueur'], 'Banana-Boat': ['banana', 'banana-liqueur'],
-  Marzipan: ['orgeat', 'amaretto'], Banana: ['banana', 'banana-liqueur'], Coco: ['coconut-cream', 'coconut-milk', 'coconut-rum', 'coconut-water'], Kava: ['kava'], Cacao: ['creme-de-cacao', 'chocolate-liqueur', 'mole-bitters'], Coconut: ['coconut-cream', 'coconut-milk', 'coconut-rum', 'coconut-water'],
+  Marzipan: ['orgeat', 'amaretto'], Champagne: ['sparkling-wine'], Bubbly: ['sparkling-wine'], Fizz: ['sparkling-wine', 'soda-water', 'ginger-beer'], Banana: ['banana', 'banana-liqueur'], Coco: ['coconut-cream', 'coconut-milk', 'coconut-rum', 'coconut-water'], Kava: ['kava'], Cacao: ['creme-de-cacao', 'chocolate-liqueur', 'mole-bitters'], Coconut: ['coconut-cream', 'coconut-milk', 'coconut-rum', 'coconut-water'],
   Copra: ['coconut-cream', 'coconut-milk', 'coconut-rum', 'coconut-water'], Honeyed: ['honey-syrup', 'gardenia-mix'], Cinnamon: ['cinnamon-syrup', 'dons-mix', 'cinnamon', 'hot-buttered-rum-batter'],
   Pimento: ['allspice-dram'], Gingered: ['ginger-syrup', 'ginger-beer', 'ginger-liqueur', 'ginger-ale'], Vanilla: ['vanilla-syrup', 'vanilla-extract', 'vanilla-ice-cream'],
   'Cane Field': ['rum-agricole-blanc', 'rum-agricole-vieux', 'rum-cachaca'], 'Green-Cane': ['rum-agricole-blanc', 'rum-agricole-vieux', 'rum-cachaca'], Canefield: ['rum-agricole-blanc', 'rum-agricole-vieux', 'rum-cachaca'],
@@ -96,6 +95,9 @@ const IMPLIES_ING = {
   Sparkling: ['sparkling-wine', 'soda-water', 'tonic'], Bubbling: ['sparkling-wine', 'soda-water', 'ginger-beer', 'tonic'],
 };
 // Never in a name: sacred figures, colonial and caricature terms modern tiki has left behind.
+// Hawaiian and other Polynesian words used as decoration (makuakāne, hoʻomaikaʻi) are out;
+// a word carrying an ʻokina is treated the same way. The Mai Tai's own phrase stays for its riffs.
+const POLY = /[ʻ]|\b(makuakane|hoomaikai|ho'omaika'i|keiki|tutu|kupuna|lani|nani|wikiwiki|pau|hauoli|mele|kalikimaka|lūʻau|luau|haole|kanaka|menehune|ono|pupule)\b/i;
 const BANNED = /\b(pele|ku|kū|lono|kane|kāne|kanaloa|maui|māui|kahuna|moai|tiki|ohana|ʻohana|aloha|mahalo|savage|cannibal|headhunter|witch ?doctor|native|plantation|planter|voodoo|hoodoo|wahine|hula|island girl|dusky|coolie|oriental|geisha|shanghai'?d|kapu|tapu|mana|idol|tribal|primitive|heathen|squaw|shrunken|tsantsa|conquistador|colonial|missionary|overseer|samoan|tahitian|maori|chief|bongo|ooga|booga|jungle princess)\b/i;
 // Places only for spirits with a strong sense of place (a light column rum is from anywhere).
 const PLACE_OK = new Set(['rum-demerara', 'rum-demerara-overproof', 'rum-jamaican-aged', 'rum-jamaican-pot', 'rum-jamaican-dark', 'rum-jamaican-white-overproof', 'rum-agricole-blanc', 'rum-agricole-vieux', 'rum-barbados', 'rum-haitian', 'rum-navy', 'rum-black-blended', 'rum-cachaca', 'mezcal', 'tequila-blanco', 'tequila-reposado', 'pisco', 'aquavit', 'batavia-arrack', 'scotch-islay']);
@@ -106,7 +108,7 @@ const PLACE_OK = new Set(['rum-demerara', 'rum-demerara-overproof', 'rum-jamaica
 // when the drink is a riff on that classic, led by the word for what changed.
 export function makeName(rng, { variant = 0, archetype = null, family, intent = {}, flavorTags = [], askedTags = [], changeTags = [], color = null, shows = () => true, poured = new Set(), baseIds = [], riffOf = null, mood = null, taken = new Set() }) {
   const allowed = w => {
-    if (!w || BANNED.test(w)) return false;
+    if (!w || BANNED.test(w) || POLY.test(w)) return false;
     const c = IMPLIES_COLOR[w.split(' ')[0]] || IMPLIES_COLOR[w];
     if (c && !shows(c)) return false;
     const need = IMPLIES_ING[w] || IMPLIES_ING[w.split(' ')[0]];
@@ -154,7 +156,7 @@ export function makeName(rng, { variant = 0, archetype = null, family, intent = 
     const parts = name.split(' ');
     // "Frigatebird Bird": a word that ends with the next one is a stutter.
     if (parts.some((p, i) => i < parts.length - 1 && p.toLowerCase().endsWith(parts[i + 1].toLowerCase()))) continue;
-    if (BANNED.test(name)) continue;
+    if (BANNED.test(name) || POLY.test(name)) continue;
     if (!taken.has(name.toLowerCase())) return name;
   }
   return `${pick(rng, adjPool)} ${pick(rng, nounPool)} No. ${Math.floor(rng() * 90) + 10}`;

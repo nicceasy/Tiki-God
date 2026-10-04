@@ -7,7 +7,7 @@ import { parsePrompt, buildNameIndex, indexConcepts } from './prompt.js';
 import { snap, amountString } from './format.js';
 import { makeName } from './names.js';
 import { serviceOf, SERVICE_FITS } from './vessels.js';
-import { createComposer } from './composer.js';
+import { createComposer, doseCap } from './composer.js';
 import { createCopywriter } from './copy.js';
 import { drinkLook, showsColor, colorDistance, opticsOf, hsl, COLOR_TEST } from './optics.js';
 
@@ -203,12 +203,12 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
     for (const [t, w] of Object.entries(intent.tags)) if (v[t]) s += w * v[t];
     for (const [t, w] of Object.entries(intent.avoidTags)) if (v[t]) s -= w * v[t] * 4;
     const ing = ingMap.get(id);
-    if (intent.color && ing.color) {
-      const map = { blue: ['blue'], red: ['red'], pink: ['pink', 'red'], gold: ['yellow', 'orange'], green: ['green'], purple: [], dark: [] };
-      if ((map[intent.color] || []).includes(ing.color)) s += 1.5;
-    }
+    const map = { blue: ['blue'], red: ['red'], pink: ['pink', 'red'], gold: ['yellow', 'orange'], green: ['green'], purple: [], dark: [], orange: ['orange'] };
+    if (intent.color && ing.color && (map[intent.color] || []).includes(ing.color)) s += 1.5;
+    else if (intent.colorLean && ing.color && (map[intent.colorLean] || []).includes(ing.color)) s += 0.5;
     if (intent.color === 'dark' && ['rum-black-blended', 'rum-jamaican-dark', 'rum-demerara', 'rum-black-overproof', 'coffee-liqueur'].includes(id)) s += 1;
     if (intent.ings[id]) s += intent.ings[id] * 1.5;
+    if (intent.prefer && intent.prefer[id]) s += intent.prefer[id] * 1.1;
     return s;
   }
 
@@ -708,7 +708,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       const f = Math.max(0.85, Math.min(1.18, (R / r) ** 0.8));
       for (const tier of tiers) {
         const snap0 = live.map(l => l.oz).join();
-        for (const l of tier) { l.oz *= f; edge(l, l.req ? l.oz0 * 0.85 : Math.max(0.1, l.oz0 * 0.5), Math.max(0.25, l.oz0 * 1.6)); }
+        for (const l of tier) { l.oz *= f; edge(l, l.req ? l.oz0 * 0.85 : Math.max(0.1, l.oz0 * 0.5), Math.min(doseCap(l.id, A.family, (intent.ings[l.id] || 0) >= 1), Math.max(0.25, l.oz0 * 1.6))); }
         if (live.map(l => l.oz).join() !== snap0) break;
       }
       if (live.map(l => l.oz).join() === before) {
@@ -1276,7 +1276,10 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
         if (seed > 0 && !blank && scored.length > 1) {
           const ranked = [...scored].sort((x, y) => y.s - x.s);
           const best = ranked[0].s;
-          const near = ranked.filter(x => x.s >= best - 3.5);
+          // Still on-prayer: the alternatives must be able to carry the prayer's leading flavor
+          // (a bananas-foster prayer stays banana on every seed).
+          const lead = Object.entries(intent.tags).filter(([t]) => !['sweet', 'tart', 'light', 'rich', 'boozy', 'warm', 'fruity', 'tropical', 'citrus', 'creamy', 'effervescent', 'crisp', 'dry'].includes(t)).sort((a, b) => b[1] - a[1])[0];
+          const near = ranked.filter(x => x.s >= best - 3.5 && (!lead || lead[1] < 1 || composer.carries(x.a, lead[0], intent, ctx)));
           const skip = new Set(near.slice(0, Math.min(seed, near.length - 1)).map(x => x.a));
           if (near.length > 1) { scored = near.filter(x => !skip.has(x.a)); skipped = skip; }
         }
@@ -1285,7 +1288,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
           // fall back to the most forgiving frame, a planter's punch.
           || composer.byId['planters-punch'] || archetypes[0];
         if ((A.methods || [])[0] === 'blend') blenderContext = true;
-        lines = composer.compose(A, intent, ctx, rng, greedy, notes);
+        lines = composer.compose(A, intent, ctx, rng, greedy, notes, null, seed);
         if (blank) intent.complexity = Math.max(intent.complexity, 0.4);
         // A fresh build that lands on top of an existing recipe isn't new: swap one filling.
         for (let tries = 0; tries < 3; tries++) {
@@ -1368,7 +1371,7 @@ export function createEngine({ vocab, families, drinks, model, vessels = { vesse
       variant: seed, archetype: A, family: famId, intent, flavorTags: heads,
       askedTags: heads.filter(t => (intent.tags[t] || 0) >= 1),
       changeTags: srcIds ? copy.headline(lines.filter(l => !srcIds.has(l.id))) : [],
-      color: intent.color && showsColor(look, intent.color) ? intent.color : null,
+      color: [intent.color, intent.colorLean].find(c => c && showsColor(look, c)) || null,
       shows: c => showsColor(look, c), poured: new Set(lines.filter(l => !l.garnish || l.muddled).map(l => l.id)),
       baseIds: lines.filter(l => l.role === 'base').map(l => l.id), riffOf: riffSrc ? riffSrc.name : null, taken: takenNames,
     });

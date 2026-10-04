@@ -16,6 +16,15 @@ const FAMILY_CANON = {
 const SOLO_GARNISH_FLAVOR = { mint: 'mint', nutmeg: 'nutmeg', cinnamon: 'cinnamon' };
 // Impressions of the whole drink rather than flavors a bottle carries: never a reason to swap
 // one ingredient for another (a "warm" prayer must not trade coffee for hot water).
+// Most an accent may pour in one drink (from the technique research: data/technique-rules.json
+// doseCaps), with per-family exceptions. An ounce of allspice dram is a writer who never tasted it.
+const DOSE_CAP = {"pastis":0.04,"absinthe":0.04,"angostura":0.18,"peychauds":0.12,"orange-bitters":0.12,"tiki-bitters":0.12,"mole-bitters":0.12,"saline":0.024,"almond-extract":0.012,"vanilla-extract":0.03,"orange-flower-water":0.012,"allspice-dram":0.5,"velvet-falernum":0.75,"falernum-syrup":0.75,"maraschino":0.5,"grenadine":[0.5,{"zombie":0.17,"mai-tai":0,"grog":0.17,"orgeat-punch":0.25,"resort-punch":1,"punch":0.75}],"green-chartreuse":0.75,"yellow-chartreuse":0.75,"campari":[0.75,{"bitter-tiki":1.5,"stirred":1}],"fernet":0.25,"scotch-islay":0.5,"cinnamon-syrup":0.75,"ginger-syrup":0.75,"blue-curacao":0.75,"melon-liqueur":1,"coffee-liqueur":1,"creme-de-cacao":0.75,"banana-liqueur":1,"coconut-rum":[1.5,{"colada":0.5}],"rum-jamaican-white-overproof":0.75,"coffee":[0.75,{"hot":6}],"irish-cream":1,"amontillado-sherry":0.75};
+export function doseCap(id, family, asked = false) {
+  const c = DOSE_CAP[id];
+  if (c === undefined) return Infinity;
+  const cap = Array.isArray(c) ? (c[1][family] ?? c[0]) : c;
+  return asked ? Math.max(cap * 2, cap + 0.25) : cap;
+}
 const PLAIN_SYRUPS = new Set(['simple-syrup', 'rich-simple', 'demerara-syrup', 'cane-syrup', 'agave-syrup']);
 const NOT_A_FLAVOR = new Set(['sweet', 'tart', 'light', 'crisp', 'dry', 'rich', 'boozy', 'warm', 'fruity', 'tropical', 'citrus', 'creamy', 'effervescent']);
 
@@ -96,6 +105,8 @@ export function createComposer({ archetypes, ingMap, model }) {
       s += most >= intent.rumCount ? 2.5 : most >= 2 ? 0.5 : -2;
     }
     s -= 0.25 * (intent.complexity || 0) < 0 ? (a.signature.length > 5 ? 1 : 0) : 0;
+    // Bottles the prayer leans toward that the archetype can hold.
+    for (const [id, w] of Object.entries(intent.prefer || {})) if (allIds(a).has(id)) s += 0.35 * Math.min(2, w);
     // Requested ingredients the archetype can't hold count against it.
     for (const [id, w] of Object.entries(intent.ings)) {
       if (w < 1) continue;
@@ -151,7 +162,7 @@ export function createComposer({ archetypes, ingMap, model }) {
   // requested spirit takes over the base, requested flavors refill the slot that can carry them,
   // forbidden or avoided bottles give way to an allowed alternative, and the signature is
   // checked last. Archetypes without specs are filled slot by slot.
-  function compose(a, intent, ctx, rng, greedy, notes, src = null) {
+  function compose(a, intent, ctx, rng, greedy, notes, src = null, specOffset = 0) {
     let lines;
     const specs = fittingSpecs(a);
     if (src) lines = src.lines.map(l => ({ ...l, slot: slotOf(a, l.id), range: rangeOf(a, l.id) }));
@@ -163,7 +174,8 @@ export function createComposer({ archetypes, ingMap, model }) {
         for (const l of sp.lines) { const c = (ingMap.get(l.id) || {}).color; if (['blue', 'green'].includes(c) && intent.color !== c) s -= 2; }
         return { item: sp, s };
       });
-      const sp = ctx.softPick(rng, scored, 0.6, greedy);
+      // A repeat prayer on the same frame starts from a different proven spec.
+      const sp = specOffset > 0 && scored.length > 1 ? [...scored].sort((x, y) => y.s - x.s)[specOffset % scored.length].item : ctx.softPick(rng, scored, 0.6, greedy);
       lines = sp.lines.filter(l => ingMap.has(l.id)).map(l => ({ id: l.id, role: roleOf(l.id), oz: l.oz, unit: l.unit, amount: l.amount, float: !!l.float, sink: !!l.sink, crown: !!l.crown, slot: slotOf(a, l.id), range: rangeOf(a, l.id), fromSpec: sp.name }));
       // Two-part specs (a Miami Vice's two halves) list a bottle twice; the card lists it once.
       for (let i = lines.length - 1; i >= 0; i--) {
@@ -196,8 +208,9 @@ export function createComposer({ archetypes, ingMap, model }) {
     }
     // A flavor asked for plainly ("with mango") that no slot could carry: pour the bottle that
     // leads with it, worked in the way a bartender would.
-    for (const [tag, w] of Object.entries(intent.tags).sort((x, y) => y[1] - x[1])) {
-      if (w < 1.5 || NOT_A_FLAVOR.has(tag) || carried(lines, tag, ctx)) continue;
+    const explicit = t => (intent.tags[t] || 0) - ((intent.conceptTags || {})[t] || 0) * 0.6;
+    for (const [tag] of Object.entries(intent.tags).sort((x, y) => y[1] - x[1])) {
+      if (explicit(tag) < 1.5 || NOT_A_FLAVOR.has(tag) || carried(lines, tag, ctx)) continue;
       const ids = lines.map(l => l.id);
       const pool = [...ingMap.values()].filter(i => i.role !== 'base' && i.role !== 'aromatic' && leads(i.id, tag) && ['common', 'specialty', 'homemade'].includes(i.avail)
         && !ctx.forbidden(i.id, intent) && !archForbids(a, i.id) && !ids.includes(i.id) && !ctx.conflicts(i.id, ids));
@@ -214,14 +227,41 @@ export function createComposer({ archetypes, ingMap, model }) {
     }
     // A flavor the guest leaned on hard ("smoky", "funky") and the drink only hints at gets a
     // split base: the modern tiki move of trading part of the rum for a spirit that *is* that flavor.
-    for (const [tag, w] of Object.entries(intent.tags).sort((x, y) => y[1] - x[1])) {
-      if (w < 2 || NOT_A_FLAVOR.has(tag) || lines.some(l => leads(l.id, tag))) continue;
+    for (const [tag] of Object.entries(intent.tags).sort((x, y) => y[1] - x[1])) {
+      if (explicit(tag) < 2 || NOT_A_FLAVOR.has(tag) || lines.some(l => leads(l.id, tag))) continue;
       const split = splitBase(a, lines, tag, intent, ctx);
       if (split) { notes.push(split); break; }
     }
+    topWithBubbles(a, lines, intent, ctx, notes);
     repair(a, lines, intent, ctx, rng, notes);
     trim(a, lines, intent, ctx, notes);
+    capDoses(a, lines, intent);
     return lines;
+  }
+
+  // A celebration wants bubbles: a sour or punch that the prayer leans toward sparkling wine (or
+  // soda, or ginger beer) gets topped with it, the way an Air Mail tops a daiquiri. Creamy,
+  // frozen, hot and stirred drinks are left alone; a drink already fizzing needs nothing.
+  const TOPPERS = ['sparkling-wine', 'soda-water', 'ginger-beer'];
+  function topWithBubbles(a, lines, intent, ctx, notes) {
+    if (lines.some(l => TOPPERS.includes(l.id) || ['ginger-ale', 'tonic', 'cola', 'lemon-lime-soda'].includes(l.id))) return;
+    const st = intent.style;
+    if (a.creamy || st.creamy || st.frozen || st.hot || st.stirred || ['blend', 'hot', 'stir'].includes((a.methods || [])[0])) return;
+    const fizzy = (intent.tags.effervescent || 0) >= 1.4;
+    const want = TOPPERS.map(id => ({ id, w: (intent.ings[id] || 0) * 1.5 + ((intent.prefer || {})[id] || 0) })).filter(x => x.w >= 1.2 && ingMap.has(x.id) && !ctx.forbidden(x.id, intent)).sort((x, y) => y.w - x.w)[0]
+      || (fizzy && !ctx.forbidden('soda-water', intent) ? { id: intent.style.zeroProof ? 'soda-water' : 'sparkling-wine' } : null);
+    if (!want || ctx.forbidden(want.id, intent) || archForbids(a, want.id)) return;
+    lines.push({ id: want.id, role: roleOf(want.id), oz: want.id === 'sparkling-wine' ? 2 : 2, slot: 'top', range: null, req: true, top: true });
+    notes.push(`topped with ${shortName(want.id)}`);
+  }
+
+  // Accents stay accents: anything over its cap comes down to it (canonical spec doses excepted).
+  function capDoses(a, lines, intent) {
+    for (const l of lines) {
+      if (l.fromSpec && !l.swapped) continue;
+      const cap = doseCap(l.id, a.family, (intent.ings[l.id] || 0) >= 1);
+      if ((l.oz || 0) > cap) { l.oz = cap; if (l.range) l.range = [Math.min(l.range[0], cap), Math.min(l.range[1], cap)]; }
+    }
   }
 
   // A canonical spec that doesn't carry the archetype's own signature is a variant (a modern
@@ -502,7 +542,8 @@ export function createComposer({ archetypes, ingMap, model }) {
       const alt = slot.anyOf.filter(id => ingMap.has(id) && !ctx.forbidden(id, intent) && !others.includes(id) && !ctx.conflicts(id, others) && ((ctx.ingVec[id] || {})[tag] || 0) >= 0.55)[0];
       if (!alt) continue;
       const was = ingMap.get(l.id).name.toLowerCase().replace(/\s*\(.*\)/, '');
-      l.id = alt; l.role = roleOf(alt); l.req = true;
+      l.id = alt; l.role = roleOf(alt); l.req = true; l.swapped = true;
+      if (l.oz > doseCap(alt, a.family)) l.oz = doseCap(alt, a.family);
       return `${ingMap.get(alt).name.toLowerCase().replace(/\s*\(.*\)/, '')} in place of ${was} for ${tag.replace('-', ' ')}`;
     }
     return null;
@@ -570,7 +611,9 @@ export function createComposer({ archetypes, ingMap, model }) {
     const pick = ctx.softPick(rng, pool.map(id => ({ item: id, s: 2 * ctx.intentMatch(id, intent) + ctx.compat(id, others) })), 0.6, greedy);
     if (!pick) return null;
     const was = ingMap.get(victim.id).name.toLowerCase().replace(/\s*\(.*\)/, '');
-    victim.id = pick; victim.role = roleOf(pick);
+    victim.id = pick; victim.role = roleOf(pick); victim.swapped = true;
+    const cap = doseCap(pick, a.family);
+    if (victim.oz > cap) victim.oz = cap;
     return `${ingMap.get(pick).name.toLowerCase().replace(/\s*\(.*\)/, '')} in place of ${was}`;
   }
 
@@ -586,5 +629,7 @@ export function createComposer({ archetypes, ingMap, model }) {
     return { ok: !missing.length && !banned.length, missing, banned, waived: waivedC.map(c => c.component) };
   }
 
-  return { byId, archetypes, scoreArchetype, compose, satisfies, slotOf, vary, repair, twist };
+  // Can this archetype carry a flavor at all (its profile, or a slot's bottle)?
+  const carries = (a, tag, intent, ctx) => (a.flavorProfile || []).includes(tag) || !!slotsCarry(a, tag, intent, ctx);
+  return { byId, archetypes, scoreArchetype, compose, satisfies, slotOf, vary, repair, twist, capDoses, carries };
 }

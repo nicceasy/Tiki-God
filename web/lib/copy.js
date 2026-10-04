@@ -220,7 +220,8 @@ export function createCopywriter({ ingMap, ingVec }) {
     const baseAdj = (askedBase || baseTags.find(x => BASE_ADJ[x.tag]) || {}).tag;
     const texture = lines.some(l => ['coconut-cream', 'coconut-milk', 'heavy-cream', 'vanilla-ice-cream'].includes(l.id) && (l.oz || 0) >= 0.75) && !/colada|cream/.test(typeWord) ? 'creamy' : null;
     let colorPart = null;
-    if (intent.color && look && COLOR_WORD[intent.color] && showsColor(look, intent.color)) colorPart = COLOR_WORD[intent.color];
+    const wanted = [intent.color, intent.colorLean].find(c => c && look && COLOR_WORD[c] && showsColor(look, c));
+    if (wanted) colorPart = COLOR_WORD[wanted];
     const has = (...ids) => lines.some(l => ids.includes(l.id));
     const facts = {
       abv: stats ? stats.abv : 12, acid: stats ? stats.acidConc : 0.5, creamy: !!texture || /colada|cream/.test(typeWord) && has('coconut-cream', 'coconut-milk', 'heavy-cream'),
