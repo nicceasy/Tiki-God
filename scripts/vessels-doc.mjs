@@ -10,7 +10,7 @@ const read = p => JSON.parse(readFileSync(join(root, p), 'utf8'));
 const { vessels } = read('data/vessels.json');
 const model = read('data/model.json');
 const drinks = Object.fromEntries(read('data/drinks.json').map(d => [d.id, d]));
-const KIND = { glass: 'Glassware', metal: 'Metal', ceramic: 'Tiki ceramics', fruit: 'Fruit', bowl: 'Bowls' };
+const KIND = { glass: 'Glassware', acrylic: 'Unbreakable', metal: 'Metal', ceramic: 'Tiki ceramics', fruit: 'Fruit', bowl: 'Bowls' };
 const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
 
 let md = '';

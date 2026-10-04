@@ -79,7 +79,9 @@ export const LEXICON = [
   // ---- fruit ----
   { k: ['coconut', 'coco', 'copra'], tags: { coconut: 2 }, label: 'coconut' },
   { k: ['pineapple', 'pina', 'piña', 'ananas'], tags: { pineapple: 2 }, label: 'pineapple' },
-  { k: ['passion fruit', 'passionfruit', 'passion-fruit', 'lilikoi', 'liliko\'i', 'maracuya', 'maracujá', 'maracuja', 'passion'], tags: { 'passion-fruit': 2 }, label: 'passion fruit' },
+  // Passion fruit asked for by name is passion fruit you can taste: the syrup or juice at
+  // three-quarters of an ounce or more, not a token of red fassionola.
+  { k: ['passion fruit', 'passionfruit', 'passion-fruit', 'lilikoi', 'liliko\'i', 'maracuya', 'maracujá', 'maracuja', 'passion'], tags: { 'passion-fruit': 2 }, prefer: { 'passion-fruit-syrup': 1.4 }, promise: { ids: ['passion-fruit-syrup', 'passion-fruit-juice', 'passion-fruit-nectar'], min: { 'passion-fruit-syrup': 0.75, 'passion-fruit-juice': 0.75, 'passion-fruit-nectar': 1 } }, label: 'passion fruit' },
   { k: ['guava'], tags: { guava: 2 }, label: 'guava' },
   { k: ['mango'], tags: { mango: 2 }, label: 'mango' },
   { k: ['papaya'], tags: { papaya: 2 }, label: 'papaya' },
@@ -105,7 +107,8 @@ export const LEXICON = [
   { k: ['yuzu'], ings: { 'yuzu-juice': 3 }, tags: { citrus: 1 }, label: 'yuzu' },
   { k: ['citrus', 'citrusy', 'zesty', 'zingy'], tags: { citrus: 2 }, label: 'citrus' },
   { k: ['fruity', 'juicy', 'fruit'], tags: { fruity: 2 }, label: 'fruity' },
-  { k: ['tropical', 'exotic'], tags: { tropical: 1.5, 'passion-fruit': 1.2, pineapple: 0.9, mango: 0.6, guava: 0.5 }, label: 'tropical' },
+  // "Tropical" is a tropical fruit you can taste, poured.
+  { k: ['tropical', 'exotic'], tags: { tropical: 1.5, 'passion-fruit': 1.2, pineapple: 0.9, mango: 0.6, guava: 0.5 }, promise: { ids: ['passion-fruit-syrup', 'passion-fruit-juice', 'passion-fruit-nectar', 'fassionola', 'guava-nectar', 'mango-nectar', 'pineapple-juice'] }, label: 'tropical' },
   { k: ['dried fruit', 'raisin', 'fig'], tags: { 'dried-fruit': 2 }, label: 'dried fruit' },
 
   // ---- spice & aromatics ----
@@ -124,7 +127,9 @@ export const LEXICON = [
   { k: ['basil'], ings: { basil: 2 }, tags: { herbal: 1 }, label: 'basil' },
   { k: ['cucumber'], ings: { cucumber: 2 }, label: 'cucumber' },
   { k: ['herbal', 'herby', 'herbs', 'botanical'], tags: { herbal: 2 }, label: 'herbal' },
-  { k: ['floral', 'flower', 'flowers', 'blossom', 'perfumed'], tags: { floral: 2 }, label: 'floral' },
+  // Floral means the classics built on it (the Saturn's passion fruit and falernum, the Pearl
+  // Diver's Gardenia Mix) wearing a flower.
+  { k: ['floral', 'flower', 'flowers', 'blossom', 'perfumed'], tags: { floral: 2 }, arch: { 'passion-sour': 2, 'pearl-diver': 1.6 }, label: 'floral' },
   { k: ['hibiscus', 'sorrel', 'jamaica flower'], ings: { 'hibiscus-syrup': 3 }, tags: { floral: 1 }, label: 'hibiscus' },
   { k: ['orange blossom', 'orange flower'], ings: { 'orange-flower-water': 2 }, tags: { floral: 1 }, label: 'orange blossom' },
   { k: ['almond', 'almonds', 'marzipan', 'nutty', 'nuts'], tags: { almond: 1.5, nutty: 1 }, label: 'nutty' },
@@ -143,7 +148,8 @@ export const LEXICON = [
   // ---- character ----
   { k: ['funky', 'funk', 'estery', 'esters', 'overripe'], tags: { funky: 2.5 }, label: 'funk' },
   { k: ['grassy', 'vegetal', 'green cane'], tags: { grassy: 2.5 }, label: 'grassy' },
-  { k: ['smoky', 'smokey', 'smoke', 'smoked', 'campfire', 'charred', 'ashy'], tags: { smoky: 2.5 }, label: 'smoke' },
+  // Smoke you can taste: a quarter ounce of Islay, or mezcal at half an ounce or more.
+  { k: ['smoky', 'smokey', 'smoke', 'smoked', 'campfire', 'charred', 'ashy'], tags: { smoky: 2.5 }, promise: { ids: ['scotch-islay', 'mezcal'], min: { 'scotch-islay': 0.25, mezcal: 0.5 } }, label: 'smoke' },
   { k: ['oaky', 'woody', 'barrel', 'aged'], tags: { oaky: 1.5 }, label: 'oak' },
   { k: ['rich', 'decadent', 'indulgent', 'lush', 'luxurious', 'unctuous'], tags: { rich: 2 }, label: 'rich' },
   { k: ['creamy', 'cream', 'milkshake', 'silky', 'velvety', 'smooth', 'custard'], tags: { creamy: 2 }, style: { creamy: true }, label: 'creamy' },
@@ -151,11 +157,17 @@ export const LEXICON = [
   { k: ['dry', 'not sweet', 'unsweet', 'bone dry'], sweetness: -1.2, tags: { dry: 1 }, label: 'dry' },
   { k: ['sweet', 'sugary', 'candy'], sweetness: 1, label: 'sweet' },
   { k: ['tart', 'sour', 'tangy', 'puckery', 'sharp', 'acidic'], tartness: 1, tags: { tart: 1.5 }, label: 'tart' },
-  { k: ['bitter', 'bittersweet', 'amaro-like'], tags: { bitter: 2 }, style: { bitter: true }, label: 'bitter' },
+  // "Bitter" is Campari at a dose you taste (three-quarters of an ounce), never Aperol, which
+  // makes a drink less bitter, not more.
+  { k: ['bitter', 'bittersweet', 'amaro-like'], tags: { bitter: 2 }, style: { bitter: true }, prefer: { campari: 1.4 }, promise: { ids: ['campari'], min: { campari: 0.75 }, avoid: ['aperol'] }, label: 'bitter' },
   { k: ['strongest', 'stronger', 'booziest', 'most potent', 'hardest hitting', 'knock me on my ass', 'maximum strength'], strength: 2, tags: { boozy: 1.5 }, fam: { zombie: 1.5 }, label: 'as strong as it gets' },
   { k: ['strong', 'boozy', 'potent', 'stiff', 'knock me out', 'knockout', 'deadly', 'lethal', 'powerful', 'punchy', 'high octane', 'heavy hitter', 'booze forward', 'boozeforward', 'two per customer'], strength: 1.2, tags: { boozy: 1 }, label: 'strong' },
-  { k: ['weak', 'low abv', 'low-abv', 'low proof', 'low-proof', 'lighter on the booze', 'sessionable', 'session', 'day drinking', 'lunch', 'low alcohol', 'not too strong', 'easy on the alcohol'], strength: -1.2, label: 'lower-proof' },
-  { k: ['fizzy', 'bubbly', 'sparkling', 'effervescent', 'carbonated', 'highball', 'soda', 'spritz', 'tall', 'long drink', 'cooler'], style: { long: true }, tags: { effervescent: 1.5 }, label: 'long & fizzy' },
+  // Low ABV is a number: seven percent or under after dilution, about a standard drink.
+  { k: ['weak', 'low abv', 'low-abv', 'low proof', 'low-proof', 'lighter on the booze', 'sessionable', 'session', 'day drinking', 'lunch', 'low alcohol', 'not too strong', 'easy on the alcohol'], strength: -1.2, promise: { abvMax: 7 }, label: 'lower-proof' },
+  // A highball is lengthened with soda or ginger beer, never with Champagne (that's a royale);
+  // "bubbly" and "sparkling" are wine words.
+  { k: ['highball', 'soda', 'tall', 'long drink', 'cooler', 'fizzy', 'effervescent', 'carbonated'], style: { long: true }, tags: { effervescent: 1.5 }, prefer: { 'soda-water': 1.2 }, promise: { long: 3, avoid: ['sparkling-wine'] }, label: 'long & fizzy' },
+  { k: ['bubbly', 'sparkling', 'spritz'], style: { long: true }, tags: { effervescent: 1.5 }, label: 'long & fizzy' },
   { k: ['frozen', 'blended', 'slushy', 'slushie', 'frappe', 'frappé', 'icy', 'blender'], style: { frozen: true }, label: 'frozen' },
   { k: ['flaming', 'fire', 'flame', 'on fire', 'ignite', 'set on fire', 'pyro'], style: { flaming: true }, label: 'flaming' },
   { k: ['layered', 'layers', 'ombre', 'ombré', 'gradient', 'two tone', 'two-tone', 'striped', 'pousse cafe', 'sunrise effect', 'graded'], style: { layered: true }, label: 'layered' },
@@ -339,6 +351,28 @@ function findPhrase(text, phrase) {
   return hits;
 }
 
+// What the guest actually typed for a phrase the parser heard: "Havana 1957" (not the parser's
+// "havana 1950s"), "coconutty" (not "coconut"), "zero-proof", "Grandmother's". Falls back to
+// the phrase itself when the words can't be found.
+export function rawSpan(raw, phrase) {
+  const src = String(raw || '');
+  let fold = '';
+  const at = [];
+  for (let i = 0; i < src.length; i++) {
+    const ch = src[i].toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’`]/g, "'");
+    for (const c of ch) { fold += c; at.push(i); }
+  }
+  const words = normalizeText(phrase).trim().split(' ').filter(w => w && w !== '|');
+  if (!words.length) return String(phrase || '');
+  const esc = w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // A decade the parser made of a year matches the year the guest wrote; an adjective the
+  // parser trimmed to its root ("coconutty") is quoted whole.
+  const pat = words.map(w => (/^(19[2-9])0s$/.test(w) ? `${w.slice(0, 3)}\\d(?:'?s)?` : esc(w).replace(/'/g, "'?"))).join("[^a-z0-9]+");
+  const m = new RegExp(`(?<![a-z0-9])${pat}[a-z]*(?![a-z0-9])`).exec(fold);
+  if (!m) return String(phrase || '');
+  return src.slice(at[m.index], at[m.index + m[0].length - 1] + 1);
+}
+
 function negationBefore(text, pos) {
   let before = text.slice(Math.max(0, pos - 40), pos).trim().split(' ').slice(-4);
   // A comma or full stop ends the clause.
@@ -417,7 +451,7 @@ function applyConcepts(text, intent, index) {
     const pos = (' ' + words.slice(0, i).join(' ')).length;
     const { neg, soft } = negationBefore(' ' + words.join(' ') + ' ', pos + 1);
     applyConcept(intent, e.concept, (neg ? (soft ? -0.5 : -1) : 1) * ((intent.boost || {})[words[i]] || 1));
-    intent.matched.push({ phrase: words.slice(i, i + e.stems.length).join(' '), label: (neg ? 'not ' : '') + (e.concept.label || e.concept.id.replace(/-/g, ' ')) });
+    intent.matched.push({ phrase: words.slice(i, i + e.stems.length).join(' '), label: (neg ? 'not ' : '') + (e.concept.label || e.concept.id.replace(/-/g, ' ')), kind: 'concept', concept: e.concept.id, negated: neg });
     intent.readings.push({ phrase: words.slice(i, i + e.stems.length).join(' '), concept: e.concept.id, reading: e.concept.reading, negated: neg, fuzzy });
   };
   for (const e of index.entries) {
@@ -475,6 +509,8 @@ function applyConcept(intent, c, sign) {
     else if (c.color && !intent.colorLean) intent.colorLean = c.color;
     for (const [f, w] of Object.entries(c.families || {})) add(intent.fam, f, w * 0.8);
     for (const [a, w] of Object.entries(c.archetypes || {})) add(intent.archetypes, a, w);
+    // The canonical spec the concept means on a frame ("Havana" on the frozen daiquiri is the No. 4).
+    for (const [a, sp] of Object.entries(c.specs || {})) (intent.specs = intent.specs || {})[a] = [...((intent.specs || {})[a] || []), ...[].concat(sp)];
     for (const [v, w] of Object.entries(c.vessels || {})) add(intent.vesselAffinity, v, w);
     intent.garnishIdeas.push(...(c.garnish || []));
     intent.nameWords.push(...(c.nameWords || []));
@@ -488,7 +524,12 @@ function applyConcept(intent, c, sign) {
     const cand = Object.entries(c.ings || {}).filter(([id, w]) => w >= 0.8 && !GENERIC.has(id) && !(/^rum-/.test(id) && w < 1.4)).sort((a, b) => b[1] - a[1]);
     const ids = cand.filter(([, w]) => w >= cand[0]?.[1] - 0.2).slice(0, 3).map(([id]) => id);
     const up = Math.max(...['coupe', 'nick-nora', 'cocktail-glass'].map(v => (c.vessels || {})[v] || 0)) >= 1.5;
-    if (ids.length || up || st.flaming || st.layered) intent.promises.push({ concept: c.id, ids, up, flaming: !!st.flaming, layered: !!st.layered });
+    // A concept may spell its promise out (data/concepts.json `promise`, compiled by
+    // scripts/concepts-build.mjs): the bottles it must pour and at what dose, whether all of them
+    // or any, the service (up, frozen, stirred, long), a float, an ABV ceiling, bottles it must
+    // not pour. Otherwise the promise is read off the concept's leanings, as above.
+    if (Array.isArray(c.promise)) for (const P of c.promise) intent.promises.push({ concept: c.id, ...P, ids: P.ids || [] });
+    else if (ids.length || up || st.flaming || st.layered) intent.promises.push({ concept: c.id, ids, up, flaming: !!st.flaming, layered: !!st.layered });
   }
 }
 
@@ -563,7 +604,7 @@ export function parsePrompt(raw, { nameIndex = [], familyIds = [], concepts = nu
       intent.vessel = e.v;
       if (e.tags) for (const [t, w] of Object.entries(e.tags)) add(intent.tags, t, w);
       if (e.style) Object.assign(intent.style, e.style);
-      intent.matched.push({ phrase, label: `served in: ${phrase.replace(/^in an? /, '')}` });
+      intent.matched.push({ phrase, label: `served in: ${phrase.replace(/^in an? /, '')}`, kind: 'vessel', vessel: e.v });
     }
     text = text.split(' ' + phrase + ' ').join(' ');
   }
@@ -576,7 +617,7 @@ export function parsePrompt(raw, { nameIndex = [], familyIds = [], concepts = nu
     if (!neg && !intent.riffOf) {
       intent.riffOf = n.id;
       intent.riffName = n.key;
-      intent.matched.push({ phrase: n.key, label: `riff on ${n.key}` });
+      intent.matched.push({ phrase: n.key, label: `riff on ${n.key}`, kind: 'riff', drink: n.id });
     }
     text = text.split(' ' + n.key + ' ').join(' ');
   }
@@ -587,7 +628,7 @@ export function parsePrompt(raw, { nameIndex = [], familyIds = [], concepts = nu
       if (findPhrase(text, k).length) {
         d.exclude.forEach(id => intent.avoidIngs.add(id));
         intent.diets.push(d.label);
-        intent.matched.push({ phrase: k, label: d.label });
+        intent.matched.push({ phrase: k, label: d.label, kind: 'diet' });
         text = text.split(' ' + normalizeText(k).trim() + ' ').join(' ');
         break;
       }
@@ -606,7 +647,7 @@ export function parsePrompt(raw, { nameIndex = [], familyIds = [], concepts = nu
   const rc = text.match(/ (two|three|four|five|2|3|4|5|multiple|several|many|lots of|a blend of) (?:different )?rums? /);
   if (rc) {
     intent.rumCount = NUMBER_WORDS[rc[1]] || parseInt(rc[1], 10) || 3;
-    intent.matched.push({ phrase: rc[0].trim(), label: `${intent.rumCount} rums` });
+    intent.matched.push({ phrase: rc[0].trim(), label: `${intent.rumCount} rums`, kind: 'rums' });
     intent.complexity += 0.5;
   }
 
@@ -622,7 +663,7 @@ export function parsePrompt(raw, { nameIndex = [], familyIds = [], concepts = nu
         if (f.style) Object.assign(intent.style, f.style);
         if (f.tags) for (const [t, w] of Object.entries(f.tags)) add(intent.tags, t, w);
         if (f.ings) for (const [id, w] of Object.entries(f.ings)) add(intent.ings, id, w);
-        intent.matched.push({ phrase: k, label: `${f.fam.replace('-', ' ')} family` });
+        intent.matched.push({ phrase: k, label: `${f.fam.replace('-', ' ')} family`, kind: 'family', fam: f.fam, style: f.style || {} });
       }
       text = text.split(' ' + normalizeText(k).trim() + ' ').join(' ');
       break;
@@ -653,20 +694,24 @@ export function parsePrompt(raw, { nameIndex = [], familyIds = [], concepts = nu
     const { neg, soft } = negationBefore(text, hits[0]);
     const sign = neg ? -1 : 1;
     applyEffect(intent, e, sign, soft && neg, boost[phrase.split(' ')[0]] || 1);
-    intent.matched.push({ phrase, label: (neg ? (soft ? 'less ' : 'no ') : '') + (e.label || phrase) });
+    if (e.promise && sign > 0) intent.promises.push({ word: phrase, ids: [], ...e.promise });
+    // What the word did, so the card can answer it with what was poured rather than echo it.
+    intent.matched.push({ phrase, label: (neg ? (soft ? 'less ' : 'no ') : '') + (e.label || phrase), kind: 'word', negated: neg, soft: soft && neg, tags: e.tags || {}, ings: { ...(e.ings || {}), ...(e.prefer || {}) }, spirits: e.spirits || [], style: e.style || {}, color: e.color || null, strength: e.strength || 0, tartness: e.tartness || 0, sweetness: e.sweetness || 0 });
     text = text.split(' ' + phrase + ' ').join(' ');
   }
 
   // "hot" alone is ambiguous: temperature if paired with drink/mug/winter words, otherwise chili heat.
   if (/ hot /.test(text)) {
     if (intent.style.hot || / (mug|winter|cold|warm) /.test(text) || intent.tags.warm) intent.style.hot = true;
-    else { add(intent.tags, 'chili', 1.5); intent.matched.push({ phrase: 'hot', label: 'chili heat' }); }
+    else { add(intent.tags, 'chili', 1.5); intent.matched.push({ phrase: 'hot', label: 'chili heat', kind: 'word', tags: { chili: 1.5 }, ings: {}, spirits: [], style: {} }); }
   }
   if (intent.style.hot) intent.style.frozen = false;
   if (intent.style.zeroProof) intent.strength = -3;
   // Words the gods didn't catch: everything a guest wrote that no phrase, name or concept used.
   const covered = new Set(intent.matched.flatMap(m => normalizeText(m.phrase).trim().split(' ').map(stem)));
   intent.unheard = [...new Set(deAdjective(normalizeText(raw), concepts).trim().split(' ').filter(w => w.length >= 3 && !FILLER.has(w) && !covered.has(stem(w)) && !/^\d+$/.test(w)))];
+  // The card quotes what the guest typed ("Havana 1957"), not the parser's reading of it.
+  for (const m of [...intent.matched, ...intent.readings]) m.said = rawSpan(raw, m.phrase);
   return intent;
 }
 
@@ -686,6 +731,8 @@ function applyEffect(intent, e, sign, soft, scale = 1) {
     else intent.avoidSpirits.add(s);
   }
   if (e.fam) for (const [f, w] of Object.entries(e.fam)) add(intent.fam, f, sign * w);
+  // A bottle the word leans toward (bitter's Campari, a highball's soda) without ordering it.
+  if (e.prefer && sign > 0) for (const [id, w] of Object.entries(e.prefer)) add(intent.prefer, id, w);
   if (e.arch && sign > 0) for (const [a, w] of Object.entries(e.arch)) add(intent.archetypes, a, w);
   // Negated "sweet" means drier; negated "strong" means lighter, and so on.
   for (const key of ['strength', 'sweetness', 'tartness', 'complexity']) if (e[key]) intent[key] += sign * e[key] * scale;

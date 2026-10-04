@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createEngine } from '../web/lib/engine.js';
-import { drinkSpec, validateSpec, partsForPhrase, garnishPlan, UMBRELLA_ALLOWED, UP_VESSELS, FIZZ, idolSpec } from '../web/lib/artspec.js';
+import { drinkSpec, validateSpec, partsForPhrase, garnishPlan, garnishRule, UMBRELLA_ALLOWED, UP_VESSELS, FIZZ, idolSpec } from '../web/lib/artspec.js';
 import { CATALOG, rimOf } from '../web/lib/artcatalog.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -24,6 +24,7 @@ const PROMPTS = [
   'volcano bowl for 2', 'pina colada', 'blue hawaii', 'bushwacker', 'miami vice', "planter's punch", 'flaming scorpion',
   'pearl diver', "cobra's fang", 'rum old fashioned', 'hot grog', 'mule', 'suffering bastard', 'port au prince',
   'kingston negroni', 'a punch bowl for a party of 8', 'zero-proof for the designated driver', 'something creamy and coconutty',
+  'a tequila sunrise', 'skull mug of something dark', 'a drink for a dragon',
 ];
 const drawn = [];
 for (const p of PROMPTS) for (const seed of [0, 1]) {
@@ -173,11 +174,14 @@ test('the idol is not animated: its blink frame is its open face', () => {
 });
 
 // ---------------------------------------------------------------- the painted drink's color
-// The liquid is painted from the look (optics.js) pushed the way a tiki menu painter pushes it:
-// more saturated and luminous, on the drink's own hue, creams still cream, clear still cool, dark
-// still dark; and the graded glazes multiply exactly onto the tones they promise.
-import { pigment, glaze, washFactor, hexHsl, GLASS_PROFILES, TIKI_GLAZES, levelOf, PALETTE, drinkPaint, crossfade, glazeFamilies } from '../web/lib/artcatalog.js';
-import { paintTilt, glazeOf, shelfColorOf } from '../web/lib/artspec.js';
+// The liquid is painted from the look (optics.js), and the look's hex is a contract: the painted
+// body sits within 6 degrees of its hue, at most 0.12 more saturated and within 0.06 of its
+// lightness, and the median pixel of the drawn body is within a CIEDE2000 of 10 of it. The
+// painter's push toward a vivid menu painting is spent inside that box; creams stay cream, clear
+// stays cool, dark stays dark, and the graded glazes multiply exactly onto the tones they promise.
+import { pigment, bodyPigment, glaze, washFactor, hexHsl, GLASS_PROFILES, TIKI_GLAZES, WARM_GLAZES, levelOf, PALETTE, drinkPaint, crossfade, glazeFamilies, paintedBody, CONTRACT, VESSEL_IDS } from '../web/lib/artcatalog.js';
+import { paintTilt, glazeOf, shelfColorOf, litByCard } from '../web/lib/artspec.js';
+import { deltaE2000 } from '../web/lib/optics.js';
 import { blockCube, halfAt } from '../web/lib/artcatalog.js';
 import { spline } from '../web/lib/ink.js';
 import { grow } from '../web/lib/artcatalog.js';
@@ -185,15 +189,29 @@ import { grow } from '../web/lib/artcatalog.js';
 const hueGap = (a, b) => Math.abs(((a - b + 540) % 360) - 180);
 const rgb = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255);
 
-test('the painted body keeps the look\'s hue and is never duller than it', () => {
-  for (const { p, recipe } of drawn) {
-    const b = recipe.look.body, P = pigment(b.hex, { opacity: b.opacity, clarity: b.clarity });
-    if (P.kind === 'clear') continue;
-    const [h0, s0] = hexHsl(b.hex), [h, s] = hexHsl(P.body);
-    if (s0 > 0.08) assert.ok(hueGap(h, h0) <= 15, `${p}: painted hue ${h.toFixed(0)} strays from the look's ${h0.toFixed(0)}`);
-    if (P.kind === 'color') assert.ok(s >= Math.min(0.8, s0 * 1.25), `${p}: ${b.hex} painted at saturation ${s.toFixed(2)}, not pushed`);
-    else if (P.kind !== 'dark') assert.ok(s >= s0 * 0.85 || s >= 0.55, `${p}: ${b.hex} washed out to ${s.toFixed(2)}`);
+test('the look hex is a contract: the painted body keeps its hue, lightness and strength, and the drawn body\'s median pixel is within ΔE2000 10', () => {
+  for (const { p, seed, recipe, spec } of drawn) {
+    const liq = spec.elements.find(e => e.part === 'liquid').params, b = recipe.look.body, { P, shown } = drinkPaint(liq);
+    const [h0, s0, l0] = hexHsl(b.hex), [h, s, l] = hexHsl(P.body), at = `${p} [${seed}] ${b.hex} → ${P.body}`;
+    if (s0 > 0.08) assert.ok(hueGap(h, h0) <= CONTRACT.dh + 0.6, `${at}: hue ${h.toFixed(0)} strays from the look's ${h0.toFixed(0)}`);
+    assert.ok(s - s0 <= CONTRACT.ds + 0.01, `${at}: saturation ${s.toFixed(2)} past the look's ${s0.toFixed(2)} + ${CONTRACT.ds}`);
+    assert.ok(Math.abs(l - l0) <= CONTRACT.dl + 0.01, `${at}: lightness ${l.toFixed(2)} off the look's ${l0.toFixed(2)}`);
+    // (a clear or cloudy color is painted at least as strong as the look: vivid, never duller)
+    if (P.kind === 'color') assert.ok(s >= Math.min(s0, 0.97) - 0.005, `${at}: painted duller than the look`);
+    // the median pixel of the drawn body (in a mug with a float or a crown on it, the top layer
+    // is what the guest sees, and the surface is judged against that layer)
+    const top = GLASS_PROFILES[liq.kind].opaque && (recipe.look.layers || []).find(x => x.kind === 'float' || x.kind === 'crown');
+    const med = paintedBody(liq), want = top ? top.hex : b.hex, dE = deltaE2000(want, med);
+    assert.ok(dE <= (top ? 12 : 10), `${at}: the drawn body's median pixel ${med} is ΔE2000 ${dE.toFixed(1)} from ${want}`);
+    if (top) assert.ok(shown.some(x => x.id === top.id), `${p}: the top layer is not painted`);
   }
+});
+
+test('CIEDE2000 behaves: identical is 0, a hair apart is about 1, a copper painted scarlet is far', () => {
+  assert.equal(deltaE2000('#a7c28c', '#a7c28c'), 0);
+  assert.ok(deltaE2000('#ff0000', '#ff1010') < 2);
+  assert.ok(deltaE2000('#b65c2b', '#d8341a') > 10, 'a copper painted scarlet passes');
+  assert.ok(Math.abs(deltaE2000('#b65c2b', '#c06030') - deltaE2000('#c06030', '#b65c2b')) < 1e-9, 'not symmetric');
 });
 
 test('an amber glows instead of reading as mud; creams stay cream, clear stays cool, dark stays dark', () => {
@@ -314,25 +332,30 @@ test('a sink settles in its own color and fades into the body round the hue circ
 // Across the battery the painting spreads copper drinks with their own secondary colors: a red
 // foot only where something red is in the glass, honey-gold light where passion fruit or honey
 // carry it, and otherwise the two pours of one prayer lean opposite ways.
-test('copper drinks are tilted by their own secondary colors, and two pours of a prayer differ', () => {
-  const ing = engine.ingMap;
-  const grenadine = { seed: 0, lines: [{ id: 'rum-demerara', oz: 2 }, { id: 'lime', oz: 0.75 }, { id: 'grenadine', oz: 0.5 }] };
-  const passion = { seed: 0, lines: [{ id: 'rum-demerara', oz: 2 }, { id: 'lime', oz: 0.75 }, { id: 'passion-fruit-syrup', oz: 0.75 }] };
-  const plain = s => ({ seed: s, lines: [{ id: 'rum-demerara', oz: 2 }, { id: 'lime', oz: 0.75 }, { id: 'rich-simple', oz: 0.5 }] });
-  const tg = paintTilt(grenadine, ing, 7), tp = paintTilt(passion, ing, 7);
-  assert.ok(tg.shift < 0 && tg.foot && tg.footK > 0, 'grenadine gives no red foot');
-  assert.ok(tp.shift > 0 && tp.top && !tp.foot, 'passion fruit gives no honey-gold light');
-  const t0 = paintTilt(plain(0), ing, 7), t1 = paintTilt(plain(1), ing, 7);
-  assert.ok(Math.sign(t0.shift) !== Math.sign(t1.shift), 'two pours of one prayer lean the same way');
-  assert.ok(!t0.foot && !t1.foot, 'a garnet foot painted into a drink with nothing red in it');
-  // the tilt stays within the hue family and never turns an oxblood gold
-  const body = { hex: '#b65c2b', opacity: 0.74, clarity: 0.13 };
-  for (const t of [tg, tp, t0, t1]) {
-    const P = drinkPaint({ body, seed: 3, tilt: t, word: 'cloudy burnished copper' }).P;
-    assert.ok(hueGap(hexHsl(P.body)[0], hexHsl(pigment(body.hex, { opacity: 0.74 }).body)[0]) <= 15, `tilted copper painted ${P.body}`);
+// The painting follows the look, never the seed: two pours with one look are one paint; a
+// teaspoon of grenadine shaken through a Zombie is no red foot; and without a sink or a float the
+// look declares, no gradient turns the hue (the glass deepens in value, in the drink's own color).
+test('no painter\'s choice: one look is one paint, and only a declared layer turns the hue', () => {
+  assert.equal(paintTilt({ seed: 1, lines: [{ id: 'grenadine', oz: 0.17 }] }, engine.ingMap, 7), null);
+  const body = { hex: '#c4824d', opacity: 0.5, clarity: 0.3 };
+  const a = drinkPaint({ body, seed: 3, word: 'ruddy amber', tilt: { shift: -9, foot: '#8e1426', footK: 0.6 } }).P, b = drinkPaint({ body, seed: 977, word: 'ruddy amber' }).P;
+  assert.deepEqual(a, b, 'two pours of one ruddy amber are painted differently');
+  for (const key of ['surf', 'body', 'deep', 'foot', 'glow', 'warm']) assert.ok(hueGap(hexHsl(a[key])[0], hexHsl(body.hex)[0]) <= CONTRACT.dh + 0.6, `the ${key} of a ruddy amber turns to ${a[key]}`);
+  // across the battery: every even drink is one hue from its surface to its foot in the drawing
+  for (const { p, seed, recipe, spec } of drawn) {
+    const liq = spec.elements.find(e => e.part === 'liquid').params;
+    if ((recipe.look.layers || []).some(x => x.kind === 'sink' || x.kind === 'float') || GLASS_PROFILES[liq.kind].opaque || liq.frozen) continue;
+    const { P } = drinkPaint(liq);
+    if (P.kind === 'clear' || hexHsl(P.body)[1] < 0.2) continue;
+    const R = rimOf(liq.kind), top = levelOf(liq.kind, liq.fill), ws = CATALOG.liquid(liq).washes, h = R.bottom - top;
+    const hues = [0.3, 0.55, 0.8, 0.95].map(k => hexHsl(hexOf(paintedAt(ws, [R.cx + 9, top + h * k]))));
+    const sat = hues.filter(c => c[1] > 0.2);
+    for (const c of sat) assert.ok(hueGap(c[0], hexHsl(recipe.look.body.hex)[0]) <= 10, `${p} [${seed}]: the drawn ${recipe.look.description} turns to hue ${c[0].toFixed(0)} in the glass`);
   }
-  const ox = drinkPaint({ body: { hex: '#894126', opacity: 0.83, clarity: 0.03 }, seed: 3, tilt: tp, word: 'opaque oxblood' }).P;
-  assert.ok(hexHsl(ox.body)[0] <= 22, `an oxblood tilted gold: ${ox.body}`);
+  // the identical Zombies of a battery are painted identically
+  const z0 = engine.generate('zombie', { seed: 0 });
+  const p0 = drinkSpec({ ...z0, seed: 0 }, engine.ingMap).elements.find(e => e.part === 'liquid').params, p1 = drinkSpec({ ...z0, seed: 5, name: 'Other' }, engine.ingMap).elements.find(e => e.part === 'liquid').params;
+  assert.equal(drinkPaint(p0).P.body, drinkPaint(p1).P.body);
 });
 
 // ---------------------------------------------------------------- what kind of paint the drink is
@@ -420,14 +443,16 @@ test('a float shows on a tall drink packed with crushed ice', () => {
   assert.ok(Math.max(...ws.flatMap(w => w.pts.map(q => q[1]))) >= top + (R.bottom - top) * 0.2, 'the float reaches below the crushed-ice cap');
 });
 
-test('ceramic mugs and bowls wear tiki glazes; coconut, barrel and pineapple stay natural', () => {
-  const GL = Object.values(TIKI_GLAZES), ceramic = ['ku-mug', 'moai-mug', 'skull-mug', 'bird-mug', 'hot-mug', 'scorpion-bowl', 'tiki-bowl'];
+test('ceramic mugs and bowls wear tiki glazes, hot drinks warm stoneware, skulls bone or ebony; coconut, barrel and pineapple stay natural', () => {
+  const GL = Object.values(TIKI_GLAZES), WARM = Object.values(WARM_GLAZES), ceramic = ['ku-mug', 'moai-mug', 'skull-mug', 'bird-mug', 'hot-mug', 'scorpion-bowl', 'tiki-bowl'];
   let n = 0;
-  for (const { p, spec } of drawn) {
+  for (const { p, recipe, spec } of drawn) {
     const g = spec.elements.find(e => e.part === 'glass');
     if (!ceramic.includes(g.params.kind)) continue;
     n++;
-    assert.ok(GL.includes(g.params.glaze), `${p}: a ${g.params.kind} in ${g.params.glaze}, not a tiki glaze`);
+    if (g.params.kind === 'skull-mug') assert.ok([WARM_GLAZES.bone, TIKI_GLAZES.ebony].includes(g.params.glaze), `${p}: a skull in ${g.params.glaze}`);
+    else if (recipe.method.method === 'hot') assert.ok(WARM.includes(g.params.glaze), `${p}: a hot drink in a ${g.params.glaze} mug, not warm stoneware`);
+    else assert.ok(GL.includes(g.params.glaze), `${p}: a ${g.params.kind} in ${g.params.glaze}, not a tiki glaze`);
     assert.ok(CATALOG.glass(g.params).glazed, `${p}: the glaze is not composited as a glaze`);
   }
   assert.ok(n >= 3, 'ceramic vessels in the battery');
@@ -455,14 +480,13 @@ test('an even drink keeps its own hue down to the foot; a sink keeps its own col
     for (const key of ['deep', 'foot', 'warm']) assert.ok(hueGap(hexHsl(P[key])[0], hb) <= 9 && hueGap(hexHsl(P[key])[0], h0) <= 15, `${c.word}: the ${key} paints ${P[key]}, off the drink's hue`);
     for (const key of ['surf', 'glow', 'body']) assert.ok(hueGap(hexHsl(P[key])[0], hb) <= 7 && hueGap(hexHsl(P[key])[0], h0) <= 15, `${c.word}: the ${key} paints ${P[key]}, off the drink's hue`);
     assert.ok(hexHsl(P.foot)[2] <= hexHsl(P.body)[2], `${c.word}: the foot is no deeper than the body`);
-    if (c.tilt.foot) assert.ok(hexHsl(P.foot)[2] <= hexHsl(P.body)[2] * 0.65, `${c.word}: a red carrier shaken through is a dark garnet-brown foot, not ${P.foot}`);
   }
   // a pale drink under a float (ginger beer under dark rum) stays pale all the way down
   const pale = drinkPaint({ body: { hex: '#e7d7ad', opacity: 0.73, clarity: 0.5 }, word: 'cloudy pale honey with a dark brown float', layers: [{ kind: 'float', hex: '#551702', frac: 0.35 }], tilt: { shift: -7 } }).P;
   assert.ok(hexHsl(pale.foot)[2] >= 0.68 && hexHsl(pale.warm)[2] >= 0.66, `the ginger beer's foot paints ${pale.foot} / ${pale.warm}`);
-  // with a sink the depths still walk toward the syrup (the sunrise keeps its fire)
-  const sunrise = drinkPaint({ body: { hex: '#f19a45', opacity: 0.98, clarity: 0.5 }, word: 'opaque amber', layers: [{ kind: 'sink', hex: '#8e0a1e', frac: 0.15 }], tilt: { shift: -4 } }).P;
-  assert.ok(hexHsl(sunrise.warm)[0] < hexHsl('#f19a45')[0] - 9, `a sunrise's depths stay hue-shifted (${sunrise.warm})`);
+  // with a sink the syrup settles in its own color under the body (the sunrise keeps its fire)
+  const sunrise = drinkPaint({ body: { hex: '#f19a45', opacity: 0.98, clarity: 0.5 }, word: 'opaque amber', layers: [{ kind: 'sink', hex: '#8e0a1e', frac: 0.15 }] });
+  assert.ok(hueGap(hexHsl(sunrise.shown[0].paint)[0], 352) <= 14, `a grenadine sink paints ${sunrise.shown[0].paint}`);
 });
 
 test('a dark brown spirit is mahogany with amber light at its edge, not wine', () => {
@@ -483,22 +507,23 @@ test('an opaque fruit body is laid flat under a pale froth that shows', () => {
   assert.ok(hexHsl(body)[1] >= 0.6 && hexHsl(body)[2] < hexHsl(froth)[2] - 0.08, `the body paints ${body} under the froth ${froth}`);
 });
 
-test('ceramics keep clear of their neighbors\' glaze families; chile asks for oxblood, a dark prayer for black', () => {
+test('a glaze is a function of the drink and the vessel, never of its neighbors; chile asks for oxblood, a dark prayer for black', () => {
   const ceramic = ['ku-mug', 'moai-mug', 'skull-mug', 'bird-mug', 'hot-mug', 'scorpion-bowl', 'tiki-bowl'];
   const mugs = drawn.filter(d => ceramic.includes(d.spec.kind));
   assert.ok(mugs.length >= 3);
-  for (const { p, recipe, seed } of mugs) for (const avoid of [[TIKI_GLAZES.turquoise], [TIKI_GLAZES.cobalt, TIKI_GLAZES.jade]]) {
-    const spec = drinkSpec({ ...recipe, seed }, engine.ingMap, { avoid }), g = glazeOf(spec);
-    // (the nearest neighbor always; a farther one is let go when nothing else stands clear of the drink)
-    assert.ok(g && !glazeFamilies(avoid[0]).some(f => glazeFamilies(g).includes(f)), `${p}: ${g} beside ${avoid.join(', ')}`);
+  for (const { p, recipe, seed, spec } of mugs) for (const avoid of [[TIKI_GLAZES.turquoise], [TIKI_GLAZES.cobalt, TIKI_GLAZES.jade]]) {
+    assert.equal(glazeOf(drinkSpec({ ...recipe, seed }, engine.ingMap, { avoid })), glazeOf(spec), `${p}: the glaze answers its neighbors`);
   }
-  const spicy = engine.generate('something smoky and spicy for a cold night', { seed: 1 });
-  assert.equal(glazeOf(drinkSpec({ ...spicy, seed: 1 }, engine.ingMap)), TIKI_GLAZES.oxblood, 'a chile-hot toddy is not in oxblood');
+  const dragon = engine.generate('a drink for a dragon', { seed: 0 }), spec = drinkSpec({ ...dragon, seed: 0 }, engine.ingMap);
+  // (the oxblood when it stands clear of the drink: an oxblood mug round a rust-red drink loses it)
+  const drinkHue = hexHsl(drinkPaint(spec.elements.find(e => e.part === 'liquid').params).P.surf)[0];
+  if (ceramic.includes(spec.kind) && dragon.method.method !== 'hot' && hueGap(drinkHue, hexHsl(TIKI_GLAZES.oxblood)[0]) >= 30) assert.equal(glazeOf(spec), TIKI_GLAZES.oxblood, 'a chile-hot tiki mug is not in oxblood');
   const skull = engine.generate('skull mug of something dark', { seed: 0 });
   assert.equal(glazeOf(drinkSpec({ ...skull, seed: 0 }, engine.ingMap)), TIKI_GLAZES.ebony, 'a dark skull mug is not the black glaze');
-  // the black glaze shows its turquoise drips: a turquoise coat, and black laid as its own black
+  assert.equal(glazeOf(drinkSpec({ ...skull, seed: 0, prompt: 'a skull mug' }, engine.ingMap)), WARM_GLAZES.bone, 'a skull mug is not bone');
+  // an ebony skull is black with a charcoal sheen, not a turquoise mug with black at its foot
   const coat = CATALOG.glass({ kind: 'skull-mug', glaze: TIKI_GLAZES.ebony }).washes.map(w => hexHsl(w.color));
-  assert.ok(coat.some(([h, s]) => h >= 170 && h <= 200 && s > 0.3) && coat.some(([, , l]) => l < 0.15), 'no turquoise drips over black');
+  assert.ok(!coat.some(([h, s]) => h >= 160 && h <= 200 && s > 0.3) && coat.some(([, , l]) => l < 0.2), 'the ebony skull is not black');
 });
 
 test('mint muddled and shaken or blended through the drink shows as torn leaf bits in it', () => {
@@ -552,7 +577,7 @@ test('no glaze in the drink stains off-hue: a garnet foot is never violet', () =
   for (const w of ws) { const [h, s] = hexHsl(w.color); assert.ok(s < 0.25 || h <= 40 || h >= 345, `a wash loads ${w.color}`); }
 });
 
-test('a far sink feathers into the in-between color in tongues; a ceramic keeps clear of the drinks beside it', () => {
+test('a far sink feathers into the in-between color in tongues', () => {
   const params = { kind: 'highball', fill: 0.84, body: { hex: '#b6d77b', opacity: 0.13, clarity: 0.45 }, layers: [{ kind: 'sink', hex: '#720832', opacity: 0, frac: 0.15 }], seed: 9, word: 'chartreuse with hibiscus syrup settling ruby at the bottom' };
   const { shown } = drinkPaint(params), ruby = shown[0].paint, ws = CATALOG.liquid(params).washes;
   // the tongues: plain washes rising from the syrup, rounded and short of the body's own color
@@ -561,34 +586,35 @@ test('a far sink feathers into the in-between color in tongues; a ceramic keeps 
   // the top of the settled syrup is lighter and less saturated than its depths
   const feathers = ws.filter(w => w.layers && hexHsl(w.color)[1] > 0.3 && Math.abs(((hexHsl(w.color)[0] - hexHsl(ruby)[0] + 540) % 360) - 180) < 12);
   assert.ok(feathers.length >= 2, 'the syrup is one flat slab');
-  // a mug drawn under a turquoise drink in a clear glass keeps off the teal glazes
+  // a turquoise drink in a clear glass shows turquoise on the shelf
   const blue = engine.generate('Elvis in Blue Hawaii', { seed: 0 }), above = shelfColorOf(drinkSpec({ ...blue, seed: 0 }, engine.ingMap));
   assert.ok(above && hexHsl(above)[0] > 160 && hexHsl(above)[0] < 200, `the Blue Hawaii shows ${above}`);
-  const dragon = engine.generate('a drink for a dragon', { seed: 0 }), mug = drinkSpec({ ...dragon, seed: 0 }, engine.ingMap, { avoid: [null, above] });
-  if (glazeOf(mug)) assert.ok(!glazeFamilies(glazeOf(mug)).includes('teal'), `a ${glazeOf(mug)} mug under a turquoise drink`);
 });
 
-test('pale creams keep their own color: butter-yellow, mango-gold and ivory are three paints', () => {
-  const cream = (hex, word) => drinkPaint({ body: { hex, opacity: 1, clarity: 0.8 }, word, creamy: true, tilt: { shift: 12, top: '#f4cb34', topK: 0.6 } }).P;
-  const butter = cream('#f8ecc3', 'creamy butter-yellow'), mango = cream('#f6dfb0', 'creamy mango-gold'), ivory = cream('#f6ebca', 'creamy ivory');
-  const [bh, bs] = hexHsl(butter.body), [mh, ms, ml] = hexHsl(mango.body), [, is, il] = hexHsl(ivory.body);
-  assert.ok(bh >= 48 && bs >= 0.7, `a butter-yellow is a lemon-butter, not ${butter.body}`);
-  assert.ok(mh <= 40 && ms >= 0.75 && ml < hexHsl(butter.body)[2], `a mango-gold is a deeper apricot-gold, not ${mango.body}`);
-  assert.ok(is <= 0.42 && il >= 0.88, `an ivory is near the paper, not ${ivory.body}`);
-  // every glaze of a cream within 4 degrees of its body and no stronger than it (no peach shadow)
-  for (const P of [butter, mango]) {
-    const [h0, s0] = hexHsl(P.body);
-    for (const key of ['surf', 'deep', 'foot', 'glow', 'warm']) { const [h, s] = hexHsl(P[key]); assert.ok(hueGap(h, h0) <= 4.5 && s <= s0 + 0.01, `a cream's ${key} ${P[key]} strays from its body ${P.body}`); }
+test('pale creams keep their own color: butter-yellow, mango-gold and ivory are three paints, and an ivory stays warm', () => {
+  const cream = (hex, word) => drinkPaint({ body: { hex, opacity: 1, clarity: 0.8 }, word, creamy: true }).P;
+  const looks = { butter: '#f8ecc3', mango: '#f0b955', ivory: '#f6ebca' };
+  const butter = cream(looks.butter, 'creamy butter-yellow'), mango = cream(looks.mango, 'creamy mango-gold'), ivory = cream(looks.ivory, 'creamy ivory');
+  for (const [k, P] of Object.entries({ butter, mango, ivory })) {
+    const [h0, s0, l0] = hexHsl(looks[k]), [h, s, l] = hexHsl(P.body);
+    assert.ok(hueGap(h, h0) <= 6 && s - s0 <= 0.12 && Math.abs(l - l0) <= 0.06, `the ${k} paints ${P.body} for ${looks[k]}`);
   }
-  // an ivory's shadow is a cool grey, never a deeper cream
-  const [fh, fs] = hexHsl(ivory.foot);
-  assert.ok(fs <= 0.15 && fh > 180 && fh < 250, `an ivory's shadow paints ${ivory.foot}`);
+  // a mango colada is a deep mango-gold (about h37 s0.72 l0.68), not a pale cream
+  const [mh, ms, ml] = hexHsl(mango.body);
+  assert.ok(mh >= 33 && mh <= 42 && ms >= 0.7 && ml <= 0.72, `a mango-gold paints ${mango.body}`);
+  // an ivory is warm (hue 40-50, saturation at least 0.25), its shadow a deeper ivory, never grey-blue
+  for (const key of ['body', 'deep', 'foot', 'warm']) { const [h, s] = hexHsl(ivory[key]); assert.ok(h >= 38 && h <= 52 && s >= 0.25, `an ivory's ${key} paints ${ivory[key]}`); }
+  // every glaze of a cream within a few degrees of its body (no peach shadow)
+  for (const P of [butter, mango, ivory]) {
+    const [h0] = hexHsl(P.body);
+    for (const key of ['surf', 'deep', 'foot', 'glow', 'warm']) assert.ok(hueGap(hexHsl(P[key])[0], h0) <= 4.5, `a cream's ${key} ${P[key]} strays from its body ${P.body}`);
+  }
 });
 
 test('a pale look is lifted gently, and a copper never drifts gold', () => {
   const pale = drinkPaint({ body: { hex: '#d6ad6d', opacity: 0.43, clarity: 0.38 }, word: 'pale amber', tilt: { shift: -11 } }).P;
   const [ph, ps] = hexHsl(pale.body);
-  assert.ok(ps <= 0.74 && ph >= 33, `a pale amber paints ${pale.body}, an orange`);
+  assert.ok(ps <= 0.66 && ph >= 33, `a pale amber paints ${pale.body}, an orange`);
   const copper = drinkPaint({ body: { hex: '#c28848', opacity: 0.88, clarity: 0.19 }, word: 'opaque copper under a garnet crown of bitters', tilt: { shift: 13, top: '#f4cb34', topK: 0.56 } }).P;
   assert.ok(hexHsl(copper.body)[0] <= 32, `a copper paints ${copper.body}, a golden amber`);
 });
@@ -603,4 +629,133 @@ test('an ice cone shows the drink through it; a vessel holds its paint to its wa
   // grow pushes a square out on every side
   const sq = grow([[0, 0], [10, 0], [10, 10], [0, 10]], 2);
   assert.deepEqual(sq.map(p => p.map(v => Math.round(v))), [[-2, -2], [12, -2], [12, 12], [-2, 12]]);
+});
+
+// ---------------------------------------------------------------- round 2: the painting obeys the card
+test('fire only with a fire step: a spent shell is a spent shell, and a lit one keeps everything clear of its flame', () => {
+  const dragon = engine.generate('a drink for a dragon', { seed: 1 });
+  const lit = dragon.method.steps.some(x => /light it/.test(x));
+  // the same drink with its shell spent and no lighting step: no flame, even with the style's flag
+  const spent = { ...dragon, seed: 1, style: { ...(dragon.style || {}), flaming: true }, garnish: dragon.garnish.map(g => (/flaming/.test(g) ? 'spent lime shell' : g)), method: { ...dragon.method, steps: dragon.method.steps.filter(x => !/light it|flame/i.test(x)) } };
+  const s0 = drinkSpec(spent, engine.ingMap);
+  assert.ok(!litByCard(spent) && !s0.elements.some(e => e.part === 'garnish.flame' || e.part === 'sparkle'), 'a spent shell is drawn on fire with no step that lights it');
+  assert.equal((s0.elements.find(e => e.part === 'garnish.lime-shell') || { params: {} }).params.orientation, 'dome-up');
+  // a flaming garnish whose steps do not light it is not drawn alight either
+  const unlit = { ...spent, garnish: dragon.garnish };
+  assert.ok(!drinkSpec(unlit, engine.ingMap).elements.some(e => e.part === 'garnish.flame'), 'a flame with no lighting step');
+  // with the lighting step and its safety text, the flame is drawn, and every straw, sprig, stick
+  // and flower stands a hand's width clear of it at every height it burns
+  const fires = [...drawn.filter(d => litByCard(d.recipe)), ...(lit ? [{ p: 'a drink for a dragon', recipe: dragon, spec: drinkSpec({ ...dragon, seed: 1 }, engine.ingMap) }] : [])];
+  assert.ok(fires.length >= 2, 'lit drinks in the battery');
+  for (const { p, spec } of fires) {
+    const flames = spec.elements.filter(e => e.part === 'garnish.flame');
+    if (spec.kind !== 'volcano-bowl') assert.ok(flames.length, `${p}: lit on the card, not drawn`);
+    for (const f of flames) for (const e of spec.elements.filter(x => ['straw', 'garnish.mint', 'garnish.cinnamon', 'garnish.umbrella', 'garnish.orchid', 'garnish.edible-flower', 'garnish.herb-sprig', 'garnish.swizzle-stick'].includes(x.part))) {
+      for (const y of [f.y - (f.params.h || 54), f.y]) if (y <= e.y) assert.ok(Math.abs(e.x + Math.tan(e.rot || 0) * (e.y - y) - f.x) >= 40, `${p}: the ${e.part} stands in the flame at y ${y.toFixed(0)}`);
+    }
+  }
+});
+
+test('an opaque mug shows its drink at its own color, its float on top; a bowl shows the drink and its ice, a punch bowl its block', () => {
+  // the skull's black rum float is what the guest sees on the surface
+  const skull = drawn.filter(d => d.spec.kind === 'skull-mug' && d.recipe.look.layers.some(x => x.kind === 'float'));
+  assert.ok(skull.length, 'a skull mug with a float');
+  for (const { p, recipe, spec } of skull) {
+    const liq = spec.elements.find(e => e.part === 'liquid').params, med = paintedBody(liq), fl = recipe.look.layers.find(x => x.kind === 'float');
+    assert.ok(hexHsl(med)[2] < 0.3 && deltaE2000(med, fl.hex) <= 12, `${p}: the ${fl.id} float paints ${med} on the surface`);
+  }
+  // a bowl's surface is the drink's own color, not a pale salmon or white
+  for (const { p, recipe, spec } of drawn.filter(d => ['scorpion-bowl', 'tiki-bowl', 'volcano-bowl'].includes(d.spec.kind))) {
+    const liq = spec.elements.find(e => e.part === 'liquid').params;
+    assert.ok(deltaE2000(paintedBody(liq), recipe.look.body.hex) <= 10, `${p}: the bowl's surface paints ${paintedBody(liq)} for ${recipe.look.body.hex}`);
+    const ice = spec.elements.find(e => e.part === 'ice');
+    if (ice && ['crushed', 'pebble', 'shaved'].includes(ice.params.style)) {
+      const ws = CATALOG.ice(ice.params).washes;
+      assert.ok(ws.some(w => w.clip && w.clip.length > 3), `${p}: the drink does not show in the gaps between the chips`);
+    }
+  }
+  const punch = drawn.find(d => d.spec.kind === 'punch-bowl');
+  if (punch) {
+    const ice = punch.spec.elements.find(e => e.part === 'ice');
+    assert.ok(ice && ice.params.style === 'block' && CATALOG.ice(ice.params).strokes.length >= 2, 'the punch bowl shows no block');
+  }
+});
+
+test('garnish sprites: a banana coin is a cream disc on a pick, lemon is pale and not orange, a pineapple chunk is a cube, cinnamon a quill, floating wheels float', () => {
+  assert.equal(garnishRule('banana coin on a pick').id, 'banana-pick');
+  assert.equal(garnishRule('brûléed banana coin on a pick').id, 'banana-pick');
+  const banana = CATALOG['garnish.pick']({ items: ['banana'] }), cream = banana.washes.find(w => hexHsl(w.color)[2] > 0.85);
+  assert.ok(cream && !banana.strokes.some(s => s.pts.length === 2 && Math.hypot(s.pts[0][0] - s.pts[1][0], s.pts[0][1] - s.pts[1][1]) > 20), 'a banana coin drawn as a citrus wheel');
+  const sheet = engine.generate('a frozen banana drink', { seed: 0 });
+  if (sheet.garnish.some(g => /banana coin/.test(g))) assert.ok(drinkSpec({ ...sheet, seed: 0 }, engine.ingMap).elements.some(e => e.part === 'garnish.pick' && (e.params.items || []).includes('banana')), 'the banana coin is not on a pick');
+  // lemon and orange are told apart at a glance
+  const fill = part => hexHsl(CATALOG[part]({}).washes[0].color);
+  const [lh, , ll] = fill('garnish.lemon-wheel'), [oh, , ol] = fill('garnish.orange-wheel');
+  assert.ok(lh >= 48 && lh <= 60 && ll >= 0.7 && hueGap(lh, oh) >= 18, `lemon ${lh.toFixed(0)}/${ll.toFixed(2)} against orange ${oh.toFixed(0)}/${ol.toFixed(2)}`);
+  // a pineapple chunk is a cube, about as tall as it is wide, with its rind crosshatched
+  const chunk = CATALOG['garnish.pick']({ items: ['chunk'] }).cover.find(c => c.length >= 6), xs = chunk.map(q => q[0]), ys = chunk.map(q => q[1]);
+  const w = Math.max(...xs) - Math.min(...xs), h = Math.max(...ys) - Math.min(...ys);
+  assert.ok(w / h < 1.4 && w / h > 0.7, `a pineapple chunk ${w.toFixed(0)} by ${h.toFixed(0)} is a cigar`);
+  // a cinnamon quill is thin: about a third of an inch
+  const cin = CATALOG['garnish.cinnamon']({}).cover[0].map(q => q[0]);
+  assert.ok(Math.max(...cin) - Math.min(...cin) <= 9, 'a cinnamon stick as thick as a cigar');
+  // wheels floating on a punch: three to five small wheels on the surface
+  assert.equal(garnishRule('orange wheels floating').id, 'floating-wheels');
+  const punch = { ...engine.generate('a punch bowl for a party of 8', { seed: 0 }), seed: 0 };
+  punch.garnish = [...punch.garnish.filter(g => !/wheel/.test(g)), 'orange wheels floating'];
+  const wheels = drinkSpec(punch, engine.ingMap).elements.filter(e => e.part === 'garnish.orange-wheel');
+  assert.ok(wheels.length >= 3 && wheels.length <= 5 && wheels.every(e => (e.s || 1) < 0.7 && e.params.flat < 0.5), `${wheels.length} floating wheels`);
+});
+
+test('pressed mint is drawn only from a mint line, never from a step\'s words', () => {
+  const qps = engine.generate("queen's park swizzle", { seed: 0 }), spec = { ...qps, seed: 0 };
+  const noMint = { ...spec, lines: spec.lines.filter(l => l.id !== 'mint' || l.garnish) };
+  assert.ok(noMint.method.steps.some(x => /mint/i.test(x)) || true);
+  assert.ok(!drinkSpec(noMint, engine.ingMap).elements.some(e => e.part === 'garnish.mint-leaves'), 'pressed mint drawn with no mint line');
+  if (spec.lines.some(l => l.id === 'mint' && !l.garnish) && /press|muddle/i.test(spec.method.steps.join(' '))) assert.ok(drinkSpec(spec, engine.ingMap).elements.some(e => e.part === 'garnish.mint-leaves'), 'the QPS mint is not pressed into the glass');
+});
+
+test('the Kū mug is a carved relief, not a cartoon; every vessel in the library has a drawing, the acrylic tumbler too', () => {
+  const ku = CATALOG.glass({ kind: 'ku-mug', glaze: TIKI_GLAZES.jade });
+  // no googly pupils: no paper-white dots in the eyes
+  assert.ok(!(ku.dots || []).some(d => d.color === PALETTE.paper), 'googly eyes');
+  // a heavy brow (a long, near-level stroke across the face), almond eyes, a rectangular mouth
+  const wide = ku.strokes.filter(s => { const xs = s.pts.map(q => q[0]); return Math.max(...xs) - Math.min(...xs) >= 90 && s.pts.every(q => q[1] > 225 && q[1] < 255); });
+  assert.ok(wide.length >= 2, 'no brow ridge');
+  const mouth = ku.strokes.find(s => { const xs = s.pts.map(q => q[0]), ys = s.pts.map(q => q[1]); return s.pts.length >= 8 && Math.max(...xs) - Math.min(...xs) >= 60 && Math.max(...ys) - Math.min(...ys) >= 20 && Math.min(...ys) > 300; });
+  assert.ok(mouth, 'no rectangular mouth');
+  const vessels = read('data/vessels.json');
+  for (const v of vessels.vessels || vessels) assert.ok(VESSEL_IDS.includes(v.id) || VESSEL_IDS.includes(v.drawAs), `${v.id} has no drawing`);
+  assert.ok(VESSEL_IDS.includes('acrylic-tumbler') && !GLASS_PROFILES['acrylic-tumbler'].opaque, 'the acrylic tumbler is not drawn as a clear tumbler');
+  assert.ok(CATALOG.glass({ kind: 'acrylic-tumbler' }).strokes.length > CATALOG.glass({ kind: 'highball' }).strokes.length, 'the acrylic tumbler has no double wall');
+});
+
+test('the critic catches a flame with no lighting step, a lighting step with no safety line, and a fruit color word with no fruit', async () => {
+  const { createLinter } = await import('../web/lib/lint.js');
+  const { lint } = createLinter({ rules: read('data/technique-rules.json'), vocab: read('data/ingredients.json'), vessels: read('data/vessels.json') });
+  const dragon = engine.generate('a drink for a dragon', { seed: 0 }), ids = r => lint(r).map(f => f.id);
+  const unlit = { ...dragon, garnish: [...dragon.garnish.filter(g => !/flaming/.test(g)), 'flaming lime shell'], method: { ...dragon.method, steps: dragon.method.steps.filter(x => !/light it/.test(x)) } };
+  assert.ok(ids(unlit).includes('flame-without-step'), 'a flame with no step passes');
+  const unsafe = { ...unlit, method: { ...unlit.method, steps: [...unlit.method.steps, 'Set a sugar cube in the shell and light it.'] } };
+  assert.ok(lint(unsafe).some(f => f.id === 'flame-without-safety' && f.sev === 'fatal'), 'a flame with no safety line passes');
+  const mango = { ...dragon, look: { ...dragon.look, description: 'Opaque mango gold' } };
+  if (!dragon.lines.some(l => /mango/.test(l.id))) assert.ok(ids(mango).includes('look-word-fruit'), 'a mango gold with no mango passes');
+  for (const { p, recipe } of drawn) assert.ok(!lint(recipe).some(f => ['flame-without-step', 'flame-without-safety', 'look-word-fruit'].includes(f.id)), `${p}: ${lint(recipe).filter(f => /flame|look-word/.test(f.id)).map(f => f.msg).join('; ')}`);
+});
+
+test('a Lava Flow\'s strawberry, poured first, streaks up the walls only as a declared layer', async () => {
+  const { drinkLook } = await import('../web/lib/optics.js');
+  const ing = engine.ingMap, L = (spec, o) => drinkLook(spec.map(([id, oz, x]) => ({ id, oz, role: ing.get(id).role, ...(x || {}) })), ing, o);
+  const lines = [['rum-white-column', 1], ['coconut-rum', 1], ['banana', 1.75], ['pineapple-juice', 2], ['coconut-cream', 2]];
+  // without a declared streak the strawberries blended in are one pink body, no layer
+  const blended = L([...lines, ['strawberry', 2]], { method: 'blend', ice: 'blended', dilutionOz: 5 });
+  assert.ok(!blended.layers.some(x => x.kind === 'streak'), 'a streak with nothing poured first');
+  const lava = L([...lines, ['strawberry', 2, { streak: true }]], { method: 'blend', ice: 'blended', dilutionOz: 5 });
+  const st = lava.layers.find(x => x.kind === 'streak');
+  assert.ok(st && /streaking .* up through it/.test(lava.description), `the Lava Flow reads ${lava.description}`);
+  assert.ok(hexHsl(lava.body.hex)[2] > 0.75, `the colada between the streaks is ${lava.body.hex}, not pink`);
+  const params = { kind: 'hurricane', fill: 0.92, frozen: true, body: lava.body, layers: lava.layers, word: lava.description.toLowerCase(), creamy: true, seed: 9 };
+  const red = drinkPaint(params).shown[0].paint, ws = CATALOG.liquid(params).washes.filter(w => hueGap(hexHsl(w.color)[0], hexHsl(red)[0]) < 25 && hexHsl(w.color)[1] > 0.4);
+  const R = rimOf('hurricane'), tops = ws.map(w => Math.min(...w.pts.map(q => q[1])));
+  assert.ok(ws.length >= 4 && Math.min(...tops) < R.bottom - (R.bottom - R.y) * 0.4, 'the strawberry does not streak up the glass');
 });

@@ -180,7 +180,9 @@ export const PER_INCH = 38;
 
 const turn = (pts, a, ox = 0, oy = 0) => { const c = Math.cos(a), s = Math.sin(a); return pts.map(([x, y]) => [ox + x * c - y * s, oy + x * s + y * c]); };
 const circle = (cx, cy, r, n = 22) => ell(cx, cy, r, r, 0, TAU, n);
-const NUTMEG = '#7A4A26', BAMBOO = '#D2AC63', PEEL = { orange: PALETTE.orange, lemon: PALETTE.butter, lime: PALETTE.lime, grapefruit: '#F2A08A' };
+// Lemon is a pale, clean yellow, told apart at a glance from the orange beside it.
+const LEMON = '#F4E27C', LEMON_RIND = '#E6CB34';
+const NUTMEG = '#7A4A26', BAMBOO = '#D2AC63', PEEL = { orange: PALETTE.orange, lemon: LEMON_RIND, lime: PALETTE.lime, grapefruit: '#F2A08A' };
 
 // Several drawings ({ strokes, washes, dots, cover }) as one.
 function merge(...parts) {
@@ -457,17 +459,25 @@ function pineappleFronds({ h = 150 } = {}) {
 // A small bamboo pick skewering fruit in order along +x, the pick showing past both ends.
 // Items: 'cherry', 'chunk' (a rectangle of pineapple with its rind), 'ginger' (a candied cube).
 function pickWith(items, { gap = 4, lead = 0 } = {}) {
-  const W = { cherry: 32, chunk: 46, ginger: 28, ring: 62 };
+  const W = { cherry: 32, chunk: 32, ginger: 28, ring: 62, banana: 30 };
   const parts = [], spans = [];
   let x = 16 + lead;
   for (const it of items) {
     const w = W[it] || 30, cx = x + w / 2;
     if (it === 'cherry') parts.push(cherryBody(cx, 0, 16, false));
     else if (it === 'chunk') {
-      const box = [[cx - 23, -9], [cx + 23, -10], [cx + 23, 9], [cx - 23, 10]];
-      const ticks = [];
-      for (let t = cx - 19; t < cx + 20; t += 7) ticks.push({ pts: [[t, 6], [t + 3, 9], [t + 6, 6]], tier: 3 });
-      parts.push({ strokes: [{ pts: [...box, box[0]], tier: 1 }, { pts: [[cx - 23, 4.5], [cx + 23, 4]], tier: 2 }, ...ticks, { pts: [[cx - 12, -8], [cx - 10, 3]], tier: 3 }, { pts: [[cx + 8, -9], [cx + 10, 3]], tier: 3 }], washes: [{ pts: box, color: PALETTE.butter, alpha: 0.07, soft: 0.3 }, { pts: [[cx - 23, 4.5], [cx + 23, 4], [cx + 23, 9], [cx - 23, 10]], color: '#9A8A3A', alpha: 0.09, soft: 0.3 }], cover: [box] });
+      // a cube of pineapple seen a little from above: the front face, the top and the right side,
+      // the rind on the side, crosshatched with its eyes
+      const a = 11, d = 6, F = [[cx - a, -a + 3], [cx + a - d, -a + 3], [cx + a - d, a + 1], [cx - a, a + 1]];
+      const T = [[cx - a, -a + 3], [cx - a + d, -a - 3], [cx + a, -a - 3], [cx + a - d, -a + 3]], Sd = [[cx + a - d, -a + 3], [cx + a, -a - 3], [cx + a, a - 5], [cx + a - d, a + 1]];
+      const hatch = [];
+      for (let k = 0; k < 4; k++) { const y = -a + 1 + k * 5.5; hatch.push({ pts: [[cx + a - d + 0.5, y + 4], [cx + a - 0.5, y - 2]], tier: 3 }, { pts: [[cx + a - d + 0.5, y - 1], [cx + a - 0.5, y + 4.5]], tier: 3 }); }
+      parts.push({ strokes: [{ pts: [...F, F[0]], tier: 1 }, { pts: [T[0], T[1], T[2], T[3]], tier: 1 }, { pts: [Sd[1], Sd[2], Sd[3]], tier: 1 }, ...hatch, { pts: [[cx - 4, -4], [cx - 2, 4]], tier: 3 }], washes: [{ pts: F, color: PALETTE.butter, alpha: 0.08, soft: 0.3 }, { pts: T, color: '#F7E08A', alpha: 0.07, soft: 0.3 }, { pts: Sd, color: '#9A8A3A', alpha: 0.12, soft: 0.3 }], cover: [[F[0], T[1], T[2], Sd[2], Sd[3], F[3]]] });
+    } else if (it === 'banana') {
+      // a coin of banana: a cream disc with a thin yellow edge of peel and its seeds at the heart
+      const o = ell(cx, 0, 14, 15, 0, TAU, 20);
+      const seeds = [0, 1, 2].map(k => { const t = -Math.PI / 2 + k * TAU / 3; return { x: cx + Math.cos(t) * 3.4, y: Math.sin(t) * 3.4, r: 1, tier: 2 }; });
+      parts.push({ strokes: [{ pts: o, tier: 1 }, { pts: ell(cx, 0, 11.5, 12.5, 0, TAU, 18), tier: 3 }], washes: [{ pts: o, color: '#F8EDC6', alpha: 0.14, soft: 0.3 }, { pts: ell(cx, 0, 14, 15, 0.3, 2.4, 10).concat(ell(cx, 0, 11.5, 12.5, 2.4, 0.3, 10)), color: '#EED45A', alpha: 0.12, soft: 0.3 }], dots: seeds, cover: [o] });
     } else if (it === 'ginger') {
       const box = [[cx - 13, -12], [cx + 13, -13], [cx + 14, 12], [cx - 12, 13]];
       parts.push({ strokes: [{ pts: [...box, box[0]], tier: 1 }, { pts: [[cx - 13, -12], [cx - 7, -17], [cx + 18, -17], [cx + 13, -13]], tier: 2 }], washes: [{ pts: box, color: PALETTE.ochre, alpha: 0.13, soft: 0.3 }], dots: Array.from({ length: 7 }, (_, k) => ({ x: cx - 9 + (k * 5.3) % 19, y: -8 + (k * 7.1) % 17, r: 0.9, color: PALETTE.paper, top: true })), cover: [box] });
@@ -587,11 +597,12 @@ function umbrella() {
 
 // A cinnamon quill: rolled bark with its scroll showing at the top.
 function cinnamon({ len = 132 } = {}) {
-  const L = [[-7, 0], [-7.5, -len * 0.5], [-7, -len]], Rt = [[7, 0], [7.5, -len * 0.5], [7, -len]];
+  // a quill: a thin roll of bark, about a third of an inch across, its scroll showing at the top
+  const L = [[-3.4, 0], [-3.6, -len * 0.5], [-3.4, -len]], Rt = [[3.4, 0], [3.6, -len * 0.5], [3.4, -len]];
   return {
-    box: [20, len + 6],
-    strokes: [{ pts: L, tier: 1 }, { pts: Rt, tier: 1 }, { pts: ell(0, -len, 7, 3, 0, TAU, 14), tier: 2 }, { pts: ell(1.5, -len + 0.5, 3.5, 1.5, 0, TAU * 0.8, 10), tier: 3 }, { pts: [[2, -6], [2.5, -len + 4]], tier: 3 }, { pts: [[-3, -len * 0.3], [-3, -len * 0.62]], tier: 3 }],
-    washes: [{ pts: [...L, ...Rt.slice().reverse()], color: PALETTE.wood, alpha: 0.085, soft: 0.3 }],
+    box: [10, len + 4],
+    strokes: [{ pts: L, tier: 1 }, { pts: Rt, tier: 1 }, { pts: ell(0, -len, 3.4, 1.6, 0, TAU, 12), tier: 2 }, { pts: ell(0.8, -len + 0.3, 1.6, 0.8, 0, TAU * 0.8, 8), tier: 3 }, { pts: [[1, -6], [1.2, -len + 3]], tier: 3 }],
+    washes: [{ pts: [...L, ...Rt.slice().reverse()], color: '#9A5A2E', alpha: 0.1, soft: 0.3 }],
     cover: [[...L, ...Rt.slice().reverse()]],
   };
 }
@@ -665,6 +676,12 @@ function fruitSlice({ fruit = 'banana' } = {}) {
     const skin = ell(0, 0, 26, 18, 0, Math.PI, 16), face = ell(0, 0, 26, 8, 0, TAU, 20);
     const seeds = Array.from({ length: 9 }, (_, i) => ({ x: -16 + (i * 9.1) % 32, y: -3 + (i * 5.3) % 6, r: 1.4, color: '#2A1A14' }));
     return { box: [56, 30], strokes: [{ pts: face, tier: 1 }, { pts: skin, tier: 1 }, { pts: ell(0, 0, 21, 6, 0, TAU, 18), tier: 3 }], washes: [{ pts: [...skin, ...ell(0, 0, 26, 8, Math.PI, TAU, 10)], color: '#7A3A6A', alpha: 0.12, soft: 0.3 }, { pts: ell(0, 0, 21, 6, 0, TAU, 14), color: PALETTE.butter, alpha: 0.14, soft: 0.3 }], dots: seeds, cover: [[...skin, ...ell(0, 0, 26, 8, Math.PI, TAU, 10)]] };
+  }
+  if (fruit === 'banana') {
+    // a banana coin on the rim: a cream disc with a thin edge of yellow peel, slotted
+    const o = ell(0, 0, 17, 17, 0, TAU, 22);
+    const seeds = [0, 1, 2].map(k => { const t = -Math.PI / 2 + k * TAU / 3; return { x: Math.cos(t) * 4, y: Math.sin(t) * 4, r: 1.1, tier: 2 }; });
+    return { box: [36, 36], strokes: [{ pts: o, tier: 1 }, { pts: ell(0, 0, 14, 14, 0, TAU, 20), tier: 3 }, { pts: [[0, 16.5], [0, 8]], tier: 2 }], washes: [{ pts: o, color: '#F8EDC6', alpha: 0.14, soft: 0.3 }, { pts: [...ell(0, 0, 17, 17, 0, TAU, 20), ...ell(0, 0, 14, 14, TAU, 0, 20)], color: '#EED45A', alpha: 0.1, soft: 0.3 }], dots: seeds, cover: [o] };
   }
   const spec = {
     banana: { r: 17, color: '#F3E3B0', rind: PALETTE.butter, seeds: true },
@@ -763,6 +780,9 @@ export const GLASS_PROFILES = {
   rocks: { pts: [[307, 62], [436, 58]], foot: 'slab', rimTilt: 0.18 },
   dof: { pts: [[288, 68], [436, 62]], foot: 'slab', rimTilt: 0.17 },
   highball: { pts: [[222, 55], [436, 52]], foot: 'slab', rimTilt: 0.16 },
+  // A 16 oz double-walled acrylic tumbler (Tervis, 1946): for the pool, the sand and the boat.
+  // A little flared, the inner wall drawn a few units inside the outer one, a thick clear base.
+  'acrylic-tumbler': { pts: [[206, 60], [436, 49]], foot: 'slab', rimTilt: 0.16, double: 6 },
   collins: { pts: [[202, 50], [436, 48]], foot: 'slab', rimTilt: 0.15 },
   chimney: { pts: [[174, 46], [418, 42]], foot: 'heavy', rimTilt: 0.15 },
   hurricane: { pts: [[128, 54], [170, 48], [220, 36], [270, 48], [320, 60], [360, 47], [392, 22]], foot: 'stem', footW: 50, rimTilt: 0.15 },
@@ -853,6 +873,11 @@ function clearGlass(kind, front = 'with') {
     strokes.push({ pts: [[cx - sw, stemTop], [cx - sw + 1, footY - 3]], tier: 2 }, { pts: [[cx + sw, stemTop], [cx + sw - 1, footY - 3]], tier: 2 });
     strokes.push({ pts: ell(cx, footY, G.footW, 6, 0, TAU, 26), tier: 1 });
   }
+  if (G.double) {
+    // the inner wall of a double-walled tumbler, and the floor of the inner cup above the thick base
+    const d = G.double, inner = s => G.pts.map(([y, w], i) => [cx + s * (w - d), i === G.pts.length - 1 ? y - 16 : y + 4]);
+    strokes.push({ pts: inner(-1), tier: 3 }, { pts: inner(1), tier: 3 }, frontArc(cx, bottom[0] - 16, bottom[1] - d, (bottom[1] - d) * 0.14, 3));
+  }
   if (G.flutes) {
     // The Pearl Diver glass's fluted lower bowl.
     for (const k of [-0.6, -0.2, 0.2, 0.6]) strokes.push({ pts: [[cx + k * halfAt(G, G.flutes[0]), G.flutes[0]], [cx + k * halfAt(G, 350) * 1.05, 350], [cx + k * halfAt(G, G.flutes[1] - 6), G.flutes[1] - 6]], tier: 3 });
@@ -873,11 +898,14 @@ function clearGlass(kind, front = 'with') {
 // Mid-century tiki glazes (Bauer, Otagiri, Orchids of Hawaii): what a ceramic mug or bowl wears.
 // (ebony is a black glaze with turquoise run down from the rim in drips, ceramicCoat below)
 export const TIKI_GLAZES = { turquoise: '#3FA9A8', oxblood: '#A3352F', cobalt: '#3F6CBC', jade: '#4F9C6C', mustard: '#D8A62E', seafoam: '#86C7AE', coral: '#D9694F', ebony: '#4A4752' };
-const isGlaze = c => Object.values(TIKI_GLAZES).includes(c);
+// Warm stoneware for hot drinks: bone (a cream glaze), oatmeal, a honey amber (Rockingham) and a
+// tenmoku brown-black. A skull mug is bone unless the prayer asks for something dark.
+export const WARM_GLAZES = { bone: '#E6D9BD', oatmeal: '#D2BD98', honey: '#B8783C', tenmoku: '#5A3B2A' };
+const isGlaze = c => Object.values(TIKI_GLAZES).includes(c) || Object.values(WARM_GLAZES).includes(c);
 // Glazes that read as one color across a shelf: turquoise, jade and sea-foam are all the green-teal
 // family, so two of them side by side read as a pair, not a spread.
 const GLAZE_FAMILY = { turquoise: 'teal', jade: 'teal', seafoam: 'teal', oxblood: 'red', cobalt: 'blue', mustard: 'ochre', coral: 'coral', ebony: 'black' };
-export const glazeFamily = c => { const k = Object.keys(TIKI_GLAZES).find(n => TIKI_GLAZES[n] === c); return k ? GLAZE_FAMILY[k] : null; };
+export const glazeFamily = c => { const k = Object.keys(TIKI_GLAZES).find(n => TIKI_GLAZES[n] === c); return k ? GLAZE_FAMILY[k] : Object.values(WARM_GLAZES).includes(c) ? 'neutral' : null; };
 // The families a glaze shows (ebony shows its turquoise drips too).
 export const glazeFamilies = c => { const f = glazeFamily(c); return !f ? [] : f === 'black' ? ['black', 'teal'] : [f]; };
 // Clip a polygon to the side of a line where f(p) >= 0 (f linear).
@@ -946,7 +974,13 @@ function ebonyCoat(poly, { drips = true } = {}) {
   const x0 = Math.min(...xs), x1 = Math.max(...xs), yt = Math.min(...ys), w = x1 - x0, hgt = Math.max(...ys) - yt;
   const TQ = TIKI_GLAZES.turquoise, BLACK = TIKI_GLAZES.ebony, SHEEN = '#6E6B78', PALE = hslHex(hexHsl(TQ)[0], 0.5, 0.78);
   const out = [], coat = (pts, target, under, alpha, soft = 0.8) => { if (pts) { const g = glaze(target, under, alpha); out.push({ pts, color: g.color, alpha: g.alpha, soft, grain: 0.14, layers: GLAZE_LAYERS }); } };
-  if (!drips) { coat(poly, BLACK, '#FFFFFF', 0.07, 0.6); return out; }
+  if (!drips) {
+    // (plain black, with the charcoal sheen down the lit side: a skull or a handle)
+    coat(clipX(poly, x0 - 12, x0 + w * 0.16 + 1), BLACK, '#FFFFFF', 0.07, 0.5);
+    coat(clipX(poly, x0 + w * 0.16, x0 + w * 0.3), SHEEN, '#FFFFFF', 0.07, 0.5);
+    coat(clipX(poly, x0 + w * 0.3 - 1, x1 + 12), BLACK, '#FFFFFF', 0.07, 0.5);
+    return out;
+  }
   coat(poly, PALE, '#FFFFFF', 0.06, 0.6);
   coat(clipHalf(poly, q => yt + hgt * 0.62 - q[1]), TQ, PALE, 0.06, 0.6);
   // the drip line: a wavy collar a little under the rim, and five tongues of glaze of different
@@ -971,16 +1005,32 @@ function ebonyCoat(poly, { drips = true } = {}) {
 const rimCut = (poly, cx, y, hw, tilt) => [...poly, ...ell(cx, y, hw - 6, (hw - 6) * tilt, 0, Math.PI, 16)];
 // The body's washes: a ceramic glaze, or a plain wash of a natural material (wood, sand, bone).
 const bodyCoat = (poly, glazeHex, alpha, opts) => isGlaze(glazeHex) ? ceramicCoat(poly, glazeHex, opts) : [held({ pts: grow(poly, LAY), color: glazeHex, alpha }, poly)];
+// The Kū mug: a carved relief, not a cartoon (presentation.md §6.2): a heavy brow ridge, almond
+// eyes cut under it, a broad flat nose with flared nostrils, and a wide rectangular mouth, as on
+// the carved figures the mid-century mugs were cast from; stubby arms and squatting legs below.
 function kuMugVessel({ glaze = PALETTE.wood } = {}) {
   const left = [[90, 180], [92, 310], [94, 436]];
+  const shade = isGlaze(glaze) ? (([h, s, l]) => hslHex(h, Math.min(0.7, s), l * 0.5))(hexHsl(glaze)) : '#5A3418';
+  const almond = (cx, cy, out) => {
+    // a lens with its outer corner lifted a little
+    const up = [], dn = [];
+    for (let k = 0; k <= 10; k++) { const u = k / 10, x = cx - 16 + 32 * u, lift = out * (u - 0.5) * 5; up.push([x, cy - Math.sin(Math.PI * u) * 7.5 - lift]); dn.push([x, cy + Math.sin(Math.PI * u) * 5.5 - lift]); }
+    return { up, dn, poly: [...up, ...dn.slice().reverse()] };
+  };
+  const eL = almond(124, 258, -1), eR = almond(176, 258, 1);
+  const brow = [[98, 240], [112, 232], [134, 232], [150, 238], [166, 232], [188, 232], [202, 240]], browLow = [[100, 246], [114, 242], [134, 243], [150, 248], [166, 243], [186, 242], [200, 246]];
+  const nose = [[143, 250], [140, 270], [128, 284], [130, 292], [140, 294], [146, 290], [150, 292], [154, 290], [160, 294], [170, 292], [172, 284], [160, 270], [157, 250]];
+  const mouth = [[116, 308], [184, 308], [186, 312], [186, 330], [182, 334], [118, 334], [114, 330], [114, 312], [116, 308]];
   return {
     strokes: [
       { pts: left, tier: 1 }, { pts: mir(left), tier: 1 }, frontArc(150, 436, 56, 7), ...rimStrokes(150, 180, 60, 0.18),
-      { pts: [[94, 212], [206, 212]], tier: 2 }, { pts: [[96, 222], [204, 222]], tier: 3 },
-      { pts: ell(124, 250, 17, 17, -1.2, -1.2 + TAU * 1.04, 24), tier: 1 }, { pts: ell(176, 250, 17, 17, -1.2, -1.2 + TAU * 1.04, 24), tier: 1 },
-      { pts: [[142, 266], [134, 292], [166, 292], [158, 266]], tier: 2 },
-      { pts: [[106, 314], [194, 314]], tier: 1 }, { pts: [[106, 314], [120, 338], [150, 348], [180, 338], [194, 314]], tier: 1 },
-      ...[122, 136, 150, 164, 178].map(x => ({ pts: [[x, 315], [x, 325]], tier: 2 })),
+      { pts: [[94, 208], [206, 208]], tier: 2 }, { pts: [[96, 216], [204, 216]], tier: 3 },
+      // the brow ridge, heavy, dipping at the bridge of the nose
+      { pts: brow, tier: 1 }, { pts: browLow, tier: 2 },
+      { pts: eL.up, tier: 1 }, { pts: eL.dn, tier: 2 }, { pts: eR.up, tier: 1 }, { pts: eR.dn, tier: 2 },
+      { pts: nose, tier: 1 }, { pts: [[132, 290], [137, 287]], tier: 3 }, { pts: [[168, 290], [163, 287]], tier: 3 },
+      { pts: mouth, tier: 1 }, { pts: [[118, 321], [182, 321]], tier: 2 },
+      ...[130, 150, 170].map(x => ({ pts: [[x, 309], [x, 320]], tier: 3 })),
       { pts: [[90, 244], [78, 252], [78, 288], [91, 298]], tier: 1 }, { pts: [[210, 244], [222, 252], [222, 288], [209, 298]], tier: 1 },
       // stubby arms bent at the elbow, hands meeting on the belly; squatting legs at the base
       { pts: [[94, 364], [112, 384], [140, 380]], tier: 2 }, { pts: [[206, 364], [188, 384], [160, 380]], tier: 2 },
@@ -988,10 +1038,15 @@ function kuMugVessel({ glaze = PALETTE.wood } = {}) {
     ],
     washes: [
       ...bodyCoat(rimCut(bodyPoly(left), 150, 180, 60, 0.18), glaze, 0.034),
-      { pts: [[108, 316], [192, 316], [180, 336], [150, 346], [120, 336]], color: PALETTE.hibiscusDeep, alpha: 0.06, soft: 0.4 },
+      // the carving's shadows: under the brow, in the eyes and in the mouth, the glaze pooled dark
+      ...[
+        { pts: [...browLow, [200, 252], [100, 252]], color: shade, alpha: 0.05, soft: 0.6 },
+        { pts: eL.poly, color: shade, alpha: 0.08, soft: 0.3 }, { pts: eR.poly, color: shade, alpha: 0.08, soft: 0.3 },
+        { pts: mouth.slice(0, -1), color: shade, alpha: 0.08, soft: 0.3 },
+        { pts: [[128, 288], [140, 294], [150, 292], [160, 294], [172, 288], [160, 296], [140, 296]], color: shade, alpha: 0.06, soft: 0.4 },
+      ].map(w => held(w, bodyPoly(left))),
     ],
     glazed: isGlaze(glaze),
-    dots: [{ x: 124, y: 252, r: 6 }, { x: 176, y: 252, r: 6 }, { x: 122, y: 249, r: 1.8, color: PALETTE.paper }, { x: 174, y: 249, r: 1.8, color: PALETTE.paper }],
   };
 }
 
@@ -1013,7 +1068,7 @@ function skullMugVessel({ glaze: g = '#E6D9BD' } = {}) {
       { pts: ell(244, 292, 7, 6, 0, TAU, 12), tier: 2 }, { pts: ell(236, 390, 7, 6, 0, TAU, 12), tier: 2 },
     ],
     washes: [
-      ...bodyCoat(rimCut(bodyPoly(left), 150, 262, 52, 0.2), bone, 0.05),
+      ...bodyCoat(rimCut(bodyPoly(left), 150, 262, 52, 0.2), bone, 0.05, g === TIKI_GLAZES.ebony ? { pool: false } : undefined),
       ...bodyCoat([[222, 292], [244, 294], [258, 316], [261, 346], [253, 372], [236, 388], [214, 392], [222, 380], [238, 374], [248, 356], [248, 330], [242, 308], [226, 304]], bone, 0.05, { sheen: false, pool: false }),
       { pts: ell(126, 334, 17, 13, 0, TAU, 14), color: hollow, alpha: 0.09, soft: 0.4 },
       { pts: ell(174, 334, 17, 13, 0, TAU, 14), color: hollow, alpha: 0.09, soft: 0.4 },
@@ -1513,6 +1568,89 @@ export function pigment(hex, { opacity = 0.5, clarity = 0.5, layer = false, neon
   if (ivory) out.shadow = { deep: hslHex(215, 0.04, l - 0.015), foot: hslHex(215, 0.06, l - 0.035), warm: hslHex(215, 0.03, l - 0.02) };
   return out;
 }
+// The body of the drink, painted to the look's contract (critique round 2, §6): the look hex
+// (optics.js) is the drink's color, so the painted body sits within 6 degrees of its hue, at
+// most 0.12 more saturated and within 0.06 of its lightness. The painter's push toward a vivid
+// menu painting is spent inside that box (a clear color a tenth more saturated and a few points
+// lighter, so an amber glows rather than reading as mud), never as a turn of hue: a copper
+// stays brown-orange, an oxblood stays dark, a honeyed amber is never lemon, an ivory stays warm.
+// The glass gets its depth from value alone: lighter where light comes through the surface,
+// deeper down the glass, in the drink's own hue all the way (a hue-shifting gradient is a layer,
+// and only a sink or a float the look declares paints one). The blooms and tints charged wet
+// into wet stay within a few degrees of it.
+export const CONTRACT = { dh: 6, ds: 0.12, dl: 0.06 };
+export function bodyPigment(hex, { opacity = 0.5, clarity = 0.5, neon = false, word = '', creamy: cream = null, cafe: coffee = null } = {}) {
+  if (!okHex(hex)) hex = PALETTE.butter;
+  const [h0, s0, l0] = hexHsl(hex), w = bodyWord(word);
+  const cafe = typeof coffee === 'boolean' ? coffee : /café|cafe|coffee|mocha|cocoa|chocolate|latte|\btan\b/.test(w);
+  const box = (h, s, l) => [toward(h, h0, CONTRACT.dh), Math.max(0, Math.min(s, s0 + CONTRACT.ds, 0.97)), Math.max(l0 - CONTRACT.dl, Math.min(l0 + CONTRACT.dl, l))];
+  const S = x => Math.min(0.97, Math.max(0, x));
+  const grey = s0 < 0.06;
+  // A nearly colorless drink is a watery sparkle: a cool blue only when it is water-white; a
+  // daiquiri's straw keeps its own faint green-gold.
+  if (lum(hex) > 0.9 && opacity < 0.3) {
+    const [r, g, b] = rgbOf(hex), chroma = Math.max(r, g, b) - Math.min(r, g, b);
+    const waterWhite = w ? /water|crystal|colorless|^clear/.test(w) && !/straw|gold|green|amber|honey|yellow|pink|blush|rose|peach/.test(w) : chroma < 0.04;
+    if (waterWhite) {
+      const body = mixHex(hex, '#B4DCE2', 0.22);
+      return finish('clear', { surf: body, body, deep: body, foot: mixHex(body, '#7CC3D2', 0.25) }, [mixHex(hex, '#F3E2A0', 0.3), mixHex(body, '#9FD8D0', 0.35)]);
+    }
+    const [ch, cs, cl] = box(h0, Math.max(0.42, s0 + 0.08), l0 - 0.03);
+    const body = hslHex(ch, cs, cl);
+    return finish('clear', { surf: body, body, deep: body, foot: hslHex(ch, S(cs + 0.04), cl - 0.04) }, [hslHex(ch - 6, cs, cl), hslHex(ch + 6, cs, cl)]);
+  }
+  const creamy = typeof cream === 'boolean' ? cream && opacity >= 0.6 : w ? /^creamy\b/.test(w) : opacity >= 0.85 && l0 >= 0.55 && h0 >= 18 && h0 <= 52;
+  const named = WORD_HUE.find(([re]) => re.test(w));
+  let h = named ? toward(h0, named[1], 4) : h0, s, l, kind;
+  if (l0 >= 0.8 && !cafe) {
+    // a cream, an ivory, a butter-yellow or a pale gold: laid as it is, a step deeper and a little
+    // stronger so it reads as cream on the white paper, not as an empty glass (an ivory is held
+    // warm, toward the hue of cream, never lemon or grey)
+    kind = 'cream'; s = s0 + 0.07; l = l0 - 0.045;
+    if (/ivory|\bcream\b/.test(w) && !/butter|yellow|gold|mango|peach|apricot|pink|blush/.test(w)) { h = toward(h, 45, 6); s = Math.max(s, 0.3); }
+  } else if (creamy || (cafe && l0 >= 0.4)) {
+    // an opaque body, laid flat like gouache: a Painkiller orange-tan, a mocha, a mango colada
+    kind = cafe ? 'cafe' : 'milky'; s = s0 + 0.07; l = l0 + 0.02;
+  } else {
+    // a clear or cloudy color: pushed toward the menu painting's glow, inside the box (a
+    // drink the look calls pale is pushed half as far; greens, cyans and magentas that are not
+    // neon get a gentler push, as they turn electric fast)
+    const electric = !neon && ((h0 >= 70 && h0 <= 200) || (h0 >= 285 && h0 <= 330));
+    const paleW = /\bpale\b/.test(w);
+    s = s0 + (paleW || electric ? 0.06 : 0.1);
+    l = l0 + (l0 < 0.4 ? 0.04 : l0 < 0.55 ? 0.045 : l0 < 0.7 ? 0.03 : 0.01);
+    kind = l < 0.36 ? 'dark' : 'color';
+    if (/seafoam/.test(w)) s = Math.min(s, 0.42);
+  }
+  if (grey) { s = Math.max(s, 0.06); }
+  // (inside the box the painter pushes a golden drink a few degrees golder, as a menu painter
+  // pushes the differences between neighbors: a pineapple or passion-fruit gold reads gold beside
+  // the ambers, never orange; a copper or a ruddy amber is never pushed toward red)
+  if (kind === 'color' && !named && h0 >= 34 && h0 <= 52) h = h0 + Math.min(5, (h0 - 33) * 0.6);
+  [h, s, l] = box(h, s, l);
+  // A dark brown spirit (aged rum and coffee liqueur, a molasses-dark rum) is mahogany: amber
+  // light where its path is short (the meniscus and the walls), deep brown through the heart.
+  const mahogany = kind === 'dark' && h >= 4 && h <= 40 && !/oxblood|garnet|ruby|crimson|scarlet|wine|cherry|plum|\bred\b/.test(w);
+  const T = TONES[kind], pale = kind === 'cream' || kind === 'milky' || kind === 'cafe';
+  // (a pale honey or pale gold deepens less: at full depth it would turn tangerine at the foot)
+  const soft = kind === 'color' && l >= 0.72 ? 0.6 : 1, dk = 1 - (1 - T.deep) * soft, fk = 1 - (1 - T.foot) * soft;
+  // (an ivory deepens toward less color, never more: a deeper cream is butter-yellow)
+  const sd = kind === 'cream' && s0 < 0.75 && l0 >= 0.85 ? -0.06 : pale ? 0 : 0.04;
+  const tones = {
+    surf: hslHex(h, S(s * T.surfS), l + (1 - l) * T.lift),
+    body: hslHex(h, s, l),
+    // (the depths stay in the look's own box too: a shade deeper, never a second, darker drink)
+    deep: hslHex(h, Math.min(S(s + sd), s0 + CONTRACT.ds), Math.max(l * dk, l0 - 0.05)),
+    foot: hslHex(h, Math.min(S(s + sd * 1.5), s0 + CONTRACT.ds), Math.max(l * dk * fk, l0 - 0.1)),
+    // (the tints charged wet into wet multiply over the body, so they are loaded light: they
+    // turn it a few degrees and a little richer, and darken it hardly at all)
+    glow: hslHex(lean(h, 3), S(s * 0.7), 1 - (1 - l) * (pale ? 0.5 : 0.4)),
+    warm: hslHex(lean(h, -3), S(s * 0.7), 1 - (1 - l) * (pale ? 0.7 : 0.6)),
+  };
+  if (mahogany) Object.assign(tones, { surf: hslHex(lean(h, 6), S(s * 1.15), l + (1 - l) * 0.17), glow: hslHex(lean(h, 8), S(s * 1.1), Math.min(0.5, l + 0.16)) });
+  const bl = 1 - (1 - l) * (pale ? 0.5 : 0.4), spread = named ? 4 : pale ? 3 : 7;
+  return finish(kind, tones, [hslHex(lean(h, spread), S(s * 0.7), bl), hslHex(lean(h, -spread), S(s * 0.7), pale ? bl : bl - 0.04)]);
+}
 // How each kind of drink is graded: how far the surface leans toward gold and lifts toward the
 // light, how much deeper the depths and the foot go, the blooms' hue spread, the bloom strength
 // and how much the pigment granulates, and how far a warm drink's zones turn (honey at the top,
@@ -1591,79 +1729,25 @@ const BULGE = ['snifter', 'hurricane', 'poco-grande', 'goblet', 'tulip', 'punch-
 // the depths and a `top` paint (passion-fruit gold) into the light under the surface, each with
 // its strength (footK, topK). Without one the painter's hand turns a few degrees by seed.
 export function drinkPaint({ color = PALETTE.butter, body = null, layers = [], frost = false, crownOnIce = false, seed = 7, neon = false, word = '', creamy = null, cafe = null, tilt = null } = {}) {
-  const shift = tilt && Number.isFinite(tilt.shift) ? tilt.shift : ((((seed >>> 0) * 2654435761) >>> 0) % 13) - 6;
+  // (`tilt` and `seed` no longer turn the body: two pours of one look are one paint, and a
+  // teaspoon of grenadine shaken through a Zombie is not a red foot. A layer the look declares
+  // is the only thing that paints a second color.)
+  const shift = 0;
   const bodyHex = body && okHex(body.hex) ? body.hex : color;
   const bodyOp = body && Number.isFinite(body.opacity) ? body.opacity : 0.3;
-  const P = pigment(bodyHex, { opacity: bodyOp, clarity: body && Number.isFinite(body.clarity) ? body.clarity : 0.5, neon, word, shift, creamy, cafe });
-  // A warm drink's secondary colors: only in a drink that shows color through it (not a cream).
-  // (a pale drink, a frappé or a pale honey, keeps its pale foot: a garnet there would be a sink)
-  const [bh, , bl] = hexHsl(P.body), warm = (P.kind === 'color' || P.kind === 'dark') && (bh <= 72 || bh >= 340) && bl <= 0.7;
-  if (tilt && warm) {
-    const fk = Math.max(0, Math.min(0.7, tilt.footK || 0)), tk = Math.max(0, Math.min(0.7, tilt.topK || 0)) * (/copper|rust/.test(bodyWord(word)) ? 0.4 : 1);
-    if (okHex(tilt.foot) && fk) {
-      P.foot = crossfade(P.foot, tilt.foot, fk); P.deep = crossfade(P.deep, tilt.foot, fk * 0.45);
-      P.warm = crossfade(P.warm, tilt.foot, fk * 0.7); P.blooms = [P.blooms[0], crossfade(P.blooms[1], tilt.foot, fk * 0.5)];
-    }
-    if (okHex(tilt.top) && tk) {
-      P.glow = crossfade(P.glow, tilt.top, tk); P.surf = crossfade(P.surf, tilt.top, tk * 0.4);
-      P.blooms = [crossfade(P.blooms[0], tilt.top, tk * 0.6), P.blooms[1]];
-    }
-  }
-  // A shaken, stirred or blended drink is one color in the glass: ¼ oz of grenadine shaken into
-  // six ounces does not settle. Unless something has sunk, every tone stays within a few degrees
-  // of the drink's own hue (the foot, the depths and the warm charge at most 8 degrees off it,
-  // the light under the surface 6, the body itself 4, the blooms 10) and the glass gets its
-  // depth from value and saturation instead: a copper's foot is a deeper copper or a
-  // garnet-brown, never a scarlet; a honeyed amber in a coupe is a lighter amber, never lemon.
-  const even = !layers.some(x => x.kind === 'sink');
-  if (even && P.kind !== 'clear') {
-    // (the anchor is the body as the painter's hand turned it: the whole glass leans together,
-    // red-copper or honey-gold, so two copper drinks side by side differ, and it is still one
-    // color top to bottom)
-    const h0 = hexHsl(P.body)[0];
-    const near = (hex, k) => { const [h, s, l] = hexHsl(hex); return hslHex(toward(h, h0, k), s, l); };
-    P.body = near(P.body, 4);
-    for (const key of ['deep', 'foot', 'warm']) P[key] = near(P[key], 8);
-    // (and a warm drink's depths never lean golder than its own hue: a gold or ochre taken dark
-    // is olive-brown, where a copper taken dark is still a glowing garnet-brown)
-    if (h0 >= 10 && h0 <= 60) for (const key of ['deep', 'foot', 'warm']) { const [h, s, l] = hexHsl(P[key]); if (((h - h0 + 540) % 360) - 180 > -2) P[key] = hslHex(h0 - 2, s, l); }
-    // (a dark spirit's light is amber where it runs thin: its surface may turn further)
-    for (const key of ['surf', 'glow']) P[key] = near(P[key], P.kind === 'dark' ? 16 : 6);
-    P.blooms = P.blooms.map(b => near(b, 10));
-    // (however the hand leans it, no tone strays more than 14 degrees from the look's own hue:
-    // the family the color word names)
-    const hl = hexHsl(pigment(bodyHex, { opacity: bodyOp, clarity: body && Number.isFinite(body.clarity) ? body.clarity : 0.5, neon, word, shift: 0, creamy, cafe }).body)[0];
-    const fam = hex => { const [h, s, l] = hexHsl(hex); return hslHex(toward(h, hl, 14), s, l); };
-    for (const key of ['surf', 'body', 'deep', 'foot', 'glow', 'warm']) P[key] = fam(P[key]);
-    P.blooms = P.blooms.map(fam);
-    // A pale drink (ginger beer, a pale honey, a pale gold) stays pale all the way down: its
-    // depths only a little deeper than its body, never a saturated tangerine at the foot; a
-    // mid-light amber deepens a step, a copper or darker the full way.
-    // (a red carrier shaken through a copper does not settle as a red foot: its depths go a
-    // dark garnet-brown, the red showing only as warmth in the shadow)
-    if (tilt && warm && okHex(tilt.foot) && tilt.footK) {
-      const lb0 = hexHsl(P.body)[2];
-      for (const [key, k, sMax] of [['foot', 0.6, 0.7], ['deep', 0.8, 0.78], ['warm', 0.88, 0.78]]) { const [h, s, l] = hexHsl(P[key]); P[key] = hslHex(h, Math.min(s, sMax), Math.min(l, lb0 * k)); }
-    }
+  const P = bodyPigment(bodyHex, { opacity: bodyOp, clarity: body && Number.isFinite(body.clarity) ? body.clarity : 0.5, neon, word, creamy, cafe });
+  // A pale drink (ginger beer, a pale honey, a pale gold) stays pale all the way down: its
+  // depths only a little deeper than its body, never a saturated tangerine at the foot.
+  if (P.kind !== 'clear') {
     const [, sb, lb] = hexHsl(P.body), pale = lb >= 0.7 || (lb >= 0.55 && /\bpale\b/.test(bodyWord(word)));
-    const steps = pale ? [0.05, 0.08, 0.1] : lb >= 0.55 ? [0.08, 0.14, 0.12] : null;
-    if (steps) ['deep', 'foot', 'warm'].forEach((key, k) => {
-      const [h, s, l] = hexHsl(P[key]);
-      P[key] = hslHex(pale ? toward(h, h0, 5) : h, Math.min(s, sb + (pale ? 0 : 0.03)), Math.max(l, lb - steps[k]));
-    });
-    // A cream's glazes stay within 4 degrees of its own hue, as strong as it is and no stronger
-    // (a cream's shadow turned 6 degrees warmer and a shade stronger, glaze on glaze, is a peach).
-    if (P.kind === 'cream') {
-      const [hb0, sb0] = hexHsl(P.body);
-      for (const key of ['surf', 'deep', 'foot', 'glow', 'warm']) { const [h, s, l] = hexHsl(P[key]); P[key] = hslHex(toward(h, hb0, 4), Math.min(s, sb0), l); }
-      P.blooms = P.blooms.map(b => { const [h, s, l] = hexHsl(b); return hslHex(toward(h, hb0, 4), Math.min(s, sb0), l); });
-    }
+    const steps = pale ? [0.05, 0.08, 0.1] : null;
+    if (steps) ['deep', 'foot', 'warm'].forEach((key, k) => { const [h, s, l] = hexHsl(P[key]); P[key] = hslHex(h, Math.min(s, sb + 0.02), Math.max(l, lb - steps[k])); });
   }
   if (P.shadow) Object.assign(P, P.shadow);
-  // A frosted glass veils the drink, a third less color showing.
-  const vc = c => frost ? mixHex(c, PALETTE.paper, 0.3) : c;
+  // A frosted glass veils the drink a little (an eighth paler), never so far that a copper reads coral.
+  const vc = c => frost ? mixHex(c, PALETTE.paper, 0.12) : c;
   const shown = layers.filter(x => okHex(x.hex) && !(crownOnIce && x.kind === 'crown'))
-    .map(x => ({ ...x, paint: vc(x.kind === 'foam' ? pigment(x.hex, { opacity: 1 }).surf : pigment(x.hex, { opacity: 1, layer: x.kind === 'sink' || x.kind === 'crown' }).body) }));
+    .map(x => ({ ...x, paint: vc(x.kind === 'foam' ? pigment(x.hex, { opacity: 1 }).surf : pigment(x.hex, { opacity: 1, layer: x.kind === 'sink' || x.kind === 'crown' || x.kind === 'streak' }).body) }));
   return { P, shift, bodyOp, vc, shown };
 }
 
@@ -1690,11 +1774,26 @@ function safeGlaze(target, under, alpha) {
   // (a load that turns warmer than a warm target, a gold deepening an orange, is harmless where
   // it wanders; one that turns cooler, toward magenta and violet, is the stain)
   const d = ((gh - th + 540) % 360) - 180, warm = th >= 330 || th <= 70;
+  // (one that turns more than 20 degrees golder than a warm target, deepening an orange with an
+  // olive, would stain mustard where it wanders: it is laid as the same exact glaze at a fuller
+  // brush, which brings its load toward a soft neutral that lands on the target just the same)
+  if (gs > 0.25 && ts > 0.25 && warm && d > 20 && Math.abs(d) <= 75) {
+    const t = rgbOf(target), u0 = rgbOf(under), k = t.map((c, i) => Math.pow(Math.max(1e-4, Math.min(1, u0[i] > 0.004 ? c / u0[i] : 1)), 1 / OVERLAP));
+    for (let a = g.alpha; a <= 0.5001; a += 0.02) { const load = rgbHex(k.map(x => 1 - (1 - x) / a)); if (hexHsl(load)[1] <= 0.25 || a > 0.48) return { color: load, alpha: a }; }
+    return g;
+  }
   if (!(gs > 0.25 && ts > 0.25 && lum(under) > lum(target) && (Math.abs(d) > 75 || (warm && d < -25)))) return g;
-  const load = hslHex(th, Math.min(0.92, ts + 0.05), Math.min(0.75, tl + (1 - tl) * 0.3)), u = rgbOf(under), want = lumOf(rgbOf(target));
-  let lo = 0.004, hi = 0.5;
-  for (let k = 0; k < 24; k++) { const a = (lo + hi) / 2, f = washFactor(load, a); if (lumOf(u.map((c, i) => c * f[i])) > want) lo = a; else hi = a; }
-  return { color: load, alpha: (lo + hi) / 2 };
+  const u = rgbOf(under), want = lumOf(rgbOf(target));
+  // (a load light enough to stay clean where it wanders, or, when a light load cannot reach a
+  // dark target at the brush's full strength, the target's own shade, deepened as far as it takes)
+  for (const ll of [Math.min(0.75, tl + (1 - tl) * 0.3), tl, tl * 0.7, tl * 0.45, tl * 0.25]) {
+    const load = hslHex(th, Math.min(0.92, ts + 0.05), ll);
+    if (lumOf(u.map((c, i) => c * washFactor(load, 0.5)[i])) > want) continue;
+    let lo = 0.004, hi = 0.5;
+    for (let k = 0; k < 24; k++) { const a = (lo + hi) / 2, f = washFactor(load, a); if (lumOf(u.map((c, i) => c * f[i])) > want) lo = a; else hi = a; }
+    return { color: load, alpha: (lo + hi) / 2 };
+  }
+  return { color: hslHex(th, Math.min(0.92, ts + 0.05), tl * 0.25), alpha: 0.5 };
 }
 
 // The inside of a clear glass from the surface down to its floor: all the drink may stain.
@@ -1724,16 +1823,25 @@ function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, body = 
   const A = alphaFor(bodyOp), Gz = P.glaze, grain = Gz.grain;
   const topLayer = shown.find(x => x.kind === 'float' || x.kind === 'crown');
   if (G.opaque) {
-    // Looking down into a mug: the surface lit at the front, shadowed under the back of the rim.
-    const rx = R.hw - 8, ry = rx * R.tilt;
+    // Looking down into a mug or bowl: the drink's surface in its own color and lightness (the
+    // top layer, when a float or a crown is on it: a black rum float in a skull is black), with
+    // only a thin lighter rim where the meniscus catches the light, and a shade under the back
+    // of the rim.
+    const rx = R.hw - 4, ry = rx * R.tilt;
     clip = [ell(R.cx, R.y + 1, R.hw - 3, (R.hw - 3) * R.tilt, 0, TAU, 28)];
-    const surface = topLayer ? topLayer.paint : surf;
-    if (topLayer) washes.push({ pts: ell(R.cx, R.y + 1, rx, ry, 0, TAU, 18), color: topLayer.paint, alpha: 0.085, soft: 0.5, grain, layers: GLAZE_LAYERS });
-    else {
-      glazed(ell(R.cx, R.y + 1, rx, ry, 0, TAU, 18), surf, PALETTE.paper, 0.09, 0.5);
-      glazed([...ell(R.cx, R.y + 1, rx * 0.96, ry * 0.9, Math.PI, TAU, 12), ...ell(R.cx, R.y - ry * 0.1, rx * 0.8, ry * 0.4, TAU, Math.PI, 10)], mid, surf, 0.07, 0.6);
-      washes.push({ pts: ell(R.cx + rx * 0.25, R.y + ry * 0.25, rx * 0.4, ry * 0.45, 0, TAU, 12), color: bloomA, alpha: 0.03, soft: 0.8, grain, layers: GLAZE_LAYERS });
+    const top = topLayer ? topLayer.paint : mid, [th, ts, tl] = hexHsl(top);
+    const lip = topLayer ? hslHex(th, ts, Math.min(0.9, tl + (1 - tl) * 0.25)) : surf;
+    const k = Math.max(3, Math.min(7, rx * 0.06));
+    const inner = ell(R.cx, R.y + 1 + k * R.tilt * 0.4, rx - k, Math.max(2, ry - k * R.tilt * 1.6), 0, TAU, 24);
+    // (the lip is a ring of its own, so the surface inside it is laid straight onto the paper)
+    if (!frozen) {
+      glazed([...ell(R.cx, R.y + 1, rx, ry, 0, TAU * 1.0001, 24), ...inner.slice().reverse(), inner[inner.length - 1]], lip, PALETTE.paper, 0.09, 0.4);
+      glazed(inner, top, PALETTE.paper, 0.09, 0.5);
     }
+    // (under the back of the rim, a little deeper)
+    const shade = topLayer ? hslHex(th, ts, tl * 0.85) : deep;
+    if (!frozen) glazed([...ell(R.cx, R.y + 1, rx - k, ry - k * R.tilt, Math.PI, TAU, 14), ...ell(R.cx, R.y + 1 - ry * 0.35, (rx - k) * 0.86, ry * 0.4, TAU, Math.PI, 12)], shade, top, 0.07, 0.7);
+    if (!topLayer && !frozen) washes.push({ pts: ell(R.cx + rx * 0.22, R.y + ry * 0.2, rx * 0.36, ry * 0.4, 0, TAU, 12), color: bloomA, alpha: 0.025, soft: 0.8, grain, layers: GLAZE_LAYERS });
   } else {
     const top = frozen ? R.y + 2 : levelOf(kind, fill);
     const inset = y => Math.max(2, halfAt(G, y) - 4 - shell);
@@ -1801,7 +1909,10 @@ function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, body = 
       const B = block ? blockCube(kind, fill, seed) : null, cube = B ? spline(B.c, 3).map(([x, y]) => [B.x + (x - B.x) * 0.97, B.y + (y - B.y) * 0.97]) : null;
       heartClip = cube ? [ring, crescent, cube] : [ring, crescent];
       const hb = floor - top, light = crossfade(surf, P.glow, 0.6), upTo = pts => pts && pts.map(([x, y]) => [x, y <= top ? top - ry - 14 : y]);
-      glazed(upTo(band(top, floor, 0, out)), light, PALETTE.paper, A * (crushed ? 0.94 : 1), 0.6);
+      // (the light only where the path is short, the heart laid straight onto the paper: a
+      // glaze of a dark brown over its own amber light would come out a saturated rust)
+      glazed(upTo(band(top, floor, 0, out)), light, PALETTE.paper, A * (crushed ? 0.94 : 1), 0.6, [upTo(band(top - 40, bottom + 20, -40, out)), ring]);
+      glazed(crescent, light, PALETTE.paper, A, 0.6);
       glazed(upTo(band(top, floor, 0, out)), mid, PALETTE.paper, A * 0.6, 0.4, heartClip);
       glazed(band(top + hb * 0.4, floor, 0, out), deep, mid, A * 0.5, 0.9, heartClip);
       glazed(band(floor - hb * 0.18, floor, 0, out), foot, deep, A * 0.4, 0.9, heartClip);
@@ -1811,7 +1922,7 @@ function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, body = 
         // the window: the drink seen through clear ice, a shorter path, so lighter and warmer,
         // lit at its top and deepening toward its foot like the drink around it
         const big = ell(B.x, B.y, B.size, B.size, 0, TAU, 16), win = crossfade(mid, light, 0.24), winLow = crossfade(mid, light, 0.1);
-        glazed(big, win, light, A * 0.55, 0.5, [cube]);
+        glazed(big, win, PALETTE.paper, A * 0.55, 0.5, [cube]);
         // deepening toward its foot and away from the lit corner, wet into wet
         const lowWin = [[B.x - B.size, B.y - B.size * 0.1], [B.x + B.size, B.y - B.size * 0.3], [B.x + B.size, B.y + B.size], [B.x - B.size, B.y + B.size]];
         glazed(lowWin, winLow, win, A * 0.45, 1, [cube]);
@@ -1932,6 +2043,23 @@ function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, body = 
           for (let k = 0; k <= 6; k++) { const u = k / 6, y = top + t * 0.6 + u * len, w = 6 * (1 - u) + 1, x = x0 + Math.sin(u * 4 + i * 2) * 4; Lp.push([x - w, y]); Rp.push([x + w, y]); }
           washes.push({ pts: [...Lp, ...Rp.reverse()], color: L.paint, alpha: a * 0.7, soft: 0.6 });
         }
+      } else if (L.kind === 'streak') {
+        // A Lava Flow: the strawberry poured in first, the colada over it, the red rising up the
+        // walls in a few wandering streaks from a pool at the foot (the drink between them stays
+        // its own cream).
+        const pool = band(bottom - h * 0.12, bottom, 0, out), into = mixHex(L.paint, '#FFFFFF', 0.18);
+        if (pool) glazed(pool, L.paint, mid, Math.max(A, 0.06), 0.8);
+        const ns = 5;
+        for (let i = 0; i < ns; i++) {
+          const u = (i + 0.5) / ns * 2 - 1, wall = Math.abs(u) > 0.6, y0 = bottom - h * 0.08, reach = h * (wall ? 0.55 + r() * 0.3 : 0.25 + r() * 0.2) * Math.min(1, (L.frac || 0.4) / 0.4);
+          const Lp = [], Rp = [];
+          for (let k = 0; k <= 10; k++) {
+            const t = k / 10, y = y0 - t * reach, wv = inset(y), w = (wall ? 7 : 5) * (1 - t * 0.7) + 1.5;
+            const x = R.cx + Math.max(-1, Math.min(1, u * 0.92)) * (wv - w - 2) + Math.sin(t * 5 + i * 1.7) * 4;
+            Lp.push([x - w, y]); Rp.push([x + w, y]);
+          }
+          glazed([...Lp, ...Rp.reverse()], into, mid, Math.max(A, 0.06), 0.7);
+        }
       } else if (L.kind === 'foam' && !frozen) {
         // A pale head on the paper, with a soft lower edge where it meets the drink: a little of
         // the drink's own light charged into its foot, wet into wet.
@@ -1956,8 +2084,11 @@ function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, body = 
     // fine crystals in the slush
     for (let i = 0; i < 12; i++) { const u = 0.12 + ((i * 0.618) % 1) * 0.76, x = R.cx - R.hw * 0.96 + u * R.hw * 1.92; strokes.push({ pts: ell(x, R.y - Math.sin(Math.PI * u) * 34 * (0.3 + ((i * 0.37) % 1) * 0.55), 1.2, 0.9, 0, TAU, 6), tier: 3 }); }
     const ad = alphaFor(Math.max(bodyOp, 0.5)), am = alphaFor(bodyOp) * 0.4;
-    glazed(poly, surf, PALETTE.paper, ad, 0.6);
-    glazed([...ell(R.cx, R.y + 2, R.hw * 0.9, R.hw * 0.9 * R.tilt, 0, Math.PI, 10), ...dome.slice(2, 11).reverse().map(([x, y]) => [x, y + 16])], mid, surf, am, 0.8);
+    // (the dome is the drink itself, frozen: laid near its body color, only a little lighter where
+    // its crown catches the light, so a mango colada's slush is mango and not a white bloom)
+    const domeTone = crossfade(surf, mid, P.kind === 'cream' || P.kind === 'milky' || P.kind === 'cafe' ? 0.75 : 0.5);
+    glazed(poly, domeTone, PALETTE.paper, ad, 0.6);
+    glazed([...ell(R.cx, R.y + 2, R.hw * 0.9, R.hw * 0.9 * R.tilt, 0, Math.PI, 10), ...dome.slice(2, 11).reverse().map(([x, y]) => [x, y + 16])], mid, domeTone, am, 0.8);
     cover.push(poly);
     // A float on a frozen drink pools on the dome and runs down its sides.
     const fl = shown.find(x => x.kind === 'float');
@@ -1969,6 +2100,43 @@ function liquid({ kind = 'collins', fill = 0.84, color = PALETTE.butter, body = 
   }
   // glazed: the renderer composites these washes as exact glazes (artrender.js glazeLayer)
   return { box: [300, 460], strokes, washes: washes.filter(w => w.pts), cover, clip, glazed: true };
+}
+
+// What the painted drink composites to: the paper times every wash of the liquid part covering
+// a point (each of a glaze's layers multiplies by 1 - alpha * (1 - c), about 0.95 of them
+// overlapping), held to the wash's clip. `bodyPixels` samples the body of the drink (the inside
+// of a clear glass from just under the surface to above any sink, or the surface a mug shows)
+// on a grid; `paintedBody` is their median (per channel, by luminance order), the color a guest
+// would call the drink in the drawing, which the look's hex is a contract for.
+const inPoly = (pts, [x, y]) => { let c = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const [xi, yi] = pts[i], [xj, yj] = pts[j]; if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) c = !c; } return c; };
+export function compositeAt(washes, pt) {
+  const out = rgbOf(PALETTE.paper);
+  for (const w of washes) {
+    if (!inPoly(w.pts, pt) || (w.clip && w.clip.length && (!inPoly(w.clip[0], pt) || w.clip.slice(1).some(hh => inPoly(hh, pt))))) continue;
+    const c = rgbOf(w.color), k = (w.layers || 22) * 0.95;
+    for (let i = 0; i < 3; i++) out[i] *= Math.pow(1 - (w.alpha ?? 0.055) * (1 - c[i]), k);
+  }
+  return out;
+}
+export function bodyPixels(params) {
+  const p = { kind: 'collins', fill: 0.84, ...params }, G = GLASS_PROFILES[p.kind] || GLASS_PROFILES.collins, R = rimOf(p.kind);
+  const part = liquid(p), pts = [];
+  if (G.opaque) {
+    const rx = R.hw - 12, ry = rx * R.tilt;
+    for (let i = -4; i <= 4; i++) for (let j = -2; j <= 2; j++) pts.push([R.cx + i * rx / 5, R.y + 1 + j * ry / 3]);
+  } else {
+    const top = p.frozen ? R.y + 4 : levelOf(p.kind, p.fill), h = R.bottom - top;
+    const sink = (p.layers || []).find(x => x.kind === 'sink'), float = (p.layers || []).find(x => x.kind === 'float' || x.kind === 'crown' || x.kind === 'foam');
+    const y0 = top + h * (float ? 0.3 : 0.14), y1 = R.bottom - h * (sink ? Math.min(0.62, 0.22 + (sink.frac || 0.15) * 1.6) : 0.06);
+    for (let y = y0; y <= y1; y += Math.max(3, (y1 - y0) / 14)) { const w = halfAt(G, y) - 8; for (let k = -3; k <= 3; k++) pts.push([R.cx + (k / 3.4) * w, y]); }
+  }
+  return pts.map(pt => compositeAt(part.washes, pt)).filter(c => c[0] + c[1] + c[2] < 2.97);
+}
+export function paintedBody(params) {
+  const px = bodyPixels(params);
+  if (!px.length) return PALETTE.paper;
+  px.sort((a, b) => lumOf(a) - lumOf(b));
+  return rgbHex(px[Math.floor(px.length / 2)]);
 }
 
 function pebble(x, y, s, r, round = false) {
@@ -1985,14 +2153,26 @@ function pebble(x, y, s, r, round = false) {
 function soakWashes(kind, M, hex, r, { cap = 0.07, reach = 0.18, tendrils = 5, opaque = false } = {}) {
   const R = rimOf(kind), G = GLASS_PROFILES[kind] || GLASS_PROFILES.collins, washes = [];
   if (M.lift) {
-    washes.push({ pts: M.poly, color: hex, alpha: cap * 0.8, soft: 0.6 });
-    const crest = M.top.slice(1, -1);
-    washes.push({ pts: [...crest, ...crest.slice().reverse().map(([x, y]) => [x, Math.min(R.y + 2, y + 12)])], color: hex, alpha: cap, soft: 0.5 });
+    // Dashed over the ice, a bitters crown (or a float soaking down through the chips) stains the
+    // white cap: deep garnet along the crest where it landed, rosy where it ran thin, the ice
+    // still showing through it, never a solid lump.
+    const k = Math.min(0.8, cap * 15), crest = M.top.slice(1, -1);
+    const lay = (pts, t) => { const g = glaze(mixHex('#FFFFFF', hex, t), '#FFFFFF', 0.06); washes.push({ pts, color: g.color, alpha: g.alpha, soft: 0.6, layers: GLAZE_LAYERS }); };
+    lay([...crest, ...crest.slice().reverse().map(([x, y]) => [x, Math.min(R.y + 2, y + M.lift * 0.9 + 6)])], k * 0.45);
+    // (the dashes themselves: a few deeper blots along the crest)
+    for (let i = 0; i < 5; i++) {
+      const u = 0.18 + i * 0.16 + (r() - 0.5) * 0.06, x = R.cx - R.hw * 0.92 + u * R.hw * 1.84, y = capYAt(M.top, x) + 3 + r() * 4, rr = 4 + r() * 4;
+      const g = glaze(mixHex('#FFFFFF', hex, Math.min(0.92, k * 1.1)), mixHex('#FFFFFF', hex, k * 0.45), 0.06);
+      washes.push({ pts: ell(x, y, rr * 1.5, rr * 0.7, 0, TAU, 9), color: g.color, alpha: g.alpha, soft: 0.6, layers: GLAZE_LAYERS });
+    }
   }
   if (opaque || G.opaque) return washes;
   const h = R.bottom - R.y, depth = reach * h;
   const inset = y => halfAt(G, y) - 6;
-  washes.push({ pts: [[R.cx - inset(R.y + 2), R.y + 2], [R.cx + inset(R.y + 2), R.y + 2], [R.cx + inset(R.y + depth * 0.5), R.y + depth * 0.5], [R.cx - inset(R.y + depth * 0.5), R.y + depth * 0.5]], color: hex, alpha: cap * 0.6, soft: 0.8 });
+  // (then down through the top of the drink: a translucent stain and a few tendrils, laid as
+  // exact glazes of the bitters thinned with water, so the drink under them reddens, never browns)
+  const thin = t => { const g = glaze(mixHex('#FFFFFF', hex, Math.min(0.85, cap * 15 * t)), '#FFFFFF', 0.05); return { color: g.color, alpha: g.alpha, layers: GLAZE_LAYERS }; };
+  washes.push({ pts: [[R.cx - inset(R.y + 2), R.y + 2], [R.cx + inset(R.y + 2), R.y + 2], [R.cx + inset(R.y + depth * 0.5), R.y + depth * 0.5], [R.cx - inset(R.y + depth * 0.5), R.y + depth * 0.5]], ...thin(0.3), soft: 0.8 });
   for (let i = 0; i < tendrils; i++) {
     const y0 = R.y + 4, len = depth * (0.55 + r() * 0.6), x0 = R.cx + ((i + 0.5) / tendrils - 0.5) * 1.5 * inset(y0) + (r() - 0.5) * 8;
     const L = [], Rt = [];
@@ -2000,7 +2180,7 @@ function soakWashes(kind, M, hex, r, { cap = 0.07, reach = 0.18, tendrils = 5, o
       const u = k / 6, y = y0 + u * len, w = 4.5 * (1 - u) + 0.8, x = x0 + Math.sin(u * 5 + i) * 3;
       L.push([x - w, y]); Rt.push([x + w, y]);
     }
-    washes.push({ pts: [...L, ...Rt.reverse()], color: hex, alpha: cap * 0.85, soft: 0.5 });
+    washes.push({ pts: [...L, ...Rt.reverse()], ...thin(0.5), soft: 0.5 });
   }
   return washes;
 }
@@ -2022,7 +2202,7 @@ export function blockCube(kind, fill, seed) {
 }
 // (a pale gold cap cooled with ice-blue turns mint: a warm drink's heap is cooled with white)
 const warmTint = c => { const [h, s] = hexHsl(c); return s > 0.2 && (h < 75 || h > 330); };
-function ice({ kind = 'collins', style = 'cubed', fill = 0.84, seed = 5, soak = null, tint = null, sunk = false, body: drink = null, edge = null } = {}) {
+function ice({ kind = 'collins', style = 'cubed', fill = 0.84, seed = 5, soak = null, tint = null, sunk = false, body: drink = null, edge = null, gap = null } = {}) {
   const G = GLASS_PROFILES[kind] || GLASS_PROFILES.collins, R = rimOf(kind), r = rng(seed);
   const strokes = [], washes = [], cover = [], dots = [];
   const top = levelOf(kind, fill);
@@ -2075,12 +2255,24 @@ function ice({ kind = 'collins', style = 'cubed', fill = 0.84, seed = 5, soak = 
     const M = capMound(kind, seed, style);
     if (M.lift) {
       strokes.push({ pts: M.top, tier: 2 });
-      if (soak) washes.push(...soakWashes(kind, M, soak.hex, r, { cap: soak.alpha || 0.05, reach: soak.reach || 0.12, tendrils: 3 }));
+      if (soak && !G.opaque) washes.push(...soakWashes(kind, M, soak.hex, r, { cap: soak.alpha || 0.05, reach: soak.reach || 0.12, tendrils: 3 }));
       // crushed ice glows with the drink it is packed in, palest at the crest
       // (in a mug or bowl the heap is all of the drink there is to see: it takes the drink's own
       // color, with no ice-blue in it, which would grey a copper to mauve)
       else if (okHex(tint) && !G.opaque) { const g = glaze(mixHex('#FFFFFF', mixHex(tint, warmTint(tint) ? '#FFFFFF' : PALETTE.ice, 0.3), 0.6), '#FFFFFF', 0.03); washes.push({ pts: M.poly, color: g.color, alpha: g.alpha, soft: 0.6, layers: GLAZE_LAYERS }); }
-      else washes.push({ pts: M.poly, color: okHex(tint) ? tint : PALETTE.ice, alpha: okHex(tint) ? 0.045 : 0.026, soft: 0.6 });
+      else if (G.opaque) {
+        // In a mug or bowl the mound is ice: white chips, cooled a touch, with the drink in its
+        // own color in the gaps between them (in a wide bowl, more drink than ice).
+        const chips = [], n = Math.round(R.hw / (R.hw > 90 ? 9 : 6)), big = R.hw > 90 ? 0.1 : 0.2;
+        for (let i = 0; i < n; i++) {
+          const x = R.cx + (r() * 2 - 1) * R.hw * 0.8, y0 = capYAt(M.top, x), y = y0 + 3 + r() * Math.max(2, R.y + 3 - y0 - 3);
+          chips.push(pebble(x, y, R.hw * big * (0.7 + r() * 0.6), r, style === 'pebble'));
+        }
+        if (okHex(gap)) { const g = glaze(mixHex(gap, '#FFFFFF', 0.12), '#FFFFFF', 0.08); washes.push({ pts: M.poly, color: g.color, alpha: g.alpha, soft: 0.5, layers: GLAZE_LAYERS, clip: [M.poly, ...chips] }); }
+        for (const P of chips) { washes.push({ pts: P, color: '#D9ECF0', alpha: 0.006, soft: 0.3 }); strokes.push({ pts: [...P, P[0]], tier: 3 }); }
+        // (a float poured over the mound runs dark down through the chips from the crest)
+        if (soak) washes.push(...soakWashes(kind, M, soak.hex, r, { cap: soak.alpha || 0.05, reach: soak.reach || 0.12, tendrils: 3 }));
+      } else washes.push({ pts: M.poly, color: okHex(tint) ? tint : PALETTE.ice, alpha: okHex(tint) ? 0.045 : 0.026, soft: 0.6 });
       cover.push(M.poly);
       if (style === 'shaved') for (let i = 0; i < 10; i++) { const x = R.cx + (r() * 2 - 1) * R.hw * 0.75; strokes.push({ pts: ell(x, capYAt(M.top, x) + 5 + r() * Math.max(2, R.y - capYAt(M.top, x) - 4), 2.2, 1, 0, Math.PI, 5), tier: 3 }); }
       else for (let i = 0; i < 6; i++) { const x = R.cx + (r() * 2 - 1) * R.hw * 0.7, y0 = capYAt(M.top, x); strokes.push({ pts: pebble(x, y0 + 6 + r() * Math.max(2, R.y - y0 - 8), 5 + r() * 3, r, style === 'pebble'), tier: 3 }); }
@@ -2108,8 +2300,18 @@ function ice({ kind = 'collins', style = 'cubed', fill = 0.84, seed = 5, soak = 
     // In a mug, a couple of cube corners break the surface; in an opaque or creamy drink the
     // cubes are sunk out of sight but for one corner at the surface.
     const y = G.opaque ? R.y + 2 : top + 2, w = G.opaque ? R.hw : halfAt(G, top) - 6;
-    for (const k of style === 'block' ? [0] : sunk ? [0.36] : [-0.32, 0.3]) {
-      const x = R.cx + k * w, s = style === 'block' ? (G.opaque ? 24 : Math.min(24, w * 0.4)) : 14;
+    // (a punch bowl's quart block floats proud of the punch: a broad slab, its top face lit)
+    const slab = style === 'block' && kind === 'punch-bowl';
+    for (const k of style === 'block' ? [slab ? 0.26 : 0] : sunk ? [0.36] : [-0.32, 0.3]) {
+      const x = R.cx + k * w, s = slab ? Math.min(58, w * 0.42) : style === 'block' ? (G.opaque ? 24 : Math.min(24, w * 0.4)) : 14;
+      if (slab) {
+        const T = [[x - s, y], [x - s * 0.45, y - s * 0.3], [x + s, y - s * 0.24], [x + s * 0.5, y + s * 0.1], [x - s, y]];
+        strokes.push({ pts: T, tier: 2 }, { pts: [[x - s, y], [x - s, y + 7]], tier: 3 }, { pts: [[x + s * 0.5, y + s * 0.1], [x + s * 0.5, y + s * 0.1 + 7]], tier: 3 }, { pts: [[x + s, y - s * 0.24], [x + s, y - s * 0.24 + 6]], tier: 3 });
+        strokes.push({ pts: [[x - s * 0.7, y - s * 0.05], [x - s * 0.3, y - s * 0.21]], tier: 3, w: 3.2, color: '#EEF6F7', alpha: 0.8 });
+        washes.push({ pts: T.slice(0, 4), color: PALETTE.ice, alpha: 0.03, soft: 0.3 });
+        cover.push(T.slice(0, 4));
+        continue;
+      }
       const P = [[x - s, y], [x - s * 0.2, y - s * 0.55], [x + s, y - s * 0.3], [x + s * 0.3, y + s * 0.35], [x - s, y]];
       strokes.push({ pts: P, tier: 2 });
       washes.push({ pts: P.slice(0, 4), color: PALETTE.ice, alpha: 0.03, soft: 0.3 });
@@ -2306,7 +2508,7 @@ export const CATALOG = {
   // garnishes, at real size (38 units to the inch)
   'garnish.mint': mint, 'garnish.herb-sprig': herbSprig, 'garnish.mint-leaves': mintLeaves,
   'garnish.lime-wheel': p => citrusWheel({ r: 38, color: PALETTE.lime, rind: PALETTE.frond, ...p }),
-  'garnish.lemon-wheel': p => citrusWheel({ r: 42, color: PALETTE.butter, rind: PALETTE.ochre, ...p }),
+  'garnish.lemon-wheel': p => citrusWheel({ r: 42, color: LEMON, rind: LEMON_RIND, ...p }),
   'garnish.orange-wheel': p => citrusWheel({ r: 55, color: PALETTE.orange, rind: '#D9792A', ...p }),
   'garnish.lime-wedge': p => citrusWedge({ len: 66, color: PALETTE.lime, rind: PALETTE.frond, ...p }),
   'garnish.lime-shell': limeShell, 'garnish.lime-coin': limeCoin, 'garnish.flame': flame,

@@ -284,3 +284,144 @@ test('every engine drink lints without the linter itself failing', () => {
     }
   }
 });
+
+// ---------------------------------------------------------------------------------------------
+// The canon contract, identity cores, chronology and battery-level divergence (round-2 critique:
+// canon lane). One run of the review battery at two seeds serves every test below.
+const archData = read('data/archetypes.json').archetypes;
+const battery = read('scripts/review/battery.json').prompts.flatMap(p => [0, 1].map(seed => ({ p, seed, r: engine.generate(p, { seed }) })));
+const bottles = r => new Set(r.lines.filter(l => !l.garnish).map(l => l.id));
+const jac = (a, b) => { const i = [...a].filter(x => b.has(x)).length; return i / (a.size + b.size - i || 1); };
+const tagOf = ({ p, seed, r }) => `"${p}" [${seed}] ${r.name}`;
+const whyText = r => r.explanation.whyItWorks.join(' ');
+
+test('canon contract: three states, each in its own words', () => {
+  for (const x of battery) {
+    const { r } = x, cn = r.canon, built = r.explanation.reading.builtOn.text;
+    assert.ok(['as-written', 'house-riff', 'cousin'].includes(cn.state), `${tagOf(x)}: ${cn.state}`);
+    assert.ok(r.check.canon && r.check.canon.state === cn.state, `${tagOf(x)}: recipe.check carries the canon state`);
+    // No stamp a drink doesn't earn: the old stamps are retired, and "as written" is said only of
+    // a drink that is the edition (no move, no dose, no service change the prayer didn't fix).
+    assert.ok(!/as the gods pour it|poured as the canon has it/.test(`${built} ${whyText(r)}`), `${tagOf(x)}: retired stamp in "${built}"`);
+    if (/poured as written/.test(built)) assert.equal(cn.state, 'as-written', `${tagOf(x)}: "${built}"`);
+    if (cn.state === 'as-written') {
+      assert.ok(!r.explanation.reading.moves.some(m => /twist/.test(m)), `${tagOf(x)}: a twist removes the canon stamp`);
+      assert.deepEqual(cn.service, [], `${tagOf(x)}: served against its edition: ${cn.service.join('; ')}`);
+      assert.ok(!/\briff\b/.test(built), `${tagOf(x)}: "riff" on a drink that moved nothing`);
+    }
+    // A cousin names no spec, only the family; and no drink is "built on" a spec below 0.4.
+    if (cn.state === 'cousin') assert.ok(!built.includes(`the ${r.reference.name} (`) && /a cousin of /.test(built), `${tagOf(x)}: "${built}"`);
+    if (r.reference.similarity < 0.4) assert.equal(cn.state, 'cousin', `${tagOf(x)}: built on ${r.reference.name} at ${r.reference.similarity}`);
+    assert.ok(!/\bframe\b/.test(built), `${tagOf(x)}: engine word "frame" in "${built}"`);
+  }
+});
+
+test('canon contract: a method, ice or vessel change is listed in words, and a dish is never stamped', () => {
+  const pool = new Map(archData.flatMap(a => a.canonicalSpecs.map(sp => [`${a.id}:${sp.name}`, sp])));
+  const CLASS = { shake: 's', 'flash-blend': 's', blend: 'b', stir: 't', build: 'u', 'muddle-build': 'u', swizzle: 'w', hot: 'h' };
+  for (const x of battery) {
+    const { r } = x, sp = pool.get(r.reference.id);
+    if (!sp || r.canon.state !== 'house-riff' || (r.servings || 1) > 1) continue;
+    if (CLASS[sp.method] && CLASS[r.method.method] && CLASS[sp.method] !== CLASS[r.method.method]) assert.ok(r.canon.changes.some(c => /instead of/.test(c)), `${tagOf(x)}: ${r.method.method} vs ${sp.method} unlisted`);
+  }
+  const foster = engine.generate('bananas foster in a glass', { seed: 0 });
+  assert.notEqual(foster.canon.state, 'as-written', 'a prayer that names a dish is never answered with a stamped classic');
+});
+
+test('canon contract: a shaken, served-up build is never recognized as a frappé (No. 4) or any edition served otherwise', () => {
+  for (const x of battery) if (x.r.classic && x.r.classic.recognized) assert.equal(x.r.canon.state, 'as-written', tagOf(x));
+});
+
+test('identity cores: a classic keeps what makes it itself, or is not called it', () => {
+  const OVER = ['rum-demerara-overproof', 'rum-overproof-white', 'rum-black-overproof'];
+  const has = (r, ...ids) => r.lines.some(l => ids.includes(l.id) && !l.garnish);
+  const strongest = engine.generate('the strongest drink you dare', { seed: 0 });
+  for (const x of [...battery, { p: 'the strongest drink you dare', seed: 0, r: strongest }, { p: 'a tortuga', seed: 0, r: engine.generate('a tortuga', { seed: 0 }) }]) {
+    const { r } = x, ref = r.reference.name;
+    if (ref === 'Tortuga') assert.ok(r.lines.filter(l => OVER.includes(l.id)).length >= 2, `${tagOf(x)}: a Tortuga without both overproofs`);
+    if (ref === 'Lava Flow') assert.ok(has(r, 'strawberry'), `${tagOf(x)}: a Lava Flow without its strawberry`);
+    if (ref === 'Jungle Bird') assert.ok(has(r, 'pineapple-juice'), `${tagOf(x)}: a Jungle Bird without pineapple`);
+    if (/Navy Grog/.test(ref)) assert.ok(has(r, 'honey-syrup', 'allspice-dram', 'pimento-syrup'), `${tagOf(x)}: a Navy Grog with no honey or allspice`);
+    assert.ok(!/Tortuga[^.]*without its [^.]*overproof/.test(whyText(r)), `${tagOf(x)}: ${whyText(r)}`);
+  }
+  if (strongest.archetype.id === 'tortuga') assert.ok(strongest.stats.standardDrinks >= 3.2, `the strongest drink is ${strongest.stats.standardDrinks} sd`);
+  // The named drink without its core is named for what it became, and the card says so.
+  const jb = engine.generate('a jungle bird with orgeat instead of pineapple', { seed: 0 });
+  if (!jb.lines.some(l => l.id === 'pineapple-juice')) assert.notEqual(jb.reference.name, 'Jungle Bird', 'a Jungle Bird with no pineapple is anchored to another drink');
+});
+
+test('chronology: a family tree runs back only to an older drink, and the origins are right', () => {
+  const byName = new Map();
+  for (const a of archData) for (const [nm, o] of Object.entries(a.origins || {})) if (!byName.has(nm)) byName.set(nm, o);
+  for (const x of battery) {
+    const m = whyText(x.r).match(/The family tree runs back to the (.+?) \(/);
+    if (!m) continue;
+    const anc = byName.get(m[1]), mine = x.r.reference.year;
+    assert.ok(anc && anc.year, `${tagOf(x)}: an undated root ${m[1]}`);
+    if (mine && x.r.canon.state !== 'cousin') assert.ok(anc.year < mine, `${tagOf(x)}: runs back to ${m[1]} (${anc.year}) from a drink of ${mine}`);
+  }
+  const A = id => archData.find(a => a.id === id);
+  assert.equal(A('bitters-base-sour').origin.drink, 'Trinidad Especial');
+  assert.ok(A('bitters-base-sour').origin.year < A('bitters-base-sour').origins['Trinidad Sour'].year, 'the Especial (2008) is older than the Trinidad Sour (2009)');
+  assert.match(A('fruit-daiquiri').origin.text, /Floridita, Havana, 1930s/);
+  assert.match(A('tropical-stirred').origins.Bombo.text, /bumbo/);
+  assert.match(A('hot-grog').origin.text, /winter descendant of Admiral Vernon's 1740 grog/);
+  assert.equal(A('hot-grog').origin.year, null);
+  assert.match(A('scorpion').origin.text, /1946 as a punch for twelve/);
+  assert.match(A('scorpion').canonicalSpecs.find(sp => sp.name === 'Scorpion (individual)').edition, /1972/);
+  // Don's peach is peach brandy on the card.
+  const md = engine.generate("missionary's downfall", { seed: 0 });
+  assert.ok(md.lines.some(l => l.name === 'Peach brandy'), md.lines.map(l => l.name).join(', '));
+});
+
+test('battery divergence: praying again is a new idea, never the same drink a line off', () => {
+  for (let i = 0; i < battery.length; i += 2) {
+    const a = battery[i], b = battery[i + 1];
+    // A drink the guest named keeps its name (under 70% shared); a frame the prayer's own reading
+    // names and promises bottles for (the promotion's Mai Tai with its float and bubbles) can only
+    // move so far without breaking those promises (under 80%); any other prayer, under 60%.
+    const named = engine.namesFrame(a.p, a.r.archetype.id) && (a.r.riffOf || (a.r.classic && !a.r.classic.recognized));
+    const promised = engine.namesFrame(a.p, a.r.archetype.id) && engine.namesFrame(a.p, b.r.archetype.id);
+    const j = jac(bottles(a.r), bottles(b.r));
+    assert.ok(j < (named ? 0.7 : promised ? 0.8 : 0.6), `"${a.p}": seed 1 shares ${Math.round(j * 100)}% of seed 0's bottles (${a.r.name} / ${b.r.name})`);
+    const moved = a.r.archetype.id !== b.r.archetype.id || a.r.method.method !== b.r.method.method || (a.r.vessel || {}).id !== (b.r.vessel || {}).id || a.r.reference.id !== b.r.reference.id
+      || [...bottles(b.r)].some(id => !bottles(a.r).has(id));
+    assert.ok(moved, `"${a.p}": seed 1 changes nothing structural`);
+  }
+});
+
+test('battery divergence: no two prayers pour the same set of bottles, and canonical titles never repeat', t => {
+  let max = 0, worst = '';
+  const near = [];
+  for (let i = 0; i < battery.length; i++) for (let k = i + 1; k < battery.length; k++) {
+    if (battery[i].p === battery[k].p) continue;
+    const j = jac(bottles(battery[i].r), bottles(battery[k].r));
+    if (j > max) { max = j; worst = `${tagOf(battery[i])} = ${tagOf(battery[k])}`; }
+    if (j >= 0.8) near.push(`${j.toFixed(2)} ${tagOf(battery[i])} = ${tagOf(battery[k])}`);
+  }
+  t.diagnostic(`max cross-prayer ingredient-set Jaccard ${max.toFixed(2)}; pairs at 0.8 or more: ${near.length}`);
+  assert.ok(max < 0.9, `two prayers pour nearly the same drink (${max.toFixed(2)}): ${worst}`);
+  const titles = new Map();
+  for (const x of battery) if (x.r.classic) {
+    assert.ok(!titles.has(x.r.name) || titles.get(x.r.name) === x.p, `"${x.r.name}" titled twice: ${titles.get(x.r.name)} and ${x.p}`);
+    titles.set(x.r.name, x.p);
+  }
+});
+
+test('battery divergence: no frame poured more than three times unless the prayers name it', () => {
+  const n = {};
+  for (const x of battery) if (!engine.namesFrame(x.p, x.r.archetype.id)) (n[x.r.archetype.id] = n[x.r.archetype.id] || []).push(tagOf(x));
+  for (const [id, xs] of Object.entries(n)) assert.ok(xs.length <= 3, `${id} poured ${xs.length} times unasked: ${xs.join('; ')}`);
+});
+
+test('twists serve the heard word: "X but Y" again answers Y another way, and no variation weakens a heard promise', () => {
+  const s0 = engine.generate('a mai tai but tropical', { seed: 0 }), s1 = engine.generate('a mai tai but tropical', { seed: 1 });
+  const src = new Set(drinks.find(d => d.id === engine.parse('a mai tai but tropical').riffOf).ingredients.map(l => l.id));
+  const change = r => [...bottles(r)].filter(id => !src.has(id) && (ingMap.get(id) || {}).role !== 'base');
+  assert.ok(change(s1).length && !change(s1).some(id => change(s0).includes(id)), `seed 1 answers "tropical" with ${change(s1)} after ${change(s0)}`);
+  assert.ok(!/rest of the prayer steered/.test(JSON.stringify(s1.explanation.reading.heard)), 'the heard word is answered');
+  for (const seed of [0, 1, 2]) {
+    const r = engine.generate('bitter and refreshing', { seed });
+    assert.ok(!r.explanation.reading.moves.some(m => /aperol in place of campari/i.test(m)), `"bitter" never trades Campari for Aperol: ${r.explanation.reading.moves}`);
+  }
+});

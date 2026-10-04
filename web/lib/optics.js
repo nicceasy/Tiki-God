@@ -77,7 +77,23 @@ export function mixColor(parts, waterOz = 0, { pathCm = 7 } = {}) {
   const R = albedo.map((a, k) => ((1 - W) * a + W) * T[k] ** BETA);
   const out = T.map((t, k) => (1 - S) * t + S * R[k]);
   const clarity = (T[0] + T[1] + T[2]) / 3;
-  return { hex: rgbToHex(liquidFloor(out.map(v => lin2srgb(v) / 255)).map(v => v * 255)), opacity: Math.round(S * 100) / 100, clarity: Math.round(clarity * 100) / 100 };
+  return { hex: rgbToHex(liquidFloor(vivid(out).map(v => lin2srgb(v) / 255)).map(v => v * 255)), opacity: Math.round(S * 100) / 100, clarity: Math.round(clarity * 100) / 100 };
+}
+// A drink in a glass is more colorful than a mix of absorbances and a grey scatter predicts: the
+// eye judges it against the white of the ice and the paper of the menu, where its chroma reads
+// full. The calibration references (docs/research/color.md) sit a little more saturated than the
+// bare model (a Mai Tai 0.68 against 0.56, a Navy Grog 0.54 against 0.46), so the mix's chroma
+// is raised in HSL (hue and lightness kept) by up to VIVID, most in the mid tones and fading
+// out toward water-white and near-black, where a push would read as tint, not color.
+export let VIVID = 1.15;
+export const setVivid = k => { VIVID = k; };
+function vivid(rgbLin) {
+  const c = rgbLin.map(v => lin2srgb(v) / 255), mx = Math.max(...c), mn = Math.min(...c), l = (mx + mn) / 2, d = mx - mn;
+  if (d < 1e-4) return rgbLin;
+  // (in HSL, so the hue and the lightness are exactly the model's; only the chroma rises)
+  const fade = Math.max(0, Math.min(1, (0.93 - l) / 0.12)) * Math.max(0, Math.min(1, (l - 0.18) / 0.12));
+  const s = d / (1 - Math.abs(2 * l - 1)), s2 = Math.min(1, s * (1 + (VIVID - 1) * fade)), k = s2 / s;
+  return c.map(v => srgb2lin(255 * Math.max(0, Math.min(1, l + (v - l) * k))));
 }
 // Never pure black: a Goslings float still reads as liquid, so no channel drops below a dim
 // floor. The floor greys the color toward its own lightness rather than lifting one channel:
@@ -101,12 +117,12 @@ function liquidFloor(c) {
 // it (mango-gold, Campari red) has that bottle in it (drinkLook).
 const NAMED = [
   ['#f5f1e6', 'water-clear'], ['#f4ecd6', 'pale straw'], ['#f2e1a0', 'pale gold'], ['#f0c95a', 'golden'], ['#f2b73a', 'passion-fruit gold'], ['#f2a32e', 'mango gold'],
-  ['#e8cc94', 'pale honey'], ['#dcb07a', 'pale amber'], ['#e5b46a', 'honeyed amber'], ['#e6bc74', 'golden amber'], ['#d98a3a', 'amber'], ['#c8804e', 'copper'], ['#b05a26', 'burnished copper'], ['#8f6a32', 'dark amber'], ['#f08a34', 'tangerine'], ['#ea6a30', 'sunset orange'],
+  ['#e8cc94', 'pale honey'], ['#dcb07a', 'pale amber'], ['#e5b46a', 'honeyed amber'], ['#e6bc74', 'golden amber'], ['#d98a3a', 'amber'], ['#c8804e', 'copper'], ['#b05a26', 'burnished copper'], ['#8f6a32', 'dark amber'], ['#f08a34', 'tangerine'], ['#ea6a30', 'flame orange'],
   ['#b8864e', 'tawny'], ['#9c5228', 'russet'], ['#c4664e', 'terracotta'], ['#d2562e', 'blood-orange'], ['#ecbc6c', 'orange-gold'],
   ['#8a4a22', 'mahogany'], ['#86382a', 'oxblood'], ['#5a2e16', 'dark brown'], ['#3e1c0e', 'molasses'], ['#2e1a10', 'near-black'], ['#4a0c2c', 'deep plum'],
   ['#f6c6a0', 'peach'], ['#f2b276', 'apricot'], ['#e9a38c', 'rose gold'], ['#f29a6a', 'coral'], ['#e0563a', 'red-orange'], ['#c8303a', 'red'], ['#9c1e3a', 'ruby'], ['#7a1a1e', 'garnet'],
   ['#f2a8b8', 'pink'], ['#f6d0d8', 'blush'], ['#d65a8c', 'hibiscus pink'], ['#c2185b', 'magenta'], ['#8a4ab0', 'violet'], ['#c8b4e0', 'lavender'], ['#5a3a8a', 'deep purple'],
-  ['#3a8ad8', 'blue'], ['#1a5ab8', 'deep blue'], ['#a6d8e8', 'pale aqua'], ['#7ac4dc', 'sky blue'], ['#40b0c8', 'turquoise'], ['#5ac0b0', 'lagoon teal'],
+  ['#3a8ad8', 'blue'], ['#1a5ab8', 'deep blue'], ['#5a7898', 'slate blue'], ['#a6d8e8', 'pale aqua'], ['#7ac4dc', 'sky blue'], ['#40b0c8', 'turquoise'], ['#5ac0b0', 'lagoon teal'],
   ['#3aa88a', 'teal-green'], ['#b4e0c8', 'seafoam'], ['#9cc95a', 'green'], ['#c8d870', 'chartreuse'], ['#d9e09a', 'pale green-gold'], ['#6a9a4a', 'leaf green'],
   ['#eef2cf', 'pale lime'],
   ['#f3ead8', 'cream'], ['#f8ecc0', 'ivory'], ['#ecd9b4', 'tan'], ['#dcac6e', 'orange-tan'], ['#c9a27a', 'café au lait'], ['#ccb294', 'mocha'], ['#7a5a40', 'mocha'],
@@ -122,9 +138,11 @@ const NOT_CREAMY = new Set(['apricot', 'pale straw', 'water-clear', 'pale lime']
 const onHue = (lo, hi) => c => c.h !== null && (lo < hi ? c.h >= lo && c.h < hi : c.h >= lo || c.h < hi);
 const WORD_GUARD = {
   seafoam: c => c.s >= 0.35 && c.l >= 0.7, 'pale lime': onHue(55, 95),
-  tangerine: onHue(18, 40), 'sunset orange': onHue(10, 30), 'mango gold': onHue(30, 46), 'passion-fruit gold': onHue(34, 50),
-  'hibiscus pink': onHue(315, 2), 'rose gold': onHue(0, 30), copper: onHue(5, 36), ruby: onHue(330, 12), 'deep plum': onHue(300, 350),
+  tangerine: onHue(18, 40), 'flame orange': onHue(10, 30), 'mango gold': onHue(30, 46), 'passion-fruit gold': onHue(34, 50),
+  'hibiscus pink': onHue(315, 2), 'rose gold': onHue(0, 30), copper: onHue(5, 36), coral: onHue(4, 30), ruby: onHue(330, 12), 'deep plum': onHue(300, 350),
   lavender: onHue(240, 320), violet: onHue(250, 320), 'deep purple': onHue(250, 320),
+  // Slate is a dull, greyed blue (blue curaçao clouded by a red juice: the two pigments subtract).
+  'slate blue': c => onHue(195, 250)(c) && c.s < 0.42 && c.l < 0.62,
   // Oxblood is a dark red-brown (a blackstrap Jungle Bird blushed with hibiscus), never coffee.
   oxblood: onHue(0, 20),
   // Pale honey is pale and pale amber is soft: a saturated mid amber (a Mai Tai under Champagne)
@@ -151,9 +169,31 @@ const lab = hex => {
   return [116 * f(Y) - 16, 500 * (f(X) - f(Y)), 200 * (f(Y) - f(Z))];
 };
 const NAMED_LAB = NAMED.map(([h, n]) => [lab(h), n]);
+// CIEDE2000 color difference (Sharma, Wu and Dalal's formulation): how different two paints
+// look. About 1 is just noticeable, 10 a clearly different shade of the same color.
+export function deltaE2000(a, b) {
+  const [L1, a1, b1] = lab(a), [L2, a2, b2] = lab(b), rad = Math.PI / 180;
+  const C1 = Math.hypot(a1, b1), C2 = Math.hypot(a2, b2), Cm = (C1 + C2) / 2, G = 0.5 * (1 - Math.sqrt(Cm ** 7 / (Cm ** 7 + 25 ** 7)));
+  const ap1 = a1 * (1 + G), ap2 = a2 * (1 + G), Cp1 = Math.hypot(ap1, b1), Cp2 = Math.hypot(ap2, b2);
+  const hp = (x, y) => (x === 0 && y === 0 ? 0 : (Math.atan2(y, x) / rad + 360) % 360);
+  const h1 = hp(ap1, b1), h2 = hp(ap2, b2), dL = L2 - L1, dC = Cp2 - Cp1;
+  let dh = Cp1 * Cp2 === 0 ? 0 : h2 - h1;
+  if (dh > 180) dh -= 360; else if (dh < -180) dh += 360;
+  const dH = 2 * Math.sqrt(Cp1 * Cp2) * Math.sin(dh * rad / 2), Lm = (L1 + L2) / 2, Cpm = (Cp1 + Cp2) / 2;
+  let hm = h1 + h2;
+  if (Cp1 * Cp2 !== 0) hm = Math.abs(h1 - h2) <= 180 ? hm / 2 : hm < 360 ? (hm + 360) / 2 : (hm - 360) / 2;
+  const T = 1 - 0.17 * Math.cos((hm - 30) * rad) + 0.24 * Math.cos(2 * hm * rad) + 0.32 * Math.cos((3 * hm + 6) * rad) - 0.2 * Math.cos((4 * hm - 63) * rad);
+  const SL = 1 + 0.015 * (Lm - 50) ** 2 / Math.sqrt(20 + (Lm - 50) ** 2), SC = 1 + 0.045 * Cpm, SH = 1 + 0.015 * Cpm * T;
+  const RT = -2 * Math.sqrt(Cpm ** 7 / (Cpm ** 7 + 25 ** 7)) * Math.sin(60 * Math.exp(-(((hm - 275) / 25) ** 2)) * rad);
+  return Math.sqrt((dL / SL) ** 2 + (dC / SC) ** 2 + (dH / SH) ** 2 + RT * (dC / SC) * (dH / SH));
+}
+
 // `creamy`: true when coconut or dairy clouds the drink (it may then be café au lait or tan);
 // false when it doesn't; left out, every word is allowed. `layer`: a float, sink or crown band.
-export function colorWord(hex, opacity, { creamy, layer = false, cocoa = false } = {}) {
+// `fruits`: when given, the fruits in the glass; a word named for a fruit (mango gold,
+// passion-fruit gold) is then only used when that fruit is poured.
+const FRUIT_WORD = { 'mango gold': 'mango', 'passion-fruit gold': 'passion', tangerine: 'orange', 'blood-orange': 'orange', apricot: 'apricot', peach: 'peach' };
+export function colorWord(hex, opacity, { creamy, layer = false, cocoa = false, fruits = null } = {}) {
   const c = lab(hex), hc = hsl(hex);
   const dark = c[0] < 38;
   let best = NAMED_LAB[0], bd = Infinity;
@@ -165,6 +205,7 @@ export function colorWord(hex, opacity, { creamy, layer = false, cocoa = false }
     // Coffee stirred into rum is coffee-dark, not molasses (that is a blackstrap's word).
     if (cocoa && n[1] === 'molasses') continue;
     if (WORD_GUARD[n[1]] && !WORD_GUARD[n[1]](hc)) continue;
+    if (fruits && FRUIT_WORD[n[1]] && !fruits.has(FRUIT_WORD[n[1]])) continue;
     if (!dark && DARK_ONLY.has(n[1])) continue;
     // "A molasses float of Angostura" reads like a recipe line: bands get plain color words.
     if (layer && n[1] === 'molasses') continue;
@@ -186,7 +227,7 @@ export function colorWord(hex, opacity, { creamy, layer = false, cocoa = false }
 
 // How far light travels through each kind of vessel (cm); opaque mugs show only the surface.
 // Used for the drawing's wash depth.
-export const PATH = { coupe: 5, 'nick-nora': 5, 'cocktail-glass': 5, flute: 6, rocks: 7, dof: 7, 'clay-cup': 6, highball: 6, collins: 6, chimney: 6, 'footed-pilsner': 6, 'pearl-diver': 6, tulip: 6.5, hurricane: 7.5, 'poco-grande': 7, goblet: 7, snifter: 9.5, 'scorpion-bowl': 9.5, 'tiki-bowl': 9, 'volcano-bowl': 9, 'punch-bowl': 10 };
+export const PATH = { coupe: 5, 'nick-nora': 5, 'cocktail-glass': 5, flute: 6, rocks: 7, dof: 7, 'clay-cup': 6, highball: 6, 'acrylic-tumbler': 6.5, collins: 6, chimney: 6, 'footed-pilsner': 6, 'pearl-diver': 6, tulip: 6.5, hurricane: 7.5, 'poco-grande': 7, goblet: 7, snifter: 9.5, 'scorpion-bowl': 9.5, 'tiki-bowl': 9, 'volcano-bowl': 9, 'punch-bowl': 10 };
 // Mint blended into a drink (a Missionary's Downfall) dyes it; about 8 leaves ≈ ¼ oz of green.
 const BLENDED_MINT = { hex: '#6fa04a', tint: 0.8, scatter: 0.3 };
 
@@ -204,8 +245,12 @@ export function drinkLook(lines, ingMap, { method, ice, dilutionOz = 0, vessel =
   // the drawing's wash depth only.
   const pathCm = 7;
   const poured = lines.filter(l => !l.garnish && I(l) && l.role !== 'aromatic');
-  const mixed = poured.filter(l => !l.float && !l.sink && !l.crown);
   const frozen = method === 'blend' || ice === 'blended';
+  // A Lava Flow's strawberry purée, poured into the glass first with the colada blended over it,
+  // does not settle as a band: it streaks up the walls (declared as `streak`, or a berry purée
+  // marked to sink under a frozen drink).
+  const streaky = l => !!l.streak || (!!l.sink && frozen && /strawberr|raspberr/.test(l.id));
+  const mixed = poured.filter(l => !l.float && !l.sink && !l.crown && !l.streak);
   // Butterfly pea is a pH indicator: blue in a neutral glass, violet once citrus goes in, and
   // magenta-pink in a properly sour drink (the color-changing gin trick).
   const sourOz = mixed.filter(l => (I(l).acid || 0) >= 2).reduce((t, l) => t + l.oz, 0), mixOz = mixed.reduce((t, l) => t + l.oz, 0) || 1;
@@ -218,7 +263,11 @@ export function drinkLook(lines, ingMap, { method, ice, dilutionOz = 0, vessel =
   const bodyVol = pouredOz + dilutionOz;
   // A float or sink holds against the diluted body, not the neat ingredients.
   const bodySg = bodyVol ? (mixed.reduce((s, l) => s + l.oz * opticsOf(I(l)).sg, 0) + dilutionOz) / bodyVol : 1;
-  for (const l of poured.filter(l => l.float || l.sink || l.crown)) {
+  for (const l of poured.filter(l => streaky(l))) {
+    const o = opticsOf(I(l));
+    layers.push({ kind: 'streak', id: l.id, hex: o.layerHex, opacity: o.opacity, frac: Math.min(0.6, Math.max(0.3, l.oz / Math.max(1, bodyVol) * 3)) });
+  }
+  for (const l of poured.filter(l => (l.float || l.sink || l.crown) && !streaky(l))) {
     const o = opticsOf(I(l));
     const holds = l.float ? o.sg < bodySg - 0.02 || ['crushed', 'pebble', 'shaved', 'ice-cone', 'blended'].includes(ice) && o.sg < bodySg : l.sink ? o.sg > bodySg + 0.02 : true;
     if (!holds) continue;
@@ -241,7 +290,10 @@ export function drinkLook(lines, ingMap, { method, ice, dilutionOz = 0, vessel =
   // "Creamy" only when coconut or dairy makes it so; pulp-cloudy is "opaque" or "cloudy".
   const creamy = mixed.some(l => CREAMERS.includes(l.id) && l.oz >= 0.5);
   const cocoa = mixed.some(l => ['creme-de-cacao', 'white-creme-de-cacao', 'coffee-liqueur', 'coffee'].includes(l.id) && l.oz >= 0.5);
-  let bodyWord = colorWord(body.hex, body.opacity, { creamy, cocoa }).replace(/^creamy /, creamy ? 'creamy ' : 'opaque ');
+  // (a color word that names a fruit, tangerine or apricot, only for a glass that has that fruit
+  // in it: a tagline built from the look must not promise a fruit the drink lacks)
+  const fruits = new Set([['mango', /mango/], ['passion', /passion-fruit/], ['orange', /^(orange|blood-orange|tangerine|orange-curacao|triple-sec|grand-marnier)$/], ['apricot', /apricot/], ['peach', /peach/]].filter(([, re]) => mixed.some(l => re.test(l.id))).map(([f]) => f));
+  let bodyWord = colorWord(body.hex, body.opacity, { creamy, cocoa, fruits }).replace(/^creamy /, creamy ? 'creamy ' : 'opaque ');
   // The bottle that colors the glass names it when it is the one a guest would know: a colada
   // gold with mango nectar is mango-gold, not tan; a clear red that is mostly Campari is Campari red.
   const hb = hsl(body.hex), shade = id => mixed.filter(l => l.id === id).reduce((t, l) => t + l.oz * (opticsOf(I(l)).tint + (opticsOf(I(l)).scatter || 0)), 0);
@@ -268,7 +320,7 @@ export function drinkLook(lines, ingMap, { method, ice, dilutionOz = 0, vessel =
   // the gold ones).
   const share = ids => ozOf(ids) / (mixed.reduce((t, l) => t + l.oz, 0) || 1);
   const red = share(RED_TINT), gold = share(GOLD_TINT);
-  if (!creamy && /^(cloudy |opaque )?(burnished copper|copper|terracotta|russet)$/.test(bodyWord) && hb.h !== null && hb.h >= 15 && hb.h < 24 && hb.s >= 0.5 && red >= 0.05 && red > gold * 1.2) bodyWord = bodyWord.replace(/(burnished copper|copper|terracotta|russet)$/, 'rust-red');
+  if (!creamy && /^(cloudy |opaque )?(burnished copper|copper|terracotta|russet|blood-orange)$/.test(bodyWord) && hb.h !== null && hb.h >= 15 && hb.h < 24 && hb.s >= 0.5 && red >= 0.05 && red > gold * 1.2) bodyWord = bodyWord.replace(/(burnished copper|copper|terracotta|russet|blood-orange)$/, 'rust-red');
   // The rum ambers are told apart by what else is in them, so a menu of grogs and Zombies isn't
   // one copper: a teaspoon of grenadine (with Don's Mix) leaves a Zombie a ruddy amber, as the
   // 1934 original reads; a grog sweetened with honey is honeyed amber; orange and pineapple
@@ -281,7 +333,7 @@ export function drinkLook(lines, ingMap, { method, ice, dilutionOz = 0, vessel =
   else if (!creamy && warmRum.test(bodyWord) && hb.h !== null && hb.h >= 24 && hb.h < 40 && hb.l < 0.62 && honeyLed) bodyWord = bodyWord.replace(/(copper|tawny|amber)$/, 'honeyed amber');
   else if (!creamy && warmRum.test(bodyWord) && body.opacity >= 0.45 && hb.h !== null && hb.h >= 24 && hb.h < 38 && ozOf(['orange']) >= 0.75 && ozOf(['orange', 'pineapple-juice']) >= 1.5) bodyWord = bodyWord.replace(/(copper|tawny|amber)$/, hb.s >= 0.75 && hb.l >= 0.56 && top && top.id === 'orange' ? 'tangerine' : 'orange-amber');
   // Campari and pineapple make coral (the Jungle Bird), however dark the rum leaves it.
-  if (!creamy && /^(cloudy |opaque )?(terracotta|copper|rust-red|red-orange|sunset orange|blood-orange)$/.test(bodyWord) && hb.h !== null && hb.h >= 5 && hb.h < 26 && ozOf(['campari']) >= 0.5 && ozOf(['pineapple-juice']) >= 2) bodyWord = bodyWord.replace(/[a-z-]+( [a-z-]+)?$/, m => (/^(opaque|cloudy) /.test(m) ? m.split(' ')[0] + ' ' : '') + 'coral');
+  if (!creamy && /^(cloudy |opaque )?(terracotta|copper|rust-red|red-orange|flame orange|blood-orange)$/.test(bodyWord) && hb.h !== null && hb.h >= 5 && hb.h < 26 && ozOf(['campari']) >= 0.5 && ozOf(['pineapple-juice']) >= 2) bodyWord = bodyWord.replace(/[a-z-]+( [a-z-]+)?$/, m => (/^(opaque|cloudy) /.test(m) ? m.split(' ')[0] + ' ' : '') + 'coral');
   // Passion fruit names a clear-to-cloudy gold it colors (tea or a little rum under it), as mango
   // names a colada.
   if (!creamy && fruitGold.w === 'passion-fruit gold' && fruitGold.k >= 1.2 && top && /^passion-fruit/.test(top.id) && hb.h !== null && hb.h >= 34 && hb.h < 50 && hb.s >= 0.6 && /^(cloudy |opaque )?(amber|golden amber|honeyed amber|pale amber|tawny|apricot|orange-gold|golden|tangerine|mango gold)$/.test(bodyWord)) bodyWord = bodyWord.replace(/[a-z-]+( [a-z-]+)?$/, m => (/^(opaque|cloudy) /.test(m) ? m.split(' ')[0] + ' ' : '') + 'passion-fruit gold');
@@ -296,6 +348,7 @@ export function drinkLook(lines, ingMap, { method, ice, dilutionOz = 0, vessel =
     if (x.kind === 'sink') words.push(`with ${n} settling ${colorWord(x.hex, 0, { layer: true })} at the bottom`);
     if (x.kind === 'crown') words.push(`under a ${colorWord(x.hex, 0, { layer: true })} crown of bitters`);
     if (x.kind === 'foam') words.push('with a pale froth');
+    if (x.kind === 'streak') words.push(`with ${n} streaking ${colorWord(x.hex, 0, { layer: true })} up through it`);
   }
   // A Champagne top in a clear glass sparkles.
   if (words.length === 1 && !frozen && body.opacity < 0.8 && mixed.some(l => l.id === 'sparkling-wine' && l.oz >= 1)) words.push('with a sparkle');

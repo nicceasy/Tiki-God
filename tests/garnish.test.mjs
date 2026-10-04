@@ -85,8 +85,9 @@ test('an up drink gets exactly one thing a stemmed glass can hold', () => {
     n++;
     assert.equal(decor(x.r).length, 1, `${id(x)}: ${x.r.garnish.join(', ')}`);
     for (const g of x.r.garnish) {
-      assert.ok(/wheel|peel|twist|on a pick|nutmeg|dusting|grated|toasted|ring around|on the rim|ice shell|coffee beans/.test(g), `${id(x)}: "${g}" on a stemmed glass`);
-      assert.ok(!/mint|umbrella|cinnamon stick|wedge|orchid|gardenia|flower|straw|frond|flaming/.test(g), `${id(x)}: "${g}" on a stemmed glass`);
+      // A small edible flower floats on an up drink; an orchid or gardenia doesn't.
+      assert.ok(/wheel|peel|twist|on a pick|nutmeg|dusting|grated|toasted|ring around|on the rim|ice shell|coffee beans|^edible flower$/.test(g), `${id(x)}: "${g}" on a stemmed glass`);
+      assert.ok(!/mint|umbrella|cinnamon stick|wedge|orchid|gardenia|straw|frond|flaming/.test(g), `${id(x)}: "${g}" on a stemmed glass`);
     }
   }
   assert.ok(n >= 8, 'the battery has up drinks');
@@ -129,7 +130,8 @@ test('the signature serves wear their own garnish', () => {
   const find = (arch, pred = () => true) => all.filter(x => x.r.archetype.id === arch && pred(x.r));
   const every = (arch, fn, pred) => { const xs = find(arch, pred); assert.ok(xs.length, `no ${arch} in the battery`); for (const x of xs) fn(x.r, id(x)); };
   every('beachcomber-spice-sour', (r, w) => assert.ok(r.garnish.includes('three cherries and a pineapple chunk on a pick'), w), r => !r.lines.some(l => ['cinnamon-syrup', 'dons-spices-2'].includes(l.id)));
-  every('mai-tai', (r, w) => { assert.ok(r.garnish.includes('spent lime shell'), w); assert.ok(!r.garnish.some(g => /cherr|umbrella|flag/.test(g)), w); });
+  // A Mai Tai served up (a celebration's sparkling Mai Tai in a flute) wears one small thing instead.
+  every('mai-tai', (r, w) => { if (!isUp(r)) assert.ok(r.garnish.includes('spent lime shell'), w); assert.ok(!r.garnish.some(g => /cherr|umbrella|flag/.test(g)), w); });
   every('navy-grog', (r, w) => { assert.ok(r.garnish.includes('mint sprig') && r.garnish.includes('spent lime shell'), w); if (r.method.ice === 'ice-cone') assert.ok(r.garnish.includes('straw through the ice cone'), w); });
   every('painkiller', (r, w) => { assert.ok(r.garnish.includes('heavy nutmeg cap'), w); if (has(r, 'orange') && !(engine.parse(r.prompt).avoidTags.orange >= 1)) assert.ok(r.garnish.includes('orange wheel') && r.garnish.includes('cherry'), w); });
   every('trinidad-swizzle', (r, w) => assert.ok(r.garnish.includes('mint sprig') && r.garnish.includes('swizzle stick left in'), w));
@@ -244,4 +246,110 @@ test('a sink names the vessel it runs down, and says when an opaque vessel hides
     }
   }
   assert.ok(opaque >= 2, 'opaque sinks exercised');
+});
+
+// ---------- service physics, canonical service, steps from the lines (round-2 critique §3, §5, §6, §9) ----------
+// With the technique rules loaded, as the site runs it.
+const { createLinter } = await import('../web/lib/lint.js');
+const rules = j('data/technique-rules.json');
+const ruled = createEngine({
+  vocab: j('data/ingredients.json'), families: j('data/families.json'), drinks: j('data/drinks.json'), model: j('data/model.json'),
+  vessels, archetypes: j('data/archetypes.json'), concepts: j('data/concepts.json'), rules,
+});
+const SERVICE_EXTRA = ['daiquiri no. 4', 'hemingway daiquiri', "missionary's downfall", 'painkiller', 'gin-gin mule', 'a rum punch on the boat',
+  'something for the beach', 'a pina colada by the pool', 'champagne to celebrate', 'a volcano bowl for two, on fire', 'hot buttered rum', 'a frozen daiquiri'];
+const served = [];
+for (const p of prompts) for (const seed of [0, 1]) served.push({ p, seed, r: ruled.generate(p, { seed }) });
+for (const p of SERVICE_EXTRA) for (const seed of [0, 1]) served.push({ p, seed, r: ruled.generate(p, { seed }) });
+const battery = served.filter(x => prompts.includes(x.p));
+
+test('capacity on every path: ice and all is half the vessel, frozen mounds under the rim, small drinks in small vessels, up drinks in stemmed glasses', () => {
+  for (const x of served) {
+    const r = x.r, v = vesselById[r.vessel.id];
+    if (isBowl(r) || r.vessel.why === 'asked' || r.classic) continue;
+    const open = ['crushed', 'pebble'].includes(r.method.ice) && ['shake', 'flash-blend', 'swizzle'].includes(r.method.method) && !isUp(r);
+    if (open) assert.ok(r.stats.volOz <= v.capacity * 0.55 + 0.15, `${id(x)}: ${r.stats.volOz} oz poured ice and all into ${v.capacity} oz`);
+    if (r.method.method === 'blend') {
+      assert.ok(r.stats.finalOz <= v.capacity * 0.92 + 0.15, `${id(x)}: ${r.stats.finalOz} oz frozen in ${v.capacity} oz`);
+      assert.ok(r.stats.finalOz >= v.capacity * 0.45, `${id(x)}: ${r.stats.finalOz} oz frozen lost in a ${v.capacity} oz ${v.id}`);
+    }
+    if (r.method.ice === 'none' && ['shake', 'stir'].includes(r.method.method)) assert.ok(v.serve.includes('up'), `${id(x)}: strained with no ice into an empty ${v.id}`);
+    if (isUp(r) && r.method.method !== 'blend') assert.ok(r.stats.finalOz <= v.capacity * 0.95 + 0.1, `${id(x)}: ${r.stats.finalOz} oz up in ${v.capacity} oz`);
+  }
+});
+
+test('the shaker ice for an open pour is sized to the glass, and a bowl gets rounds of two over a modest bed', () => {
+  for (const x of served) {
+    const st = x.r.method.steps.join(' ');
+    assert.ok(!/12 oz of crushed ice/.test(st) || x.r.vessel.id === 'hurricane' || vesselById[x.r.vessel.id].capacity >= 14, `${id(x)}: the fixed scoop`);
+    if (isBowl(x.r) && /Flash-blend|Blend/.test(st) && x.r.servings >= 2) assert.ok(/rounds of two|all at once/.test(st) && !/finish with a mound/.test(st), `${id(x)}: ${st}`);
+  }
+});
+
+test('a named classic is served the way its canon serves it, or the card records what the prayer waived', () => {
+  const by = p => served.find(x => x.p === p && x.seed === 0).r;
+  assert.ok(vesselById[by('hemingway daiquiri').vessel.id].serve.includes('up'), 'a Hemingway goes up');
+  assert.equal(by("missionary's downfall").method.method, 'blend', "Missionary's Downfall is blended");
+  assert.equal(by('painkiller').vessel.id, 'enamel-tin', "the Painkiller comes in the Pusser's tin");
+  assert.ok(by('gin-gin mule').lines.some(l => l.id === 'mint' && l.muddled), 'the Gin-Gin Mule keeps its mint');
+  for (const x of served) {
+    const c = x.r.method.canon;
+    if (!c || !c.vessel || x.r.vessel.why === 'asked' || x.r.vessel.id === c.vessel) continue;
+    assert.ok((x.r.method.waived || []).length, `${id(x)}: ${c.name} belongs in a ${c.vessel}, served in a ${x.r.vessel.id} with nothing waived`);
+  }
+});
+
+test('steps come from the lines: herbs pressed only when poured, bitters dashed, floats held back from "the rest"', () => {
+  for (const x of served) {
+    const r = x.r, st = r.method.steps;
+    for (const herb of ['mint', 'basil']) if (st.some(s => new RegExp(`(press|muddle)[^.]*\\b${herb}\\b`, 'i').test(s))) assert.ok(r.lines.some(l => l.id === herb && l.muddled), `${id(x)}: presses ${herb} with no ${herb} line`);
+    assert.ok(!st.some(s => /^Float[^:]*bitters/i.test(s)), `${id(x)}: bitters floated`);
+    for (const f of r.lines.filter(l => l.float)) {
+      const at = st.findIndex(s => /^Float/.test(s) && s.toLowerCase().includes(f.name.toLowerCase().split(' ').pop()));
+      for (const s of st.slice(0, at < 0 ? 0 : at)) if (/^(Add|Build|Shake|Stir|Divide|Blend)\b.*\b(everything|the rest)\b/.test(s)) assert.ok(/except/.test(s), `${id(x)}: "${s}" sweeps in the ${f.name} float`);
+    }
+  }
+});
+
+test('fire agrees with the vessel and keeps its clearance: a lit volcano bowl has no mint ring', () => {
+  const allowed = rules.garnish.fire.allowedVessels;
+  for (const x of served) {
+    const st = x.r.method.steps.join(' ');
+    if (/light it/.test(st)) assert.ok(allowed.includes(x.r.vessel.id), `${id(x)}: fire in a ${x.r.vessel.id}`);
+    if (x.r.vessel.id === 'volcano-bowl' && /Fire, last/.test(st)) assert.ok(!x.r.garnish.some(g => /mint/.test(g)), `${id(x)}: mint round the crater`);
+    if (x.r.style.flaming && (heaped(x.r) || isBowl(x.r)) && x.r.method.method !== 'hot' && x.r.vessel.why !== 'asked') assert.ok(/light it/.test(st), `${id(x)}: fire asked for on crushed ice, never lit`);
+  }
+});
+
+test('the vessel library: glass is a hazard by the pool, on the beach and on a boat; a celebration with bubbles goes up; no vessel takes over the battery', () => {
+  for (const x of served) if (/\b(pool|beach|boat)\b/.test(x.p) && !isBowl(x.r) && !isUp(x.r) && x.r.method.method !== 'hot') assert.equal(x.r.vessel.id, 'acrylic-tumbler', id(x));
+  for (const x of served) if (/promotion/.test(x.p) && !isBowl(x.r) && x.r.lines.some(l => l.id === 'sparkling-wine')) assert.ok(['flute', 'coupe'].includes(x.r.vessel.id), id(x));
+  const count = {};
+  for (const x of battery) count[x.r.vessel.id] = (count[x.r.vessel.id] || 0) + 1;
+  for (const [v, n] of Object.entries(count)) assert.ok(n <= battery.length * 0.22, `${v} holds ${n} of ${battery.length}`);
+  assert.ok(Object.keys(count).length >= 18, `only ${Object.keys(count).length} vessels in use`);
+});
+
+test('garnish keeps the reading\'s and the name\'s promises, and mint is not a reflex', () => {
+  const by = (p, seed = 0) => served.find(x => x.p === p && x.seed === seed).r;
+  assert.ok(by('something floral and elegant').garnish.some(g => /flower|orchid|gardenia/.test(g)), 'floral gets a flower');
+  for (const seed of [0, 1]) assert.ok(by('a night in Tahiti', seed).garnish.includes('tiare gardenia'), 'Tahiti wears the tiare');
+  for (const x of served) if (/orchid/i.test(x.r.name) && !isUp(x.r)) assert.ok(x.r.garnish.includes('orchid'), `${id(x)}: named for an orchid`);
+  const mint = battery.filter(x => x.r.garnish.some(g => /mint/.test(g))).length;
+  assert.ok(mint <= battery.length * 0.45, `mint on ${mint} of ${battery.length}`);
+});
+
+test('the linter catches what the service rules forbid', () => {
+  const { lint } = createLinter({ rules, vocab: j('data/ingredients.json'), vessels });
+  const base = { name: 'Test', family: { id: 'punch' }, archetype: { id: 'planters-punch' }, servings: 1, stats: {}, garnish: [], explanation: {} };
+  const L = (id, oz, extra = {}) => ({ id, name: id, oz, unit: 'oz', amount: oz, ...extra });
+  const ids = rec => lint(rec).map(f => f.id);
+  const crowded = { ...base, vessel: { id: 'coconut' }, lines: [L('rum-white-column', 2), L('lime', 1), L('pineapple-juice', 3), L('simple-syrup', 1)], method: { method: 'shake', ice: 'crushed', steps: [] } };
+  assert.ok(ids(crowded).includes('ice-and-all-overfull'));
+  const upTumbler = { ...base, vessel: { id: 'dof' }, lines: [L('rum-white-column', 2), L('lime', 0.75), L('simple-syrup', 0.75)], method: { method: 'shake', ice: 'none', steps: [] } };
+  assert.ok(ids(upTumbler).includes('up-in-tumbler'));
+  const phantom = { ...base, vessel: { id: 'collins' }, lines: [L('rum-white-column', 2), L('lime', 0.75), L('simple-syrup', 0.75)], method: { method: 'swizzle', ice: 'crushed', steps: ['Lightly press the mint in the bottom of a collins glass.', 'Add everything to a collins glass.'] } };
+  assert.ok(ids(phantom).includes('phantom-muddle'));
+  const sweep = { ...base, vessel: { id: 'hot-mug' }, lines: [L('rum-white-column', 1.5), L('rum-demerara-overproof', 0.25, { float: true }), L('hot-water', 5)], method: { method: 'hot', ice: 'none', steps: ['Add the rest except the hot water and stir.', 'Top with steaming hot water.', 'Float the Demerara 151 overproof rum on top: pour it gently over the back of a bar spoon.'] } };
+  assert.ok(ids(sweep).includes('rest-sweeps-float'));
 });

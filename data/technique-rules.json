@@ -587,7 +587,7 @@
    ],
    "acidConc": [
     0.7,
-    1.0
+    1
    ],
    "sugarConc": [
     5.5,
@@ -718,6 +718,60 @@
    "maxSpiritOz": 2.5
   }
  },
+ "absoluteBands": {
+  "about": "Grams of sugar and acid per 100 ml of the finished, diluted drink (stats.sugarConc), by how it is made: the round-2 critic bands. A built or riffed drink is held inside its band after every pass; a classic poured as written keeps its spec (the 1934 Zombie sits near 3.6 g by design), and a directional ask (less sweet, very tart) moves the band. web/lib/chem.js sugarBand().",
+  "shakenSour": {
+   "sugar": [
+    8,
+    11
+   ]
+  },
+  "frozenSour": {
+   "sugar": [
+    8.5,
+    12
+   ],
+   "acid": [
+    0.55,
+    0.85
+   ]
+  },
+  "frozenCreamy": {
+   "sugar": [
+    8.5,
+    13
+   ]
+  },
+  "punch": {
+   "sugar": [
+    9,
+    11
+   ]
+  },
+  "stirred": {
+   "sugar": [
+    0,
+    10
+   ]
+  },
+  "hot": {
+   "sugar": [
+    3,
+    7
+   ]
+  },
+  "hotCreamy": {
+   "sugar": [
+    3,
+    10
+   ]
+  },
+  "ceiling": 13,
+  "dessertCeiling": 15,
+  "acidCeiling": 1.2,
+  "acidCeilingTart": 1.45,
+  "fatalSugar": 16
+ },
  "styleOverrides": {
   "frozen": {
    "appliesWhen": {
@@ -786,7 +840,7 @@
     15,
     19
    ],
-   "maxEthanolOz": 2.0
+   "maxEthanolOz": 2
   },
   "zeroProof": {
    "appliesWhen": {
@@ -811,7 +865,7 @@
    "a": "pre-dilution ABV fraction"
   },
   "methodFactor": {
-   "shake/cubed": 1.0,
+   "shake/cubed": 1,
    "shake/crushed": 1.15,
    "whip-shake": 0.75,
    "flash-blend": 1.3,
@@ -829,9 +883,9 @@
   }
  },
  "strength": {
-  "maxSpiritOzSingle": 4.0,
-  "maxEthanolOzSingle": 2.0,
-  "maxOverproofOz": 1.0,
+  "maxSpiritOzSingle": 4,
+  "maxEthanolOzSingle": 2,
+  "maxOverproofOz": 1,
   "maxOverproofOzSoleBase": 1.5,
   "maxDistinctOverproof": 1,
   "overproofIds": [
@@ -903,7 +957,7 @@
     "mai-tai": 0,
     "grog": 0.17,
     "orgeat-punch": 0.25,
-    "resort-punch": 1.0,
+    "resort-punch": 1,
     "punch": 0.75
    },
    "exceptions": "sink 0.5; Dr. Funk-type 1.0"
@@ -919,7 +973,7 @@
    "maxOz": 0.75,
    "byFamily": {
     "bitter-tiki": 1.5,
-    "stirred": 1.0
+    "stirred": 1
    }
   },
   "fernet": {
@@ -941,16 +995,16 @@
    "exceptions": "Blue Hawaiian 1.0"
   },
   "melon-liqueur": {
-   "maxOz": 1.0
+   "maxOz": 1
   },
   "coffee-liqueur": {
-   "maxOz": 1.0
+   "maxOz": 1
   },
   "creme-de-cacao": {
    "maxOz": 0.75
   },
   "banana-liqueur": {
-   "maxOz": 1.0
+   "maxOz": 1
   },
   "coconut-rum": {
    "maxOz": 1.5,
@@ -965,11 +1019,11 @@
   "coffee": {
    "maxOz": 0.75,
    "byFamily": {
-    "hot": 6.0
+    "hot": 6
    }
   },
   "irish-cream": {
-   "maxOz": 1.0
+   "maxOz": 1
   },
   "amontillado-sherry": {
    "maxOz": 0.75,
@@ -995,13 +1049,13 @@
   "grapefruit": 0.25,
   "lime": 0.25,
   "lemon": 0.25,
-  "soda-water": 1.0,
-  "ginger-beer": 2.0,
-  "ginger-ale": 2.0,
-  "cola": 2.0,
-  "tonic": 2.0,
-  "lemon-lime-soda": 2.0,
-  "sparkling-wine": 2.0,
+  "soda-water": 1,
+  "ginger-beer": 2,
+  "ginger-ale": 2,
+  "cola": 2,
+  "tonic": 2,
+  "lemon-lime-soda": 2,
+  "sparkling-wine": 2,
   "_exceptions": "soda-water 0.75 inside a Beachcomber grog/punch shake (Navy Grog precedent); lime 0.08-0.25 as a Ti' Punch lime coin"
  },
  "componentCounting": {
@@ -1256,7 +1310,7 @@
     "ids": [
      "soda-water"
     ],
-    "maxOz": 1.0,
+    "maxOz": 1,
     "families": [
      "grog",
      "beachcomber-sour",
@@ -1330,7 +1384,7 @@
     "lemon": 0.5,
     "grapefruit": 0,
     "orange": 0.5,
-    "pineapple-juice": 1.0
+    "pineapple-juice": 1
    },
    "requireVessel": "heatSafeVessels",
    "sev": "fatal"
@@ -1700,7 +1754,7 @@
     },
     {
      "anyOf": "agedOrFunkyRum",
-     "minOz": 1.0
+     "minOz": 1
     }
    ],
    "forbid": [
@@ -1726,7 +1780,7 @@
     {
      "anyOf": "overproof",
      "minOz": 0.5,
-     "maxOz": 1.0
+     "maxOz": 1
     },
     {
      "anyOf": [
@@ -1895,7 +1949,7 @@
       "lemon-lime-soda",
       "sparkling-wine"
      ],
-     "minOz": 2.0
+     "minOz": 2
     }
    ],
    "carbonationIsTop": true,
@@ -2032,7 +2086,7 @@
       "black-tea",
       "half-and-half"
      ],
-     "minOz": 3.0
+     "minOz": 3
     }
    ],
    "forbid": "carbonated",
@@ -2047,7 +2101,7 @@
   "Colada": {
    "require": "pineapple-juice >= 1.5 AND (coconut-cream >= 0.75 OR coconut-milk >= 0.75 + sweetener)"
   },
-  "Pi\u00f1a Colada": {
+  "Piña Colada": {
    "require": "colada rule AND rum or named spirit; riff only"
   },
   "Painkiller": {
@@ -3933,7 +3987,7 @@
    "id": "classic-name-misuse",
    "sev": "fatal",
    "kind": "custom",
-   "check": "classic drink names (Mai Tai, Zombie, Painkiller, Navy Grog, Jungle Bird, Hurricane, Scorpion, Fog Cutter, Pi\u00f1a Colada, Saturn, Three Dots and a Dash) only in riffs that pass that archetype's signature"
+   "check": "classic drink names (Mai Tai, Zombie, Painkiller, Navy Grog, Jungle Bird, Hurricane, Scorpion, Fog Cutter, Piña Colada, Saturn, Three Dots and a Dash) only in riffs that pass that archetype's signature"
   },
   {
    "id": "strength-word-lie",
@@ -4072,11 +4126,11 @@
   ],
   "lemon": [
    0.03,
-   1.0
+   1
   ],
   "lime": [
    0.03,
-   1.0
+   1
   ]
  }
 }

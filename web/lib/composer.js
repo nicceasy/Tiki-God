@@ -18,7 +18,10 @@ const SOLO_GARNISH_FLAVOR = { mint: 'mint', nutmeg: 'nutmeg', cinnamon: 'cinnamo
 // one ingredient for another (a "warm" prayer must not trade coffee for hot water).
 // Most an accent may pour in one drink (from the technique research: data/technique-rules.json
 // doseCaps), with per-family exceptions. An ounce of allspice dram is a writer who never tasted it.
-const DOSE_CAP = {"pastis":0.04,"absinthe":0.04,"angostura":0.18,"peychauds":0.12,"orange-bitters":0.12,"tiki-bitters":0.12,"mole-bitters":0.12,"saline":0.024,"almond-extract":0.012,"vanilla-extract":0.03,"orange-flower-water":0.012,"allspice-dram":0.5,"velvet-falernum":0.75,"falernum-syrup":0.75,"maraschino":0.5,"grenadine":[0.5,{"zombie":0.17,"mai-tai":0,"grog":0.17,"orgeat-punch":0.25,"resort-punch":1,"punch":0.75}],"green-chartreuse":0.75,"yellow-chartreuse":0.75,"campari":[0.75,{"bitter-tiki":1.5,"stirred":1}],"fernet":0.25,"scotch-islay":0.5,"cinnamon-syrup":0.75,"ginger-syrup":0.75,"blue-curacao":0.75,"melon-liqueur":1,"coffee-liqueur":1,"creme-de-cacao":0.75,"banana-liqueur":1,"coconut-rum":[1.5,{"colada":0.5}],"rum-jamaican-white-overproof":0.75,"coffee":[0.75,{"hot":6}],"irish-cream":1,"amontillado-sherry":0.75,"triple-sec":1,"orange-curacao":1};
+// A flavored syrup is a sweetener, dosed like one (an ounce at most): it never inherits the range
+// of the nectar or juice that shares its slot (a Tropical Itch takes passion fruit nectar by the
+// glassful, never five ounces of passion fruit syrup). Coconut rum is an accent: half an ounce.
+const DOSE_CAP = {"pastis":0.04,"absinthe":0.04,"angostura":0.18,"peychauds":0.12,"orange-bitters":0.12,"tiki-bitters":0.12,"mole-bitters":0.12,"saline":0.024,"almond-extract":0.012,"vanilla-extract":0.03,"orange-flower-water":0.012,"allspice-dram":0.5,"velvet-falernum":0.75,"falernum-syrup":0.75,"maraschino":0.5,"grenadine":[0.5,{"zombie":0.17,"mai-tai":0,"grog":0.17,"orgeat-punch":0.25,"resort-punch":1,"punch":0.75}],"green-chartreuse":0.75,"yellow-chartreuse":0.75,"campari":[0.75,{"bitter-tiki":1.5,"stirred":1}],"fernet":0.25,"scotch-islay":0.5,"cinnamon-syrup":0.75,"ginger-syrup":0.75,"blue-curacao":0.75,"melon-liqueur":1,"coffee-liqueur":1,"creme-de-cacao":0.75,"banana-liqueur":1,"coconut-rum":0.5,"rum-jamaican-white-overproof":0.75,"coffee":[0.75,{"hot":6}],"irish-cream":1,"amontillado-sherry":0.75,"triple-sec":1,"orange-curacao":1,"passion-fruit-syrup":[1,{"resort-punch":2}],"hibiscus-syrup":1,"raspberry-syrup":1,"guava-syrup":1,"pineapple-syrup":1,"orgeat":1,"honey-syrup":1,"dons-mix":1,"li-hing-mui-syrup":0.5,"vanilla-syrup":0.5,"maple-syrup":0.5,"lime-cordial":1,"fassionola":[1,{"resort-punch":2}]};
 const OVERPROOF = new Set(['rum-demerara-overproof', 'rum-black-overproof', 'rum-overproof-white']);
 export function doseCap(id, family, asked = false) {
   // Overproof is a seasoning or, at most, a short drink's whole base (a Cobra's Fang's 1½ oz).
@@ -41,6 +44,9 @@ export function createComposer({ archetypes, ingMap, model }) {
     return k ? Math.max(-2, Math.min(2, intent[k] || 0)) : 0;
   };
 
+  // A promise may hold only on certain frames (Havana's Hotel Nacional promise is the fruit
+  // daiquiri's; its No. 4 promise the frozen daiquiri's).
+  const applies = (pr, a) => !(pr.when || []).length || (!!a && pr.when.includes(a.id));
   // How well this archetype can answer the prayer, and whether it can be built at all.
   function scoreArchetype(a, intent, ctx) {
     const why = [];
@@ -118,6 +124,8 @@ export function createComposer({ archetypes, ingMap, model }) {
     // What each reading promised the guest (dad's bourbon, Tokyo's yuzu, a first date served up):
     // a frame that can keep the promise answers better than one that can't.
     for (const pr of intent.promises || []) {
+      if (!applies(pr, a)) continue;
+      if ((pr.frames || []).length) s += pr.frames.includes(a.id) ? 1 : -1.5;
       if (pr.ids.length) s += pr.ids.some(id => canHold(a, id, intent, ctx)) ? 0.6 : -0.9;
       if (pr.up) s += (a.methods || []).includes('shake') && !a.creamy && !a.long ? 0.6 : -0.6;
     }
@@ -191,11 +199,15 @@ export function createComposer({ archetypes, ingMap, model }) {
   // checked last. Archetypes without specs are filled slot by slot.
   function compose(a, intent, ctx, rng, greedy, notes, src = null, specOffset = 0) {
     let lines;
-    const specs = fittingSpecs(a);
+    let specs = fittingSpecs(a);
+    // A named drink's other branches only (a Jungle Bird's specs that still pour pineapple).
+    if (intent.specOnly) { const keep = specs.filter(intent.specOnly); if (keep.length) specs = keep; }
     if (src) lines = src.lines.map(l => ({ ...l, slot: slotOf(a, l.id), range: rangeOf(a, l.id) }));
     else if (specs.length) {
       const scored = specs.map((sp, i) => {
         let s = -0.25 * i + (sp.confidence === 'high' ? 0.3 : 0);
+        // The canonical drink a concept points at (Havana's Daiquiri No. 4).
+        if (((intent.specs || {})[a.id] || []).includes(sp.name)) s += 4;
         for (const l of sp.lines) if (ingMap.has(l.id)) s += 0.8 * Math.max(-2, Math.min(2, ctx.intentMatch(l.id, intent))) - (ctx.forbidden(l.id, intent) ? 1.5 : 0);
         // A spec whose look is a loud color (Blue Hawaiian blue, Midori green) answers only a prayer for it.
         for (const l of sp.lines) { const c = (ingMap.get(l.id) || {}).color; if (['blue', 'green'].includes(c) && intent.color !== c) s -= 2; }
@@ -206,10 +218,26 @@ export function createComposer({ archetypes, ingMap, model }) {
       // Only from the specs that suit the prayer (not a Blue Hawaiian stripped of its blue), and
       // among those the prayer's own tie-break picks, so two prayers on one frame differ.
       const sorted = [...scored].sort((x, y) => y.s - x.s);
-      const fit = sorted.filter(x => x.s >= sorted[0].s - 1.5);
-      const sp = specOffset > 0 && fit.length > 1 ? ctx.softPick(rng, fit.slice(1).map(x => ({ ...x, s: 0 })), 1, true).item || fit[1].item
-        : specOffset > 0 ? fit[0].item : ctx.softPick(rng, scored, 0.6, greedy);
-      lines = sp.lines.filter(l => ingMap.has(l.id)).map(l => ({ id: l.id, role: roleOf(l.id), oz: l.oz, unit: l.unit, amount: l.amount, float: !!l.float, sink: !!l.sink, crown: !!l.crown, slot: slotOf(a, l.id), range: rangeOf(a, l.id), fromSpec: sp.name }));
+      const fit = sorted.filter(x => x.s >= sorted[0].s - (intent.avoidSets && intent.avoidSets.length ? 5 : 1.5));
+      // Praying again starts from the proven spec furthest from what the earlier prayers poured
+      // (Vic's Navy Grog after Don's, Belanger's three-rum Painkiller after Pusser's), so the
+      // second idea differs in its bottles, not by a quarter ounce.
+      const ids = sp => new Set(sp.lines.filter(l => ingMap.has(l.id) && roleOf(l.id) !== 'aromatic').map(l => l.id));
+      const near = sp => Math.max(0, ...(intent.avoidSets || []).map(set => { const A = ids(sp); const i = [...A].filter(x => set.has(x)).length; return i / (A.size + set.size - i || 1); }));
+      // Of the specs far enough from what was poured before, the prayer's own pick (so every Mai Tai
+      // prayed again doesn't land on the same edition); else the furthest.
+      const far = fit.filter(x => near(x.item) < 0.6);
+      const sp = specOffset > 0 && fit.length > 1 && intent.avoidSets && intent.avoidSets.length
+        ? (far.length > 1 ? ctx.softPick(rng, far.map(x => ({ ...x })), 1.5, false) : [...fit].sort((x, y) => near(x.item) - near(y.item) || y.s - x.s)[0].item)
+        : specOffset > 0 && fit.length > 1 ? ctx.softPick(rng, fit.slice(1).map(x => ({ ...x, s: 0 })), 1, true).item || fit[1].item
+          : specOffset > 0 ? fit[0].item
+            // A frame the prayer didn't name starts from any of its proven specs that suit the
+            // prayer, chosen by the prayer itself: two prayers that land on the Zombie pour two
+            // Zombies (Berry's 1934 decode, the Smuggler's Cove spec), not one twice.
+            : greedy && !((intent.archetypes || {})[a.id] >= 0.5) && !((intent.fam || {})[a.family] >= 1) && fit.length > 1
+              ? ctx.softPick(rng, sorted.filter(x => x.s >= sorted[0].s - 1.5).map(x => ({ ...x })), 0.8, false)
+              : ctx.softPick(rng, scored, 0.6, greedy);
+      lines = sp.lines.filter(l => ingMap.has(l.id)).map(l => ({ id: l.id, role: roleOf(l.id), oz: l.oz, unit: l.unit, amount: l.amount, float: !!l.float, sink: !!l.sink, crown: !!l.crown, slot: slotOf(a, l.id), range: rangeOf(a, l.id), fromSpec: sp.name, label: specLabel(l) }));
       // A sink has to be dense and a float light: a spec that marks rum as "sink" is describing
       // which half of a two-part pour it goes in, not physics.
       for (const l of lines) {
@@ -249,8 +277,11 @@ export function createComposer({ archetypes, ingMap, model }) {
     // A reading's promise comes first: the first bottle it names that this frame can hold, unless
     // one of its bottles is already poured.
     // A reading that names a spirit and a seasoning (a dragon's mezcal and chile) gets both.
-    const promised = (intent.promises || []).filter(pr => pr.ids.length && !pr.ids.some(id => lines.some(l => l.id === id)))
-      .flatMap(pr => { const ok = pr.ids.filter(id => canHold(a, id, intent, ctx)); return roleOf(ok[0]) === 'base' ? ok.slice(0, 2) : ok.slice(0, 1); });
+    // A promise of all its bottles (heartbreak's amaro *and* Cherry Heering) pours each one the
+    // frame can hold; a float promised (a promotion's Demerara 151) is floated, below, not poured in.
+    const floatIds = new Set((intent.promises || []).flatMap(pr => Array.isArray(pr.float) ? pr.float : []));
+    const promised = (intent.promises || []).filter(pr => applies(pr, a) && (pr.ids || []).length && (pr.all || !pr.ids.some(id => lines.some(l => l.id === id))))
+      .flatMap(pr => { const ok = pr.ids.filter(id => !floatIds.has(id) && !lines.some(l => l.id === id) && canHold(a, id, intent, ctx)); return pr.all ? ok.slice(0, 3) : roleOf(ok[0]) === 'base' ? ok.slice(0, 2) : ok.slice(0, 1); });
     const heroes = [...new Set([...promised, ...Object.entries(intent.prefer || {}).filter(([id, w]) => w >= 1.25).sort((x, y) => y[1] - x[1]).map(([id]) => id)])]
       .filter(id => ingMap.has(id) && !lines.some(l => l.id === id) && !ctx.forbidden(id, intent) && !archForbids(a, id)).slice(0, 3).map(id => [id]);
     let heroSpirit = false;
@@ -299,7 +330,7 @@ export function createComposer({ archetypes, ingMap, model }) {
     // leads with it, worked in the way a bartender would.
     const explicit = t => (intent.tags[t] || 0) - ((intent.conceptTags || {})[t] || 0) * 0.6;
     // In a riff ("a Mai Tai but tropical") the modifier is the whole request: a lower bar.
-    const bar = src ? 1.0 : 1.5;
+    const bar = src || intent.riffBranch ? 1.0 : 1.5;
     for (const [tag] of Object.entries(intent.tags).sort((x, y) => y[1] - x[1])) {
       if (explicit(tag) < bar || NOT_A_FLAVOR.has(tag) || carried(lines, tag, ctx)) continue;
       const ids = lines.map(l => l.id);
@@ -335,7 +366,87 @@ export function createComposer({ archetypes, ingMap, model }) {
     repair(a, lines, intent, ctx, rng, notes);
     trim(a, lines, intent, ctx, notes);
     capDoses(a, lines, intent);
+    holdPromises(a, lines, intent, ctx, notes);
     return lines;
+  }
+
+  // The doses and the float a reading or a word promised, after everything else has been
+  // placed and trimmed: bitter's three-quarters of an ounce of Campari, smoke's quarter ounce of
+  // Islay, a promotion's Demerara 151 floated on top. A bottle the guest ruled out, or the
+  // frame forbids, stays out; the card then says so.
+  function holdPromises(a, lines, intent, ctx, notes) {
+    for (const pr of intent.promises || []) {
+      if (!applies(pr, a)) continue;
+      // A promised bottle a trim took out (smoke's Islay) goes back in at its promised dose.
+      const want = (pr.ids || []).filter(id => ingMap.has(id) && !ctx.forbidden(id, intent) && !archForbids(a, id) && !(Array.isArray(pr.float) && pr.float.includes(id)));
+      const missing = pr.all ? want.filter(id => !lines.some(l => l.id === id)) : want.some(id => lines.some(l => l.id === id)) ? [] : want.slice(0, 1);
+      for (const id of missing) {
+        // A promised spirit (night's darker rum) takes over a rum pour nobody asked for.
+        if (roleOf(id) === 'base' && !(pr.min || {})[id]) {
+          const isRum = (ingMap.get(id) || {}).cat === 'rum';
+          // Only a pour whose slot takes the promised spirit (the colada's rum slot may not).
+          const fits = l => !l.slot || (slotOf(a, id) === l.slot) || [...a.signature, ...(a.optional || [])].some(c => (c.component || c.slot) === l.slot && accepts(c, id));
+          const t = lines.find(l => l.role === 'base' && !l.req && !l.float && !l.sink && (!isRum || (ingMap.get(l.id) || {}).cat === 'rum') && fits(l));
+          if (t) { notes.push(`${shortName(id)} takes over from ${shortName(t.id)}`); t.id = id; t.req = true; t.promised = true; }
+          continue;
+        }
+        lines.push({ id, role: roleOf(id), oz: (pr.min || {})[id] || 0.5, slot: slotOf(a, id), range: null, req: true, promised: true });
+        notes.push(`${shortName(id)} added`);
+      }
+      for (const [id, min] of Object.entries(pr.min || {})) {
+        const l = lines.find(x => x.id === id && !x.garnish && !x.float);
+        if (!l || (l.oz || 0) >= min - 0.01) continue;
+        const cap = Math.max(min, doseCap(id, a.family, true));
+        l.oz = Math.min(cap, min); l.req = true; l.promised = min;
+        if (l.range) l.range = [Math.max(l.range[0], Math.min(min, l.range[1])), Math.max(l.range[1], min)];
+      }
+      // And the most it may pour (a royale's topper is an ounce and a half, so it fits the flute).
+      for (const [id, max] of Object.entries(pr.max || {})) { const l = lines.find(x => x.id === id && !x.garnish); if (l && (l.oz || 0) > max) { l.oz = max; if (l.range) l.range = [Math.min(l.range[0], max), max]; } }
+      for (const id of Array.isArray(pr.float) ? pr.float : []) {
+        if (lines.some(l => l.float) || !ingMap.has(id) || ctx.forbidden(id, intent) || archForbids(a, id)) continue;
+        const ing = ingMap.get(id);
+        if (!(((ing.optics || {}).sg || 1) <= 1)) continue;
+        lines.push({ id, role: roleOf(id), oz: OVERPROOF.has(id) ? 0.25 : 0.5, float: true, slot: 'float', range: null, req: true, promised: true });
+        notes.push(`${shortName(id)} floated on top`);
+        break;
+      }
+      // What keeps a promise is locked: a later twist or variation never trades it away.
+      for (const l of lines) if ((pr.ids || []).includes(l.id) && (pr.all || l.id === (pr.ids || []).find(id => lines.some(x => x.id === id)))) { l.req = true; l.promised = l.promised || true; }
+      // A bottle the promise rules out (bitter's Aperol) gives way to the one it promised.
+      for (const id of pr.avoid || []) {
+        const l = lines.find(x => x.id === id);
+        const want = (pr.ids || []).find(x => ingMap.has(x) && !ctx.forbidden(x, intent) && !lines.some(y => y.id === x));
+        if (!l) continue;
+        if (want && roleOf(want) === roleOf(id)) { notes.push(`${shortName(want)} in place of ${shortName(id)}`); l.id = want; l.req = true; l.oz = Math.max(l.oz || 0, (pr.min || {})[want] || 0); }
+        else if (!l.req || !(intent.ings[id] >= 1)) lines.splice(lines.indexOf(l), 1);
+      }
+    }
+  }
+
+  // Does a build keep what a reading or a word promised the guest? The bottles (any of them, or
+  // all, at the promised dose), the service, the float, the strength, what it must not pour.
+  // `weight` says how badly it broke: the promised bottles are the primary promise (1), each
+  // other part counts half. A promise this pantry can't pour, or the guest ruled out, can't be broken.
+  function promiseBreak(pr, { lines, svc = {}, A = {}, intent = {}, forbidden = () => false, chem = null }) {
+    if (!applies(pr, A)) return 0;
+    const poured = lines.filter(l => !l.garnish || l.muddled);
+    const line = id => poured.find(l => l.id === id);
+    let w = 0;
+    const ids = (pr.ids || []).filter(id => ingMap.has(id) && !forbidden(id, intent));
+    const okId = id => { const l = line(id); return !!l && ((l.oz || 0) >= ((pr.min || {})[id] || 0) - 0.02 || l.muddled); };
+    if (ids.length && (pr.all ? !ids.every(okId) : !ids.some(okId))) w += 1;
+    if (pr.up && !svc.wantUp && !svc.up) w += 0.5;
+    if (pr.frozen && svc.method !== 'blend') w += 0.5;
+    if (pr.stirred && svc.method !== 'stir') w += 0.5;
+    if (pr.long && !poured.some(l => (ingMap.get(l.id) || {}).role === 'lengthener' && !l.float && (l.oz || 0) >= (pr.long === true ? 2 : pr.long) - 0.01)) w += 0.5;
+    if (pr.float && !poured.some(l => l.float && (pr.float === true || pr.float.includes(l.id)))) w += 0.5;
+    if (pr.layered && !poured.some(l => l.float || l.sink || l.crown)) w += 0.5;
+    if (pr.flaming && !(intent.style && intent.style.flaming) && !A.flaming) w += 0.5;
+    if (pr.abvMax && chem && chem.abv > pr.abvMax + 0.3) w += 1;
+    if ((pr.avoid || []).some(id => line(id))) w += 0.5;
+    // A promise only certain frames can keep (Havana's Cuban classics).
+    if ((pr.frames || []).length && A.id && !pr.frames.includes(A.id)) w += 1;
+    return w;
   }
 
   // A celebration wants bubbles: a sour or punch that the prayer leans toward sparkling wine (or
@@ -423,7 +534,7 @@ export function createComposer({ archetypes, ingMap, model }) {
   function trim(a, lines, intent, ctx, notes, cap = capFor(a, ctx)) {
     const sig = a.signature.filter(c => c.required);
     // The last sweetener and the last acid are never trimmed: a drink with neither is a glass of rum.
-    const needed = l => sig.some(c => c.anyOf.includes(l.id) && lines.filter(x => c.anyOf.includes(x.id)).length === 1) || lastOfJob(lines, l);
+    const needed = l => sig.some(c => c.anyOf.includes(l.id) && lines.filter(x => c.anyOf.includes(x.id)).length === 1) || lastOfJob(lines, l) || coreHeld(a, lines, l);
     // What the guest asked for by name stays; a concept's hero can go before it, but after the rest.
     const asked = l => (intent.ings[l.id] || 0) >= 1 || (intent.spirits || []).includes(l.id);
     while (counted(lines).length > cap) {
@@ -437,6 +548,26 @@ export function createComposer({ archetypes, ingMap, model }) {
     }
   }
 
+  // A spec's own word for a bottle, when the pantry lists it as that bottle's other name: Don's
+  // "peach brandy" stays peach brandy on the card, not "Peach liqueur / schnapps".
+  function specLabel(l) {
+    const ing = ingMap.get(l.id);
+    const alias = ing && ((ing.name || '').match(/\('([^']+)'\)/) || [])[1];
+    if (!alias || !l.orig) return undefined;
+    return plainName(l.orig) === plainName(alias) ? alias.charAt(0).toUpperCase() + alias.slice(1) : undefined;
+  }
+
+  // Identity cores (the archetypes' `cores`): a line that is the last of what makes the spec it
+  // came from that drink (a Tortuga's second overproof, a Lava Flow's strawberry, a Jungle Bird's
+  // pineapple, a Navy Grog's honey) is never varied, trimmed or folded away under that name.
+  const plainName = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s*\(.*?\)\s*/g, ' ').replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  function coreHeld(a, lines, l) {
+    if (!(a.cores || []).length) return false;
+    const from = [...new Set(lines.map(x => x.fromSpec).filter(Boolean))].map(n => ` ${plainName(n)} `);
+    return a.cores.some(c => from.some(f => f.includes(` ${plainName(c.drink)} `))
+      && c.needs.some(n => n.anyOf.includes(l.id) && lines.filter(x => !x.garnish && n.anyOf.includes(x.id)).length <= (n.count || 1)));
+  }
+
   // The only line doing a job the balance depends on (the sole sweetener, the sole acid).
   const sweetens = id => { const i = ingMap.get(id) || {}; return i.role !== 'base' && (i.sugar || 0) >= 20; };
   const sours = id => ((ingMap.get(id) || {}).acid || 0) >= 2 && roleOf(id) !== 'aromatic';
@@ -445,10 +576,17 @@ export function createComposer({ archetypes, ingMap, model }) {
     return (sweetens(l.id) && !body.some(x => sweetens(x.id))) || (sours(l.id) && !body.some(x => sours(x.id)));
   }
 
+  // A slot's range belongs to the bottles it was written for: a syrup sharing a nectar's slot is
+  // still dosed like a syrup (its cap), never the nectar's six ounces.
   function rangeOf(a, id) {
     const c = slotFor(a, id);
-    return c && c.ozRange ? c.ozRange : null;
+    if (!c || !c.ozRange) return null;
+    const cap = doseCap(id, a.family);
+    return cap < c.ozRange[1] ? [Math.min(c.ozRange[0], cap), cap] : c.ozRange;
   }
+  // A nectar or juice slot stays nectar or juice: a refill keeps the line's job (a syrup never
+  // takes a juice's place at a juice's dose, nor a juice a syrup's).
+  const sameKind = (from, to) => (roleOf(from) === 'juice') === (roleOf(to) === 'juice');
   const shortName = id => ingMap.get(id).name.toLowerCase().replace(/\s*\(.*?\)\s*/g, ' ').replace(/\s+/g, ' ').trim();
 
   function fillSlots(a, intent, ctx, rng, greedy) {
@@ -592,11 +730,20 @@ export function createComposer({ archetypes, ingMap, model }) {
       // A hero joins the drink; only a guest's own ask may push a bottle out of its slot, and a
       // sharp citrus never takes over a soft juice's volume.
       const sharpForSoft = occupant && (((ingMap.get(id).acid || 0) >= 2 && (ingMap.get(occupant.id).acid || 0) < 2) || (lastOfJob(lines, occupant) && !(sours(occupant.id) ? sours(id) : sweetens(id))));
+      // A nectar or juice slot stays nectar or juice: the passion fruit nectar already pours the
+      // passion fruit, so a syrup asked for on top of it isn't stirred in by the glassful.
+      const kin = lines.find(l => l.slot === (slot.component || slot.slot) && !sameKind(l.id, id) && (roleOf(l.id) === 'juice' || roleOf(id) === 'juice'));
+      if (kin && (ingMap.get(kin.id).flavors || [])[0] === (ingMap.get(id).flavors || [])[0]) return;
       if (!add && !sharpForSoft && occupant && (slot.maxCount || 1) <= lines.filter(l => l.slot === occupant.slot).length) {
         notes.push(`${shortName(id)} in place of ${shortName(occupant.id)}`);
+        // A syrup taking a nectar's place pours the nectar's sugar, not its volume (six ounces
+        // of nectar is about an ounce and a half of syrup), and never past a syrup's cap.
+        const sug = x => (ingMap.get(x) || {}).sugar || 0;
+        if (roleOf(occupant.id) !== roleOf(id) && sug(id) > sug(occupant.id) * 1.5 && sug(id) > 0) occupant.oz *= sug(occupant.id) / sug(id);
         occupant.id = id; occupant.role = roleOf(id); occupant.req = true;
-        const r = slot.ozRange;
+        const r = rangeOf(a, id);
         if (r) occupant.oz = Math.max(r[0], Math.min(r[1], occupant.oz));
+        occupant.range = r || occupant.range;
         if ((ingMap.get(id).acid || 0) >= 2) occupant.oz = Math.min(occupant.oz, 1);
         return;
       }
@@ -607,7 +754,7 @@ export function createComposer({ archetypes, ingMap, model }) {
         clash.id = id; clash.role = roleOf(id); clash.req = true;
         return;
       }
-      const r0 = slot.ozRange || [0.5, 0.75];
+      const r0 = rangeOf(a, id) || [0.5, 0.75];
       const r = (ingMap.get(id).acid || 0) >= 2 ? [Math.min(r0[0], 0.5), Math.min(r0[1], 1)] : r0;
       // Asked for by name, so it has to be tasted: dose toward the top of the slot's range.
       lines.push({ id, role: roleOf(id), oz: r[0] + (r[1] - r[0]) * 0.75, slot: slot.component || slot.slot, range: r, req: true });
@@ -701,11 +848,12 @@ export function createComposer({ archetypes, ingMap, model }) {
       if (!slot) continue;
       const others = lines.filter(x => x !== l).map(x => x.id);
       const keepsJob = id => !lastOfJob(lines, l) || (sours(l.id) ? sours(id) : sweetens(id));
-      const alt = slot.anyOf.filter(id => ingMap.has(id) && !ctx.forbidden(id, intent) && !others.includes(id) && !ctx.conflicts(id, others) && ((ctx.ingVec[id] || {})[tag] || 0) >= 0.55 && keepsJob(id))[0];
+      const alt = slot.anyOf.filter(id => ingMap.has(id) && !ctx.forbidden(id, intent) && !others.includes(id) && !ctx.conflicts(id, others) && ((ctx.ingVec[id] || {})[tag] || 0) >= 0.55 && keepsJob(id) && sameKind(l.id, id))[0];
       if (!alt) continue;
       const was = ingMap.get(l.id).name.toLowerCase().replace(/\s*\(.*\)/, '');
       l.id = alt; l.role = roleOf(alt); l.req = true; l.swapped = true;
       if (l.oz > doseCap(alt, a.family)) l.oz = doseCap(alt, a.family);
+      if (l.range) l.range = rangeOf(a, alt) || l.range;
       return `${ingMap.get(alt).name.toLowerCase().replace(/\s*\(.*\)/, '')} in place of ${was} for ${tag.replace('-', ' ')}`;
     }
     return null;
@@ -732,7 +880,7 @@ export function createComposer({ archetypes, ingMap, model }) {
 
   // A twist that makes a classic-shaped build the guest's own: open the optional slot that best
   // answers the prayer (a fruit, a spice, a float), before ever swapping a core bottle.
-  function twist(a, lines, intent, ctx, rng, greedy) {
+  function twist(a, lines, intent, ctx, rng, greedy, temperature = 0.6) {
     if (counted(lines).length >= capFor(a, ctx)) return null;
     const ids = lines.map(l => l.id);
     const options = [];
@@ -745,12 +893,16 @@ export function createComposer({ archetypes, ingMap, model }) {
         if (['saline', 'water', 'hot-water'].includes(id) && ctx.intentMatch(id, intent) < 1) continue;
         const c = (ingMap.get(id) || {}).color;
         if (intent.color && c && !['white'].includes(c) && c !== intent.color) continue;
+        // Nor one that leads with a flavor the guest steered away from (no sugar on "less sweet").
+        const lead = ((ingMap.get(id) || {}).flavors || [])[0];
+        if (lead && (intent.avoidTags || {})[lead] >= 0.5) continue;
+        if ((intent.sweetness || 0) < 0 && ((ingMap.get(id) || {}).sugar || 0) >= 20 && roleOf(id) !== 'base') continue;
         // A dash is a seasoning, not a new drink: real twists come first.
         const seasoning = roleOf(id) === 'accent' || (ingMap.get(id) || {}).cat === 'bitters';
         options.push({ item: { o, id }, s: 2.2 * ctx.intentMatch(id, intent) + 0.6 * ctx.compat(id, ids) + (o.common ? 0.4 : 0) - (o.anyOf.indexOf(id) * 0.05) - (seasoning ? 1.5 : 0) });
       }
     }
-    const pick = ctx.softPick(rng, options, 0.6, greedy);
+    const pick = ctx.softPick(rng, options, temperature, greedy);
     if (!pick) return null;
     const r = pick.o.ozRange || [0.5, 0.75];
     // Accents (bitters, anise) go in at the light end of their range; everything else mid-range.
@@ -768,40 +920,78 @@ export function createComposer({ archetypes, ingMap, model }) {
     // The lengthener (coffee in a Coffee Grog, ginger beer in a Dark 'n Stormy) and the citrus are
     // what the drink is; variation happens in its modifiers, sweeteners, juices and spirits.
     const order = ['modifier', 'sweet', 'juice', 'accent', 'base'];
-    const cands = lines.filter(l => !l.req && !l.garnish && l.slot && order.includes(l.role) && slots.some(c => (c.component || c.slot) === l.slot && c.anyOf.length > 1));
+    const cands = lines.filter(l => !l.req && !l.garnish && l.slot && order.includes(l.role) && slots.some(c => (c.component || c.slot) === l.slot && c.anyOf.length > 1) && !coreHeld(a, lines, l));
     if (!cands.length) return null;
-    const victim = greedy ? [...cands].sort((x, y) => order.indexOf(x.role) - order.indexOf(y.role))[0] : cands[Math.floor(rng() * cands.length)];
+    // A variation changes a flavor before it changes a rum brand.
+    const flavor = cands.filter(l => l.role !== 'base');
+    const from = flavor.length ? flavor : cands;
+    const victim = greedy ? [...cands].sort((x, y) => order.indexOf(x.role) - order.indexOf(y.role))[0] : from[Math.floor(rng() * from.length)];
     const slot = slots.find(c => (c.component || c.slot) === victim.slot);
     const others = lines.filter(l => l !== victim).map(l => l.id);
     const hot = id => (ingMap.get(id).abv || 0) >= 60;
     const keepsJob = id => !lastOfJob(lines, victim) || (sours(victim.id) ? sours(id) : sweetens(id));
     // Never back to a bottle this line already gave up (simple syrup → grenadine → simple syrup).
     const gone = new Set(victim.was || []);
-    const pool = slot.anyOf.filter(id => id !== victim.id && !gone.has(id) && ingMap.has(id) && !ctx.forbidden(id, intent) && !others.includes(id) && !ctx.conflicts(id, others) && keepsJob(id)
+    // A variation never weakens what the guest asked for: the bitter in "bitter" stays Campari,
+    // never Aperol; a heard flavor's carrier only gives way to one that carries it as well.
+    const heard = Object.entries(intent.tags || {}).filter(([t, w]) => w >= 1 && ((ctx.ingVec[victim.id] || {})[t] || 0) >= 0.4).map(([t]) => t);
+    const keepsWord = id => heard.every(t => ((ctx.ingVec[id] || {})[t] || 0) >= ((ctx.ingVec[victim.id] || {})[t] || 0) - 0.05)
+      // "Not too sweet" is a promise too: no swap that pours more sugar than the line it replaces.
+      && !((intent.sweetness || 0) < 0 && ((ingMap.get(id) || {}).sugar || 0) > ((ingMap.get(victim.id) || {}).sugar || 0) + 5);
+    const pool = slot.anyOf.filter(id => id !== victim.id && !gone.has(id) && ingMap.has(id) && !ctx.forbidden(id, intent) && !others.includes(id) && !ctx.conflicts(id, others) && keepsJob(id) && sameKind(victim.id, id) && keepsWord(id)
       && !(victim.role === 'base' && hot(id) && !hot(victim.id) && !((intent.strength || 0) > 0)));
-    const pick = ctx.softPick(rng, pool.map(id => ({ item: id, s: 2 * ctx.intentMatch(id, intent) + ctx.compat(id, others) })), 0.6, greedy);
+    // A near-twin (triple sec for curaçao, one Jamaican rum for another) is no variation: a bottle
+    // with its own voice comes first.
+    const lead = id => ((ingMap.get(id) || {}).flavors || [])[0];
+    const twin = id => (ingMap.get(victim.id).subs || []).includes(id) || (ingMap.get(id).subs || []).includes(victim.id) || (lead(id) && lead(id) === lead(victim.id) && ingMap.get(id).cat === ingMap.get(victim.id).cat);
+    const pick = ctx.softPick(rng, pool.map(id => ({ item: id, s: 2 * ctx.intentMatch(id, intent) + ctx.compat(id, others) - (twin(id) ? 3 : 0) })), 1.2, greedy);
     if (!pick) return null;
     const was = ingMap.get(victim.id).name.toLowerCase().replace(/\s*\(.*\)/, '');
     victim.was = [...(victim.was || []), victim.id];
     victim.id = pick; victim.role = roleOf(pick); victim.swapped = true;
     const cap = doseCap(pick, a.family);
     if (victim.oz > cap) victim.oz = cap;
+    if (victim.range) victim.range = rangeOf(a, pick) || victim.range;
     return `${ingMap.get(pick).name.toLowerCase().replace(/\s*\(.*\)/, '')} in place of ${was}`;
   }
 
   // Does a finished line-up still satisfy the archetype? (Used by tests and as a final guard.)
   // `waived`: components the guest ruled out entirely (orgeat in a nut-free Mai Tai, the rum in
   // a zero-proof drink). The drink is then honestly a cousin of the archetype, and the copy says so.
-  function satisfies(a, lines, asked = {}, isForbidden = null) {
+  // `doses`: also hold the identity core to the dose that makes it that drink (see coreMinimums).
+  // Off for catalogue identification and historical specs, which are what they are.
+  function satisfies(a, lines, asked = {}, isForbidden = null, { doses = false } = {}) {
     const ids = new Set(lines.filter(l => !l.garnish).map(l => l.id));
     const absent = a.signature.filter(c => c.required && ![...ids].some(id => accepts(c, id)));
     const waivedC = isForbidden ? absent.filter(c => c.anyOf.every(id => isForbidden(id))) : [];
     const missing = absent.filter(c => !waivedC.includes(c)).map(c => c.component);
     const banned = [...ids].filter(id => archForbids(a, id) && !((asked[id] || 0) >= 1.5));
-    return { ok: !missing.length && !banned.length, missing, banned, waived: waivedC.map(c => c.component) };
+    const underdosed = doses ? coreMinimums(a, lines).filter(m => (m.line.oz || 0) < m.min - 0.02).map(m => `${m.line.id} under ${m.min} oz (${m.why})`) : [];
+    return { ok: !missing.length && !banned.length && !underdosed.length, missing, banned, underdosed, waived: waivedC.map(c => c.component) };
+  }
+
+  // The identity core at the dose that makes the drink what it says: a Mai Tai's orgeat is half
+  // an ounce (two teaspoons is a rumor of almond), a Hot Buttered Rum's batter three-quarters, a
+  // Hotel Nacional's apricot half an ounce, a swizzle's Angostura crown four dashes or more, and
+  // Don's Mix, split into its parts, two of grapefruit to one of cinnamon.
+  function coreMinimums(a, lines) {
+    const live = lines.filter(l => !l.garnish && !l.muddled);
+    const has = id => live.find(l => l.id === id);
+    const out = [];
+    const orgeat = has('orgeat');
+    if (orgeat && (a.family === 'mai-tai' || a.id === 'hawaiian-mai-tai')) out.push({ line: orgeat, min: 0.5, why: "a Mai Tai's orgeat" });
+    const batter = has('hot-buttered-rum-batter');
+    if (batter) out.push({ line: batter, min: 0.75, why: 'the butter batter is the drink' });
+    const apricot = has('apricot-liqueur');
+    if (apricot && has('pineapple-juice') && has('lime') && ['daiquiri', 'punch', 'beachcomber-sour'].includes(a.family)) out.push({ line: apricot, min: 0.5, why: "a Hotel Nacional's apricot" });
+    const ango = live.find(l => l.id === 'angostura' && !l.float && !l.sink);
+    if (ango && a.family === 'swizzle' && (ango.oz || 0) < 0.3) out.push({ line: ango, min: 0.12, why: 'a swizzle crown is four dashes or more' });
+    const gf = has('grapefruit'), cin = has('cinnamon-syrup');
+    if (gf && cin && a.family === 'zombie') out.push({ line: gf, min: Math.round(2 * (cin.oz || 0) * 12) / 12, why: "Don's Mix is two of grapefruit to one of cinnamon" });
+    return out;
   }
 
   // Can this archetype carry a flavor at all (its profile, or a slot's bottle)?
   const carries = (a, tag, intent, ctx) => (a.flavorProfile || []).includes(tag) || !!slotsCarry(a, tag, intent, ctx);
-  return { byId, archetypes, scoreArchetype, compose, satisfies, slotOf, vary, repair, twist, capDoses, carries };
+  return { byId, archetypes, scoreArchetype, compose, satisfies, coreMinimums, coreHeld, specLabel, slotOf, vary, repair, twist, capDoses, carries, promiseBreak, holdPromises };
 }

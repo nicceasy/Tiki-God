@@ -24,6 +24,26 @@ const ing = new Map(vocab.ingredients.map(i => [i.id, i]));
 const TAGS = new Set(vocab.flavor_tags || vocab.ingredients.flatMap(i => i.flavors || []));
 const famIds = new Set(read('data/families.json').families.map(f => f.id));
 const vesselIds = new Set(read('data/vessels.json').vessels.map(v => v.id));
+const archIds = new Set((x => x.archetypes || x)(read('data/archetypes.json')).map(a => a.id));
+// A promise keeps only bottles the pantry has; doses are ounces.
+function cleanPromise(pr, where) {
+  if (!pr || typeof pr !== 'object') return null;
+  const ok = id => ing.has(id) || (issues.push(`${where}: promise names unknown ${id}`), false);
+  const out = { ids: (pr.ids || []).filter(ok) };
+  if (pr.all) out.all = true;
+  const min = Object.fromEntries(Object.entries(pr.min || {}).filter(([id, v]) => ok(id) && num(v, 0, 3)));
+  if (Object.keys(min).length) out.min = min;
+  const max = Object.fromEntries(Object.entries(pr.max || {}).filter(([id, v]) => ok(id) && num(v, 0, 8)));
+  if (Object.keys(max).length) out.max = max;
+  for (const k of ['up', 'frozen', 'stirred', 'layered', 'flaming']) if (pr[k] === true) out[k] = true;
+  if (num(pr.long, 1, 8)) out.long = pr.long;
+  if (num(pr.abvMax, 0, 40) !== null && pr.abvMax !== undefined) out.abvMax = pr.abvMax;
+  if (Array.isArray(pr.float)) out.float = pr.float.filter(ok);
+  if (Array.isArray(pr.avoid)) out.avoid = pr.avoid.filter(ok);
+  if (Array.isArray(pr.when)) out.when = pr.when;
+  if (Array.isArray(pr.frames)) out.frames = pr.frames.filter(a => archIds.has(a) || (issues.push(`${where}: promise frame ${a} not built yet`), true));
+  return out;
+}
 const STYLE_NUM = ['strength', 'sweetness', 'tartness', 'complexity'];
 const STYLE_BOOL = ['creamy', 'frozen', 'hot', 'long', 'bitter', 'flaming', 'layered', 'bowl', 'zeroProof', 'stirred', 'simple'];
 // Colors the engine knows how to pour and to check in the finished drink.
@@ -42,7 +62,178 @@ const PATCH = {
   dragon: { ings: { 'pitaya-puree': 0.8 }, style: { flaming: true } },
   pele: { style: { flaming: true } },
   'hurricane-new-orleans': { ings: { fassionola: 1 } },
+  // Where glass is a hazard (the pool deck, the sand, a boat), an unbreakable tumbler; a
+  // promotion is a celebration (a flute or a coupe, not a rocks glass); brunch takes a wine glass.
+  'pool-party': { vessels: { 'acrylic-tumbler': 1.6 } },
+  beach: { vessels: { 'acrylic-tumbler': 1.5 } },
+  boat: { vessels: { 'acrylic-tumbler': 1.6 } },
+  promotion: { vessels: { flute: 1.6, coupe: 1.2, dof: 0 } },
+  brunch: { vessels: { goblet: 1.5 } },
 };
+// Readings, promises and canonical answers written after the critic's rounds. A reading is said
+// back to the guest in two parts: lore (past tense, or a year: kept always, it promises nothing
+// about this drink) and a promise in the present tense that the drink in the glass must keep, or
+// the Shrine says what was poured instead. `promise` (one object or a list) compiles into what
+// the recipe must keep (web/lib/prompt.js, composer.promiseBreak): `ids` to pour (any, or `all`),
+// `min` doses, `up`/`frozen`/`stirred`, `long` (ounces of lengthener), `float` (bottles floated on
+// top), `abvMax`, `avoid` (bottles it must not pour) and `frames` (the archetypes that can keep
+// it: Havana's Cuban classics). `archetypes` points the concept at its canonical drinks. A field
+// given here replaces the research's; `ings`, `tags` and `vessels` merge (0 removes).
+const DARK_RUMS = ['rum-jamaican-dark', 'rum-black-blended', 'rum-demerara', 'rum-navy', 'rum-jamaican-aged', 'rum-jamaican-pot'];
+const JAMAICAN = ['rum-jamaican-aged', 'rum-jamaican-pot', 'rum-jamaican-dark', 'rum-jamaican-white-overproof'];
+const CUBAN = ['daiquiri', 'frozen-daiquiri', 'fruit-daiquiri', 'hemingway-daiquiri', 'mojito', 'coconut-daiquiri'];
+const AUTHOR = {
+  'bananas-foster': {
+    reading: "Bananas Foster was born at Brennan's in New Orleans in 1951: bananas sautéed in butter, brown sugar and cinnamon, flamed with rum and banana liqueur and spooned over vanilla ice cream. In a glass it's aged Jamaican rum and banana liqueur, with cinnamon.",
+    archetypes: { 'bananas-foster': 4, 'rum-old-fashioned': 2.5, 'fruit-colada': -2, 'pina-colada': -2 },
+    families: { stirred: 1.4, colada: 0, hot: 0 },
+    ings: { 'banana-liqueur': 2, 'rum-jamaican-aged': 1.6, 'rum-jamaican-dark': 0.8, 'demerara-syrup': 1.2, 'cinnamon-syrup': 1.2, 'vanilla-ice-cream': 0.8, 'hot-buttered-rum-batter': 0.8, angostura: 0.6 },
+    promise: [{ ids: ['banana-liqueur'], min: { 'banana-liqueur': 0.5 } }, { ids: ['cinnamon-syrup', 'hot-buttered-rum-batter'] }],
+    garnish: ['brûléed banana coin, dusted with cinnamon'],
+    nameWords: ['Royal Street', 'French Quarter', 'Flambé', 'Caramel Skillet', 'Foster'],
+    taglineWords: ['for a French Quarter night', 'skip the cake'],
+  },
+  heartbreak: { promise: { ids: ['amaro', 'cherry-heering'], all: true, min: { 'cherry-heering': 0.5 } } },
+  'first-date': {
+    archetypes: { 'fruit-daiquiri': 2.5 },
+    specs: { 'fruit-daiquiri': ['Pineapple Daiquiri (on the rocks)'] },
+    ings: { 'apricot-liqueur': 1.6, 'pineapple-juice': 1.2, 'rum-gold-column': 1.2 },
+    promise: { ids: ['apricot-liqueur', 'pineapple-juice'], all: true, min: { 'apricot-liqueur': 0.5 }, up: true },
+    garnish: ['a single lime wheel'],
+  },
+  beach: {
+    reading: "Caribbean beach bars have poured rum punch by the old Bajan rhyme since the 1900s: one of sour, two of sweet, three of strong, four of weak.",
+    promise: [],
+  },
+  'havana-nights': {
+    reading: "Havana in the 1950s danced at the Tropicana and drank at El Floridita, where the Daiquiri No. 4 came blended to snow with maraschino, and at the Hotel Nacional, whose Special married rum, pineapple and apricot. Glamour over grit.",
+    archetypes: { 'frozen-daiquiri': 3, 'fruit-daiquiri': 2.6, 'hemingway-daiquiri': 1, daiquiri: 1 },
+    ings: { 'rum-white-column': 1.6, 'rum-gold-column': 1, maraschino: 1, 'apricot-liqueur': 0.6, 'pineapple-juice': 0.6, grenadine: 0, 'dry-vermouth': 0 },
+    tags: { pineapple: 0, cherry: 0, apricot: 0, pomegranate: 0 },
+    specs: { 'frozen-daiquiri': ['Daiquiri No. 4 (Florida Style)'], 'fruit-daiquiri': ['Pineapple Daiquiri (on the rocks)'] },
+    promise: [
+      { ids: [], frames: CUBAN },
+      { when: ['frozen-daiquiri'], ids: ['maraschino'], frozen: true },
+      { when: ['fruit-daiquiri'], ids: ['apricot-liqueur', 'pineapple-juice'], all: true, min: { 'apricot-liqueur': 0.5 }, up: true },
+    ],
+    nameWords: ['Tropicana', 'Mambo', 'Cabaret', 'Malecón', 'Cha-Cha', 'Casino'],
+  },
+  'cuba-havana': { promise: { ids: [], frames: CUBAN } },
+  promotion: {
+    archetypes: { 'mai-tai': 3 },
+    specs: { 'mai-tai': ["Mai Tai (Smuggler's Cove)", 'Mai Tai (1944)'] },
+    ings: { 'rum-jamaican-aged': 1.4, 'rum-agricole-vieux': 0, 'rum-aged-column': 0 },
+    // On a Mai Tai: the full half ounce of orgeat, the Demerara 151 floated, the bubbles; on any
+    // other frame (a second idea), an aged rum and the float, one rank up.
+    promise: [
+      { when: ['mai-tai', 'vic-mai-tai-riff', 'hawaiian-mai-tai'], ids: ['orgeat', 'sparkling-wine'], all: true, min: { orgeat: 0.5, 'sparkling-wine': 1 }, max: { 'sparkling-wine': 1.5 }, float: ['rum-demerara-overproof'] },
+      { ids: ['rum-jamaican-aged', 'rum-jamaican-pot', 'rum-agricole-vieux', 'rum-demerara', 'rum-aged-column', 'rum-barbados'], float: ['rum-demerara-overproof'] },
+    ],
+    nameWords: ['Corner Office', 'Level Up', 'Commodore', 'Top Deck', 'Brass Ring'],
+  },
+  celebration: { reading: "A celebration wants bubbles and gold: a Mai Tai-style sour of aged rum, curaçao and orgeat topped with sparkling wine, festive without being sticky; Trader Vic's friends greeted the original with \"Maita'i roa ae\", out of this world." },
+  dad: {
+    archetypes: { 'vic-mai-tai-riff': 3, 'tropical-stirred': 1.2 },
+    ings: { bourbon: 1.8, 'maple-syrup': 1.2, 'scotch-islay': 1 },
+    promise: { ids: ['bourbon', 'maple-syrup', 'scotch-islay'], all: true, min: { 'maple-syrup': 0.25, 'scotch-islay': 0.08 }, frames: ['vic-mai-tai-riff', 'mai-tai', 'tropical-stirred', 'rum-old-fashioned'] },
+    reading: "For Dad: a bourbon Mai Tai in the spirit of Trader Vic's Honi Honi, a little maple and a whisper of peat smoke, shaken short over crushed ice in a heavy rocks glass. Familiar spirit, tiki structure.",
+    nameWords: ['Honi Honi', 'Captain Dad', 'Big Wheel', 'Old Man River', "Pops' Ration"],
+  },
+  tahiti: {
+    reading: "Tahiti gave the Mai Tai its name: Trader Vic's Tahitian friends said 'maita'i roa ae', 'out of this world, the best'. The island's signatures were always vanilla and the tiare, its own gardenia. So this is a Mai Tai with Tahitian vanilla, crowned with a tiare.",
+    archetypes: { 'mai-tai': 3 },
+    families: { colada: 0, 'mai-tai': 2 },
+    ings: { 'vanilla-syrup': 1.8, 'coconut-milk': 0, 'pineapple-juice': 0 },
+    tags: { coconut: 0, pineapple: 0 },
+    promise: { ids: ['vanilla-syrup'], min: { 'vanilla-syrup': 0.25 }, frames: ['mai-tai', 'vic-mai-tai-riff', 'hawaiian-mai-tai'] },
+    garnish: ['tiare gardenia', 'spent lime shell', 'mint sprig'],
+    nameWords: ['Tiare', "Moʻorea", 'Papeete', 'Matavai', 'Vanille', 'Teahupoʻo'],
+  },
+  party: {
+    reading: "A party needs a big, festive bowl that's easy to love and properly built: rum punch for everyone, served from a punch bowl over a block of ice.",
+    ings: { 'passion-fruit-syrup': 0.6 },
+  },
+  jamaica: {
+    reading: "Jamaica gave the world high-ester pot-still rum (Hampden, Worthy Park, Appleton, Wray & Nephew overproof), the Planter's Punch and pimento, the berry behind allspice dram. Ginger and Ting, the island's grapefruit soda, were everyday flavors long before tiki. So this one is funky Jamaican rum and lime, with allspice and grapefruit soda.",
+    archetypes: { 'planters-punch': 3 },
+    ings: { 'grapefruit-soda': 1.6, 'allspice-dram': 1.2 },
+    promise: [{ ids: JAMAICAN }, { ids: ['grapefruit-soda'], frames: ['planters-punch', 'bowl-punch', 'ti-punch', 'dark-n-stormy', 'mule', 'navy-grog', 'grog'] }],
+  },
+  snow: {
+    reading: "Ski lodges of the 1950s warmed their guests with Hot Buttered Rum and Tom and Jerry. Snow calls for something steaming in a mug, with nutmeg on top.",
+  },
+  slushy: { reading: "Frozen is the blender's art: ice whirled to a sorbet, sweeter and fruitier than a shaken drink, because cold mutes both." },
+  warming: { reading: "A cold night wants warmth: baking spice, a dark spirit and a little heat." },
+  grandparents: { reading: "Our grandparents' tiki was the mid-century kind, Trader Vic's and Don's, brandy and rum and never neon. This one is gentle and familiar." },
+  spring: {
+    reading: "A garden is green and floral: mint, elderflower and lime, crisp and fresh as the first warm day.",
+    archetypes: { 'herbal-swizzle': 1.5, 'missionarys-downfall': 1.5, mojito: 1 },
+    promise: { ids: ['elderflower-liqueur', 'mint'], all: true },
+  },
+  'rainy-reading': { reading: "A good book wants a drink that keeps pace: slow, quiet, not too sweet, nothing to wrangle while you turn the pages." },
+  afternoon: { reading: "An afternoon is unhurried: something gentle, to sip while the light moves across the room." },
+  'rainy-day': { reading: "Rain wants warmth and spice: something steaming in a mug while the rain hits the window." },
+  'sunset-colors': { reading: "A sunset is a gradient: red settling at the bottom under orange-gold.", promise: { ids: [], layered: true } },
+  'pool-party': { reading: "A pool wants something frozen and easy, in a cup nobody minds dropping." },
+  blue: { reading: "A true blue comes from blue curaçao with clear partners, so it stays blue in the glass." },
+  'sunrise-colors': { reading: "A sunrise is grenadine poured last, sinking through orange so the glass shades from red to gold." },
+  sunrise: { reading: "The original Tequila Sunrise, traced to the Arizona Biltmore in the 1930s, used crème de cassis; the 1970s version used orange juice and grenadine. A sunrise is a gradient: grenadine poured last sinks, so the glass shades from red at the bottom to gold at the top." },
+  layered: { reading: "Tiki's layers were always functional: Trader Vic's Angostura crown on the Queen's Park Swizzle, the dark-rum float on the Planter's Punch. This one carries two or three clean bands." },
+  pretty: { reading: "Pretty means color from real ingredients and a glass that shows it off." },
+  teal: { reading: "Harry Yee found the ocean's teal in 1957: blue curaçao with a little pineapple. This one is turquoise, clear enough to see through." },
+  jungle: { reading: "The jungle in tiki belongs to the Jungle Bird, born at the Kuala Lumpur Hilton's Aviary Bar in 1973." },
+  green: {
+    reading: "Green comes from green Chartreuse: herbal, bright and lime-sharp, the color of the canopy.",
+    archetypes: { 'nuclear-daiquiri': 4, 'herbal-swizzle': 2.6, 'bitter-tiki-sour': -2 },
+    ings: { 'green-chartreuse': 2, 'rum-jamaican-white-overproof': 1, mint: 0.6 },
+    promise: { ids: ['green-chartreuse'], min: { 'green-chartreuse': 0.75 } },
+  },
+  'japan-tokyo': {
+    reading: "Tokyo's Ginza bars became famous for precision: exact measures, clear ice, a whisky highball poured just so. This one carries Japanese whisky and yuzu.",
+    taglineWords: ['with Ginza-bar precision'],
+  },
+  neon: { reading: "Neon is tonic's trick: its quinine fluoresces under a black light, so a tonic highball with a vivid liqueur really does glow." },
+  elvis: { reading: "Elvis's tiki moment is the film Blue Hawaii (1961), shot partly at the Coco Palms on Kauaʻi, plus Girls! Girls! Girls! (1962) and Paradise, Hawaiian Style (1966). The Blue Hawaii cocktail (Harry Yee, Hilton Hawaiian Village, 1957) predates the film by four years." },
+  'gilligans-island': { reading: "Gilligan's Island (CBS 1964–67) stranded seven castaways from the S.S. Minnow's three-hour tour, with coconut-everything gadgets from the Professor. Castaway comfort: coconut and pineapple, nothing too strong." },
+  dragon: { reading: "A dragon breathes fire and guards its hoard: smoke, chile heat and a flame at the table." },
+  pele: {
+    reading: "Hawaiians have long honored Pele, goddess of volcanoes, whose home is Halemaʻumaʻu crater at Kīlauea. The ʻōhelo berry, kin to the cranberry, was offered to her before anyone ate. This one runs lava-red: hibiscus with a slow chile burn.",
+    archetypes: { 'volcano-bowl': 2.5, 'overproof-swizzle': 3, 'trinidad-swizzle': 1.5 },
+    ings: { 'cranberry-juice': 0, 'pomegranate-juice': 0, 'hibiscus-syrup': 1.6, 'ancho-reyes': 1.4, 'rum-demerara-overproof': 1.2, 'ginger-syrup': 0.4 },
+    tags: { berry: 0, pomegranate: 0 },
+    promise: { ids: ['hibiscus-syrup', 'ancho-reyes'], all: true, frames: ['volcano-bowl', 'overproof-swizzle', 'trinidad-swizzle', 'herbal-swizzle', 'bermuda-rum-swizzle', 'zombie', 'cobras-fang'] },
+    taglineWords: ['from the crater at Kīlauea', 'lava-red and slow-burning'],
+  },
+  treasure: { reading: "Treasure is gold: aged rum, passion fruit or honey, a little spice, a glow like coins in the lamplight." },
+  pirate: { reading: "Pirates of the golden age (1650–1730) sailed on rum, lime and dark sugar. This one is hearty: Jamaican rum, lime and spice." },
+  sessionable: {
+    reading: "Low proof is built for several rounds: a long drink on wine, sherry or bubbles with bright citrus, around seven percent.",
+    ings: { 'sparkling-wine': 1.4, 'lillet-blanc': 1, 'amontillado-sherry': 0.8 },
+    promise: { ids: [], abvMax: 7 },
+  },
+  brunch: {
+    reading: "Brunch wants low proof and high brightness: a tiki mimosa of orange and sparkling wine with a little rum, golden and fizzy, built to go alongside eggs rather than replace them.",
+    promise: { ids: ['sparkling-wine'], abvMax: 7 },
+  },
+  'zero-proof-guest': { reading: "The designated driver deserves a real tiki drink, not a glass of juice: spiced syrups, fresh citrus, a tea or ginger backbone and the full garnish ceremony, with no alcohol at all." },
+  'date-night': { reading: "A date night wants something elegant and easy to talk over, at a gentle strength." },
+  'pantry-simple': { reading: "Simple means three to five bottles from any good shop, and syrups you can stir up in a minute." },
+  crowd: { reading: "A crowd wants one big bowl, built so everyone can have a second cup." },
+  bored: { reading: "Surprise is the bartender's privilege: something you've never tasted, an unexpected but proven pairing, still balanced." },
+  refreshing: { reading: "Refreshing means long, cold and bright, lightly sweet, with something aromatic like mint or ginger." },
+  sophisticated: { reading: "Elegance in tiki is restraint: served up in a stemmed glass, with no juice pile-up, no garnish forest and no novelty colors.", promise: { ids: [], up: true } },
+};
+// Concepts the research didn't cover. "A night in Tahiti" and "a snowy night" are heard as night.
+const ADD = [
+  {
+    id: 'night', domain: 'time', phrases: ['night', 'nights', 'at night', 'by moonlight', 'moonlit'],
+    reading: "Night wants a dark rum and something to linger over, the drink you carry out under the stars.",
+    tags: { molasses: 0.6, oaky: 0.4 }, ings: { 'rum-jamaican-dark': 0.8, 'rum-black-blended': 0.6, 'rum-demerara': 0.6 },
+    promise: { ids: DARK_RUMS },
+    nameWords: ['Moonlit', 'Night Heron', 'Starlit', 'Lantern', 'Midnight Tide'], taglineWords: ['for a night under the stars', 'after the sun goes down'],
+  },
+];
+
 // Phrases the research gave to the wrong concept: "garden" alone is flowers and herbs, not a
 // garden party with a punch bowl.
 const MOVE = { garden: 'spring', gardens: 'spring', elegant: 'sophisticated', classy: 'sophisticated', 'havana 1950s': 'havana-nights', 'street party': 'party', 'block party': 'party' };
@@ -57,6 +248,10 @@ const GUIDANCE = [
   /\b(isn'?t|aren'?t|is not|are not) (in the pantry|stocked)\b|\bnot in the pantry\b|\bmissing from the pantry\b|\bif they were in the pantry\b|\bIt isn'?t stocked\b|\bThe local pantry\b|\bWith this pantry\b|\bin this pantry\b/i,
   /\buncertain\b|\bcolor model\b/i,
   /^Avoid\b/,
+  // Notes to the bartender rather than words for the guest: "Read it as …", "Families: …",
+  // "Target …", imperatives ("Keep the yellow small", "Shake the body"), "only if asked".
+  /^Read (it |them |as\b|[A-Z][a-z]+ as\b)|^Families:|^Target\b|^Cold:|^Hot:|\bmust come from\b|\bonly if asked\b/,
+  /^(Keep|Balance|Build|Count|Shake|Use|Include|Increase|Blend|Exclude|Pour|Float|Sink|Add|Make(?!-at)|Garnish|Lean|Skip|Swap|Think)\b/,
 ];
 const isGuidance = s => GUIDANCE.some(re => re.test(s.trim()));
 // Sentences end at . or ? before a capital (or an opening parenthesis or quote), so "1.2 times",
@@ -87,6 +282,8 @@ const DROP_WORDS = {
   heartbreak: ['Kaumaha'],
   'self-care': ['Malama', "Ho'omaha", 'Malama: take care'],
   karaoke: ['Mele', 'Hana Hou', 'Hana hou! (encore!)'],
+  // An offering to a goddess is not a flavor note; a name is not a coconut-copra joke.
+  pele: ['with the first berry set aside'],
 };
 const keepWord = (id, w) => !(DROP_WORDS[id] || []).includes(w);
 const num = (x, lo, hi) => typeof x === 'number' && Number.isFinite(x) ? Math.max(lo, Math.min(hi, x)) : null;
@@ -98,6 +295,17 @@ const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ
 const slug = s => norm(s).replace(/['\s]+/g, '-');
 const all = [];
 for (const f of files) for (const c of read(f).concepts || []) all.push({ c, f });
+for (const c of ADD) if (!all.some(x => x.c.id === c.id)) all.push({ c: JSON.parse(JSON.stringify(c)), f: 'authored' });
+const merge = (a, b) => ({ ...(a || {}), ...(b || {}) });
+for (const x of all) {
+  const au = AUTHOR[x.c.id];
+  if (!au) continue;
+  const c = x.c;
+  for (const k of ['ings', 'tags', 'vessels', 'families', 'archetypes']) if (au[k]) c[k] = merge(c[k], au[k]);
+  for (const k of ['reading', 'garnish', 'nameWords', 'taglineWords', 'color', 'specs']) if (au[k] !== undefined) c[k] = au[k];
+  if (au.promise !== undefined) c.promise = au.promise;
+  if (au.style) c.style = merge(c.style, au.style);
+}
 const seenIds = new Map();
 for (const x of all) {
   if (!x.c.id || !Array.isArray(x.c.phrases)) continue;
@@ -184,6 +392,14 @@ for (const x of all) {
     if (color) rec.color = color;
     if (Object.keys(families).length) rec.families = families;
     if (Object.keys(vessels).length) rec.vessels = vessels;
+    // The canonical drinks a concept points at (archetype ids; one another lane hasn't built yet
+    // simply scores nothing).
+    const archs = {};
+    for (const [a, w] of Object.entries(c.archetypes || {})) { const v = num(w, -4, 4); if (v) archs[a] = v; if (!archIds.has(a)) issues.push(`${where}: archetype ${a} not built yet`); }
+    if (Object.keys(archs).length) rec.archetypes = archs;
+    if (c.specs && typeof c.specs === 'object') rec.specs = c.specs;
+    const promise = [].concat(c.promise || []).map(pr => cleanPromise(pr, where)).filter(Boolean);
+    if (c.promise !== undefined) rec.promise = promise;
     if ((c.garnish || []).length) rec.garnish = c.garnish.slice(0, 4);
     if ((c.nameWords || []).length) rec.nameWords = c.nameWords.filter(w => typeof w === 'string' && w.length <= 18 && keepWord(c.id, w)).slice(0, 8);
     if ((c.taglineWords || []).length) rec.taglineWords = c.taglineWords.filter(w => typeof w === 'string' && w.length <= 48 && keepWord(c.id, w)).slice(0, 4);

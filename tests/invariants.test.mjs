@@ -43,7 +43,8 @@ test('the tagline only names what is in the glass, and only colors the glass sho
     const m = /with ([a-z' ]+?)(?: and ([a-z' ]+?))?(?:,|\.| for | a riff| with)/.exec(t);
     if (m) for (const word of [m[1], m[2]].filter(Boolean)) {
       const root = word.replace(/^the /, '').split(' ').pop();
-      const inGlass = r.lines.some(l => `${l.name} ${l.id}`.toLowerCase().includes(root.replace(/s$/, '')) || (l.id === 'velvet-falernum' && root === 'falernum'));
+      // A garnish on the card counts as in the glass (Tahiti's "tiare tucked behind the ear").
+      const inGlass = r.lines.some(l => `${l.name} ${l.id}`.toLowerCase().includes(root.replace(/s$/, '')) || (l.id === 'velvet-falernum' && root === 'falernum')) || word.split(' ').some(w => w.length > 3 && r.garnish.some(g => g.includes(w)));
       assert.ok(inGlass || ['bubbles', 'notes', 'edge', 'funk', 'spice', 'cream', 'butter', 'heat'].includes(root) || /mix/.test(word), `${p} [${seed}] ${r.name}: tagline names "${word}" but the glass has ${r.lines.map(l => l.id).join(', ')}`);
     }
   }
@@ -133,4 +134,81 @@ test('the color words say what the glass is: fruit and bottle words only with th
     if (/^(tan|café au lait|mahogany|oxblood|dark brown)$/.test(w)) assert.ok(/^creamy |^cloudy café/i.test(r.look.description) || c.l < 0.4, `${p} [${seed}] ${r.name}: "${w}" for a drink that is neither creamy nor dark (${r.look.body.hex})`);
     if (/with a sparkle/.test(r.look.description)) assert.ok(has(r, 'sparkling-wine'), `${p} [${seed}] ${r.name}: sparkles without a sparkling top`);
   }
+});
+
+// ---------- absolute balance, doses and line counts (round-2 critique §1, §7) ----------
+import { sugarBand } from '../web/lib/chem.js';
+const rulesJ = j('data/technique-rules.json');
+const archJ = j('data/archetypes.json').archetypes;
+const canonNames = new Set(archJ.flatMap(a => (a.canonicalSpecs || []).map(sp => sp.name.replace(/\s*\(.*\)\s*/, '').trim())));
+const built = all.filter(x => !x.r.classic && !canonNames.has(x.r.name));
+const PLAIN = new Set(['simple-syrup', 'rich-simple', 'demerara-syrup', 'cane-syrup', 'agave-syrup']);
+const CREAMY = new Set(['coconut-cream', 'coconut-milk', 'heavy-cream', 'half-and-half', 'vanilla-ice-cream', 'whole-milk', 'irish-cream', 'tom-and-jerry-batter']);
+const DESSERT = new Set(['creme-de-cacao', 'vanilla-ice-cream', 'irish-cream', 'coffee-liqueur', 'chocolate-syrup']);
+const label = x => `${x.p} [${x.seed}] ${x.r.name}`;
+
+test('every built drink sits inside the absolute sugar and acid band for how it is made', () => {
+  for (const x of built) {
+    const { r } = x, it = engine.parse(x.p);
+    const L = r.lines.filter(l => !l.garnish);
+    const citrus = L.filter(l => ['lime', 'lemon', 'grapefruit', 'yuzu-juice'].includes(l.id)).reduce((t, l) => t + l.oz, 0);
+    const creamy = L.some(l => CREAMY.has(l.id) && l.oz >= 0.5), dessert = creamy && L.some(l => DESSERT.has(l.id));
+    const b = sugarBand({ method: r.method.method, ice: r.method.ice, servings: r.servings, punchBowl: r.vessel && r.vessel.id === 'punch-bowl', sour: citrus >= 0.5 || r.stats.acidConc >= 0.45, creamy, dessert, sweetness: it.sweetness, tartness: it.tartness }, rulesJ.absoluteBands);
+    if (r.family.id === 'zombie' && b.kind === 'shakenSour') b.sugar[0] = 0;
+    const fw = (rulesJ.familyWindows[r.family.id] || {}).sugarConc;
+    if (fw && b.kind === 'shakenSour') b.sugar[0] = Math.min(b.sugar[0], b.sugar[0] * (fw[0] + fw[1]) / 16);
+    if ((it.strength || 0) <= -1.5) b.sugar[0] = Math.min(b.sugar[0], 6);
+    if (b.kind === 'shakenSour' && L.some(l => ['soda-water', 'ginger-beer', 'ginger-ale', 'cola', 'tonic', 'lemon-lime-soda', 'grapefruit-soda', 'sparkling-wine'].includes(l.id) && !l.float && l.oz >= 2)) b.sugar[0] = 0;
+    assert.ok(r.stats.sugarConc <= b.sugar[1] + 0.4, `${label(x)}: ${r.stats.sugarConc} g over the ${b.kind} ceiling ${b.sugar[1]}`);
+    assert.ok(r.stats.sugarConc >= b.sugar[0] - 0.6, `${label(x)}: ${r.stats.sugarConc} g under the ${b.kind} floor ${b.sugar[0]}`);
+    if (b.acid) assert.ok(r.stats.acidConc <= b.acid[1] + 0.08, `${label(x)}: acid ${r.stats.acidConc} past ${b.acid[1]}`);
+  }
+});
+
+test('water is a line only over a block or in a batch, and one sweetener does one job', () => {
+  for (const x of built) {
+    const { r } = x;
+    if (r.lines.some(l => l.id === 'water')) assert.ok(r.servings >= 2 || (r.method.method === 'build' && r.method.ice === 'block'), `${label(x)}: water ${r.method.method} on ${r.method.ice}`);
+    const plain = r.lines.filter(l => PLAIN.has(l.id) && !l.sink && !l.float);
+    assert.ok(plain.length <= 1, `${label(x)}: two plain syrups`);
+    if (plain.length && r.lines.some(l => ['ginger-beer', 'cola'].includes(l.id) && l.oz >= 2)) assert.fail(`${label(x)}: plain syrup on top of a sweet soda`);
+    if (r.lines.some(l => /batter/.test(l.id))) assert.ok(!r.lines.some(l => l.role === 'sweet' && !/batter/.test(l.id) && !engine.parse(x.p).ings[l.id]), `${label(x)}: the batter is the sugar`);
+  }
+});
+
+test('a named flavor is a dose you can taste, and a recipe is at most seven lines', () => {
+  const POTENT = new Set(['grenadine', 'maraschino', 'allspice-dram', 'fernet']);
+  const SKIP = new Set(['absinthe', 'pastis', 'saline', 'almond-extract', 'vanilla-extract', 'orange-flower-water', 'rose-water', 'na-bitters']);
+  for (const x of built) {
+    const { r } = x;
+    const fin = r.stats.finalOz;
+    const named = Math.max(0.25, Math.min(0.5, fin * 0.04)), potent = Math.max(1 / 12, Math.min(0.25, fin * 0.016));
+    for (const l of r.lines) {
+      if (l.garnish || l.muddled || l.float || l.sink || SKIP.has(l.id) || PLAIN.has(l.id) || ['base', 'lengthener', 'aromatic'].includes(l.role) && l.id !== 'scotch-islay' || ['dash', 'drop', 'piece'].includes(l.unit) || /bitters|angostura|peychaud/.test(l.id)) continue;
+      // Don's Mix split into its parts is dosed by its ratio, two of grapefruit to one of cinnamon.
+      if (l.id === 'cinnamon-syrup' && r.family.id === 'zombie' && r.lines.some(g => g.id === 'grapefruit')) continue;
+      const floor = l.id === 'scotch-islay' ? 0.25 : POTENT.has(l.id) ? potent : named;
+      assert.ok(l.oz >= floor - 0.09, `${label(x)}: ${l.oz} oz of ${l.id} in ${fin} oz is a token`);
+    }
+    const n = r.lines.filter(l => !l.garnish).length;
+    assert.ok(n <= (r.family.id === 'zombie' ? 10 : 7), `${label(x)}: ${n} poured lines`);
+  }
+});
+
+test('the spirit is a full pour, not a bucket: 2½ oz (3 for the Zombie line), floats half an ounce, coconut rum an accent', () => {
+  for (const x of built) {
+    const { r } = x, it = engine.parse(x.p);
+    if (r.servings >= 2) continue;
+    const body = r.lines.filter(l => l.role === 'base' && !l.float && !l.sink).reduce((t, l) => t + l.oz, 0);
+    const liq = r.lines.filter(l => l.role === 'modifier' && /chartreuse/.test(l.id)).reduce((t, l) => t + l.oz * 55 / 40, 0);
+    const cap = r.family.id === 'zombie' ? ((it.strength || 0) > 0 ? 4 : 3) : 2.5;
+    assert.ok(body + liq <= cap + 0.13, `${label(x)}: ${body} oz of spirit${liq ? ` and ${liq.toFixed(2)} oz-equivalent of Chartreuse` : ''}`);
+    for (const l of r.lines) if (l.float && l.role === 'base' && r.archetype.id !== 'dark-n-stormy') assert.ok(l.oz <= 0.5 + 1e-9, `${label(x)}: a ${l.oz} oz float`);
+    const coco = r.lines.find(l => l.id === 'coconut-rum');
+    if (coco && !it.ings['coconut-rum']) assert.ok(coco.oz <= 0.5 + 1e-9, `${label(x)}: ${coco.oz} oz coconut rum`);
+  }
+});
+
+test('a leaning reaches for a colorant, never more juice "for a golden glow"', () => {
+  for (const x of all) for (const n of x.r.notes || []) assert.ok(!/(pineapple|orange|mango|nectar|juice)[^,]*, for a (golden|sunset-orange) glow|traded for [^,]*(nectar|juice), for a/.test(n), `${label(x)}: "${n}"`);
 });

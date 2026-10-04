@@ -11,7 +11,8 @@ const ADJ = {
   allspice: ['Pimento', 'Spice-Route'],
   ginger: ['Gingered', 'Firebrand'],
   chili: ['Fire-Eater', 'Scorched', 'Red-Hot', 'Pepperpot'],
-  coconut: ['Coconut', 'Palm-Shaded', 'Copra'],
+  // "Copra" is dried coconut meat for the oil mill, not a drink word: retired.
+  coconut: ['Coconut', 'Palm-Shaded'],
   creamy: ['Velvet', 'Silken', 'Cloud'],
   honey: ['Honeyed', 'Golden'],
   vanilla: ['Vanilla', 'Moonlit'],
@@ -43,10 +44,10 @@ const ADJ = {
 const COLOR_ADJ = { blue: ['Blue', 'Sapphire', 'Deep-Water'], red: ['Crimson', 'Scarlet', 'Red'], pink: ['Pink', 'Coral'], gold: ['Golden', 'Gilded'], dark: ['Black', 'Moonless'], green: ['Green', 'Jade'], purple: ['Violet', 'Dusk'] };
 
 const NOUN = {
-  sea: ['Reef', 'Lagoon', 'Riptide', 'Undertow', 'Castaway', 'Mariner', 'Corsair', 'Galleon', 'Anchor', 'Shipwreck', 'Tradewind', 'Maelstrom', 'Siren', 'Pearl', 'Conch', 'Coral', 'Harbor', 'Doldrums', 'Lighthouse'],
+  sea: ['Reef', 'Lagoon', 'Riptide', 'Undertow', 'Castaway', 'Mariner', 'Corsair', 'Galleon', 'Anchor', 'Shipwreck', 'Tradewind', 'Maelstrom', 'Siren', 'Pearl', 'Conch', 'Coral', 'Harbor', 'Lighthouse', 'Sandbar', 'Tidepool', 'Atoll', 'Outrigger'],
   weather: ['Monsoon', 'Squall', 'Typhoon', 'Tempest', 'Gale', 'Downpour', 'Eclipse', 'Heatwave', 'Waterspout'],
   jungle: ['Orchid', 'Hibiscus', 'Frangipani', 'Banyan', 'Mangrove', 'Canopy', 'Bamboo', 'Vine', 'Cane Field', 'Plantain'],
-  creature: ['Serpent', 'Cobra', 'Viper', 'Parrot', 'Macaw', 'Toucan', 'Barracuda', 'Marlin', 'Manta', 'Jaguar', 'Gecko', 'Frigatebird', 'Flamingo', 'Moray'],
+  creature: ['Serpent', 'Cobra', 'Viper', 'Parrot', 'Macaw', 'Toucan', 'Barracuda', 'Marlin', 'Manta', 'Jaguar', 'Gecko', 'Frigatebird', 'Flamingo', 'Moray', 'Kingfisher', 'Heron', 'Ocelot', 'Sea Turtle'],
   adventure: ['Expedition', 'Voyage', 'Crossing', 'Outpost', 'Hideaway', 'Lookout', 'Compass', 'Relic', 'Doubloon', 'Lantern', 'Caldera', 'Spyglass', 'Treasure Map'],
   spooky: ['Specter', 'Phantom', 'Revenant', 'Ghost Ship', 'Wraith', 'Skull', 'Graveyard Shift'],
 };
@@ -72,9 +73,31 @@ const titleCase = w => w.split(/([ -])/).map(x => /^[a-z]/.test(x) && !['of', 't
 // checked against the build below (a Cup needs punch-cup service, a Toddy is a hot grog).
 const TYPE_NOUN = {
   punch: ['Punch', 'Cup'], grog: ['Grog'], daiquiri: ['Daiquiri', 'Sour'], swizzle: ['Swizzle'], zombie: ['Revenant', 'Specter'],
-  'beachcomber-sour': ['Sour', 'Cup'], 'mai-tai': ['Sour'], 'orgeat-punch': ['Punch', 'Bowl'], colada: ['Colada'],
+  'beachcomber-sour': ['Sour', 'Cup'], 'mai-tai': ['Mai Tai'], 'orgeat-punch': ['Punch', 'Bowl'], colada: ['Colada'],
   buck: ['Buck', 'Cooler', 'Highball'], 'resort-punch': ['Punch', 'Cooler'], 'bitter-tiki': ['Sour', 'Bird'], stirred: ['Nightcap', 'Sipper'], hot: ['Toddy', 'Mug', 'Nightcap'],
 };
+// The type noun comes from the drink it is, not the family bucket: a Mai Tai is a Mai Tai (never a
+// "Sour"), a frozen daiquiri a Frappé, a Jungle Bird a Bird.
+const TYPE_BY_ARCH = {
+  'mai-tai': ['Mai Tai'], 'vic-mai-tai-riff': ['Mai Tai'], 'hawaiian-mai-tai': ['Mai Tai'], 'frozen-daiquiri': ['Frappé', 'Daiquiri'], 'missionarys-downfall': ['Frappé'],
+  'fruit-daiquiri': ['Daiquiri'], daiquiri: ['Daiquiri'], 'nuclear-daiquiri': ['Daiquiri'], 'coconut-daiquiri': ['Daiquiri'], 'hemingway-daiquiri': ['Daiquiri'], 'beachcombers-gold': ['Daiquiri'],
+  'bitter-tiki-sour': ['Bird'], 'bitters-base-sour': ['Sour'], 'passion-sour': ['Sour'], 'port-au-prince': ['Sour'], 'pearl-diver': ['Punch'], pilot: ['Pilot'],
+};
+// The words a name uses for the drink's own family are kept apart from the battery's other
+// stems (a Mai Tai is a Mai Tai on every card that is one).
+const TYPE_WORDS = new Set(['punch', 'cup', 'grog', 'daiquiri', 'sour', 'swizzle', 'colada', 'buck', 'cooler', 'highball', 'bird', 'nightcap', 'sipper', 'toddy', 'mug', 'mai', 'tai', 'frappé', 'frappe', 'bowl', 'pilot', 'revenant', 'specter']);
+// Words that point at something in or on the glass, each with what must be there.
+const POINTS_AT = [
+  [/\bOrchid\b/i, f => /orchid/.test(f.gtext || '')],
+  [/\b(Sakura|Blossom|Blooming|Bloom|Flower|Petal|Frangipani|Plumeria)\b/i, f => /orchid|gardenia|tiare|flower|blossom|petal/.test(f.gtext || '')],
+  [/\b(Gardenia|Tiare)\b/i, f => /gardenia|tiare/.test(f.gtext || '')],
+  // Deep water isn't the shallows.
+  [/\bDeep\b/i, f => !/shallow/i.test(f.lookText || '')],
+];
+// Weather words are for drinks with some weather in them: strong, lit, or wild in the prayer;
+// never a contemplative sipper, a lazy Sunday or a gentle highball.
+const WEATHER = /\b(Monsoon|Maelstrom|Riptide|Doldrums|Typhoon|Squall|Tempest|Gale|Downpour|Waterspout|Hurricane|Storm|Stormy|Undertow|Whiteout|Blizzard|Avalanche)\b/i;
+const turbulent = f => !(f.method === 'stir') && !/\b(lazy|slow|sunday|calm|quiet|gentle|easy|nap|hammock|lounge)\b/i.test(f.prayer || '') && ((f.sd || 0) >= 2.2 || !!f.flaming || /\b(storm|stormy|typhoon|hurricane|monsoon|wild|chaos|thunder|squall|snow|snowy|blizzard|winter)\b/i.test(f.prayer || ''));
 // Words that promise a color: used only if the drink in the glass shows it.
 const IMPLIES_COLOR = {
   Scarlet: 'red', Ruby: 'red', Crimson: 'red', Red: 'red', 'Red-Hot': 'red', Pink: 'pink', 'Pink-Sand': 'pink', Rosy: 'pink', Coral: 'pink',
@@ -137,7 +160,17 @@ const NAME_TRUTH = [
   [/\b(Torch|Torchlight|Blaze|Bonfire|Inferno|Flame|Flaming|Fire Fountain|Fire Knife)\b/i, f => f.flaming],
   [/\bEmber\b/i, f => f.flaming || f.smoky],
   [/\bCup\b/i, f => f.vessel === 'punch-bowl'],
-  [/\bPunch\b/i, f => f.method !== 'stir'],
+  [/\bPunch\b/i, f => f.method !== 'stir' && f.method !== 'blend' && !['daiquiri', 'mai-tai', 'stirred', 'colada'].includes(f.family)],
+  // A sour is shaken and sour: never a Mai Tai (a Mai Tai is its own thing) or a frozen drink.
+  [/\bSour\b/i, f => !['blend', 'stir', 'hot'].includes(f.method) && !/mai-tai/.test(f.archetype || '') && f.family !== 'mai-tai'],
+  [WEATHER, turbulent],
+  [/\bLagoon\b/i, f => !!f.showsWater],
+  [/\bMariner\b/i, f => f.family === 'grog' || /\b(pirate|sailor|navy|sea|ship|captain|mariner|voyage|boat)\b/i.test(f.prayer || '')],
+  [/\bDoubloon\b/i, f => /\b(pirate|treasure|gold|doubloon|coin)\b/i.test(f.prayer || '')],
+  [/\bOrange-Grove\b/i, f => (f.orangeOz || 0) >= 1.5],
+  [/\bCanopy\b/i, f => /\b(jungle|green|canopy|rainforest|garden)\b/i.test(f.prayer || '')],
+  [/\bRum-Soaked\b/i, f => (f.rumOz || 0) >= 1.75 && (f.sd || 0) >= 2],
+  [/\bMoonlit\b/i, f => /\b(night|moon|moonlit|moonlight|midnight|evening)\b/i.test(f.prayer || '')],
   [/\bBlackstrap\b/i, f => !!f.blackBase],
   [/\bMug\b/i, f => /mug/.test(f.vessel || '')],
   [/\bToddy\b/i, f => f.archetype === 'hot-grog'],
@@ -179,8 +212,14 @@ export function makeName(rng, { variant = 0, archetype = null, family, intent = 
       if (need && need.length && !need.some(id => poured.has(id))) return false;
     }
     if (NAME_TRUTH.some(([re, ok]) => re.test(w) && !ok(f))) return false;
+    if (POINTS_AT.some(([re, ok]) => re.test(w) && !ok(f))) return false;
     return true;
   };
+  // No stem twice in one prayer's pair of drinks: the second seed's name shares no word with the
+  // first's (beyond the classic a riff is named for).
+  const riffWords0 = new Set(String(riffOf || '').toLowerCase().split(/[\s-]+/));
+  const priorStems = new Set((facts.priorNames || []).flatMap(n => n.toLowerCase().split(/[\s-]+/)).filter(w => w.length >= 4 && !riffWords0.has(w) && !TYPE_WORDS.has(w)));
+  const fresh0 = name => !name.toLowerCase().split(/[\s-]+/).some(w => priorStems.has(w));
   const prayerWords = [...new Set((intent.nameWords || []).filter(w => w && w.length <= 18).map(titleCase))].filter(allowed);
   const adjFor = tags => tags.flatMap(t => ADJ[t] || []).filter(allowed);
   const asked = adjFor(askedTags);
@@ -196,7 +235,8 @@ export function makeName(rng, { variant = 0, archetype = null, family, intent = 
   const places = baseIds.filter(id => PLACE_OK.has(id)).flatMap(id => PLACE_BY_ING[id] || []).filter(allowed);
   // An archetype's name nouns, minus any that are a classic's own name ("Lava Flow", "Hurricane").
   const ownNouns = ((archetype && archetype.nameNouns) || []).filter(w => allowed(w) && !taken.has(w.toLowerCase()) && !(archetype.classics || []).some(c => c.toLowerCase().startsWith(w.toLowerCase())));
-  let typeNoun = ownNouns.length ? ownNouns : (TYPE_NOUN[family] || ['Punch']).filter(allowed);
+  const byArch = archetype && TYPE_BY_ARCH[archetype.id] ? TYPE_BY_ARCH[archetype.id].filter(w => allowed(w) || /Mai Tai/.test(w)) : [];
+  let typeNoun = ownNouns.length ? ownNouns : byArch.length ? byArch : (TYPE_NOUN[family] || ['Punch']).filter(allowed);
   if (!typeNoun.length) typeNoun = ['Punch', 'Sour', 'Cooler'].filter(allowed);
   if (!typeNoun.length) typeNoun = ['Sour'];
   const isNoun = w => /^(the |la |el )?[A-Z]/.test(w) && !/(ed|y|ish|ing)$/.test(w.split(' ').pop().toLowerCase());
@@ -234,7 +274,8 @@ export function makeName(rng, { variant = 0, archetype = null, family, intent = 
     if (parts.some((p, i) => i < parts.length - 1 && p.toLowerCase().endsWith(parts[i + 1].toLowerCase()))) continue;
     // Four words at most, said the way a guest says them.
     if (wordCount(name) > 4) continue;
-    if (!allowed(name)) continue;
+    if (!allowed(name) && !(/Mai Tai$/.test(name) && allowed(name.replace(/ Mai Tai$/, '')))) continue;
+    if (!fresh0(name)) continue;
     if (!taken.has(name.toLowerCase())) return name;
   }
   return `${pick(rng, adjPool) || 'Lucky'} ${pick(rng, nounPool) || 'Lagoon'} No. ${Math.floor(rng() * 90) + 10}`;
@@ -246,7 +287,7 @@ const DIACRITICS = [
   [/\bHo'olaule'a\b/g, 'Hoʻolauleʻa'], [/\bHo'omaika'i\b/g, 'Hoʻomaikaʻi'], [/\bHo'omaha\b/g, 'Hoʻomaha'], [/\b([Mm])aita'i roa ae\b/g, '$1aitaʻi roa aʻe'],
   [/\b([Mm])aita'i\b/g, '$1aitaʻi'], [/\b([Rr])oa [Aa]e\b/g, (m, r) => `${r}oa ${r === 'R' ? 'Aʻe' : 'aʻe'}`], [/\bKaua'i\b/g, 'Kauaʻi'], [/\b([Ll])u'au\b/g, '$1ūʻau'], [/\bHawai'i\b/g, 'Hawaiʻi'],
   [/\bWaikiki\b/g, 'Waikīkī'], [/\b([Ll])ilikoi\b/g, '$1ilikoʻi'], [/\bAli'i\b/g, 'Aliʻi'], [/\bHe'e\b/g, 'Heʻe'], [/\bO'ahu\b/g, 'Oʻahu'], [/'Ohana\b/g, 'ʻOhana'],
-  [/\bPahoehoe\b/g, 'Pāhoehoe'], [/\bKilauea\b/g, 'Kīlauea'], [/\bPikake\b/g, 'Pīkake'],
+  [/\bPahoehoe\b/g, 'Pāhoehoe'], [/\bKilauea\b/g, 'Kīlauea'], [/\bPikake\b/g, 'Pīkake'], [/\bMoorea\b/g, 'Moʻorea'], [/\bTeahupoo\b/g, 'Teahupoʻo'],
 ];
 export function polishPolynesian(text) {
   let s = String(text || '');

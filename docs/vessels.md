@@ -77,7 +77,7 @@ Generated from `data/vessels.json` and the catalogue by `scripts/vessels-doc.mjs
 
 ### Glassware
 
-**Coupe** · about 7 oz · takes up
+**Coupe** · about 7 oz · takes up, frozen
 
 The shallow champagne saucer of the 1660s (not, whatever the legend says, modelled on Marie Antoinette). It was the cocktail glass before and just after Prohibition, and the craft revival brought it back as the default glass for drinks served up. Don the Beachcomber lined one with a moulded shell of ice for the Beachcomber's Gold.
 
@@ -189,7 +189,7 @@ The tall, stemmed sling glass. Raffles in Singapore serves Ngiam Tong Boon's Sin
 - In the catalogue: 7 drinks (e.g. Singapore Sling, Major Bailey #2)
 - Sources: <https://en.wikipedia.org/wiki/Singapore_sling> · <https://www.rafflesarcade.com.sg/product/raffles-singapore-sling-glass>
 
-**Goblet** · about 12 oz · takes crushed, frozen
+**Goblet** · about 12 oz · takes crushed, frozen, rocks
 
 A generic stemmed glass with a deep round bowl and a sturdy stem: the fallback for frozen drinks. No tiki classic belongs to it by right.
 
@@ -212,6 +212,16 @@ The Buena Vista in San Francisco has served Irish Coffee since 1952 in Libbey's 
 - Classics: Hot Buttered Rum, Coffee Grog
 - In the catalogue: 6 drinks (e.g. Hot Buttered Rum, Coffee Grog, Spontaneous Rumbustion)
 - Sources: <https://www.sfgate.com/news/article/The-Irish-coffee-miracle-A-San-Francisco-story-2354499.php> · <https://en.wikipedia.org/wiki/Hot_buttered_rum>
+
+### Unbreakable
+
+**Acrylic tumbler** · about 16 oz · takes rocks, crushed, frozen
+
+Clear, shatterproof acrylic for wherever glass is a hazard: the pool deck, the sand, the boat. Acrylic sheet came to market as Plexiglas in 1933; the double-walled Tervis tumbler (Detroit, 1946) kept iced drinks from sweating. The Soggy Dollar Bar on Jost Van Dyke, where guests swim ashore, poured the first Painkillers into plastic cups.
+
+- Classics: Painkiller (Soggy Dollar Bar), poolside frozen drinks
+- In the catalogue: 0 drinks
+- Sources: <https://en.wikipedia.org/wiki/Poly(methyl_methacrylate)> · <https://en.wikipedia.org/wiki/Tervis> · <https://en.wikipedia.org/wiki/Painkiller_(cocktail)>
 
 ### Metal
 

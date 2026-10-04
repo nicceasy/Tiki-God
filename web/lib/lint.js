@@ -95,6 +95,7 @@
 
 const STOP = new Set(['a', 'an', 'the', 'and', 'or', 'of', 'with', 'in', 'on', 'at', 'to', 'for', 'from', 'by', 'it', 'its', 'is', 'as', 'but', 'then', 'into', 'over', 'up', 'that', 'this', 'your', 'you', 'so', 'just', 'one', 'all', 'no', 'not']);
 const DIACRITICS = /[̀-ͯ]/g;
+import { sugarBand, balanceWord } from './chem.js';
 export const fold = s => String(s || '').normalize('NFD').replace(DIACRITICS, '').toLowerCase();
 const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 // Whole word or phrase, case- and accent-insensitive; "Pele's" is still Pele, "Zombie-style" is not Zombie.
@@ -1343,9 +1344,166 @@ export function createLinter({ rules, vocab, vessels } = {}) {
     }
   }
 
+  // ---------- service physics and steps from the lines (round-2 critique §5, §6) ----------
+  // Capacity by service: open-poured "ice and all", the shaker's ice is the glass's ice, so the
+  // liquid is about half the vessel at most; a frozen drink mounds, it doesn't spill (90%); a
+  // small drink is lost at the bottom of a big vessel; a drink strained with no ice belongs in a
+  // stemmed glass, not an empty tumbler. Steps say only what the lines pour: no herb pressed that
+  // isn't poured, bitters dashed (never floated), "the rest" never sweeping in a float, and fire
+  // only in a vessel that takes it, with nothing that burns beside it.
+  function checkService(C, add) {
+    const cap = C.v && C.v.capacity;
+    const serve = (C.v && C.v.serve) || [];
+    const bowl = C.isBowlVessel;
+    const vn = (C.v && C.v.name) || C.vId;
+    const heap = ['crushed', 'pebble'].includes(C.ice) && ['shake', 'flash-blend', 'swizzle'].includes(C.method);
+    if (cap && !bowl && heap && !serve.includes('up') && C.stats.volOz > cap * 0.55 + 0.1)
+      add('ice-and-all-overfull', 'major', `${oz(C.stats.volOz)} of liquid poured ice and all into a ${cap} oz ${vn}: the shaker's ice is the glass's ice, so the liquid can be about half of it (${oz(cap * 0.5)}). Scale it down or choose a bigger vessel.`);
+    if (cap && !bowl && C.method === 'blend' && C.stats.finalOz > cap * 0.92 + 0.1)
+      add('frozen-overfull', 'major', `${oz(C.stats.finalOz)} of frozen drink in a ${cap} oz ${vn}: blend about as much ice as liquid and keep the finished drink to 90% of the glass.`);
+    if (cap && !bowl && (C.method === 'blend' || serve.includes('up')) && C.method !== 'hot' && C.stats.finalOz < cap * 0.45)
+      add('lost-in-vessel', 'minor', `${oz(C.stats.finalOz)} finished in a ${cap} oz ${vn} sits low in the glass; a small drink goes in a small vessel.`);
+    if (C.vId && C.ice === 'none' && ['shake', 'stir'].includes(C.method) && !serve.includes('up') && !S('opaqueVessels').has(C.vId))
+      add('up-in-tumbler', 'major', `Strained with no ice into an empty ${vn}; a drink served up goes in a chilled coupe or Nick & Nora.`);
+    if (!C.steps.length) return;
+    const steps = C.steps.map(fold);
+    for (const herb of ['mint', 'basil']) {
+      const poured = C.poured.some(l => l.id === herb && (l.muddled || !l.garnish));
+      if (!poured && steps.some(st => new RegExp(`\\b(press|muddle|bruise)\\b[^.]*\\b${herb}\\b`).test(st)))
+        add('phantom-muddle', 'major', `The steps press ${herb} that isn't in the recipe; add it as a line or drop the step.`);
+    }
+    if (steps.some(st => /\bfloat\b[^.:]*\bbitters\b|\bbitters\b[^.]*\bfloated\b/.test(st)))
+      add('bitters-floated', 'minor', `Bitters are dashed over the ice as a crown, not floated off a spoon.`);
+    const STOPW = new Set(['fresh', 'juice', 'syrup', 'rum', 'rums', 'liqueur', 'the', 'and', 'with', 'style']);
+    for (const l of C.poured.filter(x => x.float && !BITTERS.has(x.id))) {
+      const words = fold(nameOf(l.id)).split(/[^a-z0-9]+/).filter(w => w.length >= 3 && !STOPW.has(w));
+      const at = steps.findIndex(st => /^float\b/.test(st) && words.some(w => st.includes(w)));
+      if (at < 0) continue;
+      const sweep = steps.slice(0, at).find(st => /^(add|build|shake|stir|divide|blend|flash-blend|measure|for \d+: measure)\b/.test(st) && /\b(everything|the rest)\b/.test(st) && !(/\bexcept\b/.test(st) && words.some(w => st.split('except')[1].includes(w))));
+      if (sweep) add('rest-sweeps-float', 'major', `A step adds "${/the rest/.test(sweep) ? 'the rest' : 'everything'}" including the ${nameOf(l.id)} that a later step floats; hold the float back.`, { lines: [l.id] });
+    }
+    const lit = steps.some(st => /light it/.test(st));
+    const fireOk = ((G.fire && G.fire.allowedVessels) || []);
+    if (lit && C.vId && fireOk.length && !fireOk.includes(C.vId)) add('fire-wrong-vessel', 'major', `Fire in a ${vn}; a flame needs a wide, fire-safe vessel (a mug, a bowl, a shell).`);
+    const mustLight = steps.some(st => /^fire, last/.test(st));
+    if (mustLight && C.garnish.some(g => /umbrella|orchid|gardenia|tiare|flower|bouquet/.test(g))) add('flame-clearance', 'major', `A flame beside ${list(C.garnish.filter(g => /umbrella|orchid|gardenia|tiare|flower|bouquet/.test(g)))}: keep anything that burns clear of the fire.`);
+    if (mustLight && C.vId === 'volcano-bowl' && C.garnish.some(g => /mint/.test(g))) add('flame-clearance', 'minor', `A mint ring round a burning crater; let the flame be the volcano bowl's garnish.`);
+    if (C.garnish.some(g => /flaming/.test(g)) && !lit) add('fire-without-step', 'major', `A flaming garnish with no lighting and safety step.`);
+  }
+
+  // ---------- absolute balance, doses and line counts (round-2 critique §1, §7) ----------
+  // The ratio can't see a 26-gram punch: the finished drink sits inside the absolute band for how
+  // it is made (technique-rules absoluteBands, chem.js sugarBand); the balance word follows the
+  // numbers; water is a line only over a block or in a batch; a named flavor is a dose you can
+  // taste; seven poured lines at most (ten for the Zombie line); the identity core at its dose.
+  // A classic poured as written keeps its spec and is not judged here.
+  const PLAIN_SYR = new Set(['simple-syrup', 'rich-simple', 'demerara-syrup', 'cane-syrup', 'agave-syrup']);
+  const CREAMY_IDS = new Set(['coconut-cream', 'coconut-milk', 'heavy-cream', 'half-and-half', 'vanilla-ice-cream', 'whole-milk', 'irish-cream', 'tom-and-jerry-batter']);
+  const DESSERT_IDS = new Set(['creme-de-cacao', 'vanilla-ice-cream', 'irish-cream', 'coffee-liqueur', 'chocolate-syrup']);
+  const POTENT_IDS = new Set(['grenadine', 'maraschino', 'allspice-dram', 'fernet', 'scotch-islay']);
+  const SEASON_IDS = new Set(['absinthe', 'pastis', 'saline', 'almond-extract', 'vanilla-extract', 'orange-flower-water', 'rose-water', 'na-bitters']);
+  function checkBalance(C, add) {
+    if (C.recipe.classic) return;
+    const it = C.intent || {};
+    const citrus = C.ozIn(['lime', 'lemon', 'grapefruit', 'yuzu-juice']);
+    const creamy = C.poured.some(l => CREAMY_IDS.has(l.id) && l.oz >= 0.5), dessert = creamy && C.poured.some(l => DESSERT_IDS.has(l.id));
+    const sugar = C.stats.sugarConc || 0, acid = C.stats.acidConc || 0;
+    const b = sugarBand({ method: C.method, ice: C.ice, servings: C.servings, punchBowl: C.vId === 'punch-bowl', sour: citrus >= 0.5 || acid >= 0.45, creamy, dessert, sweetness: it.sweetness, tartness: it.tartness }, R.absoluteBands);
+    if (C.fam === 'zombie' && b.kind === 'shakenSour') b.sugar[0] = 0;
+    const fw = ((R.familyWindows || {})[C.fam] || {}).sugarConc;
+    if (fw && b.kind === 'shakenSour') b.sugar[0] = Math.min(b.sugar[0], b.sugar[0] * (fw[0] + fw[1]) / 16);
+    if ((it.strength || 0) <= -1.5) b.sugar[0] = Math.min(b.sugar[0], 6);
+    if (b.kind === 'shakenSour' && C.poured.some(l => ['soda-water', 'ginger-beer', 'ginger-ale', 'cola', 'tonic', 'lemon-lime-soda', 'grapefruit-soda', 'sparkling-wine'].includes(l.id) && !l.float && l.oz >= 2 - EPS)) b.sugar[0] = 0;
+    const fatalAt = (R.absoluteBands || {}).fatalSugar || 16;
+    const kindName = { shakenSour: 'a shaken sour', frozenSour: 'a frozen sour', frozenCreamy: 'a frozen drink', punch: 'a punch over a block', stirred: 'a stirred drink', hot: 'a hot drink', open: 'a drink that isn\'t dessert' }[b.kind] || 'this drink';
+    if (sugar > b.sugar[1] + 0.25)
+      add('sugar-out-of-band', sugar > fatalAt && !dessert ? 'fatal' : 'major', `${r2(sugar)} g of sugar per 100 ml is past the ${r2(b.sugar[1])} g ceiling for ${kindName}: the plain syrup goes first, then the flavored syrups and liqueurs come down.`);
+    else if (b.sugar[0] > 0 && sugar < b.sugar[0] - 0.4)
+      add('sugar-out-of-band', 'major', `${r2(sugar)} g of sugar per 100 ml is under the ${r2(b.sugar[0])} g floor for ${kindName}${b.kind.startsWith('frozen') ? ' (cold mutes sugar): add half an ounce of rich simple or demerara' : ''}.`);
+    if (b.acid && acid > b.acid[1] + 0.05) add('acid-out-of-band', 'major', `${r2(acid)} g of acid per 100 ml is sharper than ${kindName} wants (${r2(b.acid[1])} g at most); less citrus.`);
+    if (b.acid && b.acid[0] > 0 && citrus > 0 && acid < b.acid[0] - 0.05) add('acid-out-of-band', 'minor', `${r2(acid)} g of acid per 100 ml is soft for ${kindName} (${r2(b.acid[0])} g at least).`);
+    // The balance word.
+    const t = fold(C.tasting);
+    const shift = C.method === 'blend' ? 1 : 0;
+    if (/tart and bracing/.test(t) && (acid < 0.9 - 0.02 || sugar > 9 + shift + 0.1)) add('balance-word-lie', 'major', `"Tart and bracing" at ${r2(sugar)} g sugar and ${r2(acid)} g acid; it needs about 0.9 g of acid and no more than ${9 + shift} g of sugar. Say "${balanceWord(C.stats, { method: C.method, creamy })}"`);
+    if (sugar > 12 + 0.1 && t && !/\b(sweet|lush|rich|dessert)\b/.test(t)) add('balance-word-lie', 'major', `At ${r2(sugar)} g of sugar per 100 ml the drink is sweet, whatever its acid, and the tasting doesn't say so.`);
+    if (C.method === 'hot' && acid < 0.2 && /barely tart/.test(t)) add('balance-word-lie', 'minor', `A hot drink with no citrus is soft and round, not "barely tart".`);
+    if (C.lowAbv && /normal cocktail/.test(t)) add('balance-word-lie', 'major', `A low-ABV ask, and the card calls it "the strength of a normal cocktail"; hold it to about a standard drink and say light.`);
+    // Water.
+    if (C.has('water') && C.servings < 2 && !(C.method === 'build' && C.ice === 'block')) add('water-line', 'major', `${oz(C.ozOf('water'))} of water ${C.method === 'build' ? 'built over ice' : `${C.method === 'blend' ? 'blended' : C.method === 'swizzle' ? 'swizzled' : 'shaken'} on ${C.ice} ice`}: the ice is the water. Water is a line only in a batch or over a block.`, { lines: ['water'] });
+    // Sweeteners stacked.
+    const plain = C.poured.filter(l => PLAIN_SYR.has(l.id) && !l.sink && !l.float);
+    const flav = C.poured.filter(l => l.ing && l.ing.role === 'sweet' && !PLAIN_SYR.has(l.id) && (l.ing.sugar || 0) >= 45 && l.oz >= 0.5 - EPS && !l.sink && !l.float && !/batter/.test(l.id));
+    if (plain.length && flav.length && sugar > 10 && !['mai-tai'].includes(C.fam)) add('sweetener-stack', 'minor', `${names(plain.map(l => l.id))} beside ${names(flav.map(l => l.id))} at ${r2(sugar)} g: one sweetener per job, so the plain syrup goes first.`, { lines: plain.map(l => l.id) });
+    if (plain.length > 1) add('sweetener-stack', 'minor', `Two plain syrups (${names(plain.map(l => l.id))}) doing one job.`, { lines: plain.map(l => l.id) });
+    // Doses you can taste.
+    const fin = C.stats.finalOz || 0;
+    const named = Math.max(0.25, Math.min(0.5, fin * 0.04)), potent = Math.max(1 / 12, Math.min(0.25, fin * 0.016));
+    for (const l of C.poured) {
+      if (!l.ing || l.float || l.sink || l.muddled || BITTERS.has(l.id) || SEASON_IDS.has(l.id) || PLAIN_SYR.has(l.id) || l.ing.cat === 'bitters' || l.ing.oz_per_piece || ['base', 'lengthener', 'aromatic'].includes(l.ing.role) && l.id !== 'scotch-islay' || ['dash', 'drop'].includes(l.unit)) continue;
+      const floor = l.id === 'scotch-islay' ? 0.25 : POTENT_IDS.has(l.id) ? potent : named;
+      if (l.oz < floor - 0.03) add('token-dose', 'minor', `${oz(l.oz)} of ${nameOf(l.id)} in ${oz(fin)} finished is a rumor, not a flavor (${oz(floor)} at least, or leave it out).`, { lines: [l.id] });
+    }
+    // Line count.
+    const n = C.poured.length, max = C.fam === 'zombie' ? 10 : 7;
+    if (n > max) add('too-many-lines', 'major', `${n} poured lines; past ${max} a drink is a crowd, not a recipe.`);
+    // The identity core at its dose.
+    if ((C.fam === 'mai-tai' || C.archId === 'hawaiian-mai-tai') && C.has('orgeat') && C.ozOf('orgeat') < 0.5 - EPS) add('core-underdosed', 'major', `${oz(C.ozOf('orgeat'))} of orgeat in a Mai Tai is a rumor of almond: half an ounce.`, { lines: ['orgeat'] });
+    if (C.has('hot-buttered-rum-batter') && C.ozOf('hot-buttered-rum-batter') < 0.75 - EPS) add('core-underdosed', 'major', `${oz(C.ozOf('hot-buttered-rum-batter'))} of batter: a Hot Buttered Rum is its batter, three-quarters of an ounce.`, { lines: ['hot-buttered-rum-batter'] });
+    if (C.fam === 'zombie' && C.has('grapefruit') && C.has('cinnamon-syrup') && C.ozOf('grapefruit') < 2 * C.ozOf('cinnamon-syrup') - 0.05) add('core-underdosed', 'minor', `Don's Mix split ${oz(C.ozOf('grapefruit'))} grapefruit to ${oz(C.ozOf('cinnamon-syrup'))} cinnamon; it is two to one.`, { lines: ['grapefruit', 'cinnamon-syrup'] });
+  }
+
   // ---------- the linter ----------
   const FIX = Object.fromEntries((R.redFlags || []).filter(f => f.fix).map(f => [f.id, f.fix]));
-  const CHECKS = [checkDoses, checkExclusive, checkIncompat, checkMethod, checkVessel, checkComponents, checkStrength, checkFamily, checkNames, checkRedFlags, checkFoodWords, checkGarnish, checkSteps, checkCopy];
+  // Promises (copy lane): what a reading or a word compiled into must-pours, doses, a float, an
+  // ABV ceiling and bottles to keep out (web/lib/prompt.js, composer.promiseBreak) is kept by the
+  // finished drink. A broken promise the card admits ("Here it's …") is minor; a low-ABV prayer
+  // over its ceiling, or a bottle the promise ruled out (bitter's Aperol), is major.
+  // (promise-unkept, promise-float-missing, promise-abv, promise-avoided)
+  function checkPromises(C, add) {
+    const it = C.intent;
+    if (!it || !Array.isArray(it.promises)) return;
+    const avoided = id => (it.avoidIngs && it.avoidIngs.has && it.avoidIngs.has(id));
+    for (const pr of it.promises) {
+      if ((pr.when || []).length && !pr.when.includes(C.archId)) continue;
+      const who = pr.concept ? `the "${pr.concept.replace(/-/g, ' ')}" reading` : `"${pr.word}"`;
+      const ids = (pr.ids || []).filter(id => ingMap.has(id) && !avoided(id));
+      const ok = id => C.ozOf(id) >= ((pr.min || {})[id] || 0.01) - 0.02 || C.lines.some(l => l.id === id && l.muddled);
+      if (ids.length && (pr.all ? !ids.every(ok) : !ids.some(ok))) add('promise-unkept', 'minor', `${who} promised ${pr.all ? 'all of' : 'one of'} ${ids.slice(0, 4).map(nameOf).join(', ')}${Object.keys(pr.min || {}).length ? ' at a dose you taste' : ''}, and the glass doesn't keep it.`, { lines: ids.filter(id => C.has(id)) });
+      if (Array.isArray(pr.float) && pr.float.length && !C.poured.some(l => l.float && pr.float.includes(l.id))) add('promise-float-missing', 'minor', `${who} promised ${nameOf(pr.float[0])} floated on top; there's no float.`);
+      if (pr.abvMax && C.stats && C.stats.abv > pr.abvMax + 0.5) add('promise-abv', 'major', `${who} promised ${pr.abvMax}% ABV or less; it is ${r2(C.stats.abv)}%.`);
+      for (const id of pr.avoid || []) if (C.has(id)) add('promise-avoided', 'major', `${who} rules out ${nameOf(id)} (it says the opposite of what was asked), and it's poured.`, { lines: [id] });
+    }
+  }
+  // How the gods heard the prayer (copy lane): never an echo ("coffee" → coffee), never notes for
+  // the bartender ("Read it as…", "A group: batchable…"), and quoting only what the guest typed.
+  // (heard-echo, heard-guidance, heard-misquote)
+  function checkHeard(C, add) {
+    const rd = ((C.recipe.explanation || {}).reading) || {};
+    const prompt = fold(C.recipe.prompt || '');
+    for (const h of rd.heard || []) {
+      const ph = fold(h.phrase || ''), mn = fold(h.meaning || '');
+      if (mn && (mn === ph || mn === `${ph} family` || mn.replace(/[^a-z ]/g, '') === ph.replace(/[^a-z ]/g, ''))) add('heard-echo', 'minor', `Heard "${h.phrase}" as "${h.meaning}": an echo, not a reading. Say what was poured for it.`);
+      if (/^(read (it |them )?as|families:|target |a group:|cold:)|\bmust come from\b|\bonly if asked\b/i.test(h.meaning || '')) add('heard-guidance', 'major', `Heard "${h.phrase}" with notes for the bartender ("${String(h.meaning).slice(0, 60)}…"), not words for the guest.`);
+      if (prompt && ph && !prompt.includes(ph) && !ph.split(' ').every(w => prompt.includes(w))) add('heard-misquote', 'minor', `Quotes "${h.phrase}", which the guest didn't type.`);
+    }
+  }
+  // The looks lane (critique round 2, §6): the drawing lights a flame only from a step that
+  // lights it with its safety text, so a card that names a flame must carry that step (a lit
+  // garnish with no step is either a phantom flame or an unsafe one); and the look's color word
+  // names a fruit only when that fruit is poured (a mango gold with no mango is an orange juice).
+  function checkLooks(C, add) {
+    const flame = (C.recipe.garnish || []).find(g => /\bflaming\b|\bflame\b|\balight\b|\blit\b/i.test(String(g)));
+    const lighting = C.steps.filter(x => /\blight it\b/i.test(x));
+    const safe = lighting.some(x => /keep hair, sleeves|never pour spirit from the bottle toward a flame/i.test(x));
+    if (flame && !lighting.length) add('flame-without-step', 'major', `the garnish says "${flame}" but no step lights it: the drawing shows no fire, and the card should say how to light it safely or drop the flame`);
+    else if (lighting.length && !safe) add('flame-without-safety', 'fatal', 'a step lights a flame with no safety line (hair, sleeves, straws and flowers clear; never pour from the bottle toward it; blow it out before anyone drinks)');
+    const word = String((C.recipe.look && C.recipe.look.description) || '').toLowerCase().split(/ with | under /)[0];
+    for (const [w, re] of [['mango', /mango/], ['passion-fruit', /passion-fruit/]]) {
+      if (word.includes(w) && !C.poured.some(l => re.test(l.id))) add('look-word-fruit', 'minor', `the look says "${word}" with no ${w.replace('-', ' ')} in the glass`);
+    }
+  }
+  const CHECKS = [checkDoses, checkExclusive, checkIncompat, checkMethod, checkVessel, checkComponents, checkStrength, checkFamily, checkNames, checkRedFlags, checkFoodWords, checkGarnish, checkSteps, checkCopy, checkService, checkBalance, checkPromises, checkHeard, checkLooks];
   function lint(recipe, { intent } = {}) {
     if (!recipe || !Array.isArray(recipe.lines)) return [{ id: 'unreadable', sev: 'fatal', msg: 'There is no recipe here to check.' }];
     const C = context(recipe, intent);
@@ -1365,9 +1523,23 @@ export function createLinter({ rules, vocab, vessels } = {}) {
     for (const check of CHECKS) {
       try { check(C, add); } catch (e) { add('linter-error', 'minor', `The ${check.name} check failed on this recipe: ${e && e.message}`); }
     }
-    return out.sort((a, b) => SEV_RANK[a.sev] - SEV_RANK[b.sev]);
+    return canonAsWritten(recipe, out).sort((a, b) => SEV_RANK[a.sev] - SEV_RANK[b.sev]);
+  }
+  // The canon as written is the authority on its own composition (the canon contract: lines,
+  // method, ice, vessel and garnish of a named, dated edition). A rule that would reject the
+  // edition's own spec (the Tortuga's two overproofs, the Zombie family's stack applied to a
+  // Tortuga) says so as a minor note instead of a fault; service, vessel, safety and copy rules
+  // still judge it.
+  function canonAsWritten(recipe, findings) {
+    const cn = recipe && recipe.canon;
+    if (!cn || cn.state !== 'as-written') return findings;
+    return findings.map(f => SPEC_RULES.has(f.id) && f.sev !== 'minor' ? { ...f, sev: 'minor', msg: `${f.msg} (The ${cn.of} as written pours it this way.)` } : f);
   }
   return { lint, context };
 }
+// The rules that judge a spec's composition (what's in it and how much), as opposed to its
+// service, vessel, safety or copy: a classic poured as written answers to its edition for these.
+const SPEC_RULES = new Set(['overproof-overdose', 'two-orange-liqueurs', 'two-plain-syrups', 'coconut-pileup', 'redundant-red-fruit', 'passion-pileup', 'bitter-stack', 'anise-stack', 'spice-sludge', 'lemon-and-lime', 'dairy-stack',
+  'too-many-cooks', 'too-many-lines', 'quarter-ounce-soup', 'micro-dose-accent', 'core-share-low', 'spirit-heavy', 'abv-out-of-band', 'family-underdosed', 'family-max', 'zombie-weak-structure', 'zombie-red-or-creamy', 'ratio-out-of-window', 'dose-cap']);
 const cap = s => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 const an = w => `${/^[aeiou]/i.test(String(w || '')) && !/^(u[a-z]{2}|one)/i.test(String(w || '')) ? 'an' : 'a'} ${w}`;

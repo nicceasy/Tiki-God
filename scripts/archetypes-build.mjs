@@ -107,8 +107,10 @@ const OVERRIDES = {
       if (/brandy/.test(c.component)) c.ozRange = [0.5, 1];
       if (/orgeat/.test(c.component)) c.ozRange = [0.5, 1];
     }
+    // Per drink already (Vic's 1972 bowl, 6 oz of rum for four), so never divided again: the
+    // build stays idempotent on the committed file.
     const sp = a.canonicalSpecs.find(x => /three or four/.test(x.name));
-    if (sp) sp.lines = [{ id: 'rum-white-column', oz: 1.5, unit: 'oz' }, { id: 'brandy', oz: 0.5, unit: 'oz' }, { id: 'gin', oz: 0.25, unit: 'oz' }, { id: 'orange', oz: 1.5, unit: 'oz' }, { id: 'lemon', oz: 1, unit: 'oz' }, { id: 'orgeat', oz: 0.5, unit: 'oz' }];
+    if (sp) { sp.lines = [{ id: 'rum-white-column', oz: 1.5, unit: 'oz' }, { id: 'brandy', oz: 0.5, unit: 'oz' }, { id: 'gin', oz: 0.25, unit: 'oz' }, { id: 'orange', oz: 1.5, unit: 'oz' }, { id: 'lemon', oz: 1, unit: 'oz' }, { id: 'orgeat', oz: 0.5, unit: 'oz' }]; delete sp.servings; sp.batchOf = 4; }
   },
   // The research filed a Hawaiian Mai Tai under the sunrise as a float reference; it's a Mai
   // Tai, not a sunrise, and a sunrise must never be "built on" it.
@@ -124,6 +126,62 @@ const OVERRIDES = {
       if (/Smuggler/.test(sp.name)) sp.lines = sp.lines.map(l => l.id === 'amontillado-sherry' ? { ...l, id: 'oloroso-sherry' } : l);
     }
   },
+};
+
+// Identity cores: what a classic cannot lose and still be poured under its name. A Tortuga
+// is both overproofs; a Lava Flow is the strawberry purée poured first so the colada streaks up
+// through it (without it, it's a Banana or Mango Colada); a Jungle Bird is its pineapple (without
+// it, Jeremy Oertel's Bitter Mai Tai); a Navy Grog is its honey (Don) or allspice dram (Vic).
+// `drink` is matched against any reference whose name contains it (a Zero-Proof Navy Grog is
+// still a Navy Grog); `needs` are groups of bottles, `count` how many of the group; `otherwise`
+// names the drink it is without the core, by the bottle that took its place; `spare` lists spec
+// bottles it can do without (never called missing).
+const CORES = {
+  tortuga: [{ drink: 'Tortuga', needs: [{ anyOf: ['rum-demerara-overproof', 'rum-overproof-white', 'rum-black-overproof'], count: 2, what: 'both overproof rums' }] }],
+  'fruit-colada': [
+    { drink: 'Lava Flow', needs: [{ anyOf: ['strawberry'], what: 'the strawberry purée poured first' }], spare: ['banana'], otherwise: { banana: 'Banana Colada', 'banana-liqueur': 'Banana Colada', 'mango-nectar': 'Mango Colada', 'guava-nectar': 'Guava Colada', 'passion-fruit-juice': 'Passion Fruit Colada', 'papaya-nectar': 'Papaya Colada' } },
+    { drink: 'Blue Hawaiian', needs: [{ anyOf: ['blue-curacao'], what: 'blue curaçao' }] },
+  ],
+  'bitter-tiki-sour': [{ drink: 'Jungle Bird', needs: [{ anyOf: ['pineapple-juice'], what: 'pineapple' }], otherwise: { orgeat: 'Bitter Mai Tai', 'orange-curacao': 'Bitter Mai Tai' } }],
+  'navy-grog': [{ drink: 'Navy Grog', needs: [{ anyOf: ['honey-syrup', 'allspice-dram'], what: "honey (Don's) or allspice dram (Vic's)" }] }],
+  'zero-proof-tiki': [{ drink: 'Navy Grog', needs: [{ anyOf: ['honey-syrup', 'allspice-dram', 'pimento-syrup'], what: 'honey or allspice' }] }],
+};
+// Siblings: frames that answer the same kind of prayer, for spreading neighboring prayers across
+// a neighborhood instead of pouring its best-known drink every time, and for a second prayer on
+// a named drink (a Zombie's Jet Pilot, a colada's Painkiller in the tin, a Planter's Punch's Navy
+// Grog in the barrel). Archetypes not listed take their family.
+const SIBLINGS = {
+  zombie: ['pilot', 'cobras-fang', 'beachcombers-gold', 'tortuga'], pilot: ['zombie', 'cobras-fang', 'beachcomber-spice-sour'], 'cobras-fang': ['pilot', 'zombie', 'port-au-prince'], tortuga: ['zombie', 'pilot'],
+  'mai-tai': ['vic-mai-tai-riff', 'hawaiian-mai-tai'], 'vic-mai-tai-riff': ['mai-tai', 'hawaiian-mai-tai'], 'hawaiian-mai-tai': ['mai-tai', 'tropical-itch', 'resort-liqueur-punch'],
+  'pina-colada': ['painkiller', 'fruit-colada', 'coconut-daiquiri', 'bushwacker'], 'fruit-colada': ['pina-colada', 'painkiller', 'miami-vice', 'coconut-daiquiri'], painkiller: ['pina-colada', 'fruit-colada', 'coconut-daiquiri'],
+  bushwacker: ['pina-colada', 'fruit-colada'], 'coconut-daiquiri': ['pina-colada', 'painkiller', 'fruit-daiquiri'], 'miami-vice': ['fruit-colada', 'frozen-daiquiri'],
+  'planters-punch': ['navy-grog', 'grog', 'bowl-punch', 'ti-punch'], 'navy-grog': ['grog', 'planters-punch', 'volcano-bowl'], grog: ['navy-grog', 'planters-punch'],
+  daiquiri: ['hemingway-daiquiri', 'frozen-daiquiri', 'fruit-daiquiri', 'beachcombers-gold', 'caipirinha'], 'fruit-daiquiri': ['frozen-daiquiri', 'daiquiri', 'missionarys-downfall', 'coconut-daiquiri'],
+  'frozen-daiquiri': ['fruit-daiquiri', 'missionarys-downfall', 'daiquiri'], 'hemingway-daiquiri': ['daiquiri', 'nuclear-daiquiri', 'beachcombers-gold'], 'nuclear-daiquiri': ['hemingway-daiquiri', 'herbal-swizzle'],
+  'bitter-tiki-sour': ['bitters-base-sour', 'kingston-negroni', 'tropical-stirred'], 'sunrise-float': ['hurricane', 'tropical-itch', 'resort-liqueur-punch'],
+  hurricane: ['sunrise-float', 'tropical-itch', 'passion-sour', 'resort-liqueur-punch'], 'resort-liqueur-punch': ['hurricane', 'tropical-itch', 'sunrise-float'], 'tropical-itch': ['hurricane', 'resort-liqueur-punch'],
+  'blue-hawaii': ['fruit-colada', 'resort-liqueur-punch'], 'hot-buttered-rum': ['tom-and-jerry', 'hot-grog', 'hot-rum-punch'], 'hot-grog': ['hot-buttered-rum', 'hot-rum-punch', 'tom-and-jerry'],
+  'trinidad-swizzle': ['bermuda-rum-swizzle', 'herbal-swizzle', 'overproof-swizzle'], 'rum-old-fashioned': ['tropical-stirred', 'corn-n-oil', 'kingston-negroni'],
+  'tropical-stirred': ['rum-old-fashioned', 'kingston-negroni', 'corn-n-oil'], scorpion: ['fog-cutter', 'scorpion-bowl'], 'scorpion-bowl': ['scorpion', 'volcano-bowl', 'bowl-punch'],
+  'passion-sour': ['hurricane', 'beachcomber-spice-sour', 'pearl-diver'], 'beachcomber-spice-sour': ['pearl-diver', 'port-au-prince', 'passion-sour'],
+};
+
+// How a guest hears an archetype's family when a drink is only a structural cousin of it (no
+// proven spec is close enough to name): "a cousin of the sunrise drinks".
+const KIN = {
+  'planters-punch': 'the Caribbean rum punches', 'bowl-punch': 'the old bowl punches', 'ti-punch': "the Ti' Punch", grog: 'the naval grogs', 'navy-grog': 'the Navy Grog',
+  'trinidad-swizzle': 'the Trinidad swizzles', 'bermuda-rum-swizzle': 'the Bermuda rum swizzles', 'overproof-swizzle': 'the overproof swizzles', 'herbal-swizzle': 'the herbal swizzles',
+  'dark-n-stormy': "the Dark 'n Stormy", mule: 'the mules', 'suffering-bastard': 'the Suffering Bastard and its brothers', daiquiri: 'the daiquiris', 'hemingway-daiquiri': 'the Hemingway Daiquiri',
+  'frozen-daiquiri': 'the frozen daiquiris', 'fruit-daiquiri': 'the fruit daiquiris', 'nuclear-daiquiri': 'the Nuclear Daiquiri', caipirinha: 'the caipirinhas', mojito: 'the Mojito',
+  'rum-old-fashioned': 'the rum Old Fashioneds', 'kingston-negroni': 'the rum Negronis', 'corn-n-oil': "the Corn 'n' Oil", 'hot-buttered-rum': 'the hot buttered rums', 'tom-and-jerry': 'the Tom and Jerry',
+  'hot-grog': 'the hot grogs and toddies', 'hot-rum-punch': 'the hot rum punches', zombie: 'the Zombie', pilot: 'the Test Pilot and Jet Pilot', 'cobras-fang': "the Cobra's Fang",
+  'beachcomber-spice-sour': "Don the Beachcomber's spice sours", 'pearl-diver': 'the Pearl Diver', 'port-au-prince': 'the Port au Prince', 'beachcombers-gold': "the Beachcomber's Gold",
+  'missionarys-downfall': "the Missionary's Downfall", 'mai-tai': 'the Mai Tai', 'vic-mai-tai-riff': "Trader Vic's Mai Tai variations", scorpion: 'the Scorpion', 'fog-cutter': 'the Fog Cutter',
+  tortuga: 'the Tortuga', 'passion-sour': 'the passion fruit sours', 'bitter-tiki-sour': 'the bitter tiki sours', 'bitters-base-sour': 'the bitters-as-base sours',
+  'tropical-stirred': 'the tropical Old Fashioneds and Negronis', 'pina-colada': 'the Piña Colada', painkiller: 'the Painkiller', 'fruit-colada': 'the fruit coladas',
+  bushwacker: 'the frozen dessert drinks', 'coconut-daiquiri': 'the coconut daiquiris', 'miami-vice': 'the Miami Vice', 'blue-hawaii': 'the Blue Hawaii', hurricane: 'the Hurricane',
+  'resort-liqueur-punch': 'the resort rum punches', 'hawaiian-mai-tai': 'the Hawaiian Mai Tai', 'tropical-itch': 'the Tropical Itch', 'pineapple-shell': 'the pineapple-shell punches',
+  'sunrise-float': 'the sunrise drinks', 'scorpion-bowl': 'the Scorpion bowls', 'volcano-bowl': 'the volcano bowls', 'zero-proof-tiki': 'the zero-proof tiki drinks',
 };
 
 // Credits. A drink's origin (who, where, when, and how sure the record is) is a different fact
@@ -256,9 +314,11 @@ const CREDITS = {
       'Banana Daiquiri (frozen)': { drink: 'Banana Daiquiri' },
     },
   },
+  // The fruit daiquiri's root is Havana: Constantino Ribalaigua's numbered daiquiris at El
+  // Floridita in the 1930s. The Banana Daiquiri's St. Thomas claim is one of its children.
   'fruit-daiquiri': {
-    origin: O("Mountain Top, St. Thomas, by the bar's own claim", null, { drink: 'Banana Daiquiri', ...DISP }),
-    drinks: { 'Pineapple Daiquiri': O('', null), 'Passion Fruit Daiquiri': O('', null), 'Strawberry Daiquiri': O('', null) },
+    origin: O('Constantino Ribalaigua, El Floridita, Havana, 1930s', 1934, { drink: 'Floridita fruit daiquiris', who: 'Constantino Ribalaigua', ancestor: true }),
+    drinks: { 'Banana Daiquiri': O("Mountain Top, St. Thomas, by the bar's own claim", null, DISP), 'Pineapple Daiquiri': O('', null), 'Passion Fruit Daiquiri': O('', null), 'Strawberry Daiquiri': O('', null) },
     specs: {
       'Frozen Banana Daiquiri (Tropical Standard)': { drink: 'Banana Daiquiri', edition: 'Tropical Standard spec' },
       'Banana Daiquiri (shaken, modern)': { drink: 'Banana Daiquiri', edition: 'a modern build with crème de banane' },
@@ -303,11 +363,12 @@ const CREDITS = {
     origin: O("named for Pierce Egan's 1821 Tom and Jerry; Jerry Thomas claimed it", 1821, { drink: 'Tom and Jerry', ...DISP }),
     specs: { 'Tom and Jerry (Jerry Thomas, 1862)': { drink: 'Tom and Jerry', edition: 'as Jerry Thomas printed it in 1862' }, 'Tom and Jerry (hot milk, Midwest holiday)': { drink: 'Tom and Jerry', edition: 'the Midwest holiday way, with hot milk' } },
   },
+  // Vernon's 1740 grog was a cold ration; the hot grog is its winter descendant, not the same drink.
   'hot-grog': {
-    origin: O("the Royal Navy's grog of 1740, served hot", 1740, { drink: 'Hot Grog' }),
+    origin: O("a winter descendant of Admiral Vernon's 1740 grog", null, { drink: 'Hot Grog' }),
     drinks: { 'Hot Rum': O('Jerry Thomas, 1862', 1862, { who: 'Jerry Thomas' }) },
     specs: { 'Hot Grog (clove-studded lemon)': { drink: 'Hot Grog', edition: 'the household recipe with a clove-studded lemon' }, 'Hot Rum (Jerry Thomas, 1862)': { drink: 'Hot Rum' } },
-    classics: { "Hot Grog (sailors' / Scandinavian)": 'Hot Grog (Royal Navy grog, served hot)' },
+    classics: { "Hot Grog (sailors' / Scandinavian)": "Hot Grog (a winter descendant of Vernon's grog)" },
   },
   'hot-rum-punch': {
     origin: O('Victorian England; Charles Dickens wrote his recipe down in 1847', 1847, { drink: 'Hot Rum Punch' }),
@@ -367,12 +428,14 @@ const CREDITS = {
     origin: O('Trader Vic', null, { drink: 'Honi Honi', ...VIC }),
     drinks: { 'Menehune Juice': O('Trader Vic', null, VIC), 'Pinky Gonzales': O("Trader Vic's Señor Pico, 1964", 1964, VIC) },
   },
+  // Vic printed the Scorpion in 1946 as a punch for twelve; the individual drink and the bowl
+  // for three or four are his 1972 specs.
   scorpion: {
-    origin: O('Trader Vic, 1946', 1946, { drink: 'Scorpion', ...VIC }),
-    drinks: { 'Scorpion Bowl': O('Trader Vic, 1946', 1946, VIC) },
+    origin: O('Trader Vic; first printed in 1946 as a punch for twelve', 1946, { drink: 'Scorpion', ...VIC }),
+    drinks: { 'Scorpion Bowl': O('Trader Vic; first printed in 1946 as a punch for twelve', 1946, VIC) },
     specs: {
-      'Scorpion (individual)': { drink: 'Scorpion', edition: "Vic's individual spec of 1972" },
-      'Scorpion Bowl (1946)': { drink: 'Scorpion Bowl' },
+      'Scorpion (individual)': { drink: 'Scorpion', edition: "Vic's 1972 individual spec" },
+      'Scorpion Bowl (1946)': { drink: 'Scorpion Bowl', edition: "Vic's 1946 punch for twelve" },
       "Scorpion Bowl (Smuggler's Cove)": { drink: 'Scorpion Bowl', edition: "Smuggler's Cove spec, after The Luau" },
       "Scorpion (Kelbo's)": { drink: 'Scorpion', edition: "Kelbo's version" },
     },
@@ -393,13 +456,17 @@ const CREDITS = {
     specs: { 'Jungle Bird (1973)': { drink: 'Jungle Bird', edition: "the hotel's original" }, 'Jungle Bird (González)': { drink: 'Jungle Bird', edition: "Giuseppe González's re-spec" } },
     classics: { 'Jungle Bird (Jeffrey Ong, Kuala Lumpur Hilton, 1973)': 'Jungle Bird (Aviary Bar, Kuala Lumpur Hilton, 1970s)' },
   },
+  // The Trinidad Especial came first (Valentino Bolognese, 2008); Giuseppe González's Trinidad
+  // Sour (2009) made the bitters-as-base sour famous.
   'bitters-base-sour': {
-    origin: O('Giuseppe González, Clover Club, Brooklyn, 2009', 2009, { drink: 'Trinidad Sour', who: 'Giuseppe González' }),
-    drinks: { 'Trinidad Especial': O('Valentino Bolognese, 2008', 2008, { who: 'Valentino Bolognese' }) },
+    origin: O("Valentino Bolognese, 2008; made famous by Giuseppe González's Trinidad Sour, 2009", 2008, { drink: 'Trinidad Especial', who: 'Valentino Bolognese' }),
+    drinks: { 'Trinidad Sour': O("Giuseppe González, Clover Club, Brooklyn, 2009, after Bolognese's Trinidad Especial", 2009, { who: 'Giuseppe González' }) },
   },
   'tropical-stirred': {
     origin: O('Joaquín Simó, Death & Co, New York, 2009', 2009, { drink: 'Kingston Negroni', who: 'Joaquín Simó' }),
-    drinks: { 'Paniolo Old Fashioned': O("Smuggler's Cove, San Francisco", null, ATTR) },
+    // The Bombo is the colonial bumbo (rum, sugar, water and nutmeg), centuries older than the
+    // Kingston Negroni, its modern cousin.
+    drinks: { 'Paniolo Old Fashioned': O("Smuggler's Cove, San Francisco", null, ATTR), Bombo: O('the colonial bumbo of rum, sugar, water and nutmeg, 18th century', 1750, ATTR) },
   },
   'pina-colada': {
     origin: O('Caribe Hilton, San Juan, 1954, attributed to Ramón "Monchito" Marrero; Barrachina also claims it', 1954, { drink: 'Piña Colada', who: 'Ramón "Monchito" Marrero', ...DISP }),
@@ -489,7 +556,7 @@ const CREDITS = {
   },
   'scorpion-bowl': {
     origin: O('Trader Vic, 1946', 1946, { drink: 'Scorpion Bowl', ...VIC }),
-    drinks: { 'Scorpion Punch': O('Trader Vic, 1946', 1946, VIC), 'Kava Bowl': O('Trader Vic, c. 1942', 1942, VIC), 'Flaming Volcano': O('a Chinese-American restaurant bowl', null, ATTR) },
+    drinks: { 'Scorpion Punch': O('Trader Vic; first printed in 1946 as a punch for twelve', 1946, VIC), 'Kava Bowl': O('Trader Vic, c. 1942', 1942, VIC), 'Flaming Volcano': O('a Chinese-American restaurant bowl', null, ATTR) },
     specs: {
       'Scorpion Punch (1946, for twelve)': { drink: 'Scorpion Punch', edition: "Vic's 1946 bowl for twelve" },
       'Scorpion (for three or four)': { drink: 'Scorpion Bowl', edition: "Vic's 1972 bowl for three or four" },
@@ -572,6 +639,7 @@ for (const f of files) {
       garnish: a.garnish || {}, aromatics: Object.keys(AROMA).filter(k => AROMA[k].test(garnishText) && ing.has(k)),
       look: a.look || '', flavorProfile: a.flavorProfile || [], taglineWords: a.taglineWords || [], substitutions: a.substitutions || [],
       redFlags: a.redFlags || [], prayerFit: a.prayerFit || [],
+      cores: CORES[a.id] || [], siblings: SIBLINGS[a.id] || null, kin: KIN[a.id] || `the ${a.noun || NOUN_BY_ID[a.id] || NOUN[a.family] || a.name.toLowerCase()}`,
       typicalCount: specs.length ? Math.round(specs.reduce((s, sp) => s + sp.lines.filter(l => (ing.get(l.id) || {}).role !== 'aromatic').length, 0) / specs.length) : sig.length,
     };
     if (a.origin) { rec.origin = a.origin; rec.origins = a.origins; }
@@ -581,6 +649,7 @@ for (const f of files) {
   }
 }
 const archetypes = [...seen.values()];
+for (const a of archetypes) if (!a.siblings) a.siblings = archetypes.filter(b => b !== a && b.family === a.family).map(b => b.id);
 writeFileSync(out, '{\n  "about": "Proven drink structures the generator builds from (see web/lib/composer.js). Compiled from research by scripts/archetypes-build.mjs.",\n  "archetypes": [\n' + archetypes.map(a => '    ' + JSON.stringify(a)).join(',\n') + '\n  ]\n}\n');
 console.log(`${archetypes.length} archetypes → ${out}`);
 if (issues.length) console.log(`${issues.length} issues:\n  ` + issues.slice(0, 80).join('\n  '));

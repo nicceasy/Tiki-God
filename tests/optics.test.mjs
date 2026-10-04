@@ -68,7 +68,7 @@ test('warm drinks get warm words: milky browns only for creamy drinks, dark brow
 
 test('color words sit on the right hue', () => {
   const near = (hex, lo, hi) => { const h = hsl(hex).h; return h !== null && (lo < hi ? h >= lo && h < hi : h >= lo || h < hi); };
-  const cases = { tangerine: [18, 40], 'sunset orange': [10, 30], 'mango gold': [30, 46], 'mango-gold': [30, 50], 'campari red': [340, 12], oxblood: [0, 20], 'passion-fruit gold': [34, 50], 'hibiscus pink': [315, 2], 'rose gold': [0, 30], copper: [5, 36], ruby: [330, 12] };
+  const cases = { tangerine: [18, 40], 'flame orange': [10, 30], 'mango gold': [30, 46], 'mango-gold': [30, 50], 'campari red': [340, 12], oxblood: [0, 20], 'passion-fruit gold': [34, 50], 'hibiscus pink': [315, 2], 'rose gold': [0, 30], copper: [5, 36], ruby: [330, 12] };
   for (const d of drinks) {
     const look = lookOf(d);
     const w = look.description.split(' with ')[0].split(' under ')[0].toLowerCase().replace(/^(creamy|opaque|cloudy|hazy) /, '');
@@ -182,4 +182,29 @@ test('the rum ambers are told apart by what is in them, not all called copper', 
     assert.ok(h !== null && h >= lo && h < hi, `${d.name}: "${w}" for ${lk.body.hex} (hue ${h})`);
   }
   for (const hex of ['#f8ecc3', '#f6ebca']) assert.ok(!/tawny|russet|terracotta|blood-orange/.test(colorWord(hex, 1, { creamy: true })), `${hex} is a pale cream`);
+});
+
+// Round 2 (looks): vivid, truthful look hexes. A drink in a glass reads more colorful than the bare
+// absorbance model predicts, and the references agree; pigments subtract, so a red juice under
+// blue curaçao is a slate, not a pure blue; a mango colada is a deep mango gold; and a color word
+// that names a fruit is only used when that fruit is in the glass.
+test('looks are vivid and true: slate for watermelon under curaçao, deep mango gold, fruit words only with the fruit', () => {
+  const look = (spec, o) => drinkLook(spec.map(([id, oz, x]) => ({ id, oz, role: ingMap.get(id).role, ...(x || {}) })), ingMap, o);
+  const slate = look([['rum-white-column', 2], ['lime', 1.25], ['watermelon-juice', 1.5], ['rich-simple', 0.75], ['blue-curacao', 1]], { method: 'blend', ice: 'blended', dilutionOz: 5 });
+  const cs = hsl(slate.body.hex);
+  assert.ok(cs.h >= 195 && cs.h <= 250 && cs.s < 0.42, `watermelon under blue curaçao is ${slate.body.hex} (${slate.description}), not a slate`);
+  assert.match(slate.description, /slate blue/);
+  assert.ok(showsColor(slate, 'blue'), 'a slate-blue pool drink is no longer blue');
+  const mango = look([['rum-white-column', 1.5], ['mango-nectar', 2], ['pineapple-juice', 2], ['coconut-cream', 2], ['heavy-cream', 0.75]], { method: 'blend', ice: 'blended', dilutionOz: 5 });
+  const cm = hsl(mango.body.hex);
+  assert.ok(cm.h >= 32 && cm.h <= 42 && cm.s >= 0.75 && cm.l <= 0.74, `a mango colada is ${mango.body.hex}, a pale cream`);
+  assert.match(mango.description, /^Creamy mango[- ]gold/);
+  // an orange-free amber is never "tangerine", an apricot-free one never "apricot"
+  for (const d of drinks) {
+    const L = lookOf(d), w = L.description.split(/ with | under /)[0].toLowerCase(), ids = d.ingredients.map(l => l.id).join(' ');
+    if (/tangerine|blood-orange/.test(w)) assert.ok(/orange|tangerine|curacao|triple-sec/.test(ids), `${d.name}: "${w}" with no orange`);
+    if (/apricot/.test(w)) assert.ok(/apricot/.test(ids), `${d.name}: "${w}" with no apricot`);
+    if (/mango/.test(w)) assert.ok(/mango/.test(ids), `${d.name}: "${w}" with no mango`);
+    if (/passion-fruit/.test(w)) assert.ok(/passion-fruit/.test(ids), `${d.name}: "${w}" with no passion fruit`);
+  }
 });

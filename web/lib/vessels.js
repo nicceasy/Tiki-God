@@ -8,11 +8,13 @@ export function serviceOf(method, ice) {
   if (method === 'blend' || ice === 'blended') return 'frozen';
   if (method === 'flash-blend' || method === 'swizzle' || ['crushed', 'pebble', 'shaved', 'ice-cone'].includes(ice)) return 'crushed';
   if (method === 'build' || method === 'muddle-build' || ice === 'block') return 'rocks';
+  // Shaken or stirred and strained with no ice at all: only a stemmed glass, never an empty tumbler.
+  if (ice === 'none') return 'up';
   return 'shaken'; // shaken or stirred with cubes, then served up or over fresh ice
 }
 // Which vessel serve styles accept each drink service.
 export const SERVICE_FITS = {
-  hot: ['hot'], frozen: ['frozen'], crushed: ['crushed'], rocks: ['rocks'], shaken: ['up', 'rocks'],
+  hot: ['hot'], frozen: ['frozen'], crushed: ['crushed'], rocks: ['rocks'], shaken: ['up', 'rocks'], up: ['up'],
 };
 
 // Classics whose vessel is part of their identity: the glass or mug is named for the drink, or
@@ -46,6 +48,7 @@ export const BY_NAME = {
 // First match wins, most specific vessel first: in "tall glass or tiki mug" the mug is the
 // point. Ceramics and novelties, then named specialty glasses, then generic glassware.
 export const GLASS_RULES = [
+  [/acrylic|unbreakable|plastic/, 'acrylic-tumbler'],
   [/volcano/, 'volcano-bowl'],
   [/tiki bowl|kava bowl|mystery bowl|bowl for two/, 'tiki-bowl'],
   [/scorpion bowl|lovers/, 'scorpion-bowl'],
@@ -90,6 +93,12 @@ function oldFashioned(drink) {
   const svc = serviceOf(drink.method, drink.ice);
   const oz = (drink.ingredients || []).reduce((s, l) => s + (['oz'].includes(l.unit) ? l.amount || 0 : 0), 0) / (drink.servings || 1);
   return svc === 'crushed' || svc === 'frozen' || oz >= 3.25 ? 'dof' : 'rocks';
+}
+
+// A vessel with no drawing of its own yet borrows one (data/vessels.json `drawAs`).
+export function drawingOf(vessel, profiles) {
+  if (!vessel) return null;
+  return profiles && profiles[vessel.id] ? vessel.id : vessel.drawAs || vessel.id;
 }
 
 export function vesselForDrink(drink, familyDefault = null) {

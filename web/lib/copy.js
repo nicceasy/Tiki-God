@@ -1,6 +1,7 @@
 import { showsColor } from './optics.js';
 import { POLY, cultureOk, timeOk, polishPolynesian, TIME_WORDS } from './names.js';
-import { fracString } from './format.js';
+import { fracString, amountString, pieceName } from './format.js';
+import { balanceWord } from './chem.js';
 
 // Menu copy that tells the truth. Every flavor a tagline or tasting note names must be carried
 // by an ingredient at a dose you can taste; the drink's type word comes from its archetype
@@ -96,6 +97,8 @@ export function polish(text) {
 export function strengthBand(sd, abv) {
   if (abv <= 0.5) return 'zero';
   if (sd < 1.2) return 'light';
+  // A long, low-proof drink (seven and a half percent or under) is light whatever its volume.
+  if (abv <= 7.5 && sd < 1.6) return 'light';
   if (sd < 2) return 'normal';
   if (sd < 2.5) return 'strong';
   return 'heavyweight';
@@ -191,7 +194,7 @@ export function createCopywriter({ ingMap, ingVec }) {
   const FIZZ = ['soda-water', 'ginger-beer', 'ginger-ale', 'sparkling-wine', 'tonic', 'cola', 'lemon-lime-soda', 'grapefruit-soda'];
   const CREAMS = ['coconut-cream', 'coconut-milk', 'heavy-cream', 'half-and-half', 'vanilla-ice-cream', 'irish-cream', 'whole-milk', 'tom-and-jerry-batter'];
   const SPICE = ['allspice-dram', 'cinnamon-syrup', 'velvet-falernum', 'falernum-syrup', 'dons-mix', 'dons-spices-2', 'ginger-syrup', 'angostura', 'tiki-bitters', 'hot-buttered-rum-batter', 'gardenia-mix', 'five-spice-syrup', 'clove', 'cinnamon', 'nutmeg'];
-  function drinkFacts({ lines, stats = {}, look = null, method = '', ice = '', up = false, vessel = null, garnish = [], archetype = {}, prayer = '', concepts = [], riffOf = null, origin = null, servings = 1, steps = [], polynesian = false, intent = {} }) {
+  function drinkFacts({ lines, stats = {}, look = null, method = '', ice = '', up = false, vessel = null, garnish = [], archetype = {}, prayer = '', concepts = [], riffOf = null, origin = null, servings = 1, steps = [], polynesian = false, intent = {}, reference = null }) {
     const poured = lines.filter(isPoured);
     const ids = new Set(poured.map(l => l.id));
     const oz = id => poured.filter(l => l.id === id).reduce((t, l) => t + (l.oz || 0), 0);
@@ -213,6 +216,8 @@ export function createCopywriter({ ingMap, ingVec }) {
       prayer: String(prayer || '').toLowerCase(), concepts, polynesian, origin: origin || null, intent,
       rums: poured.filter(l => ing(l.id).cat === 'rum' && !l.float).length,
       leads: new Set(poured.filter(l => (l.oz || 0) >= 0.15 || l.muddled).map(l => leadOf(l.id))),
+      // The proven drink this one is built on, and how nearly it is that drink.
+      refName: reference ? reference.name || '' : '', refSim: reference ? reference.similarity || 0 : 0,
     };
     return f;
   }
@@ -235,7 +240,10 @@ export function createCopywriter({ ingMap, ingVec }) {
     // Drinks by name (a promise that this drink is one of them).
     [/\b(mai tai|maitaʻi|maita'i)( cousin| shape| template)?\b/, f => ['mai-tai', 'vic-mai-tai-riff', 'hawaiian-mai-tai'].includes(f.archetype) || /mai tai/i.test(f.riffOf), 'drink'],
     [/\bzombie\b/, ARCH('zombie'), 'drink'], [/\bpainkiller\b/, ARCH('painkiller'), 'drink'], [/\bnavy grog\b/, ARCH('navy-grog'), 'drink'],
-    [/\bjungle bird\b/, ARCH('bitter-tiki-sour'), 'drink'], [/\bhemingway|papa doble\b/, ARCH('hemingway-daiquiri'), 'drink'], [/\bhotel nacional|air mail|pisco sour|chilcano|dr\.? funk|mimosa|cobbler|julep\b/, () => false, 'drink'],
+    [/\bjungle bird\b/, ARCH('bitter-tiki-sour'), 'drink'], [/\bhemingway|papa doble\b/, ARCH('hemingway-daiquiri'), 'drink'],
+    // The Hotel Nacional Special is rum, pineapple, apricot and lime; a mimosa is orange and bubbles.
+    [/\bhotel nacional( special)?\b/, f => f.family === 'daiquiri' && f.has('apricot-liqueur') && f.has('pineapple-juice'), 'drink'], [/\bmimosa\b/, f => f.has('sparkling-wine') && f.has('orange'), 'drink'],
+    [/\b(daiquiri )?no\.? ?4\b/, f => f.frozen && f.has('maraschino'), 'drink'], [/\bair mail|pisco sour|chilcano|dr\.? funk|cobbler|julep\b/, () => false, 'drink'],
     [/\b(tequila )?sunrise\b/, f => f.archetype === 'sunrise-float' || (f.sink && f.shows('red')), 'drink'], [/\bblue hawaii(an)?\b/, f => ['blue-hawaii', 'fruit-colada'].includes(f.archetype) && f.has('blue-curacao'), 'drink'],
     [/\bmissionary'?s downfall\b/, ARCH('missionarys-downfall'), 'drink'], [/\bqueen'?s park\b/, ARCH('trinidad-swizzle'), 'drink'], [/\bbushwacker\b/, ARCH('bushwacker'), 'drink'],
     [/\bhot buttered rum\b/, ARCH('hot-buttered-rum'), 'drink'], [/\btom (&|and) jerry\b/, ARCH('tom-and-jerry'), 'drink'], [/\bcoffee grog\b/, f => f.has('coffee') && f.hot, 'drink'],
@@ -250,7 +258,7 @@ export function createCopywriter({ ingMap, ingVec }) {
     // Vessels.
     [/\bscorpion bowl\b/, f => f.vessel === 'scorpion-bowl', 'vessel'], [/\bvolcano bowl|crater\b/, f => f.vessel === 'volcano-bowl', 'vessel'], [/\bpunch (bowl|cup)\b/, f => f.vessel === 'punch-bowl', 'vessel'],
     [/\b(in a |coconut )shell|in a coconut\b/, f => f.vessel === 'coconut', 'vessel'], [/\b(hollowed[- ](out )?|in a )pineapple\b|pineapple shell\b/, f => f.vessel === 'pineapple', 'vessel'],
-    [/\bcoupe\b/, f => f.vessel === 'coupe', 'vessel'], [/\bnick ?(&|and) ?nora\b/, f => f.vessel === 'nick-nora', 'vessel'], [/\brocks glass|heavy rocks\b/, f => ['rocks', 'dof'].includes(f.vessel), 'vessel'],
+    [/\bcoupe|champagne saucer\b/, f => f.vessel === 'coupe', 'vessel'], [/\bnick ?(&|and) ?nora\b/, f => f.vessel === 'nick-nora', 'vessel'], [/\brocks glass|heavy rocks\b/, f => ['rocks', 'dof'].includes(f.vessel), 'vessel'],
     [/\bdouble old fashioned\b/, f => f.vessel === 'dof', 'vessel'], [/\bhighball\b/, f => ['highball', 'collins'].includes(f.vessel) || (f.fizzy && f.finalOz >= 6), 'vessel'],
     [/\bcollins\b/, f => f.vessel === 'collins', 'vessel'], [/\bchimney|zombie glass\b/, f => f.vessel === 'chimney', 'vessel'], [/\bhurricane(-lamp)? glass\b/, f => f.vessel === 'hurricane', 'vessel'],
     [/\bpoco grande\b/, f => f.vessel === 'poco-grande', 'vessel'], [/\bpilsner\b/, f => f.vessel === 'footed-pilsner', 'vessel'], [/\bsnifter\b/, f => f.vessel === 'snifter', 'vessel'],
@@ -266,7 +274,7 @@ export function createCopywriter({ ingMap, ingVec }) {
     [/\btwist|peel\b/, GAR(/twist|peel/), 'garnish'],
     // Technique and service.
     [/\bfloat(s|ed|ing)?\b/, f => f.float || /float/.test(f.gtext), 'technique'], [/\bsink(s|ing)?\b|\bsunk\b/, f => f.sink, 'technique'], [/\blayer(s|ed)?\b|\bbands?\b|\bgradient\b|\bpousse/, f => f.layered, 'technique'],
-    [/\bflash[- ]blend/, f => f.method === 'flash-blend', 'technique'], [/\b(blend(ed|er)?|frozen|slush(y)?|frapp[ée]|sorbet|spoonable)\b/, f => f.frozen, 'technique'],
+    [/\bflash[- ]blend/, f => f.method === 'flash-blend', 'technique'], [/(?<!aged |rum |richer )\b(blend(ed|er)?|frozen|slush(y)?|frapp[ée]|sorbet|spoonable)\b/, f => f.frozen, 'technique'],
     [/\bstirred\b|\bstir(red)? down\b/, f => f.stirred, 'technique'], [/\bswizzl(e|ed|ing)\b/, f => f.swizzled, 'technique'], [/\bshaken\b|\bhard shake\b/, f => ['shake', 'flash-blend', 'blend'].includes(f.method), 'technique'],
     [/\b(flam(e|es|ed|ing|b[ée])|fire|fiery|ablaze|set alight|lit)\b/, f => f.flaming, 'technique'], [/\bmuddl/, f => f.lines.some(l => l.muddled), 'technique'],
     [/\b(hot|steaming|boiling|warm(ed|ing|th)?|served warm)\b/, f => f.hot, 'technique'], [/\bcrushed ice\b/, f => ['crushed', 'pebble', 'shaved', 'ice-cone'].includes(f.ice), 'technique'],
@@ -275,8 +283,15 @@ export function createCopywriter({ ingMap, ingVec }) {
     // Strength, sweetness and texture.
     [/\b(zero[- ]proof|non-?alcoholic|without spirits|no alcohol|spirit-free|alcohol-free)\b/, f => f.abv <= 0.5, 'style'],
     [/\b(strong|potent|high-octane|heavyweight|stronger|more strength|boozy|serious)\b/, f => f.sd >= 1.8 || f.abv >= 15, 'style'],
-    [/\b(low[- ]proof|low in alcohol|low[- ]abv|lower proof|sessionable|gentle|moderate( strength| proof)?|not too strong|light in alcohol|easy)\b/, f => f.sd < 2 && f.abv <= 13 && f.abv > 0.5, 'style'],
-    [/\b(not a sugar bomb|not too sweet|no sugar|little or no( added)? sugar|dry|drier|restraint)\b/, f => f.sugar <= 8.5 && !(f.ratio > 16), 'style'],
+    // Moderate is a count of standard drinks, not an ABV: a Hotel Nacional served up is moderate.
+    [/\bmoderate( strength| proof)?\b/, f => f.sd < 2.1 && f.abv > 0.5, 'style'],
+    [/\b(low[- ]proof|low in alcohol|low[- ]abv|lower proof|sessionable|gentle|not too strong|light in alcohol|easy)\b/, f => f.sd < 2 && f.abv <= 13 && f.abv > 0.5, 'style'],
+    // A sugar bomb is past the ceiling (about 12 g); "not too sweet" is a balanced sour's 9.5.
+    [/\bnot a sugar bomb\b/, f => f.sugar <= 12, 'style'],
+    // ("Restraint" is a style, not a sugar level.)
+    [/\b(not too sweet|no sugar|little or no( added)? sugar|dry|drier)\b/, f => f.sugar <= 9.5 && !(f.ratio > 16), 'style'],
+    // Precision is a hard shake or a stir, never a blender.
+    [/\b(precision|precise)\b/, f => !f.frozen && ['shake', 'stir', 'build'].includes(f.method), 'technique'],
     [/\b(tart|sharp|bracing|sour|sweet-tart|bright acid|zesty)\b/, f => f.acid >= 0.6, 'style'], [/\b(sweet|sweeter|sticky|sugar)\b/, f => f.sugar >= 7, 'style'],
     [/\b(bitter|bittersweet|bitterness|amaro's)\b/, f => f.bitter, 'style'], [/\b(creamy|silky|velvet(y)?|milkshake|cream moustache|custard)\b/, f => f.creamy, 'style'],
     [/\b(fizzy|fizz|bubbly|bubbles|effervescent|sparkling|carbonated|topped with soda)\b/, f => f.fizzy, 'style'],
@@ -355,12 +370,33 @@ export function createCopywriter({ ingMap, ingVec }) {
     [/\b(papa|hemingway)\b/, f => f.archetype === 'hemingway-daiquiri'],
   ];
   // Every promise in a line of prose, each with its test. `kind` says what sort of promise.
+  // A claim after "no", "not", "never", "without" or "nothing" is a promise of absence ("no blue
+  // tongue", "no cream moustache", "without being sticky"); two claims joined by "or" ("mint or
+  // ginger", "a tea or ginger backbone") are kept if either is.
+  const NEGATED = /\b(no|not|never|without( being)?|nothing|none of the)\s+(?:(?:a|an|the|too|any|more|real|being)\s+)?$/;
+  const NEG_TEST = { style: (test, phrase) => (/\b(sweet|sweeter|sticky|sugar)\b/.test(phrase) ? f => f.sugar <= 12 : f => !test(f)) };
   function claimsIn(text) {
-    let s = ` ${String(text || '').toLowerCase().replace(/[’]/g, "'")} `;
+    const src = ` ${String(text || '').toLowerCase().replace(/[’]/g, "'")} `;
+    let s = src;
     const out = [];
     for (const [re, test, kind] of C) {
       const g = new RegExp(re.source, 'g');
-      s = s.replace(g, m => { out.push({ phrase: m.trim(), test, kind }); return ' '.repeat(m.length); });
+      s = s.replace(g, (m, ...rest) => {
+        const at = rest[rest.length - 2];
+        const before = src.slice(Math.max(0, at - 40), at);
+        const neg = NEGATED.test(before.replace(/[,;:]\s*$/, ''));
+        const t = neg ? (NEG_TEST[kind] || ((tt) => f => !tt(f)))(test, m) : test;
+        out.push({ phrase: (neg ? 'no ' : '') + m.trim(), test: t, kind, at, end: at + m.length, negated: neg });
+        return ' '.repeat(m.length);
+      });
+    }
+    // "X or Y": either keeps the promise.
+    out.sort((x, y) => x.at - y.at);
+    for (let i = out.length - 2; i >= 0; i--) {
+      const x = out[i], y = out[i + 1];
+      if (!/^\s*,?\s*or\s+(?:(?:a|an|the|some)\s+)?$/.test(src.slice(x.end, y.at))) continue;
+      const tx = x.test, ty = y.test;
+      out.splice(i, 2, { phrase: `${x.phrase} or ${y.phrase}`, test: f => tx(f) || ty(f), kind: x.kind, at: x.at, end: y.end });
     }
     for (const [re, range] of ERA) {
       const m = re.exec(s);
@@ -383,46 +419,147 @@ export function createCopywriter({ ingMap, ingVec }) {
   // How the gods heard a phrase. History in the research reading (sentences that tell what
   // happened, and promise nothing about this drink) is kept; the rest is said back only if the
   // drink keeps every promise in it. Otherwise the Shrine says what was actually poured for it.
-  const HISTORY = /\b(1[5-9]\d\d|20[0-2]\d)\b|\b(was|were|gave|said|began|created|invented|named for|named after|credited|born|opened|predates|fed|coined|became|printed|published|decoded|drank|introduced|populari[sz]ed|shot partly|traced|ran out|beached|carried|took)\b/i;
+  const HISTORY = /\b(1[5-9]\d\d|20[0-2]\d)s?\b|\b(was|were|gave|said|began|created|invented|named for|named after|credited|born|opened|predates|fed|coined|became|printed|published|decoded|drank|introduced|populari[sz]ed|shot partly|traced|ran out|beached|carried|took|honou?red|offered|sailed|danced|stranded|warmed|found|married|greeted|learned)\b/i;
+  // A sentence that frames what the drink should be ("A first date needs…", "Dessert in a glass is
+  // the Bushwacker…", "So this is…") is a promise even when it mentions a year.
+  const PROMISE_FRAME = /^[^:]{0,60}?\b(wants?|needs?|calls? for|asks? for)\b|^(so |here |tonight )?(this|this one|in a glass)\b/i;
+  const lore = s => HISTORY.test(s) && !PROMISE_FRAME.test(s) && !/\bis the [A-Z]/.test(s);
   // Sentences end at . or ? before a capital, an opening parenthesis or a quote, so "St. Thomas",
   // "c. 1934", "J. Galsini", "1.2 times" and "Girls! Girls! Girls!" stay whole.
   const SENTENCE_BREAK = /(?<=[.?]["')\]]*)(?<!\b(?:St|Mt|Mr|Mrs|Dr|Jr|Sr|c|ca|vs|No|[A-Z])\.)\s+(?=[A-Z("'ʻ‘“])/;
   const sentencesOf = text => String(text || '').split(SENTENCE_BREAK).map(x => x.trim()).filter(Boolean);
-  // A short label the parser heard ("less sweet", "strawberry", "served in: coconut") is said
-  // back only if the drink bears it out; otherwise the card admits it.
-  function heardLabel(label, f) {
-    const l = String(label || '');
-    if (/^(less|no) sweet(ness)?$|^not too sweet$|^drier$/.test(l)) return keeps('not too sweet', f) ? l : `${l}: heard, but this one still drinks on the sweet side`;
-    if (/^(no|not|less|without) /.test(l) || /^riff on |family$|^\d+ rums?$/.test(l)) return l;
-    const what = l.replace(/^served in: /, '');
-    const cl = claimsIn(what).filter(c => !['era', 'person'].includes(c.kind));
-    return cl.length && !cl.every(c => c.test(f)) ? `${l}: heard, but the rest of the prayer steered this drink` : l;
+  // A word the guest said, answered with what was poured, served or shown for it: "coffee" is
+  // "½ oz coffee liqueur", "highball" is "lengthened with 4 oz ginger beer", "blue" is the look.
+  // Never an echo ("coffee" → coffee). A word nothing in the drink answers says so.
+  function measure(l) {
+    if (l.muddled) return `${l.amount || 8} leaves of ${say(l.id).replace(/^fresh /, '')}, pressed`;
+    const a = amountString(l);
+    if (!a) return say(l.id);
+    if (l.unit === 'piece') return `${a} ${pieceName(l.id, say(l.id), l.amount)}`;
+    if (['dash', 'drop'].includes(l.unit)) return `${a} of ${say(l.id)}`;
+    return `${a} ${say(l.id)}${l.float ? ', floated' : l.sink ? ', sunk' : ''}`;
   }
+  const STYLE_SAY = { frozen: f => f.frozen && 'blended to a frost', hot: f => f.hot && 'served steaming', stirred: f => f.stirred && 'stirred down over one big cube', layered: f => f.layered && 'layered, not stirred', flaming: f => f.flaming && 'lit at the table', bowl: f => f.bowl && f.servings > 1 && `a bowl for ${f.servings}`, zeroProof: f => f.abv <= 0.5 && 'no alcohol at all', simple: f => `${f.lines.filter(l => !l.garnish && !l.muddled).length} things to pour` };
+  function answer(m, f) {
+    const l = String(m.label || '');
+    if (/^(less|no) sweet(ness)?$|^not too sweet$|^drier$/.test(l)) return keeps('not too sweet', f) ? l : `${l}: heard, but this one still drinks on the sweet side`;
+    // A family word is answered with the drink it was built on and how ("colada" → built on the
+    // Piña Colada, blended), not "colada family".
+    if (m.kind === 'family' || / family$/.test(l)) {
+      const how = (m.style || {}).stirred ? 'stirred down over one big cube' : f.frozen ? 'blended' : f.swizzled ? 'swizzled until the glass frosts' : f.up ? 'served up' : f.hot ? 'served hot' : '';
+      if (f.refName && (f.refSim || 0) >= 0.4) return `built on the ${f.refName}${how ? `, ${how}` : ''}`;
+      if (how) return how;
+      return l;
+    }
+    if (m.negated || /^(no|not|less|without) /.test(l) || ['riff', 'diet', 'rums'].includes(m.kind) || /^riff on |^\d+ rums?$/.test(l)) return l;
+    if (m.kind === 'vessel' || /^served in: /.test(l)) return f.vesselName ? `served in ${an(vesselWord(f))} ${vesselWord(f)}` : l;
+    const parts = [];
+    const seen = new Set();
+    const take = ls => { for (const x of ls) if (!seen.has(x.id)) { seen.add(x.id); parts.push(measure(x)); } };
+    const audible = x => x.muddled || (x.oz || 0) >= 0.08 || ['dash', 'drop'].includes(x.unit);
+    const byOz = ls => [...ls].sort((a, b) => (b.oz || 0) - (a.oz || 0));
+    take(byOz(f.lines.filter(x => audible(x) && (((m.ings || {})[x.id] || 0) >= 1 || (m.spirits || []).some(sp => x.id === sp || (sp === 'rum' && ing(x.id).cat === 'rum'))))));
+    const tags = Object.entries(m.tags || {}).filter(([t, w]) => w >= 1 && !STRUCTURAL.has(t)).map(([t]) => t);
+    if (tags.length) take(byOz(f.lines.filter(x => audible(x) && tags.some(t => leadOf(x.id) === t || ((ingVec[x.id] || {})[t] || 0) >= 0.7))).slice(0, 2));
+    const st = m.style || {};
+    if (st.creamy) take(byOz(f.lines.filter(x => CREAMS.includes(x.id))).slice(0, 2));
+    if (st.bitter) take(byOz(f.lines.filter(x => BITTER.includes(x.id))).slice(0, 1));
+    if (st.long) take(byOz(f.lines.filter(x => ing(x.id).role === 'lengthener' && !x.float)).slice(0, 1));
+    // "Tart" is the citrus that makes it so.
+    if ((m.tartness || 0) > 0) take(byOz(f.lines.filter(x => ing(x.id).role === 'sour' && audible(x))).slice(0, 2));
+    const how = Object.keys(st).map(k => STYLE_SAY[k] && st[k] === true && STYLE_SAY[k](f)).filter(Boolean);
+    // A flavor the garnish carries (a flower for "floral", a mint sprig for "minty") is part of the answer.
+    const GARNISH_TAG = { floral: /orchid|gardenia|tiare|edible flower|hibiscus flower/, mint: /mint/, nutmeg: /nutmeg/, cinnamon: /cinnamon/ };
+    for (const t of tags) { const re = GARNISH_TAG[t]; const g = re && (f.garnish || []).find(x => re.test(String(x).toLowerCase())); if (g) parts.push(`${an(String(g))} ${g} on top`); }
+    if (st.long && parts.length) parts[parts.length - 1] = `lengthened with ${parts[parts.length - 1]}`;
+    if (m.color && f.look && f.shows(m.color)) {
+      const tint = byOz(f.lines.filter(x => ing(x.id).color === m.color || (m.color === 'dark' && (x.float || DARK.includes(x.id)) && ing(x.id).cat === 'rum') || (x.float || x.sink) && ing(x.id).color === m.color)).slice(0, 2).map(measure);
+      const shade = f.look.description.split(/\s+with\s+|[,;]/)[0].replace(/\.$/, '');
+      return polish(`${shade}${tint.length ? `, from ${list(tint)}` : ''}`).replace(/^./, c => c.toLowerCase());
+    }
+    if ((m.strength || 0) <= -1 && f.abv > 0.5) return `${f.abv}% ABV, about ${fracString(Math.round(f.sd * 2) / 2)} standard drink${f.sd > 1.25 ? 's' : ''}`;
+    if ((m.strength || 0) >= 1) return `${f.abv}% ABV, ${f.sd} standard drinks`;
+    const out = [...how, ...parts.slice(0, 3)];
+    if (out.length) return list(out);
+    return `${l}: heard, but the rest of the prayer steered this drink`;
+  }
+  // Does a bottle serve a word the guest said, or a concept's reading? (For crediting a move to
+  // the word it answers, never to every word in the prayer.)
+  // How strongly (0 = not at all): the bottle the word named, a flavor it asked for, the job its
+  // style needs; for a concept, its promise, its bottles by weight, its flavors.
+  function serves(m, id, concept = null) {
+    if (!id) return 0;
+    const i = ing(id);
+    const hit = (tags, floor) => Math.max(0, ...Object.entries(tags || {}).filter(([t, w]) => w >= floor && !STRUCTURAL.has(t) && (leadOf(id) === t || ((ingVec[id] || {})[t] || 0) >= 0.6)).map(([, w]) => w));
+    if (m.kind === 'concept') {
+      const c = concept || {};
+      if ([].concat(c.promise || []).some(p => (p.ids || []).includes(id) || (p.float || []).includes(id))) return 3;
+      return Math.max((c.ings || {})[id] || 0, hit(c.tags, 0.8) * 0.8);
+    }
+    if (((m.ings || {})[id] || 0) > 0 || (m.spirits || []).includes(id)) return 3 + ((m.ings || {})[id] || 0);
+    if ((m.spirits || []).includes('rum') && i.cat === 'rum') return 2;
+    const t = hit(m.tags, 1);
+    if (t) return 1 + t;
+    const st = m.style || {};
+    if ((st.long && i.role === 'lengthener') || (st.bitter && BITTER.includes(id)) || (st.creamy && CREAMS.includes(id)) || (m.color && i.color === m.color)) return 1.5;
+    return 0;
+  }
+  // A definition's service made true of the drink actually poured: the vessel it names becomes
+  // the vessel served ("in a double old fashioned" on a skull-mug Jet Pilot reads "in a skull
+  // mug"), and a method it names that this drink didn't use becomes the one it did.
+  const METHOD_SAID = { shake: 'shaken', blend: 'blended', 'flash-blend': 'flash-blended', stir: 'stirred', build: 'built', swizzle: 'swizzled', hot: 'served hot', 'muddle-build': 'muddled and built' };
+  function trueService(text, f) {
+    if (!f) return text;
+    let t = String(text || '');
+    const vn = f.vesselName ? f.vesselName.toLowerCase() : '';
+    t = t.replace(/\b(?:served )?(?:in|into|inside) (?:a |an |the )(?:[\w'-]+ ){0,3}?(?:glass|mug|cup|coupe|saucer|tin|bowl|pineapple|coconut|old fashioned|pilsner)\b(?:, with the crown as a lid| lined with [^,.;:]*)?/gi, m => {
+      const cl = claimsIn(m).filter(c => c.kind === 'vessel');
+      return vn && cl.length && !cl.every(c => c.test(f)) ? `${/^served/i.test(m) ? 'served ' : ''}in ${an(vn)} ${vn}` : m;
+    });
+    const TECH = /\b(flash-blended|blended|shaken|stirred|swizzled)\b/gi;
+    const said = t.match(TECH) || [];
+    if (said.length && !said.some(w => claimsIn(w).every(c => c.test(f))) && METHOD_SAID[f.method]) {
+      let first = true;
+      t = t.replace(/\b(flash-blended|blended|shaken|stirred|swizzled)(?: or (?:flash-blended|blended|shaken|stirred|swizzled))?\b/gi, () => (first ? (first = false, METHOD_SAID[f.method]) : METHOD_SAID[f.method]));
+    }
+    return t;
+  }
+  // A vessel named in prose names nothing that isn't poured: a flute without bubbles is a flute.
+  const vesselWord = f => (f.vesselName || '').replace(/^champagne flute$/i, x => (f.has('sparkling-wine') ? x : 'flute'));
+  // The older name for the same thing, for callers that pass a label alone.
+  function heardLabel(label, f) { return answer({ label }, f); }
   const DEIXIS = /\b(there|it|its|they|their|them|he|she|his|her|this|these|those)\b/i;
+  // How the gods heard a concept: the research reading said back in its own voice. Lore (what
+  // happened, in the past tense or with a year) is always said; each promise (the present tense:
+  // what the drink is) is said if the drink keeps it. A promise it doesn't keep is replaced, once,
+  // by a sentence saying what was poured for it instead ("Here it's …"); the rest of the reading
+  // stays. History sentences (Pele, the ʻōhelo, Hampden, Ting) are never dropped.
   function hear(reading, concept, f) {
     const sentences = sentencesOf(reading);
-    const history = [];
-    let broken = false, prevKept = true;
+    const out = [];
+    let broken = false, at = -1, prevKept = true;
     for (const s0 of sentences) {
-      const s = s0.trim();
-      const cl = claimsIn(s);
-      // A history sentence may name drinks, people and years; anything else in it is a promise.
-      const promises = cl.filter(c => !['drink', 'person', 'era'].includes(c.kind) || !HISTORY.test(s));
-      if (HISTORY.test(s) && !promises.length) {
-        // "They drank there" needs the sentence before it; without it the history goes unsaid.
-        prevKept = prevKept || !DEIXIS.test(s);
-        if (prevKept) history.push(s);
-        continue;
+      const tail = (s0.match(/[.?!]+["')\]]*$/) || [''])[0];
+      const clauses = s0.slice(0, s0.length - tail.length).split(/;\s+/);
+      const kept = [];
+      for (const cl of clauses) {
+        if (lore(cl) && !claimsIn(cl).some(c => c.kind === 'drink' && !HISTORY.test(cl))) {
+          prevKept = prevKept || !DEIXIS.test(cl);
+          if (prevKept) kept.push(cl);
+          continue;
+        }
+        const ok = claimsIn(cl).every(c => c.test(f));
+        if (ok) kept.push(cl);
+        else { broken = true; if (at < 0) at = out.length; }
+        prevKept = ok;
       }
-      const ok = !cl.length || cl.every(c => c.test(f));
-      if (!ok) broken = true;
-      prevKept = ok;
+      if (kept.length) out.push(`${kept.join('; ')}${tail || '.'}`);
     }
     if (!broken && sentences.length) return polish(reading);
-    const said = sayBack(concept, f);
-    const lead = history.slice(0, 2).join(' ');
-    if (!lead) return polish(said);
-    return polish(/^heard\b/.test(said) ? lead : `${lead} Here, ${said}.`);
+    const said = sayBack(concept, f, { alone: !out.length });
+    if (at < 0) at = out.length;
+    out.splice(at, 0, said);
+    return polish(out.join(' '));
   }
 
   // What a concept actually changed in this drink, said in plain words: "bittersweet: an amaro
@@ -431,7 +568,7 @@ export function createCopywriter({ ingMap, ingVec }) {
   const partWord = (id, l) => (EDGE.has(id) ? `${an(say(id))} ${say(id)} edge` : l && l.float ? `${an(say(id))} ${say(id)} float` : l && l.sink ? `${say(id)} sunk to the bottom` : ing(id).role === 'sour' ? `fresh ${say(id)}` : say(id));
   const TAG_GIST = { smoky: f => f.smoky && 'smoky', funky: f => f.has(...JAM, 'batavia-arrack') && 'funky', tropical: f => keeps('tropical', f) && 'tropical', floral: f => keeps('floral', f) && 'floral', 'baking-spice': f => f.spiced && 'spiced', cinnamon: f => keeps('cinnamon', f) && 'spiced', allspice: f => keeps('allspice', f) && 'spiced', chili: f => keeps('chile', f) && 'chile-warm', coffee: f => f.has('coffee', 'coffee-liqueur') && 'coffee-dark', chocolate: f => keeps('chocolate', f) && 'chocolate', oaky: f => f.leads.has('oaky') && 'aged', herbal: f => keeps('herbal', f) && 'herbal', mint: f => keeps('mint', f) && 'minty', coconut: f => keeps('coconut', f) && 'coconut', honey: f => keeps('honey', f) && 'honeyed', vanilla: f => keeps('vanilla', f) && 'vanilla', banana: f => keeps('banana', f) && 'banana', bitter: f => f.bitter && 'bittersweet', tart: f => f.acid >= 0.8 && 'tart', creamy: f => f.creamy && 'creamy', effervescent: f => f.fizzy && 'fizzy' };
   const COLOR_GIST = { red: 'red', pink: 'pink', gold: 'golden', blue: 'blue', green: 'green', purple: 'violet', dark: 'dark', orange: 'orange' };
-  function sayBack(concept, f) {
+  function sayBack(concept, f, { alone = true } = {}) {
     const c = concept || {};
     const st = c.style || {};
     const gist = [];
@@ -468,16 +605,24 @@ export function createCopywriter({ ingMap, ingVec }) {
     }
     for (const [id] of Object.entries(c.ings || {}).filter(([, w]) => w >= 0.4).sort((a, b) => b[1] - a[1])) if (f.ids.has(id) && !PLAIN.has(id)) parts.push(partWord(id, lineOf(id)));
     const special = f.vessel && !['rocks', 'dof', 'highball', 'collins', 'coupe', 'cocktail-glass'].includes(f.vessel) && (c.vessels || {})[f.vessel] >= 1;
-    const where = special ? `, in ${an(f.vesselName)} ${f.vesselName}` : '';
+    const vn = vesselWord(f);
+    const where = special ? `, in ${an(vn)} ${vn}` : '';
     const uniq = [...new Set(parts)].slice(0, 3);
-    // A technique is not carried by a bottle: "frozen, with fresh lime", not "frozen: fresh lime".
-    const TECHNIQUE = new Set(['hot', 'frozen', 'stirred', 'made to share', 'lit at the table', 'zero-proof', 'gentle', 'not too sweet']);
-    if (g1 && uniq.length && TECHNIQUE.has(g1)) return `${g1}, with ${list(uniq)}${where}`;
-    if (g1 && uniq.length && !uniq.some(p => p.includes(g1))) return `${g1}: ${list(uniq)}${where}`;
-    if (uniq.length) return `answered with ${list(uniq)}${where}`;
-    if (g1) return `${g1}${where}`;
-    if (where) return `served${where}`;
-    return 'heard, though the rest of the prayer steered this drink';
+    // Said as a sentence, in the reading's voice: the drink it turned out to be (a classic it is
+    // nearly the same as), how it's served, what carries the reading. "Here it's the Hotel
+    // Nacional Special, served up, with apricot liqueur, pineapple and fresh lime."
+    const svc = f.up ? 'served up' : f.frozen ? 'blended' : f.stirred ? 'stirred' : f.hot ? 'served hot' : f.bowl && f.servings > 1 ? `in a bowl for ${f.servings}` : '';
+    const named = f.refName && (f.refSim || 0) >= 0.85 && !/^(daiquiri|punch|rum punch|grog|sour|swizzle)$/i.test(f.refName) ? `the ${f.refName}` : '';
+    const what = uniq.length ? list(uniq) : '';
+    let body;
+    if (named) body = `it's ${named}${svc ? `, ${svc}` : ''}${what ? `, with ${what}` : ''}${where}`;
+    else if (g1 && what && !uniq.some(p => p.includes(g1))) body = `it's ${g1}, with ${what}${where}`;
+    else if (what) body = `it's ${what}${svc ? `, ${svc}` : ''}${where}`;
+    else if (g1) body = `it's ${g1}${where}`;
+    else if (svc) body = `it's ${svc}${f.vesselName ? `, in ${an(vesselWord(f))} ${vesselWord(f)}` : ''}`;
+    else if (where) body = `it's served${where}`;
+    else return alone ? 'Heard, though the rest of the prayer steered this drink.' : '';
+    return `Here ${body}.`;
   }
 
   // ---------------------------------------------------------------------------------------
@@ -485,27 +630,56 @@ export function createCopywriter({ ingMap, ingVec }) {
   // the palate (the prayer's hero first, then the citrus and fruit up front, the spirit's voice
   // in the middle, the modifiers named by what they are), the finish (spice, bitters, anise:
   // only poured carriers), then texture, balance and strength.
-  const NOSE = { mint: 'Fresh mint on the nose', nutmeg: 'Fresh nutmeg on the nose', cinnamon: 'A whiff of cinnamon stick', 'orange peel': 'Orange oil on the nose', lemon: 'Lemon oil on the nose' };
+  const NOSE = { mint: 'Fresh mint on the nose', nutmeg: 'Fresh nutmeg on the nose', cinnamon: 'A whiff of cinnamon stick', 'orange peel': 'Orange oil on the nose', lemon: 'Lemon oil on the nose', grapefruit: 'Grapefruit oil on the nose', clove: 'Clove and lemon on the nose', lime: 'Lime oil on the nose' };
   const FINISH_IDS = { angostura: 'Angostura spice', 'tiki-bitters': 'bitter spice', 'orange-bitters': 'bitter orange', absinthe: 'a whisper of anise', pastis: 'a whisper of anise', 'allspice-dram': 'allspice', 'velvet-falernum': 'falernum spice', 'falernum-syrup': 'falernum spice', 'cinnamon-syrup': 'cinnamon', 'ginger-syrup': 'ginger heat', campari: 'Campari bitterness', aperol: 'gentle orange bitterness', amaro: 'herbal bitterness', 'ancho-reyes': 'a slow chile burn', 'dons-mix': 'cinnamon', 'five-spice-syrup': 'five-spice', 'mole-bitters': 'chocolate bitterness' };
+  // How loud a line is in the finished drink: its share of the finished volume times how hard its
+  // kind of bottle speaks. Half an ounce of pineapple in a twenty-ounce colada (0.02) is not "up
+  // front"; three-quarters of an ounce of lime in a six-ounce sour (0.19) is.
+  const LOUD_ENOUGH = 0.035;
+  // The nose is the aroma that really reaches it: smoke you can smell (a quarter ounce of Islay, a
+  // mezcal float), a float, else the first aromatic garnish on the card (the one the drink was
+  // dressed for), and mint only when it is that garnish or pressed into the drink.
+  function noseOf(poured, floats, garnish) {
+    const islay = poured.find(l => l.id === 'scotch-islay' && (l.oz || 0) >= 0.2);
+    const mezcalFloat = floats.find(l => l.id === 'mezcal');
+    if (islay) return 'Peat smoke on the nose';
+    if (mezcalFloat) return 'Mezcal smoke rises first';
+    if (floats.length) return `The ${list(floats.map(l => say(l.id)))} float meets you first`;
+    const pressedMint = poured.some(l => l.id === 'mint' && l.muddled);
+    for (const g0 of garnish) {
+      const g = String(g0).toLowerCase();
+      if (/clove/.test(g)) return NOSE.clove;
+      if (/mint/.test(g)) return NOSE.mint;
+      if (/nutmeg/.test(g)) return NOSE.nutmeg;
+      if (/cinnamon stick|dusting of cinnamon/.test(g)) return NOSE.cinnamon;
+      if (/orange (peel|twist)|orange-peel/.test(g)) return NOSE['orange peel'];
+      if (/lemon (peel|twist)/.test(g)) return NOSE.lemon;
+      if (/grapefruit twist/.test(g)) return NOSE.grapefruit;
+      if (/lime peel/.test(g)) return NOSE.lime;
+    }
+    return pressedMint ? NOSE.mint : '';
+  }
   function tastingNote({ lines, stats, archetype, look, method, ice, garnish = [], intent = {}, house = null, perGuest = false }) {
     const poured = lines.filter(isPoured);
     const floats = poured.filter(l => l.float);
     const bits = [];
-    // Nose: only what is in the garnish (or floated on top).
-    const g = garnish.join(' ').toLowerCase();
-    const nose = /mint/.test(g) ? NOSE.mint : /nutmeg/.test(g) ? NOSE.nutmeg : /cinnamon/.test(g) ? NOSE.cinnamon : /orange (peel|twist)|expressed/.test(g) ? NOSE['orange peel'] : /lemon (peel|twist)/.test(g) ? NOSE.lemon : '';
-    if (floats.length) bits.push(`The ${list(floats.map(l => say(l.id)))} float meets you first`);
-    else if (nose) bits.push(nose);
-    // The prayer's hero: an asked bottle or the carrier of an asked flavor leads the palate.
+    const nose = noseOf(poured, floats, garnish);
+    if (nose) bits.push(nose);
+    // The palate in order of what's loud: the prayer's hero (an asked bottle or the carrier of an
+    // asked flavor) first only if you can taste it, then the citrus and fruit by how much they
+    // speak in the finished glass; the spirit's voice in the middle; perceptible modifiers.
+    const finalOz = Math.max(1, (stats && stats.finalOz) || poured.reduce((t, l) => t + (l.oz || 0), 0));
+    const loud = l => l.muddled ? 0.06 : ((l.oz || 0) / finalOz) * (INTENSITY[ing(l.id).cat] ?? 1);
+    const audible = l => l.muddled || loud(l) >= LOUD_ENOUGH;
     const askedTags = Object.entries(intent.tags || {}).filter(([t, w]) => w - ((intent.conceptTags || {})[t] || 0) >= 1 && !STRUCTURAL.has(t) && t !== 'bitter').map(([t]) => t);
-    const hero = poured.filter(l => !l.float && ing(l.id).role !== 'base' && ing(l.id).cat !== 'bitters' && ((intent.ings || {})[l.id] >= 1 || askedTags.includes(leadOf(l.id))) && ((l.oz || 0) >= 0.2 || l.muddled));
+    const hero = poured.filter(l => !l.float && ing(l.id).role !== 'base' && ing(l.id).cat !== 'bitters' && !PLAIN.has(l.id) && ((intent.ings || {})[l.id] >= 1 || askedTags.includes(leadOf(l.id))) && audible(l)).sort((a, b) => loud(b) - loud(a));
     const heroWords = [...new Set(hero.map(l => MENU[l.id] || say(l.id)))];
-    const citrusFruit = poured.filter(l => ['sour', 'juice'].includes(ing(l.id).role) && !floats.includes(l) && ((l.oz || 0) >= 0.25 || l.muddled)).sort((a, b) => b.oz - a.oz).map(l => MENU[l.id] || say(l.id));
+    const citrusFruit = poured.filter(l => ['sour', 'juice'].includes(ing(l.id).role) && !floats.includes(l) && audible(l)).sort((a, b) => loud(b) - loud(a)).map(l => MENU[l.id] || say(l.id));
     const front = [...new Set([...heroWords, ...citrusFruit])].slice(0, Math.max(2, heroWords.length + (citrusFruit.some(w => !heroWords.includes(w)) ? 1 : 0)));
     const bases = poured.filter(l => ing(l.id).role === 'base' && !l.float && (l.oz || 0) >= 0.4).sort((a, b) => b.oz - a.oz);
     const voices = bases.slice(0, 2).map(b => SPIRIT_VOICE[b.id] || say(b.id));
-    const mids = [...new Set(poured.filter(l => ['sweet', 'modifier', 'rich'].includes(ing(l.id).role) && !FINISH_IDS[l.id] && ((l.oz || 0) >= 0.2 || (ing(l.id).cat === 'liqueur' && (l.oz || 0) >= 0.16)) && !PLAIN.has(l.id)).sort((a, b) => b.oz - a.oz).map(l => MENU[l.id] || say(l.id)))].filter((w, i, a) => !front.includes(w) && !a.some(x => x !== w && x.endsWith(` ${w}`))).slice(0, 2);
-    const finish = [...new Set(poured.filter(l => FINISH_IDS[l.id]).sort((a, b) => b.oz - a.oz).map(l => FINISH_IDS[l.id]))].slice(0, 2);
+    const mids = [...new Set(poured.filter(l => ['sweet', 'modifier', 'rich'].includes(ing(l.id).role) && !FINISH_IDS[l.id] && audible(l) && !PLAIN.has(l.id)).sort((a, b) => loud(b) - loud(a)).map(l => MENU[l.id] || say(l.id)))].filter((w, i, a) => !front.includes(w) && !a.some(x => x !== w && x.endsWith(` ${w}`))).slice(0, 2);
+    const finish = [...new Set(poured.filter(l => FINISH_IDS[l.id] && (ing(l.id).cat === 'bitters' || audible(l))).sort((a, b) => loud(b) - loud(a)).map(l => FINISH_IDS[l.id]))].slice(0, 2);
     const palate = [];
     if (front.length) palate.push(`${list(front)} up front`);
     if (voices.length) palate.push(`${list(voices)} ${voices.length > 1 ? 'carry' : 'carries'} the middle${mids.length ? ` with ${list(mids)}` : ''}`);
@@ -515,7 +689,7 @@ export function createCopywriter({ ingMap, ingVec }) {
     let s = bits.length ? `${cap(bits.join('; '))}.` : '';
     const texture = textureLine(poured, method, ice);
     if (texture) s += ` ${texture}`;
-    s += ` ${balanceLine(stats, archetype, poured, intent)} ${strengthCopy(stats, { method, house, archetypeId: archetype && archetype.id, perGuest }).tasting}`;
+    s += ` ${balanceLine(stats, archetype, poured, intent, method)} ${strengthCopy(stats, { method, house, archetypeId: archetype && archetype.id, perGuest }).tasting}`;
     return polish(s.replace(/\s+/g, ' ').trim());
   }
 
@@ -532,24 +706,17 @@ export function createCopywriter({ ingMap, ingVec }) {
     return '';
   }
 
-  // Sweet and sour from the measured sugar-to-acid ratio, read against the archetype's own
-  // window, and in absolute terms: a colada with almost no acid is rich and round, not "in
-  // balance"; a guest who asked for tart and got real acid is told so.
-  function balanceLine(stats, archetype, lines, intent = {}) {
-    const r = stats.sweetSour, acid = stats.acidConc || 0, sugar = stats.sugarConc || 0;
-    const creamy = lines.some(l => ['coconut-cream', 'coconut-milk', 'heavy-cream', 'half-and-half', 'vanilla-ice-cream', 'tom-and-jerry-batter', 'whole-milk'].includes(l.id) && (l.oz || 0) >= 0.5);
-    const buttery = lines.some(l => ['hot-buttered-rum-batter', 'butter', 'gardenia-mix', 'tom-and-jerry-batter'].includes(l.id));
-    if (acid < 0.2 || r === null || r === undefined) return creamy || buttery ? 'Rich and round, barely tart.' : sugar > 6 ? 'Soft and round, with almost no sourness.' : 'Dry and spirit-forward.';
-    if (creamy && acid < 0.4) return 'Rich and round, barely tart.';
-    const band = archetype && archetype.ratios && archetype.ratios.sugarToAcid;
-    const lo = band ? band[0] : 7, hi = band ? band[1] : 14;
-    const askedTart = (intent.tartness || 0) >= 0.5 || ((intent.tags || {}).tart || 0) >= 1;
-    if (r < lo * 0.9 || acid >= 1.0 || (askedTart && acid >= 0.8)) return 'Tart and bracing.';
-    if (r > hi * 1.1 || (acid < 0.4 && sugar > 8)) return acid < 0.4 ? 'On the sweet side, barely tart.' : 'On the sweet side, with just enough acid to stay bright.';
-    const p = (r - lo) / Math.max(0.1, hi - lo);
-    if (p < 0.2) return 'Balanced, leaning tart.';
-    if (p > 0.8) return 'Balanced, leaning rich.';
-    return 'Sweet and sour in balance.';
+  // The balance word comes from the absolute numbers (chem.js balanceWord): over 12 g a drink
+  // is sweet whatever its acid, "tart and bracing" needs real acid and restrained sugar, a hot drink
+  // with no citrus is soft and round.
+  function balanceLine(stats, archetype, lines, intent = {}, method = '') {
+    const creamy0 = lines.some(l => ['coconut-cream', 'coconut-milk', 'heavy-cream', 'half-and-half', 'vanilla-ice-cream', 'tom-and-jerry-batter', 'whole-milk'].includes(l.id) && (l.oz || 0) >= 0.5);
+    const buttery0 = lines.some(l => ['hot-buttered-rum-batter', 'butter', 'gardenia-mix', 'tom-and-jerry-batter'].includes(l.id));
+    const askedTart0 = (intent.tartness || 0) >= 0.5 || ((intent.tags || {}).tart || 0) >= 1;
+    // ("Barely tart" reads as a tart claim; a rich drink with almost no acid says so plainly.)
+    const w = balanceWord(stats, { method, creamy: creamy0, buttery: buttery0, askedTart: askedTart0 }).replace(/, barely tart\./, ', with almost no acid.');
+    // Cream of coconut is never "bracing", whatever the acid: it cuts the richness instead.
+    return creamy0 && /Tart and bracing/.test(w) ? 'Rich, with a citrus edge to cut it.' : w;
   }
 
   // ---------------------------------------------------------------------------------------
@@ -574,8 +741,8 @@ export function createCopywriter({ ingMap, ingVec }) {
     'papaya-nectar': 'papaya', banana: 'banana', strawberry: 'strawberry', 'banana-liqueur': 'banana', 'velvet-falernum': 'falernum', 'falernum-syrup': 'falernum', 'allspice-dram': 'allspice',
     'cinnamon-syrup': 'cinnamon', 'ginger-syrup': 'ginger', 'ginger-beer': 'ginger beer', 'ginger-liqueur': 'ginger', 'honey-syrup': 'honey', 'orgeat': 'orgeat',
     grenadine: 'grenadine', 'hibiscus-syrup': 'hibiscus', maraschino: 'maraschino', 'blue-curacao': 'blue curaçao', 'orange-curacao': 'curaçao', campari: 'Campari',
-    aperol: 'Aperol', 'green-chartreuse': 'green Chartreuse', 'yellow-chartreuse': 'yellow Chartreuse', 'coffee-liqueur': 'coffee', coffee: 'coffee',
-    'creme-de-cacao': 'chocolate', 'white-creme-de-cacao': 'chocolate', 'vanilla-syrup': 'vanilla', 'vanilla-ice-cream': 'vanilla ice cream', 'heavy-cream': 'cream', 'half-and-half': 'cream',
+    aperol: 'Aperol', 'green-chartreuse': 'Chartreuse', 'yellow-chartreuse': 'yellow Chartreuse', 'coffee-liqueur': 'coffee', coffee: 'coffee',
+    'creme-de-cacao': 'cacao', 'white-creme-de-cacao': 'cacao', 'vanilla-syrup': 'vanilla', 'vanilla-ice-cream': 'vanilla ice cream', 'heavy-cream': 'cream', 'half-and-half': 'cream',
     'dons-mix': "Don's Mix", 'gardenia-mix': 'Gardenia Mix', 'hot-buttered-rum-batter': 'spiced butter', 'peach-liqueur': 'peach', 'apricot-liqueur': 'apricot',
     'cherry-heering': 'cherry', 'lychee-syrup': 'lychee', 'lychee-liqueur': 'lychee', 'melon-liqueur': 'melon', 'sparkling-wine': 'bubbles', 'soda-water': 'soda',
     'black-tea': 'black tea', 'li-hing-mui-syrup': 'li hing mui', 'five-spice-syrup': 'five-spice', 'yuzu-juice': 'yuzu', 'pomegranate-juice': 'pomegranate',
@@ -622,7 +789,7 @@ export function createCopywriter({ ingMap, ingVec }) {
 
   // The tagline. `riffOf` names the drink this one riffs on; `cousin` replaces the type word when
   // the riff lost a defining bottle; `facts` (from drinkFacts) answers every truth check.
-  function tagline({ lines, archetype, intent, riffOf, riffIds = null, look = null, stats = null, method = '', ice = '', garnish = [], rng = Math.random, facts = null, cousin = null }) {
+  function tagline({ lines, archetype, intent, riffOf, riffIds = null, look = null, stats = null, method = '', ice = '', garnish = [], rng = Math.random, facts = null, cousin = null, prior = [] }) {
     lines = lines.filter(l => l.muddled || (!l.garnish && (ingMap.get(l.id) || {}).role !== 'aromatic'));
     const prayer = (facts && facts.prayer) || String(intent.raw || '').toLowerCase();
     const isBase = id => (ingMap.get(id) || {}).role === 'base';
@@ -644,6 +811,10 @@ export function createCopywriter({ ingMap, ingVec }) {
     let typeWord = cousin || typeWordFor(archetype, d);
     // A riff says so once: "a Navy Grog riff", never "Mai Tai cousin …, a riff on the Mai Tai".
     if (riffOf && !cousin && !typeWord.toLowerCase().includes(riffOf.toLowerCase())) typeWord = `${riffOf} riff`;
+    // Nearly the drink itself (0.85 sameness or more) is that drink, not a "-style" or a "cousin" or
+    // a bare "riff": "a piney Blue Hawaii with gin".
+    const refName = facts0.refName || '';
+    if ((facts0.refSim || 0) >= 0.85 && refName && /\b(riff|cousin)\b|-style\b/i.test(typeWord) && !/^(daiquiri|punch|rum punch|grog|sour)$/i.test(refName)) typeWord = refName.replace(/\s*\(.*?\)\s*/g, ' ').trim();
     const inType = w => typeWord.toLowerCase().includes(w.toLowerCase());
     const tasteable = l => l.muddled || (l.oz || 0) >= 0.2 || ((ingMap.get(l.id) || {}).cat === 'liqueur' && (l.oz || 0) >= 0.16) || askedIng.has(l.id);
     // A spirit the guest asked for or a riff swapped in is a hero too ("a Navy Grog riff with bourbon").
@@ -655,6 +826,17 @@ export function createCopywriter({ ingMap, ingVec }) {
     let colorPart = null;
     const wanted = [intent.color, intent.colorLean].find(c => c && look && COLOR_WORD[c] && showsColor(look, c));
     if (wanted) colorPart = wanted === 'orange' && TIME_WORDS.dusk.test(prayer) ? 'sunset-orange' : COLOR_WORD[wanted];
+    // The colour word is the look's own ("a terracotta bowl", "an electric-blue daiquiri"), so the
+    // tagline and the painted hex never disagree.
+    const lookWord = look && look.description ? lookColorWord(look.description) : '';
+    // A colour word that also names a bottle ("chartreuse", "honey", "cherry") is said only if the
+    // bottle is poured.
+    const lookFam = lookWord ? lookWord.split(/[\s-]+/).map(x => HUE_FAMILY[x]).find(Boolean) : null;
+    const sameFam = !lookFam || lookFam === wanted || (['gold', 'orange'].includes(lookFam) && ['gold', 'orange'].includes(wanted)) || (['red', 'pink'].includes(lookFam) && ['red', 'pink'].includes(wanted));
+    if (wanted && lookWord && sameFam && claimsIn(lookWord.replace(/-/g, ' ')).filter(c => c.kind === 'ingredient').every(c => c.test(facts0))) colorPart = lookWord;
+    else if (wanted && lookWord && !sameFam) colorPart = null;
+    // A two-colour look ("pale green-gold") isn't called by one of its colours.
+    else if (wanted && look && look.description && !lookWord && new Set(String(look.description).toLowerCase().split(/\s+(?:with|under|over)\s+|[,;]/)[0].split(/[\s-]+/).map(x => HUE_FAMILY[x]).filter(Boolean)).size > 1) colorPart = null;
     // A color that lives only in a sink ("mango gold with grenadine settling garnet") is a
     // gradient, not the drink's color: say so instead of calling the whole glass ruby-red.
     if (wanted && look && !showsColor({ body: look.body, layers: [] }, wanted)) colorPart = ['red', 'pink'].includes(wanted) && (look.layers || []).some(x => x.kind === 'sink') ? 'gold-to-garnet' : null;
@@ -662,7 +844,8 @@ export function createCopywriter({ ingMap, ingVec }) {
     // "A coconut sour with coconut water" says coconut twice.
     const sharesType = w => w.toLowerCase().split(/\s+/).some(t => t.length >= 4 && typeWord.toLowerCase().split(/[\s-]+/).includes(t));
     const heroes = [];
-    const cands = [...lines].filter(l => (!isBase(l.id) || heroBase(l.id)) && MENU[l.id] && tasteable(l) && !l.float).sort((a, b) => rank(b) - rank(a));
+    // Soda and water are length, not a hero, unless the guest asked for them.
+    const cands = [...lines].filter(l => (!isBase(l.id) || heroBase(l.id)) && MENU[l.id] && tasteable(l) && !l.float && !(['soda-water', 'water'].includes(l.id) && !askedIng.has(l.id))).sort((a, b) => rank(b) - rank(a));
     for (const l of cands) {
       const w = MENU[l.id];
       if (rank(l) < 1 || inType(w) || sharesType(w) || heroes.includes(w) || sameAsColor(w)) continue;
@@ -678,7 +861,9 @@ export function createCopywriter({ ingMap, ingVec }) {
     const baseOz = lines.filter(l => isBase(l.id) && !l.float).reduce((t, l) => t + (l.oz || 0), 0) || 1;
     const baseLeads = lines.filter(l => isBase(l.id) && !l.float && (l.oz || 0) >= 0.5 && ((l.oz || 0) / baseOz >= 0.4 || askedIng.has(l.id) || askedSpirits.has(l.id) || ((intent.tags || {})[leadOf(l.id)] || 0) >= 1)).map(l => leadOf(l.id)).filter(t => BASE_ADJ[t] && (t !== 'smoky' || d.smoky));
     const askedBase = baseLeads.find(t => ((intent.tags || {})[t] || 0) >= 1);
-    const baseAdj = BASE_ADJ[askedBase || baseLeads[0]] || null;
+    // "Dark" is a colour claim: only on a drink that looks dark.
+    const baseAdj0 = BASE_ADJ[askedBase || baseLeads[0]] || null;
+    const baseAdj = baseAdj0 === 'dark' && !facts0.shows('dark') ? null : baseAdj0;
     const texture = lines.some(l => ['coconut-cream', 'coconut-milk', 'heavy-cream', 'vanilla-ice-cream'].includes(l.id) && (l.oz || 0) >= 0.75) && !/colada|cream/.test(typeWord) ? 'creamy' : null;
     const voice = !colorPart ? voiceAdj(archetype, d, rng, prayer) : null;
     // An adjective that echoes the type word ("bittersweet bitter tiki sour") is dropped.
@@ -692,7 +877,10 @@ export function createCopywriter({ ingMap, ingVec }) {
     const kinds = new Set(((look && look.layers) || []).map(x => x.kind));
     const structOk = m => !(/sunrise|sunset|dawn|dusk/i.test(m) && /sunk|sink|bottom|settl|bleed/i.test(m) && !sinkWarm) && !(/sunk|sink|bottom of the glass|settl/i.test(m) && !kinds.has('sink')) && !(/float|on top/i.test(m) && !kinds.has('float')) && !(/layer|gradient|band|ombr/i.test(m) && !kinds.size) && !(/froth|foam/i.test(m) && !kinds.has('foam')) && !(/flame|fire|burning|ablaze|\blit\b/i.test(m) && !d.flaming);
     const repeatsType = m => typeToks.some(t => new RegExp(`\\b${t.replace(/[^a-z0-9]/g, '.')}`, 'i').test(m));
-    const mood = (intent.taglineWords || []).find(m => m && bodyColorOk(m) && structOk(m) && !POLY.test(m) && moodOk(m, d) && !repeatsType(m) && !(riffOf && m.toLowerCase().includes(riffOf.toLowerCase())));
+    // A hook the prayer's earlier seed already used goes to the next one (or none): the prayer's
+    // hook is said by one seed only.
+    const usedHook = m => (prior || []).some(t => String(t || '').toLowerCase().includes(m.toLowerCase().replace(/^with\s+/, '').replace(/[.]+$/, '')));
+    const mood = (intent.taglineWords || []).find(m => m && !usedHook(m) && bodyColorOk(m) && structOk(m) && !POLY.test(m) && moodOk(m, d) && !repeatsType(m) && !(riffOf && m.toLowerCase().includes(riffOf.toLowerCase())));
     // Mood joins with a comma; a mood that starts with "with" drops it when the heroes use "with".
     let moodText = mood ? mood.replace(/[.]+$/, '') : '';
     const build = () => {
@@ -709,8 +897,37 @@ export function createCopywriter({ ingMap, ingVec }) {
     if (words(out) > 13 && lead.length > 1) { lead = lead.slice(0, 1); out = build(); }
     if (words(out) > 13 && heroes.length > 1) { heroes.splice(1); out = build(); }
     if (words(out) > 15 && moodText) { moodText = ''; out = build(); }
+    // A dead form ("A planter's punch.", "A colada with banana.") gets a voice: an adjective the
+    // drink earns, then a hero; the same line as the prayer's earlier seed gets another.
+    // Only adjectives that describe the drink itself (not a mood the prayer didn't bring: no
+    // "lazy" Navy Grog, no "stormy" daiquiri).
+    const PLAIN_VOICE = ['crisp', 'bright', 'bracing', 'frosty', 'snowy', 'silky', 'velvet', 'plush', 'potent', 'spiced', 'honeyed', 'minty', 'nutmeg-dusted', 'steaming', 'cozy', 'contemplative', 'elegant', 'polished', 'decadent', 'bittersweet', 'electric', 'deceptively smooth'];
+    const earned = PLAIN_VOICE.filter(w => VOICE[w] && VOICE[w](d) && !lead.includes(w) && !echoes(w) && timeOk(w, prayer));
+    const same = () => (prior || []).some(t => polish(String(t)).toLowerCase() === polish(out).toLowerCase());
+    const dead = () => words(out) < 6 || (!lead.length && !moodText) || same();
+    for (let i = 0; dead() && i < 4; i++) {
+      const pool = earned.filter(w => !lead.includes(w));
+      if (lead.length < 2 && pool.length) lead = [pool[Math.floor(rng() * pool.length)], ...lead];
+      else if (heroes.length < 2 && cands.map(l => MENU[l.id]).some(w => !heroes.includes(w) && !inType(w) && !sameAsColor(w) && !['lime', 'lemon', 'soda'].includes(w))) heroes.push(cands.map(l => MENU[l.id]).find(w => !heroes.includes(w) && !inType(w) && !sameAsColor(w) && !['lime', 'lemon', 'soda'].includes(w)));
+      // Still the line an earlier seed printed: another adjective the drink earns takes the first one's place.
+      else if (pool.length) lead = [pool[Math.floor(rng() * pool.length)], ...lead.slice(1)];
+      else break;
+      out = build();
+    }
     // No word twice in a row ("bitter bitter tiki sour").
     return polish(out.replace(/\b(\w+)\s+\1\b/gi, '$1'));
+  }
+  // The colour word of a look's description: "Cloudy terracotta" → "terracotta", "Electric blue
+  // with …" → "electric-blue". Texture and clarity words are not colours.
+  // A look that is two colours at once ("pale green-gold") has no one colour word to lend.
+  const HUE_FAMILY = { red: 'red', ruby: 'red', crimson: 'red', scarlet: 'red', garnet: 'red', oxblood: 'red', cherry: 'red', blood: 'red', pink: 'pink', coral: 'pink', rose: 'pink', blush: 'pink', fuchsia: 'pink', magenta: 'pink', orange: 'orange', tangerine: 'orange', terracotta: 'orange', copper: 'orange', apricot: 'orange', amber: 'gold', gold: 'gold', golden: 'gold', honey: 'gold', yellow: 'gold', lemon: 'gold', butter: 'gold', straw: 'gold', green: 'green', jade: 'green', emerald: 'green', lime: 'green', chartreuse: 'green', teal: 'blue', turquoise: 'blue', blue: 'blue', sapphire: 'blue', cobalt: 'blue', aqua: 'blue', lagoon: 'blue', violet: 'purple', purple: 'purple', plum: 'purple', lavender: 'purple', brown: 'dark', mahogany: 'dark', black: 'dark', ink: 'dark', tawny: 'dark', tan: 'dark', ivory: 'white', cream: 'white', white: 'white', snow: 'white' };
+  function lookColorWord(desc) {
+    const head = String(desc || '').split(/\s+(?:with|under|over|and|shading|fading|settling|sinking)\s+|[,;]/)[0].toLowerCase();
+    const w = head.replace(/\b(cloudy|hazy|clear|crystal|crystal-clear|opaque|creamy|frothy|silky|glowing|translucent|milky|murky|sparkling|bright|luminous|limpid)\b/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!w || w.split(' ').length > 3) return '';
+    const fams = new Set(w.split(/[\s-]+/).map(x => HUE_FAMILY[x]).filter(Boolean));
+    if (fams.size > 1) return '';
+    return w.split(' ').join('-');
   }
 
   // The tagline for a classic poured by name, or recognised as one: its real name and credit.
@@ -795,7 +1012,10 @@ export function createCopywriter({ ingMap, ingVec }) {
   // guest ruled out), novelty (a repeat prayer's twist) or structure (a trim the guest needn't
   // hear about). A defining bottle that went missing is said plainly: "no falernum, so it's a
   // Zombie cousin".
-  function netMoves({ ref, lines, archetype, intent = {}, notes = [], slotOf = () => null, refName = '' }) {
+  function netMoves({ ref, lines, archetype, intent = {}, notes = [], slotOf = () => null, refName = '', refSim = 1 }) {
+    // A move prints the line's own amount ("½ tsp Islay Scotch", "2 dashes of Angostura").
+    const lineOf = id => (lines || []).find(l => l.id === id && isPoured(l) && !l.muddled);
+    const amt = id => { const l = lineOf(id); const a = l ? amountString(l) : ''; return a && l.unit !== 'piece' ? `${a}${['dash', 'drop'].includes(l.unit) ? ' of' : ''} ` : ''; };
     const agg = ls => { const m = new Map(); for (const l of ls) { if (!isPoured(l)) continue; const x = m.get(l.id) || { id: l.id, oz: 0, float: false, sink: false }; x.oz += l.muddled ? 0.25 : (l.oz || 0); x.float = x.float || !!l.float; x.sink = x.sink || !!l.sink; m.set(l.id, x); } return m; };
     const R = agg(ref || []), L = agg(lines);
     const added = [...L.values()].filter(x => !R.has(x.id));
@@ -806,7 +1026,9 @@ export function createCopywriter({ ingMap, ingVec }) {
       || (intent.color && (ing(id).color === intent.color || (intent.color === 'pink' && ing(id).color === 'red')))
       || (intent.style && intent.style.layered && (L.get(id) || {}).float) || (intent.style && intent.style.layered && (L.get(id) || {}).sink)
       || (FIZZ.includes(id) && ((intent.tags || {}).effervescent >= 1 || (intent.prefer || {})[id] > 0))
-      || (intent.style && intent.style.zeroProof);
+      || (intent.style && intent.style.zeroProof)
+      // What a reading or a word promised (a promotion's Demerara 151 float) is the prayer's move.
+      || (intent.promises || []).some(p => (p.ids || []).includes(id) || (Array.isArray(p.float) && p.float.includes(id)));
     const avoided = id => (intent.avoidIngs && intent.avoidIngs.has && intent.avoidIngs.has(id)) || ((intent.softAvoid || {})[id] >= 1)
       || Object.entries(intent.avoidTags || {}).some(([t, w]) => w >= 1 && (ing(id).flavors || []).includes(t)) || (intent.style && intent.style.zeroProof && (ing(id).abv || 0) > 0);
     // Pair each new bottle with the one it replaced: a near-twin, the same archetype slot, then the same job.
@@ -835,16 +1057,19 @@ export function createCopywriter({ ingMap, ingVec }) {
     const keptBase = [...L.values()].filter(x => role(x.id) === 'base' && R.has(x.id) && !x.float);
     for (const { a, r } of pairs) {
       let text;
-      if (r && role(a.id) === 'base' && !a.float) text = `${nm(a.id)} takes over from ${nm(r.id)}`;
-      else if (r && a.float) text = `${an(nm(a.id))} ${nm(a.id)} float in place of the ${nm(r.id)}`;
-      else if (r) text = `${nm(a.id)} in place of ${nm(r.id)}`;
-      else if (a.float) text = `${an(nm(a.id))} ${nm(a.id)} float`;
-      else if (a.sink) text = `${nm(a.id)} sunk to the bottom`;
+      // "X takes over from Y" only when the card names the drink Y belongs to (a reference the
+      // card prints, at 0.4 sameness or more); otherwise X is simply the base.
+      const named = refSim >= 0.4;
+      const fl = `${amt(a.id)}${nm(a.id)}`;
+      if (r && role(a.id) === 'base' && !a.float) text = named ? `${nm(a.id)} takes over from ${nm(r.id)}` : `${nm(a.id)} as the base`;
+      else if (r && a.float) text = named ? `${an(fl)} ${fl} float in place of the ${nm(r.id)}` : `${an(fl)} ${fl} float`;
+      else if (r) text = named ? `${fl} in place of ${nm(r.id)}` : `${fl} added`;
+      else if (a.float) text = `${an(fl)} ${fl} float`;
+      else if (a.sink) text = `${fl} sunk to the bottom`;
       else if (role(a.id) === 'base' && keptBase.length) text = `${nm(a.id)} splits the base with the ${list(keptBase.map(x => nm(x.id)))}`;
-      else if (FIZZ.includes(a.id) || a.id === 'sparkling-wine') text = `topped with ${nm(a.id)}`;
-      else if (cat(a.id) === 'bitters') text = `a dash of ${nm(a.id)}`;
-      else if (a.oz < 0.2) text = `a barspoon of ${nm(a.id)}`;
-      else text = `${nm(a.id)} added`;
+      else if (FIZZ.includes(a.id) || a.id === 'sparkling-wine') text = `topped with ${fl}`;
+      else if (cat(a.id) === 'bitters') text = `${amt(a.id) || 'a dash of '}${nm(a.id)}`;
+      else text = `${fl} added`;
       const why = notes.map(n => n.replace(/^riff:/, '')).find(n => n.includes(nm(a.id).toLowerCase()) && / for ([a-z -]+)$/.test(n));
       // The reason is said only as a flavor word a guest would use ("for smoke"), never a slot.
       const tag = why ? ((why.match(/ for ([a-z -]+)$/) || [])[1] || '').trim().replace(/\s+/g, '-') : '';
@@ -879,7 +1104,7 @@ export function createCopywriter({ ingMap, ingVec }) {
     return { moves, cousin, lost };
   }
 
-  return { presence, named, headline, tastingNote, tagline, classicTagline, balanceLine, textureLine, drinkFacts, claimsIn, keeps, moodOk, hear, heardLabel, sayBack, sameness, kinship, netMoves, say, typeWordFor, WORD, SPIRIT_VOICE, MENU };
+  return { presence, named, headline, tastingNote, tagline, classicTagline, balanceLine, textureLine, drinkFacts, claimsIn, keeps, moodOk, hear, heardLabel, answer, measure, serves, trueService, sayBack, sameness, kinship, netMoves, say, typeWordFor, WORD, SPIRIT_VOICE, MENU };
 }
 
 function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
